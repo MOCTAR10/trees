@@ -1,0 +1,52 @@
+services:
+  db:
+    build: ./db
+    container_name: forestry_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-forestry}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-forestry_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-forestry}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - forestry_pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+      - ./db/migrations/002_circular_economy.sql:/docker-entrypoint-initdb.d/02_circular_economy.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-forestry} -d ${POSTGRES_DB:-forestry}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./backend-python
+    container_name: forestry_fastapi
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-forestry}:${POSTGRES_PASSWORD:-forestry_secret}@db:5432/${POSTGRES_DB:-forestry}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend-python:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  gateway:
+    build: ./backend-node
+    container_name: forestry_gateway
+    depends_on:
+      - api
+    env_file: .env
+    environment:
+      FASTAPI_URL: http://api:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend-node:/app
+      - /app/node_modules
+    command: npm run start:dev
+
+volumes:
+  forestry_pgdata:

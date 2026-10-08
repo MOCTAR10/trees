@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Foresterie Numérique",
+    "slug": "foresterie-numerique",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#0B3D2E"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSCameraUsageDescription": "La caméra est nécessaire pour photographier le tronc, les feuilles et l'habitat de l'arbre.",
+        "NSLocationWhenInUseUsageDescription": "La position GPS est nécessaire pour valider l'espèce dans l'écosystème local et trouver les coopératives à proximité."
+      }
+    },
+    "android": {
+      "package": "ga.foresterie.numerique",
+      "permissions": ["CAMERA", "ACCESS_FINE_LOCATION"]
+    },
+    "plugins": ["expo-camera", "expo-location"],
+    "extra": {
+      "apiUrl": "http://localhost:3000"
+    }
+  }
+}

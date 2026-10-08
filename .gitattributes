@@ -1,0 +1,11 @@
+# Normalize line endings to LF in the repo (Linux CI friendly)
+* text=auto eol=lf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pt binary
+*.ico binary
+*.woff binary
+*.woff2 binary

@@ -1,0 +1,33 @@
+# Core API
+fastapi==0.143.0
+uvicorn[standard]==0.54.0
+pydantic==2.14.0
+pydantic-settings==2.15.0
+python-multipart==0.0.32
+
+# Database (PostgreSQL + PostGIS + pgvector)
+asyncpg==0.32.0
+
+# External service clients
+httpx==0.28.1
+respx==0.23.1
+
+# Scientific / vision core
+numpy==2.5.3
+opencv-python-headless==5.0.0.93
+pillow==12.3.0
+ultralytics==8.4.174   # YOLOv11-seg (optional at runtime: guarded import, needs weights/trunk-seg.pt)
+earthengine-api==1.7.47 # optional: guarded import, GEE_ENABLED=false uses mock
+
+# RAG embeddings (multilingual-e5-small, 384-dim) — CPU build of torch
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.14.1+cpu
+sentence-transformers==6.1.0
+
+# Tests
+pytest==9.1.1
+pytest-asyncio==1.4.0
+
+# NOTE: ultralytics declares a dependency on the GUI `opencv-python`; the
+# server only needs the headless build. After installing, run:
+#   pip uninstall -y opencv-python

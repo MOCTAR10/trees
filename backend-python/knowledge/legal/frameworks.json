@@ -1,0 +1,22 @@
+[
+  {
+    "id": "legal_gabon_code_forestier",
+    "content": "Gabonese Forestry Code, Loi n. 016/01 of 20 December 2001 (as amended): Article 21 — logging concessions must apply Exploitation Forestiere a Faible Impact (EFIR, reduced-impact logging), including pre-felling inventories, skid trail planning, and directional felling to limit soil and residual stand damage. Article 22 — priority to local processing of timber on Gabonese territory; raw log export restrictions. Article 251 — development of local communities: obligations to involve and benefit populations adjacent to forest concessions (community forestry allocations, local employment, cooperative development). Non-compliance jeopardizes concession renewal. These articles anchor the corporate CSR (RSE) section of valorization plans: diverting residues to local cooperatives demonstrates Art. 251 community development and Art. 22 local transformation. Reference: loi_016_01.",
+    "metadata": { "legal_framework_reference": "loi_016_01", "residue_type": "mixed", "language": "en", "source": "FAOLEX gab29255.pdf / Journal Officiel Gabon" }
+  },
+  {
+    "id": "legal_fsc_principles_3_4",
+    "content": "FSC (Forest Stewardship Council) Principles 3 and 4: Principle 3 — Indigenous Peoples' Rights: the forest manager must identify and uphold indigenous and local communities' rights to land and resources, customary rights, and FPIC (free, prior and informed consent), and ensure community relations are maintained. Principle 4 — Community Relations and Workers' Rights: the enterprise and workers supporting local economic development, ensuring fair wages and safe conditions, and fostering community access to benefits. Operational indicators relevant to residue valorization: documented benefit-sharing with nearby cooperatives, local value-addition projects, and inclusion of non-timber forest product processing. FSC group certification can include residue-supply sub-projects (chips, bark) if traceability is maintained. Reference: fsc_p3_p4.",
+    "metadata": { "legal_framework_reference": "fsc_p3_p4", "residue_type": "mixed", "language": "en", "source": "FSC Forest Stewardship Council Principles and Criteria v6" }
+  },
+  {
+    "id": "legal_pefc_pafc",
+    "content": "PEFC / PAFC (Pan-African Forest Certification): PAFC is the African endorsement of PEFC, relevant to Gabonese and Congo Basin certified operations. Certification criteria requiring corporate waste mitigation and socio-economic integration include: sustainable management of harvest residues (no open burning), contribution to local employment and skills transfer, and chain-of-custody for by-products. Certified companies can count cooperative residue-supply programs as evidence of continuous improvement objectives; energy briquettes and biochar produced from certified feedstock can carry the chain-of-custody label. Reference: pafc.",
+    "metadata": { "legal_framework_reference": "pafc", "residue_type": "mixed", "language": "en", "source": "PEFC PAFC standard" }
+  },
+  {
+    "id": "legal_paris_article_6",
+    "content": "Paris Agreement Article 6 — avoided methane from residue diversion: open-air decomposition of moist forest residues under anaerobic conditions emits methane; diverting residue biomass to stable products (biochar carbon sequestration, mycelium boards, dried furniture wood, tannin extracts) avoids these emissions. Project accounting uses GWP100 = 28 (AR5 value; AR6 value 27.9 for fossil CH4, 27.2 including feedbacks). Default emission factor used by the engine: 0.05 kg CH4 per kg dry residue over a 5-year decomposition window (project default pending site-specific measurement). Biochar carbon stability (EBC: 50-80% of feedstock C retained >100 years) provides additional durable removals eligible under Article 6 corresponding adjustments when authorized by the host country (Gabon).",
+    "metadata": { "legal_framework_reference": "paris_art6", "residue_type": "mixed", "language": "en", "source": "UNFCCC Paris Agreement Art. 6 / IPCC AR5 GWP" }
+  }
+]

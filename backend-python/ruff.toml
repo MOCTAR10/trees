@@ -1,0 +1,28 @@
+# Ruff linter/formatter config.
+# Explicit rule selection keeps CI deterministic across ruff releases.
+
+line-length = 100
+target-version = "py313"
+
+[lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM", "RUF"]
+ignore = [
+    "B008",     # FastAPI DI idiom: File()/Form() calls in argument defaults
+    "RUF001",   # ambiguous unicode: French strings use NBSP, curly quotes, etc.
+    "RUF002",
+    "RUF003",
+    "E501",     # long lines handled by the formatter / line-length above
+]
+
+[lint.per-file-ignores]
+# Enrichment steps are best-effort: a failed external call must never break
+# the report, so blind excepts / try-except-pass are intentional here.
+"app/api/v1.py" = ["BLE001", "S110", "SIM105"]
+"app/api/v2.py" = ["BLE001"]
+"app/services/gee.py" = ["BLE001"]
+"app/services/vision.py" = ["BLE001"]
+"tests/*" = ["S101"]        # asserts are the point of tests
+
+[format]
+quote-style = "double"
+indent-style = "space"

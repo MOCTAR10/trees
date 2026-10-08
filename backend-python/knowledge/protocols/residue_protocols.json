@@ -1,0 +1,27 @@
+[
+  {
+    "id": "proto_tlud_biochar_briquettes",
+    "content": "TLUD (Top-Lit UpDraft) pyrolysis for fine branches and ramilles (<10 cm): operation at 450-550 C produces agricultural biochar for acidic ferrallitic soils (Gabonese soils typically pH 4.5-5.5; biochar application 1-5 t/ha raises pH and CEC). Refillable batch stove, primary air from below, secondary air above the fuel bed; residence 2-4 hours. Carbon retention ~35-50% of feedstock carbon; CO2-equivalent benefit when biochar is soil-applied is permanent sequestration. Ecological cooking briquettes: charcoal fines + 5% cassava starch binder, extruded and dried to 12-14% moisture; calorific value 22-26 MJ/kg. TLUD emission factor is 80-90% lower than open-air burning for PM2.5. Residue_type: branches. Technology: tlud_pyrolysis.",
+    "metadata": { "residue_type": "branches", "transformation_technology": "tlud_pyrolysis", "language": "en" }
+  },
+  {
+    "id": "proto_stump_drying_furniture",
+    "content": "Stump and thick-root valorization for luxury artisan furniture and sculpture: harvest stumps after felling with minimal soil disturbance; natural air-drying under shade for 12-18 months down to 12% moisture content stabilizes unique grain burls and interlocked roots, preventing checking and warping. Oak/okoume burl figure (moire) commands premium prices; a single large Moabi or Okoume burl can yield 3-8 furniture blanks (stool tops, veneer blocks). End-grain sealer (PVA or latex) applied immediately after felling. Species targets: Baillonella toxisperma, Aucoumea klaineana. Residue_type: stumps, roots. Technology: air_drying_burl_craft. Root extract bio-pesticide: macerate fine roots, solvent water 80 C, filter; ecologically relevant for local agroforestry.",
+    "metadata": { "residue_type": "stumps", "transformation_technology": "air_drying_burl_craft", "language": "en" }
+  },
+  {
+    "id": "proto_bark_tannin_glue",
+    "content": "Bark hot-water tannin extraction for formaldehyde-free bio-glues: chip bark, extract at 80-90 C with 2% sodium carbonate (Na2CO3) for 45-60 minutes; tannin yield 20-35% of dry bark weight for Pterocarpus soyauxii and Aucoumea klaineana. Condense tannin extract with sucrose or glyoxal crosslinker instead of formaldehyde; plywood panels meet E0/E1 emission class. Bark mass rule: 10-14% of commercial trunk volume; a 60 cm DBH Okoume (volume trunk ~1.2 m3) yields ~0.12-0.17 m3 bark, roughly 40-70 kg dry bark, 8-24 kg tannin extract. Residue_type: bark. Technology: hotwater_tannin. Industrial use case: local plywood mill bio-adhesive, disposes of bark piles that otherwise ferment and emit methane.",
+    "metadata": { "residue_type": "bark", "transformation_technology": "hotwater_tannin", "language": "en" }
+  },
+  {
+    "id": "proto_mycelium_board",
+    "content": "Mycelium bio-board from sawdust and foliage: pasteurize raw sawdust at 60-70 C for 60 minutes to kill competitors; inoculate with local Ganoderma or Pleurotus (oyster mushroom) spawn at 5-10% inoculation rate; incubate 14-21 days at 24-26 C in dark, humidity 70-95%, until white mycelium colonizes the substrate; then kiln-dry at 60-80 C for 12-24 hours to deactivate growth. Resulting structural panels: density 120-250 kg/m3, compressive strength suitable for insulation and non-load-bearing panels; fully compostable at end of life. Dual benefit: Pleurotus flushes (2-3 harvests) before board formation provide protein income. Residue_type: sawdust, foliage. Technology: mycelium_board.",
+    "metadata": { "residue_type": "sawdust", "transformation_technology": "mycelium_board", "language": "en" }
+  },
+  {
+    "id": "proto_thick_branch_mobile_sawing",
+    "content": "Thick branches (>15 cm) mobile sawing: portable band mill or chainsaw mill with 5 mm kerf converts thick branch wood into dimension lumber or craft boards; recovery 45-60% of gross volume (accounting for kerf losses of 5 mm per cut). Branch wood of Azobe (Lophira alata) has exceptional hardness suitable for tool handles and flooring offcuts. Logistics: co-locate milling at landing sites to avoid transporting low-volume residues; chipper residue from edging feeds TLUD. Residue_type: branches. Technology: mobile_sawing. Waste minimization: every branch routed to milling or TLUD reduces open-air pile decomposition (methane) — see carbon offset metadata.",
+    "metadata": { "residue_type": "branches", "transformation_technology": "mobile_sawing", "language": "en" }
+  }
+]

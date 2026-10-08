@@ -1,0 +1,37 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Node
+node_modules/
+dist/
+backend-node/dist/
+
+# Mobile
+mobile/.expo/
+mobile/android/
+mobile/ios/
+*.ipa
+*.apk
+
+# Data & models
+backend-python/data/raw/*
+!backend-python/data/raw/.gitkeep
+backend-python/weights/*.pt
+!backend-python/weights/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
