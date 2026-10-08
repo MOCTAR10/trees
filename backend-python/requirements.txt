@@ -19,6 +19,9 @@ pillow==12.3.0
 ultralytics==8.4.174   # YOLOv11-seg (optional at runtime: guarded import, needs weights/trunk-seg.pt)
 earthengine-api==1.7.47 # optional: guarded import, GEE_ENABLED=false uses mock
 
+# Reporting (PDF export)
+reportlab==5.0.1
+
 # RAG embeddings (multilingual-e5-small, 384-dim) — CPU build of torch
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch==2.14.1+cpu

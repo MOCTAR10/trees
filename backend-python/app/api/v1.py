@@ -2,14 +2,15 @@
 
 import cv2
 import numpy as np
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Body, File, Form, HTTPException, UploadFile
+from fastapi.responses import Response
 
 from app.core.chapman_richards import estimate_age_for_species
 from app.core.growth_models import estimate_age_by_integration
 from app.core.height_diameter import estimate_height_m
 from app.core.species_data import resolve_species
 from app.models.schemas import V1Report
-from app.services import db, gbif, gee, groq_llm, plantnet, soilgrids
+from app.services import db, gbif, gee, groq_llm, pdf_report, plantnet, soilgrids
 from app.services.vision import measure_dbh
 
 router = APIRouter()
@@ -180,4 +181,15 @@ async def process_scan(
         soil_type=soil,
         canopy_density_fcd=fcd,
         narrative_fr=narrative,
+    )
+
+
+@router.post("/report/pdf")
+async def report_pdf(report: V1Report = Body(...)):
+    """Render a previously computed V1 report as a branded PDF."""
+    pdf = pdf_report.render_measurement_pdf(report.model_dump())
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'attachment; filename="rapport_forestier.pdf"'},
     )

@@ -1,0 +1,15 @@
+{
+  "species_scientific_name": "Aucoumea klaineana",
+  "species_common_name_fr": "Okoumé",
+  "species_confidence": 0.917,
+  "measured_dbh_cm": 62.5,
+  "dbh_method": "yolo_ar_hybrid",
+  "dbh_confidence": 0.93,
+  "estimated_height_m": 29.871428571428574,
+  "estimated_age_years": 63.9,
+  "age_model_used": "chapman_richards[Aucoumea klaineana: A=80.0, k=0.0263, p=1.2] | engone2013_crosscheck=125y",
+  "health_status": "surface_lisse_a_verifier",
+  "soil_type": "clay",
+  "canopy_density_fcd": 0.62,
+  "narrative_fr": "Cet arbre témoigne de la forêt dense humide du Gabon..."
+}

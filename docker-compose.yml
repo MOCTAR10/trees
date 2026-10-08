@@ -32,12 +32,19 @@ services:
     volumes:
       - ./backend-python:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).status==200 else 1)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
 
   gateway:
     build: ./backend-node
     container_name: forestry_gateway
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     env_file: .env
     environment:
       FASTAPI_URL: http://api:8000
@@ -47,6 +54,12 @@ services:
       - ./backend-node:/app
       - /app/node_modules
     command: npm run start:dev
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
 
 volumes:
   forestry_pgdata:

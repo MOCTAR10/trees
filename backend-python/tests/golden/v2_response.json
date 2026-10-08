@@ -1,0 +1,66 @@
+{
+  "residue_engine": {
+    "species": "Aucoumea klaineana",
+    "total_waste_biomass_kg": 1275.0
+  },
+  "valorization_plan": {
+    "analysis_summary": {
+      "species": "Aucoumea klaineana",
+      "dbh_cm": 62.5,
+      "height_m": 32.7,
+      "total_waste_biomass_kg": 1275.0
+    },
+    "residue_breakdown": {
+      "canopy_and_branches": {
+        "mass_kg": 460.0,
+        "volume_m3": null,
+        "primary_recommendation": "Pyrolyse en biochar (fertilisant) ou briquelettes de bois",
+        "technical_protocol_summary": "Pyrolyse lente à 400-500 C, refroidissement lent",
+        "industrial_use_case": null,
+        "artisan_or_pharmaceutical_value": null
+      },
+      "bark_and_organic_liquids": {
+        "mass_kg": 190.0,
+        "volume_m3": null,
+        "primary_recommendation": "Extraction de tanins pour colle industrielle",
+        "technical_protocol_summary": "",
+        "industrial_use_case": "Colle bois sans formaldéhyde pour panneaux agglomérés",
+        "artisan_or_pharmaceutical_value": null
+      },
+      "stump_and_roots": {
+        "mass_kg": null,
+        "volume_m3": 0.45,
+        "primary_recommendation": "",
+        "technical_protocol_summary": "",
+        "industrial_use_case": null,
+        "artisan_or_pharmaceutical_value": "Bois sculpté pour mobilier, extraits racinaires"
+      }
+    },
+    "win_win_synergy_plan": {
+      "logging_company_csr_benefits": {
+        "fsc_criteria_met": "Principe 5: utilisation durable des ressources forestières",
+        "gabon_law_016_compliance": "Art. 251: transformation locale des bois",
+        "fire_hazard_reduction_index": "Reduction de 70% du risque d'incendie local"
+      },
+      "community_impact_plan": {
+        "target_cooperative_id": 3,
+        "target_cooperative_name": "Coopérative Akanda",
+        "profile_type": "agricultural_biochar",
+        "logistical_distance_km": 8.4,
+        "local_economic_value_creation_estimate": "Creation de 3-5 emplois locaux"
+      }
+    },
+    "carbon_offset_metadata": {
+      "avoided_methane_emissions_co2eq_kg": 1785.0
+    }
+  },
+  "matched_cooperatives": [
+    {
+      "id": 3,
+      "name": "Coopérative Akanda",
+      "profile_type": "agricultural_biochar",
+      "distance_km": 8.4,
+      "is_certified": true
+    }
+  ]
+}

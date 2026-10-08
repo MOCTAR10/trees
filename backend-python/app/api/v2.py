@@ -2,12 +2,13 @@
 
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Body, HTTPException
+from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
 from app.core.chave_allometry import AllometryStrategy
 from app.models.schemas import ValorizationPlan
-from app.services import db, groq_llm, rag
+from app.services import db, groq_llm, pdf_report, rag
 from app.services.biomass_engine import compute_residues
 
 router = APIRouter()
@@ -223,3 +224,14 @@ Schéma JSON exact:
             for c in cooperatives[:5]
         ],
     }
+
+
+@router.post("/report/pdf")
+async def report_pdf_v2(payload: dict = Body(...)):
+    """Render a previously computed V2 valorization response as a branded PDF."""
+    pdf = pdf_report.render_valorization_pdf(payload)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'attachment; filename="plan_valorisation.pdf"'},
+    )
