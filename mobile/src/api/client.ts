@@ -1,6 +1,8 @@
 import Constants from "expo-constants";
 
-const configured = Constants.expoConfig?.extra?.apiUrl as string | undefined;
+const configured =
+  (process.env.EXPO_PUBLIC_API_URL as string | undefined) ??
+  (Constants.expoConfig?.extra?.apiUrl as string | undefined);
 
 /**
  * Optional API key for gateway auth (Track D). Inlined from the environment at
