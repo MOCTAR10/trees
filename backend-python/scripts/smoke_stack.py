@@ -74,16 +74,26 @@ def main() -> int:
         if SMOKE_REQUIRE_API_KEY:
             try:
                 r = client.post(f"{GATEWAY}/api/v2/process-scan", json={})
-                check("gateway rejects missing key (401)", r.status_code == 401, f"status={r.status_code}")
+                check(
+                    "gateway rejects missing key (401)",
+                    r.status_code == 401,
+                    f"status={r.status_code}",
+                )
             except Exception as exc:
                 check("gateway rejects missing key (401)", False, repr(exc))
 
             if SMOKE_API_KEY:
                 try:
                     r = client.post(
-                        f"{GATEWAY}/api/v2/process-scan", json={}, headers={"X-API-Key": "wrong-key"}
+                        f"{GATEWAY}/api/v2/process-scan",
+                        json={},
+                        headers={"X-API-Key": "wrong-key"},
                     )
-                    check("gateway rejects wrong key (401)", r.status_code == 401, f"status={r.status_code}")
+                    check(
+                        "gateway rejects wrong key (401)",
+                        r.status_code == 401,
+                        f"status={r.status_code}",
+                    )
                 except Exception as exc:
                     check("gateway rejects wrong key (401)", False, repr(exc))
 
@@ -91,9 +101,7 @@ def main() -> int:
         try:
             r = client.post(f"{GATEWAY}/api/v2/process-scan", json={}, headers=headers)
             check("gateway -> v2 (422 on empty)", r.status_code == 422, f"status={r.status_code}")
-            rate_headers = any(
-                k.startswith("ratelimit") for k in (r.headers or {})
-            )
+            rate_headers = any(k.startswith("ratelimit") for k in (r.headers or {}))
             check(
                 "gateway rate-limit headers present",
                 rate_headers,
