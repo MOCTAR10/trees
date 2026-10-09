@@ -48,6 +48,10 @@ services:
     env_file: .env
     environment:
       FASTAPI_URL: http://api:8000
+      REQUIRE_API_KEY: ${REQUIRE_API_KEY:-false}
+      API_KEY: ${API_KEY:-}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-60}
     ports:
       - "3000:3000"
     volumes:

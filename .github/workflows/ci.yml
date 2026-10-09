@@ -53,7 +53,7 @@ jobs:
 
   # ─────────────────────────────────────────────────────────────
   gateway:
-    name: Gateway · syntax check
+    name: Gateway · syntax + node tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -73,6 +73,9 @@ jobs:
 
       - name: Syntax check
         run: node --check src/index.js
+
+      - name: Auth + rate-limit tests
+        run: npm test
 
   # ─────────────────────────────────────────────────────────────
   mobile:
@@ -151,11 +154,15 @@ jobs:
       - name: Boot stack (wait for healthy)
         run: |
           cp .env.example .env
+          export REQUIRE_API_KEY=true
+          export API_KEY=ci-smoke-key-41bb1f4e
           docker compose up -d --no-build --wait --wait-timeout 240
           docker compose ps
 
-      - name: Smoke test
-        run: python backend-python/scripts/smoke_stack.py
+      - name: Smoke test (API-key mode)
+        run: |
+          REQUIRE_API_KEY=true SMOKE_API_KEY=ci-smoke-key-41bb1f4e \
+            python backend-python/scripts/smoke_stack.py
 
       - name: Service logs on failure
         if: failure()

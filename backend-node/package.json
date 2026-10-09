@@ -6,10 +6,11 @@
   "scripts": {
     "start:dev": "node --watch src/index.js",
     "start": "node src/index.js",
-    "test": "node --test test/"
+    "test": "node --test \"test/**/*.test.js\""
   },
   "dependencies": {
     "express": "^4.21.2",
+    "express-rate-limit": "^8.7.1",
     "http-proxy-middleware": "^3.0.3"
   }
 }

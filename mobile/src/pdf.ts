@@ -3,6 +3,9 @@ import * as Sharing from "expo-sharing";
 
 import { API_BASE } from "./api/client";
 
+const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
+const authHeaders = API_KEY ? { "X-API-Key": API_KEY } : undefined;
+
 async function postJsonToPdfCache(
   path: string,
   body: unknown,
@@ -10,7 +13,7 @@ async function postJsonToPdfCache(
 ): Promise<string> {
   const resp = await fetch(`${API_BASE}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders },
     body: JSON.stringify(body),
   });
   if (!resp.ok) throw new Error(`PDF ${resp.status}: ${await resp.text()}`);

@@ -3,6 +3,15 @@ import Constants from "expo-constants";
 const configured = Constants.expoConfig?.extra?.apiUrl as string | undefined;
 
 /**
+ * Optional API key for gateway auth (Track D). Inlined from the environment at
+ * build/dev time; set EXPO_PUBLIC_API_KEY (see mobile/.env.example). When
+ * absent the app talks to an open gateway (local/dev mode).
+ */
+const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
+
+const authHeaders = API_KEY ? { "X-API-Key": API_KEY } : undefined;
+
+/**
  * API base URL (Node gateway). Defaults to localhost for the Expo web/simulator
  * case; on a physical device, set `extra.apiUrl` in app.json to the machine's
  * LAN IP (e.g. http://192.168.1.10:3000).
@@ -109,6 +118,7 @@ export async function processScanV1(params: {
   const resp = await fetch(`${API_BASE}/api/v1/process-scan`, {
     method: "POST",
     body: form,
+    headers: authHeaders,
   });
   if (!resp.ok) throw new Error(`V1 ${resp.status}: ${await resp.text()}`);
   return resp.json();
@@ -123,7 +133,7 @@ export async function processScanV2(params: {
 }): Promise<V2Response> {
   const resp = await fetch(`${API_BASE}/api/v2/process-scan`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders },
     body: JSON.stringify(params),
   });
   if (!resp.ok) throw new Error(`V2 ${resp.status}: ${await resp.text()}`);
