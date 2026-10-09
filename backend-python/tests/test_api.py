@@ -248,8 +248,108 @@ def test_v2_process_scan(client, monkeypatch):
     assert impact["target_cooperative_name"] == "Coopérative Akanda"
     assert impact["logistical_distance_km"] == 8.4
     assert body["matched_cooperatives"][0]["distance_km"] == 8.4
+    # Profile-affinity scoring surfaced (agricultural_biochar valorizes canopy+branches)
+    assert body["matched_cooperatives"][0]["relevant_mass_kg"] == 620.0
+    assert body["matched_cooperatives"][0]["match_score"] == 0.486
     # No RAG chunks in this fake -> no references
     assert plan["references"] is None
+
+
+def test_v2_ranks_cooperatives_by_affinity_not_distance(client, monkeypatch):
+    from app.api import v2
+
+    # Near coop with weaker affinity vs farther coop that can valorize more residue
+    near = _FakeCoop(
+        {
+            "id": 1,
+            "cooperative_name": "Proche Inadaptée",
+            "profile_type": "agricultural_biochar",
+            "is_certified": True,
+            "distance_km": 2.0,
+            "latitude": 0.4,
+            "longitude": 9.4,
+        }
+    )
+    matching = _FakeCoop(
+        {
+            "id": 2,
+            "cooperative_name": "Lointaine Adaptée",
+            "profile_type": "bio_chemical_extraction",
+            "is_certified": True,
+            "distance_km": 12.0,
+            "latitude": 0.5,
+            "longitude": 9.5,
+        }
+    )
+
+    async def fake_coops_near(lat, lon, radius_km=15.0, certified_only=False):
+        return [near, matching]
+
+    async def fake_rag_query(**kwargs):
+        return []
+
+    async def fake_chat_json(system_prompt, user_prompt, **kwargs):
+        return {
+            "analysis_summary": {},
+            "residue_breakdown": {
+                "canopy_and_branches": {
+                    "mass_kg": 460,
+                    "primary_recommendation": "Pyrolyse en biochar",
+                    "technical_protocol_summary": "Pyrolyse lente à 400-500 C",
+                },
+                "bark_and_organic_liquids": {
+                    "mass_kg": 190,
+                    "primary_recommendation": "Extraction de tanins",
+                    "industrial_use_case": "Colle bois sans formaldéhyde",
+                },
+                "stump_and_roots": {
+                    "volume_m3": 0.45,
+                    "artisan_or_pharmaceutical_value": "Bois sculpté",
+                },
+            },
+            "win_win_synergy_plan": {
+                "logging_company_csr_benefits": {
+                    "fsc_criteria_met": "OK",
+                    "gabon_law_016_compliance": "OK",
+                    "fire_hazard_reduction_index": "OK",
+                },
+                "community_impact_plan": {
+                    "target_cooperative_id": None,
+                    "target_cooperative_name": "",
+                    "profile_type": "",
+                    "logistical_distance_km": None,
+                    "local_economic_value_creation_estimate": "OK",
+                },
+            },
+            "carbon_offset_metadata": {"avoided_methane_emissions_co2eq_kg": 0},
+        }
+
+    async def fake_execute(sql, *args):
+        return "INSERT 0 1"
+
+    monkeypatch.setattr(v2, "compute_residues", lambda **kwargs: _FakeResidues())
+    monkeypatch.setattr(v2.db, "find_cooperatives_near", fake_coops_near)
+    monkeypatch.setattr(v2.rag, "query_circular_economy", fake_rag_query)
+    monkeypatch.setattr(v2.groq_llm, "chat_json", fake_chat_json)
+    monkeypatch.setattr(v2.db, "execute", fake_execute)
+
+    resp = client.post(
+        "/api/v2/process-scan",
+        json={
+            "species_scientific_name": "Aucoumea klaineana",
+            "measured_dbh_cm": 62.5,
+            "latitude": 0.4162,
+            "longitude": 9.4541,
+        },
+    )
+    assert resp.status_code == 200, resp.text
+    top, second = resp.json()["matched_cooperatives"]
+    assert top["name"] == "Lointaine Adaptée"
+    assert top["match_score"] > second["match_score"]
+    assert top["distance_km"] > second["distance_km"]
+    impact = resp.json()["valorization_plan"]["win_win_synergy_plan"]["community_impact_plan"]
+    assert impact["target_cooperative_id"] == 2
+    assert impact["logistical_distance_km"] == 12.0
 
 
 def test_v2_references_from_rag(client, monkeypatch):

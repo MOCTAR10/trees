@@ -16,6 +16,7 @@ import {
   Cooperation,
   companyResidues,
   listCooperatives,
+  releaseResidue,
 } from "../api/client";
 import RoleHeader from "../components/RoleHeader";
 import { fr } from "../i18n/fr";
@@ -55,6 +56,15 @@ export default function CompanyScreen({ user, onLogout }: Props) {
     load();
   }, [load]);
 
+  const startPicking = async (residue: CompanyResidue) => {
+    setPicking(residue);
+    try {
+      setCooperatives(await listCooperatives(residue.id));
+    } catch (err) {
+      console.error("load scored cooperatives failed", err);
+    }
+  };
+
   const allocate = async (cooperativeId: number) => {
     if (!picking) return;
     try {
@@ -64,6 +74,16 @@ export default function CompanyScreen({ user, onLogout }: Props) {
     } catch (err) {
       console.error("allocate failed", err);
       setPicking(null);
+      setError(fr.company.error);
+    }
+  };
+
+  const release = async (residueId: number) => {
+    try {
+      await releaseResidue(residueId);
+      await load();
+    } catch (err) {
+      console.error("release failed", err);
       setError(fr.company.error);
     }
   };
@@ -111,8 +131,23 @@ export default function CompanyScreen({ user, onLogout }: Props) {
                   )}
                 </Text>
               ) : null}
-              {item.status === "available" ? (
-                <TouchableOpacity style={styles.action} onPress={() => setPicking(item)}>
+              {item.status === "allocated" ? (
+                <View style={styles.actionsRow}>
+                  <TouchableOpacity
+                    style={[styles.action, styles.actionSecondary]}
+                    onPress={() => startPicking(item)}
+                  >
+                    <Text style={styles.actionText}>{fr.company.reassign}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.action, styles.actionDanger]}
+                    onPress={() => release(item.id)}
+                  >
+                    <Text style={styles.actionText}>{fr.company.release}</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : item.status === "available" ? (
+                <TouchableOpacity style={styles.action} onPress={() => startPicking(item)}>
                   <Text style={styles.actionText}>{fr.company.allocate}</Text>
                 </TouchableOpacity>
               ) : null}
@@ -141,6 +176,12 @@ export default function CompanyScreen({ user, onLogout }: Props) {
                     {item.profile_type}
                     {item.is_certified ? " · 🌿 certifiée" : ""}
                   </Text>
+                  {item.match_score != null ? (
+                    <Text style={styles.coopAffinity}>
+                      {fr.company.relevant(item.relevant_mass_kg ?? 0)} ·{" "}
+                      {fr.company.match(item.match_score)}
+                    </Text>
+                  ) : null}
                 </TouchableOpacity>
               )}
             />
@@ -172,14 +213,26 @@ const styles = StyleSheet.create({
   species: { color: colors.text, fontSize: type.body, fontWeight: "700", fontStyle: "italic" },
   meta: { color: colors.textDim, fontSize: type.caption },
   assigned: { color: colors.success, fontSize: type.caption, fontWeight: "700" },
-  action: {
+  actionsRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
     marginTop: spacing.sm,
+  },
+  action: {
+    flex: 1,
     backgroundColor: colors.accent,
     borderRadius: 8,
     paddingVertical: spacing.sm,
     alignItems: "center",
   },
+  actionSecondary: {
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  actionDanger: { backgroundColor: colors.error },
   actionText: { color: colors.primary, fontSize: type.caption, fontWeight: "800" },
+  coopAffinity: { color: colors.success, fontSize: type.caption, fontWeight: "600", marginTop: spacing.xs },
   modalBackdrop: {
     flex: 1,
     backgroundColor: "rgba(14,21,18,0.8)",

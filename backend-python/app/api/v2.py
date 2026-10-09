@@ -6,6 +6,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
+from app.core import profiles
 from app.core.chave_allometry import AllometryStrategy
 from app.core.deps import get_optional_user
 from app.models.schemas import ValorizationPlan
@@ -16,13 +17,6 @@ router = APIRouter()
 app_logger = logging.getLogger(__name__)
 
 RADIUS_KM = 15.0
-
-# Residue channel -> cooperative profile affinity
-PROFILE_AFFINITY = {
-    "canopy_and_branches": ["agricultural_biochar", "energy_briquettes"],
-    "bark_and_organic_liquids": ["bio_chemical_extraction"],
-    "stump_and_roots": ["artisan_furniture", "bio_chemical_extraction"],
-}
 
 
 class V2ScanRequest(BaseModel):
@@ -64,7 +58,7 @@ async def process_scan_v2(
         strategy=strategy,
     )
 
-    # --- PostGIS: cooperatives within 15 km ---
+    # --- PostGIS: cooperatives within 15 km, ranked by profile affinity ---
     cooperatives = await db.find_cooperatives_near(
         request.latitude, request.longitude, radius_km=RADIUS_KM, certified_only=False
     )
@@ -72,6 +66,19 @@ async def process_scan_v2(
         cooperatives = await db.find_cooperatives_near(
             request.latitude, request.longitude, radius_km=RADIUS_KM * 3, certified_only=False
         )
+    cooperatives = [dict(c) for c in cooperatives]
+    residue_row = {
+        "weight_branches_fine_kg": residues.weight_branches_fine_kg,
+        "weight_branches_thick_kg": residues.weight_branches_thick_kg,
+        "weight_foliar_kg": residues.weight_foliar_kg,
+        "weight_bark_kg": residues.weight_bark_kg,
+        "weight_roots_kg": residues.weight_roots_kg,
+        "volume_stump_m3": residues.volume_stump_m3,
+    }
+    for coop in cooperatives:
+        coop["relevant_mass_kg"] = profiles.profile_relevant_mass(residue_row, coop["profile_type"])
+        coop["match_score"] = profiles.match_score(residue_row, coop["profile_type"])
+    cooperatives.sort(key=lambda c: (-c["match_score"], c["distance_km"]))
     best_coop = cooperatives[0] if cooperatives else None
 
     # --- RAG: per-residue technical/legal context (Phase 2 filters) ---
@@ -246,6 +253,8 @@ Schéma JSON exact:
                 "is_certified": c["is_certified"],
                 "latitude": c.get("latitude"),
                 "longitude": c.get("longitude"),
+                "relevant_mass_kg": c.get("relevant_mass_kg", 0.0),
+                "match_score": c.get("match_score", 0.0),
             }
             for c in cooperatives[:5]
         ],

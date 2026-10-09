@@ -101,6 +101,8 @@ export interface MatchedCooperative {
   is_certified: boolean;
   latitude: number | null;
   longitude: number | null;
+  relevant_mass_kg?: number;
+  match_score?: number;
 }
 
 export interface V2Response {
@@ -201,10 +203,13 @@ export interface Cooperation {
   is_certified: boolean;
   latitude: number | null;
   longitude: number | null;
+  relevant_mass_kg?: number;
+  match_score?: number;
 }
 
-export async function listCooperatives(): Promise<Cooperation[]> {
-  const resp = await fetch(`${API_BASE}/api/company/cooperatives`, { headers: headers() });
+export async function listCooperatives(residueId?: number): Promise<Cooperation[]> {
+  const suffix = residueId != null ? `?residue_id=${residueId}` : "";
+  const resp = await fetch(`${API_BASE}/api/company/cooperatives${suffix}`, { headers: headers() });
   if (!resp.ok) throw new Error(`Cooperatives ${resp.status}`);
   return resp.json();
 }
@@ -238,6 +243,17 @@ export async function allocateResidue(
     body: JSON.stringify({ cooperative_id: cooperativeId }),
   });
   if (!resp.ok) throw new Error(`Allocate ${resp.status}`);
+  return resp.json();
+}
+
+export async function releaseResidue(
+  residueId: number,
+): Promise<{ id: number; status: string }> {
+  const resp = await fetch(`${API_BASE}/api/company/residues/${residueId}/release`, {
+    method: "POST",
+    headers: headers(),
+  });
+  if (!resp.ok) throw new Error(`Release ${resp.status}`);
   return resp.json();
 }
 

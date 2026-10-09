@@ -58,6 +58,9 @@ def _install_fake_db(monkeypatch, users, coops, residues):
             return {k: v for k, v in user.items() if k != "password_hash"} if user else None
         if "from community_cooperatives where id" in s:
             return coops.get(args[0])
+        if "from tree_scans_and_residues" in s and "where id" in s:
+            residue = residues.get(args[0])
+            return dict(residue) if residue else None
         if "update tree_scans_and_residues" in s:
             if "set status='allocated'" in s:
                 coop_id, residue_id, company_id = args
@@ -65,11 +68,31 @@ def _install_fake_db(monkeypatch, users, coops, residues):
                 if (
                     residue
                     and residue.get("logging_company_id") == company_id
-                    and residue.get("status") == "available"
+                    and residue.get("status") in ("available", "allocated")
                 ):
                     residue["status"] = "allocated"
                     residue["assigned_community_cooperative_id"] = coop_id
-                    return dict(residue)
+                    return {
+                        "id": residue_id,
+                        "status": "allocated",
+                        "assigned_community_cooperative_id": coop_id,
+                    }
+                return None
+            if "set status='available', assigned_community_cooperative_id=" in s:
+                residue_id, company_id = args
+                residue = residues.get(residue_id)
+                if (
+                    residue
+                    and residue.get("logging_company_id") == company_id
+                    and residue.get("status") == "allocated"
+                ):
+                    residue["status"] = "available"
+                    residue["assigned_community_cooperative_id"] = None
+                    return {
+                        "id": residue_id,
+                        "status": "available",
+                        "assigned_community_cooperative_id": None,
+                    }
                 return None
             if "set status='collected'" in s:
                 residue_id, coop_id = args
@@ -263,6 +286,76 @@ def test_company_cannot_allocate_foreign_residue(client, monkeypatch):
         headers={"Authorization": f"Bearer {token}"},
     )
     assert resp.status_code == 409
+
+
+def test_company_reallocates_allocated_residue(client, monkeypatch):
+    users, coops, residues = _setup(monkeypatch)
+    coops[999] = {
+        "id": 999,
+        "cooperative_name": "Coop B",
+        "profile_type": "energy_briquettes",
+        "is_certified": True,
+    }
+    residues[100]["status"] = "allocated"
+    residues[100]["assigned_community_cooperative_id"] = 10
+    token = _token(users[2])
+    resp = client.post(
+        "/api/company/residues/100/allocate",
+        json={"cooperative_id": 999},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "allocated"
+    assert residues[100]["assigned_community_cooperative_id"] == 999
+
+
+def test_company_releases_allocated_residue(client, monkeypatch):
+    users, _, residues = _setup(monkeypatch)
+    residues[100]["status"] = "allocated"
+    residues[100]["assigned_community_cooperative_id"] = 10
+    token = _token(users[2])
+    resp = client.post(
+        "/api/company/residues/100/release",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "available"
+    assert residues[100]["assigned_community_cooperative_id"] is None
+
+
+def test_company_cannot_release_available_residue(client, monkeypatch):
+    users, _, _ = _setup(monkeypatch)
+    token = _token(users[2])
+    resp = client.post(
+        "/api/company/residues/100/release",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 409
+
+
+def test_company_cooperatives_scored_by_residue_affinity(client, monkeypatch):
+    users, _, residues = _setup(monkeypatch)
+    residues[100]["weight_branches_fine_kg"] = 300.0
+    residues[100]["weight_bark_kg"] = 100.0
+    token = _token(users[2])
+    resp = client.get(
+        "/api/company/cooperatives?residue_id=100",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 200
+    top = resp.json()[0]
+    assert top["relevant_mass_kg"] == 300.0
+    assert top["match_score"] == 0.75
+
+
+def test_company_cooperatives_unknown_residue(client, monkeypatch):
+    users, _, _ = _setup(monkeypatch)
+    token = _token(users[2])
+    resp = client.get(
+        "/api/company/cooperatives?residue_id=999",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 404
 
 
 def test_cooperative_nearby_matching(client, monkeypatch):

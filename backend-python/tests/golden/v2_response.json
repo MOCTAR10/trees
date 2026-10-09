@@ -65,7 +65,9 @@
       "distance_km": 8.4,
       "is_certified": true,
       "latitude": 0.3823,
-      "longitude": 9.4541
+      "longitude": 9.4541,
+      "relevant_mass_kg": 620.0,
+      "match_score": 0.486
     }
   ]
 }

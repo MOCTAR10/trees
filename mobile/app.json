@@ -26,7 +26,8 @@
     "plugins": [
       "expo-camera",
       "expo-location",
-      "expo-sharing"
+      "expo-sharing",
+      "expo-status-bar"
     ],
     "extra": {
       "apiUrl": "http://localhost:3000"
