@@ -7,7 +7,7 @@ mapped units (g/kg for clay/sand, dg/kg for SOC) — converted to %.
 
 import asyncio
 
-import httpx
+from app.services import http
 
 SOILGRIDS_URL = "https://rest.isric.org/soilgrids/v2.0/properties/query"
 
@@ -30,12 +30,10 @@ def classify_soil(clay_pct: float, sand_pct: float, soc_pct: float) -> str:
     return base
 
 
-async def _fetch_property(
-    client: httpx.AsyncClient, name: str, lat: float, lon: float
-) -> float | None:
+async def _fetch_property(name: str, lat: float, lon: float) -> float | None:
     """Fetch one property's 0-5cm mean; None when uncovered (offshore etc.)."""
     params = [("lat", lat), ("lon", lon), ("property", name), ("depth", "0-5cm")]
-    resp = await client.get(SOILGRIDS_URL, params=params)
+    resp = await http.request("GET", SOILGRIDS_URL, params=params, timeout=12.0)
     resp.raise_for_status()
     for layer in resp.json().get("properties", {}).get("layers", []):
         if layer.get("name") != name:
@@ -49,18 +47,14 @@ async def _fetch_property(
 
 async def fetch_soil(latitude: float, longitude: float) -> dict | None:
     """Query SoilGrids for clay/sand/soil organic carbon at a point."""
-    try:
-        # ISRIC's public endpoint is heavily throttled — keep this a fast,
-        # best-effort step (v1 treats a None soil as contextual-only)
-        async with httpx.AsyncClient(timeout=12.0) as client:
-            clay, sand, soc = await asyncio.gather(
-                _fetch_property(client, "clay", latitude, longitude),
-                _fetch_property(client, "sand", latitude, longitude),
-                _fetch_property(client, "soc", latitude, longitude),
-                return_exceptions=True,
-            )
-    except (httpx.HTTPError, httpx.TimeoutException):
-        return None
+    # ISRIC's public endpoint is heavily throttled — keep this a fast,
+    # best-effort step (v1 treats a None soil as contextual-only).
+    clay, sand, soc = await asyncio.gather(
+        _fetch_property("clay", latitude, longitude),
+        _fetch_property("sand", latitude, longitude),
+        _fetch_property("soc", latitude, longitude),
+        return_exceptions=True,
+    )
 
     if not all(isinstance(v, (float, int)) for v in (clay, sand, soc)):
         return None  # no coverage or upstream errors at this point

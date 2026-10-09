@@ -3,19 +3,25 @@
 No API key required (registered account only needed for bulk downloads).
 """
 
-import httpx
+import math
+
+from app.services import http
 
 GBIF_API = "https://api.gbif.org/v1"
+
+# Great-circle degree length used to turn a km radius into a lat/lon box.
+_KM_PER_DEGREE = 111.32
 
 
 async def match_species(scientific_name: str) -> dict | None:
     """Resolve a scientific name to a GBIF taxon key."""
-    async with httpx.AsyncClient(timeout=15.0) as client:
-        resp = await client.get(
-            f"{GBIF_API}/species/match",
-            params={"name": scientific_name, "strict": False},
-        )
-        resp.raise_for_status()
+    resp = await http.request(
+        "GET",
+        f"{GBIF_API}/species/match",
+        params={"name": scientific_name, "strict": False},
+        timeout=15.0,
+    )
+    resp.raise_for_status()
     data = resp.json()
     if data.get("matchType") == "NONE" or data.get("usageKey") is None:
         return None
@@ -38,16 +44,18 @@ async def occurrences_near(
     limit: int = 20,
 ) -> dict:
     """Count/inspect occurrence records near a coordinate (ecosystem check)."""
+    d_lat = radius_km / _KM_PER_DEGREE
+    cos_lat = max(math.cos(math.radians(latitude)), 0.01)
+    d_lon = radius_km / (_KM_PER_DEGREE * cos_lat)
     params = {
         "taxonKey": taxon_key,
-        "decimalLatitude": f"{latitude - 0.5},{latitude + 0.5}",
-        "decimalLongitude": f"{longitude - 0.5},{longitude + 0.5}",
+        "decimalLatitude": f"{latitude - d_lat},{latitude + d_lat}",
+        "decimalLongitude": f"{longitude - d_lon},{longitude + d_lon}",
         "limit": limit,
         "hasCoordinate": "true",
     }
-    async with httpx.AsyncClient(timeout=20.0) as client:
-        resp = await client.get(f"{GBIF_API}/occurrence/search", params=params)
-        resp.raise_for_status()
+    resp = await http.request("GET", f"{GBIF_API}/occurrence/search", params=params, timeout=20.0)
+    resp.raise_for_status()
     data = resp.json()
     return {
         "total": data.get("count", 0),

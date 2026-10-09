@@ -6,8 +6,11 @@ testable offline.
 """
 
 import hashlib
+import logging
 
 from app.config import get_settings
+
+log = logging.getLogger(__name__)
 
 
 def _mock_fcd(latitude: float, longitude: float) -> float:
@@ -47,7 +50,8 @@ async def canopy_density(latitude: float, longitude: float) -> dict:
             round(float(value) / 100.0, 3) if value is not None else _mock_fcd(latitude, longitude)
         )
         return {"fcd": fcd, "source": "gee_hansen_treecover2000", "competition_level": None}
-    except Exception:
+    except Exception as exc:
+        log.warning("GEE canopy lookup failed, using mock FCD: %s", exc)
         return {
             "fcd": _mock_fcd(latitude, longitude),
             "source": "mock_fallback",

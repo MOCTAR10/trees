@@ -4,7 +4,7 @@ import httpx
 import pytest
 import respx
 
-from app.services import gbif, gee, plantnet, soilgrids
+from app.services import gbif, gee, http, plantnet, soilgrids
 
 PLANTNET_PAYLOAD = {
     "results": [
@@ -158,3 +158,66 @@ def test_competition_levels():
     assert gee.competition_level(0.8) == "dense_forest_high_competition"
     assert gee.competition_level(0.5) == "moderate_canopy"
     assert gee.competition_level(0.2) == "open_sun_low_competition"
+
+
+def _span(decimal_range: str) -> float:
+    lo, hi = (float(x) for x in decimal_range.split(","))
+    return hi - lo
+
+
+@pytest.mark.asyncio
+async def test_gbif_occurrences_uses_radius():
+    with respx.mock:
+        route = respx.get("https://api.gbif.org/v1/occurrence/search").mock(
+            return_value=httpx.Response(200, json={"count": 0, "results": []})
+        )
+        await gbif.occurrences_near(123, latitude=0.0, longitude=0.0, radius_km=50.0)
+    params = route.calls.last.request.url.params
+    expected = 2 * 50.0 / gbif._KM_PER_DEGREE
+    assert _span(params["decimalLatitude"]) == pytest.approx(expected, abs=0.01)
+    assert _span(params["decimalLongitude"]) == pytest.approx(expected, abs=0.01)
+
+
+@pytest.mark.asyncio
+async def test_gbif_occurrences_widens_longitude_at_high_latitude():
+    with respx.mock:
+        route = respx.get("https://api.gbif.org/v1/occurrence/search").mock(
+            return_value=httpx.Response(200, json={"count": 0, "results": []})
+        )
+        await gbif.occurrences_near(123, latitude=60.0, longitude=10.0, radius_km=50.0)
+    params = route.calls.last.request.url.params
+    lat_span = _span(params["decimalLatitude"])
+    lon_span = _span(params["decimalLongitude"])
+    assert lon_span > lat_span * 1.5  # cos(60°) = 0.5 → ~2× wider box
+
+
+@pytest.mark.asyncio
+async def test_http_retries_transient_5xx_then_succeeds(monkeypatch):
+    monkeypatch.setattr(http, "INITIAL_BACKOFF_S", 0.0)
+    with respx.mock:
+        route = respx.get("https://example.test/x").mock(
+            side_effect=[httpx.Response(503), httpx.Response(200, json={"ok": True})]
+        )
+        resp = await http.request("GET", "https://example.test/x")
+    assert resp.status_code == 200
+    assert route.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_http_gives_up_after_retries(monkeypatch):
+    monkeypatch.setattr(http, "INITIAL_BACKOFF_S", 0.0)
+    with respx.mock:
+        route = respx.get("https://example.test/y").mock(return_value=httpx.Response(500))
+        resp = await http.request("GET", "https://example.test/y", retries=1)
+    assert resp.status_code == 500
+    assert route.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_http_does_not_retry_4xx(monkeypatch):
+    monkeypatch.setattr(http, "INITIAL_BACKOFF_S", 0.0)
+    with respx.mock:
+        route = respx.get("https://example.test/z").mock(return_value=httpx.Response(404))
+        resp = await http.request("GET", "https://example.test/z")
+    assert resp.status_code == 404
+    assert route.call_count == 1

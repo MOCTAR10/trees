@@ -3,12 +3,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api import knowledge, v1, v2
-from app.services import db
+from app.services import db, http
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield
+    await http.close_client()
     await db.close_pool()
 
 

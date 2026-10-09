@@ -4,9 +4,8 @@ POST /v2/identify/{project}?api-key=...
 Accepts up to 5 images with organ labels: bark, leaf, flower, fruit, auto.
 """
 
-import httpx
-
 from app.config import get_settings
+from app.services import http
 
 
 class PlantNetResult:
@@ -50,7 +49,6 @@ async def identify(
     for i, (img, organ) in enumerate(zip(images, organs, strict=True)):
         parts.append(("images", (f"view_{i}.jpg", img, "image/jpeg")))
         parts.append(("organs", (None, organ)))
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        resp = await client.post(url, params=params, files=parts)
+    resp = await http.request("POST", url, params=params, files=parts, timeout=30.0)
     resp.raise_for_status()
     return PlantNetResult(resp.json())

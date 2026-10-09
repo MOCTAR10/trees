@@ -7,9 +7,8 @@ versatile ids.
 
 import json
 
-import httpx
-
 from app.config import get_settings
+from app.services import http
 
 
 async def chat_json(
@@ -37,13 +36,14 @@ async def chat_json(
         "Authorization": f"Bearer {settings.groq_api_key}",
         "Content-Type": "application/json",
     }
-    async with httpx.AsyncClient(timeout=90.0) as client:
-        resp = await client.post(
-            f"{settings.groq_base_url}/chat/completions",
-            json=payload,
-            headers=headers,
-        )
-        resp.raise_for_status()
+    resp = await http.request(
+        "POST",
+        f"{settings.groq_base_url}/chat/completions",
+        json=payload,
+        headers=headers,
+        timeout=90.0,
+    )
+    resp.raise_for_status()
     data = resp.json()
     content = data["choices"][0]["message"]["content"]
     return json.loads(content)
@@ -73,11 +73,12 @@ async def chat_text(
         "Authorization": f"Bearer {settings.groq_api_key}",
         "Content-Type": "application/json",
     }
-    async with httpx.AsyncClient(timeout=90.0) as client:
-        resp = await client.post(
-            f"{settings.groq_base_url}/chat/completions",
-            json=payload,
-            headers=headers,
-        )
-        resp.raise_for_status()
+    resp = await http.request(
+        "POST",
+        f"{settings.groq_base_url}/chat/completions",
+        json=payload,
+        headers=headers,
+        timeout=90.0,
+    )
+    resp.raise_for_status()
     return resp.json()["choices"][0]["message"]["content"]

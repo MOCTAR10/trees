@@ -1,5 +1,7 @@
 """Phase 1 endpoint: full measurement pipeline -> structured forestry report."""
 
+import logging
+
 import cv2
 import numpy as np
 from fastapi import APIRouter, Body, File, Form, HTTPException, UploadFile
@@ -14,6 +16,7 @@ from app.services import db, gbif, gee, groq_llm, pdf_report, plantnet, rag, soi
 from app.services.vision import measure_dbh
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 def _decode(data: bytes) -> np.ndarray:
@@ -62,8 +65,8 @@ async def process_scan(
         )
         species_name = pn.scientific_name
         species_score = pn.score
-    except Exception:
-        pass  # identification is best-effort; report still returns measurement
+    except Exception as exc:
+        logger.warning("Pl@ntNet identification skipped: %s", exc)
 
     # --- GBIF geographic ecosystem cross-check ---
     if species_name:
@@ -71,8 +74,8 @@ async def process_scan(
             check = await gbif.validate_species_for_location(species_name, latitude, longitude)
             if not check["valid"] and (species_score or 0) < 0.5:
                 species_name = None  # low confidence + no local occurrences
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("GBIF location cross-check skipped: %s", exc)
 
     # --- STEP 3: DBH via YOLO+OpenCV hybrid ---
     dbh_cm, dbh_method, dbh_conf = None, "mock", None
@@ -82,16 +85,16 @@ async def process_scan(
             dbh_cm = measurement.dbh_cm
             dbh_method = measurement.method
             dbh_conf = measurement.confidence
-        except RuntimeError:
-            pass
+        except RuntimeError as exc:
+            logger.warning("DBH measurement skipped: %s", exc)
 
     # --- STEP 4: geospatial context ---
     soil = None
     try:
         soil_data = await soilgrids.fetch_soil(latitude, longitude)
         soil = soil_data["soil_class"] if soil_data else None
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.warning("SoilGrids lookup skipped: %s", exc)
 
     fcd_data = await gee.canopy_density(latitude, longitude)
     fcd = fcd_data["fcd"]
@@ -126,7 +129,8 @@ async def process_scan(
             species=species_name,
             soil_type=soil,
         )
-    except Exception:
+    except Exception as exc:
+        logger.warning("RAG retrieval skipped: %s", exc)
         rag_chunks = []
     rag_sources = list(dict.fromkeys(c.source for c in rag_chunks if c.source)) or None
     rag_context = "\n".join(f"- [{c.doc_type}] {c.content}" for c in rag_chunks)
@@ -148,8 +152,8 @@ async def process_scan(
                 f"Connaissances de référence (RAG):\n{rag_context or 'non disponible'}"
             ),
         )
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.warning("Groq narrative skipped: %s", exc)
 
     # --- Persist ---
     try:
@@ -182,8 +186,8 @@ async def process_scan(
             ar_depth_m,
             focal_px,
         )
-    except Exception:
-        pass  # report is still returned when persistence is unavailable
+    except Exception as exc:
+        logger.warning("v1 persistence failed (report still returned): %s", exc)
 
     return V1Report(
         species_scientific_name=species_name,
