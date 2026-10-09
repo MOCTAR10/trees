@@ -4,11 +4,12 @@ import logging
 
 import cv2
 import numpy as np
-from fastapi import APIRouter, Body, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
 
 from app.config import get_settings
 from app.core.chapman_richards import estimate_age_for_species
+from app.core.deps import get_optional_user
 from app.core.growth_models import estimate_age_by_integration
 from app.core.height_diameter import estimate_height_m
 from app.core.species_data import resolve_species
@@ -60,6 +61,7 @@ async def process_scan(
     longitude: float = Form(...),
     ar_depth_m: float | None = Form(None, description="Distance tronc- téléphone à 1,30 m"),
     focal_px: float | None = Form(None, description="Focale caméra en pixels"),
+    user: dict | None = Depends(get_optional_user),
 ):
     limit = get_settings().max_image_bytes
     trunk_bytes = await _read_capped(trunk_image, limit)
@@ -177,8 +179,8 @@ async def process_scan(
                 geom, measured_dbh_cm, dbh_method, dbh_confidence,
                 estimated_height_m, estimated_age_years, age_model_used,
                 soil_type, canopy_density_fcd, image_trunk_url, image_leaf_url,
-                image_habitat_url, ar_depth_m, camera_focal_px
-            ) VALUES ($1, $2, ST_SetSRID(ST_MakePoint($4, $3), 4326), $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+                image_habitat_url, ar_depth_m, camera_focal_px, user_id
+            ) VALUES ($1, $2, ST_SetSRID(ST_MakePoint($4, $3), 4326), $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
             RETURNING id
             """,
             species_name,
@@ -198,6 +200,7 @@ async def process_scan(
             "stored://habitat",
             ar_depth_m,
             focal_px,
+            user["id"] if user else None,
         )
     except Exception as exc:
         logger.warning("v1 persistence failed (report still returned): %s", exc)

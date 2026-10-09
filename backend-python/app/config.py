@@ -31,6 +31,13 @@ class Settings(BaseSettings):
     # IUCN Red List status enrichment (optional, tools only)
     iucn_api_token: str = ""
 
+    # Auth / RBAC (Track F)
+    jwt_secret: str = "dev-insecure-secret-change-me"
+    jwt_expire_minutes: int = 720
+    admin_email: str = ""
+    admin_password: str = ""
+    admin_display_name: str = "Administrateur"
+
 
 @lru_cache
 def get_settings() -> Settings:

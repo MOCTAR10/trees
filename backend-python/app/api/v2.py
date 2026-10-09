@@ -2,11 +2,12 @@
 
 import logging
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
 from app.core.chave_allometry import AllometryStrategy
+from app.core.deps import get_optional_user
 from app.models.schemas import ValorizationPlan
 from app.services import db, groq_llm, pdf_report, rag
 from app.services.biomass_engine import compute_residues
@@ -43,7 +44,18 @@ def _carbon_avoided_kg(biomass: float) -> float:
 
 
 @router.post("/process-scan")
-async def process_scan_v2(request: V2ScanRequest):
+async def process_scan_v2(
+    request: V2ScanRequest,
+    user: dict | None = Depends(get_optional_user),
+):
+    # Attribution: operators inherit their company; company users own directly.
+    user_id = user["id"] if user else None
+    company_id = None
+    if user:
+        company_id = user.get("company_id")
+        if company_id is None and user["role"] == "company":
+            company_id = user["id"]
+
     # --- Step 2.2: biophysical biomass engine ---
     strategy = AllometryStrategy.CHAVE_2014_H
     residues = compute_residues(
@@ -192,10 +204,11 @@ Schéma JSON exact:
                 weight_branches_fine_kg, weight_branches_thick_kg,
                 weight_bark_kg, weight_foliar_kg,
                 volume_stump_m3, weight_roots_kg, volume_sawdust_m3,
-                assigned_community_cooperative_id, valorization_plan
+                assigned_community_cooperative_id, valorization_plan,
+                user_id, logging_company_id
             ) VALUES (
                 ST_SetSRID(ST_MakePoint($2, $1), 4326), $3, $4, $5, $6, $7, $8, $9, $10,
-                $11, $12, $13, $14, $15, $16, $17
+                $11, $12, $13, $14, $15, $16, $17, $18, $19
             )
             """,
             request.latitude,
@@ -215,6 +228,8 @@ Schéma JSON exact:
             residues.volume_sawdust_m3,
             best_coop["id"] if best_coop else None,
             plan.model_dump_json(),
+            user_id,
+            company_id,
         )
     except Exception as exc:
         app_logger.warning("v2 persistence failed (scan still returned): %s", exc)
