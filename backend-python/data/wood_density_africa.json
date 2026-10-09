@@ -1,0 +1,7560 @@
+{
+ "Acacia amythethophylla": {
+  "scientific_name": "Acacia amythethophylla",
+  "family": "Fabaceae",
+  "density": 1.007,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Acacia erioloba": {
+  "scientific_name": "Acacia erioloba",
+  "family": "Fabaceae",
+  "density": 1.059,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Acacia galpinii": {
+  "scientific_name": "Acacia galpinii",
+  "family": "Fabaceae",
+  "density": 0.659,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Acacia gerrardii": {
+  "scientific_name": "Acacia gerrardii",
+  "family": "Fabaceae",
+  "density": 0.775,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Acacia goetzei": {
+  "scientific_name": "Acacia goetzei",
+  "family": "Fabaceae",
+  "density": 0.883,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Acacia holosericea": {
+  "scientific_name": "Acacia holosericea",
+  "family": "Fabaceae",
+  "density": 0.749,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Acacia karroo": {
+  "scientific_name": "Acacia karroo",
+  "family": "Fabaceae",
+  "density": 0.689,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Acacia mellifera": {
+  "scientific_name": "Acacia mellifera",
+  "family": "Fabaceae",
+  "density": 0.947,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Acacia robusta": {
+  "scientific_name": "Acacia robusta",
+  "family": "Fabaceae",
+  "density": 0.732,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Acacia xanthophloea": {
+  "scientific_name": "Acacia xanthophloea",
+  "family": "Fabaceae",
+  "density": 0.758,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Acokanthera oppositifolia": {
+  "scientific_name": "Acokanthera oppositifolia",
+  "family": "Apocynaceae",
+  "density": 0.784,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Adansonia digitata": {
+  "scientific_name": "Adansonia digitata",
+  "family": "Malvaceae",
+  "density": 0.276,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Afrocrania volkensii": {
+  "scientific_name": "Afrocrania volkensii",
+  "family": "Cornaceae",
+  "density": 0.663,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Afzelia africana": {
+  "scientific_name": "Afzelia africana",
+  "family": "Fabaceae",
+  "density": 0.693,
+  "n": 14,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Afzelia bella": {
+  "scientific_name": "Afzelia bella",
+  "family": "Fabaceae",
+  "density": 0.637,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Afzelia bipindensis": {
+  "scientific_name": "Afzelia bipindensis",
+  "family": "Fabaceae",
+  "density": 0.731,
+  "n": 11,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Afzelia bracteata": {
+  "scientific_name": "Afzelia bracteata",
+  "family": "Fabaceae",
+  "density": 0.68,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Afzelia pachyloba": {
+  "scientific_name": "Afzelia pachyloba",
+  "family": "Fabaceae",
+  "density": 0.683,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Afzelia parviflora": {
+  "scientific_name": "Afzelia parviflora",
+  "family": "Fabaceae",
+  "density": 0.679,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Afzelia quanzensis": {
+  "scientific_name": "Afzelia quanzensis",
+  "family": "Fabaceae",
+  "density": 0.716,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Aidia micrantha": {
+  "scientific_name": "Aidia micrantha",
+  "family": "Rubiaceae",
+  "density": 0.663,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Aidia ochroleuca": {
+  "scientific_name": "Aidia ochroleuca",
+  "family": "Rubiaceae",
+  "density": 0.824,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Ailanthus altissima": {
+  "scientific_name": "Ailanthus altissima",
+  "family": "Simaroubaceae",
+  "density": 0.49,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Alangium chinense": {
+  "scientific_name": "Alangium chinense",
+  "family": "Cornaceae",
+  "density": 0.361,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Albizia adianthifolia": {
+  "scientific_name": "Albizia adianthifolia",
+  "family": "Fabaceae",
+  "density": 0.51,
+  "n": 7,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Albizia amara": {
+  "scientific_name": "Albizia amara",
+  "family": "Fabaceae",
+  "density": 0.758,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Albizia antunesiana": {
+  "scientific_name": "Albizia antunesiana",
+  "family": "Fabaceae",
+  "density": 0.693,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Albizia brevifolia": {
+  "scientific_name": "Albizia brevifolia",
+  "family": "Fabaceae",
+  "density": 0.801,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Albizia coriaria": {
+  "scientific_name": "Albizia coriaria",
+  "family": "Fabaceae",
+  "density": 0.56,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Albizia dinklagei": {
+  "scientific_name": "Albizia dinklagei",
+  "family": "Fabaceae",
+  "density": 0.76,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Albizia ferruginea": {
+  "scientific_name": "Albizia ferruginea",
+  "family": "Fabaceae",
+  "density": 0.494,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Albizia glaberrima": {
+  "scientific_name": "Albizia glaberrima",
+  "family": "Fabaceae",
+  "density": 0.545,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Albizia grandibracteata": {
+  "scientific_name": "Albizia grandibracteata",
+  "family": "Fabaceae",
+  "density": 0.456,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Albizia gummifera": {
+  "scientific_name": "Albizia gummifera",
+  "family": "Fabaceae",
+  "density": 0.534,
+  "n": 7,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Albizia lebbekoides": {
+  "scientific_name": "Albizia lebbekoides",
+  "family": "Fabaceae",
+  "density": 0.568,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Albizia procera": {
+  "scientific_name": "Albizia procera",
+  "family": "Fabaceae",
+  "density": 0.579,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Albizia schimperiana": {
+  "scientific_name": "Albizia schimperiana",
+  "family": "Fabaceae",
+  "density": 0.525,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Albizia tanganyicensis": {
+  "scientific_name": "Albizia tanganyicensis",
+  "family": "Fabaceae",
+  "density": 0.263,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Albizia versicolor": {
+  "scientific_name": "Albizia versicolor",
+  "family": "Fabaceae",
+  "density": 0.644,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Albizia zimmermannii": {
+  "scientific_name": "Albizia zimmermannii",
+  "family": "Fabaceae",
+  "density": 0.801,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Albizia zygia": {
+  "scientific_name": "Albizia zygia",
+  "family": "Fabaceae",
+  "density": 0.494,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Alchornea hirtella": {
+  "scientific_name": "Alchornea hirtella",
+  "family": "Euphorbiaceae",
+  "density": 0.525,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Allanblackia floribunda": {
+  "scientific_name": "Allanblackia floribunda",
+  "family": "Clusiaceae",
+  "density": 0.687,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Allanblackia parviflora": {
+  "scientific_name": "Allanblackia parviflora",
+  "family": "Clusiaceae",
+  "density": 0.546,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Allanblackia stanerana": {
+  "scientific_name": "Allanblackia stanerana",
+  "family": "Clusiaceae",
+  "density": 0.58,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Allanblackia stuhlmannii": {
+  "scientific_name": "Allanblackia stuhlmannii",
+  "family": "Clusiaceae",
+  "density": 0.621,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Allophylus abyssinicus": {
+  "scientific_name": "Allophylus abyssinicus",
+  "family": "Sapindaceae",
+  "density": 0.568,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Allophylus africanus": {
+  "scientific_name": "Allophylus africanus",
+  "family": "Sapindaceae",
+  "density": 0.45,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Allophylus chirindensis": {
+  "scientific_name": "Allophylus chirindensis",
+  "family": "Sapindaceae",
+  "density": 0.564,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Alnus glutinosa": {
+  "scientific_name": "Alnus glutinosa",
+  "family": "Betulaceae",
+  "density": 0.41,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Alstonia boonei": {
+  "scientific_name": "Alstonia boonei",
+  "family": "Apocynaceae",
+  "density": 0.321,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Alstonia congensis": {
+  "scientific_name": "Alstonia congensis",
+  "family": "Apocynaceae",
+  "density": 0.326,
+  "n": 8,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Alstonia macrophylla": {
+  "scientific_name": "Alstonia macrophylla",
+  "family": "Apocynaceae",
+  "density": 0.64,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Amblygonocarpus andongensis": {
+  "scientific_name": "Amblygonocarpus andongensis",
+  "family": "Fabaceae",
+  "density": 0.916,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Amphimas ferrugineus": {
+  "scientific_name": "Amphimas ferrugineus",
+  "family": "Fabaceae",
+  "density": 0.672,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Amphimas pterocarpoides": {
+  "scientific_name": "Amphimas pterocarpoides",
+  "family": "Fabaceae",
+  "density": 0.617,
+  "n": 7,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Anacardium occidentale": {
+  "scientific_name": "Anacardium occidentale",
+  "family": "Anacardiaceae",
+  "density": 0.431,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Andira inermis": {
+  "scientific_name": "Andira inermis",
+  "family": "Fabaceae",
+  "density": 0.645,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Androstachys johnsonii": {
+  "scientific_name": "Androstachys johnsonii",
+  "family": "Picrodendraceae",
+  "density": 0.585,
+  "n": 3,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Anisophyllea laurina": {
+  "scientific_name": "Anisophyllea laurina",
+  "family": "Anisophylleaceae",
+  "density": 0.762,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Anisophyllea obtusifolia": {
+  "scientific_name": "Anisophyllea obtusifolia",
+  "family": "Anisophylleaceae",
+  "density": 0.663,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Annickia chlorantha": {
+  "scientific_name": "Annickia chlorantha",
+  "family": "Annonaceae",
+  "density": 0.437,
+  "n": 7,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Annickia polycarpa": {
+  "scientific_name": "Annickia polycarpa",
+  "family": "Annonaceae",
+  "density": 0.499,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Anonidium mannii": {
+  "scientific_name": "Anonidium mannii",
+  "family": "Annonaceae",
+  "density": 0.291,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Anopyxis klaineana": {
+  "scientific_name": "Anopyxis klaineana",
+  "family": "Rhizophoraceae",
+  "density": 0.8,
+  "n": 11,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Anthocleista grandiflora": {
+  "scientific_name": "Anthocleista grandiflora",
+  "family": "Gentianaceae",
+  "density": 0.578,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Anthocleista nobilis": {
+  "scientific_name": "Anthocleista nobilis",
+  "family": "Gentianaceae",
+  "density": 0.499,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Anthonotha fragrans": {
+  "scientific_name": "Anthonotha fragrans",
+  "family": "Fabaceae",
+  "density": 0.529,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Anthonotha macrophylla": {
+  "scientific_name": "Anthonotha macrophylla",
+  "family": "Fabaceae",
+  "density": 0.842,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Anthostema aubryanum": {
+  "scientific_name": "Anthostema aubryanum",
+  "family": "Euphorbiaceae",
+  "density": 0.33,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Antiaris toxicaria": {
+  "scientific_name": "Antiaris toxicaria",
+  "family": "Moraceae",
+  "density": 0.39,
+  "n": 17,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Antrocaryon klaineanum": {
+  "scientific_name": "Antrocaryon klaineanum",
+  "family": "Anacardiaceae",
+  "density": 0.526,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Antrocaryon micraster": {
+  "scientific_name": "Antrocaryon micraster",
+  "family": "Anacardiaceae",
+  "density": 0.488,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Antrocaryon nannanii": {
+  "scientific_name": "Antrocaryon nannanii",
+  "family": "Anacardiaceae",
+  "density": 0.482,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Aoranthe cladantha": {
+  "scientific_name": "Aoranthe cladantha",
+  "family": "Rubiaceae",
+  "density": 0.806,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Aphanocalyx heitzii": {
+  "scientific_name": "Aphanocalyx heitzii",
+  "family": "Fabaceae",
+  "density": 0.457,
+  "n": 16,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Aphloia theiformis": {
+  "scientific_name": "Aphloia theiformis",
+  "family": "Aphloiaceae",
+  "density": 0.621,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Apodytes dimidiata": {
+  "scientific_name": "Apodytes dimidiata",
+  "family": "Icacinaceae",
+  "density": 0.61,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Arbutus pavarii": {
+  "scientific_name": "Arbutus pavarii",
+  "family": "Ericaceae",
+  "density": 0.76,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Artocarpus altilis": {
+  "scientific_name": "Artocarpus altilis",
+  "family": "Moraceae",
+  "density": 0.495,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Aucoumea klaineana": {
+  "scientific_name": "Aucoumea klaineana",
+  "family": "Burseraceae",
+  "density": 0.378,
+  "n": 26,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Aulacocalyx diervilleoides": {
+  "scientific_name": "Aulacocalyx diervilleoides",
+  "family": "Rubiaceae",
+  "density": 0.564,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Autranella congolensis": {
+  "scientific_name": "Autranella congolensis",
+  "family": "Sapotaceae",
+  "density": 0.777,
+  "n": 8,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Baikiaea insignis": {
+  "scientific_name": "Baikiaea insignis",
+  "family": "Fabaceae",
+  "density": 0.686,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Baikiaea plurijuga": {
+  "scientific_name": "Baikiaea plurijuga",
+  "family": "Fabaceae",
+  "density": 0.761,
+  "n": 3,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Baillonella djave": {
+  "scientific_name": "Baillonella djave",
+  "family": "Sapotaceae",
+  "density": 0.621,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Baillonella toxisperma": {
+  "scientific_name": "Baillonella toxisperma",
+  "family": "Sapotaceae",
+  "density": 0.725,
+  "n": 10,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Balanites aegyptiaca": {
+  "scientific_name": "Balanites aegyptiaca",
+  "family": "Zygophyllaceae",
+  "density": 0.674,
+  "n": 3,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Baphia kirkii": {
+  "scientific_name": "Baphia kirkii",
+  "family": "Fabaceae",
+  "density": 0.985,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Baphia nitida": {
+  "scientific_name": "Baphia nitida",
+  "family": "Fabaceae",
+  "density": 0.559,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Barringtonia racemosa": {
+  "scientific_name": "Barringtonia racemosa",
+  "family": "Lecythidaceae",
+  "density": 0.557,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Bauhinia petersiana": {
+  "scientific_name": "Bauhinia petersiana",
+  "family": "Fabaceae",
+  "density": 0.689,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Beilschmiedia corbisieri": {
+  "scientific_name": "Beilschmiedia corbisieri",
+  "family": "Lauraceae",
+  "density": 0.663,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Beilschmiedia diversiflora": {
+  "scientific_name": "Beilschmiedia diversiflora",
+  "family": "Lauraceae",
+  "density": 0.649,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Beilschmiedia hutchinsoniana": {
+  "scientific_name": "Beilschmiedia hutchinsoniana",
+  "family": "Lauraceae",
+  "density": 0.603,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Beilschmiedia kweo": {
+  "scientific_name": "Beilschmiedia kweo",
+  "family": "Lauraceae",
+  "density": 0.603,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Beilschmiedia letouzeyi": {
+  "scientific_name": "Beilschmiedia letouzeyi",
+  "family": "Lauraceae",
+  "density": 0.596,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Beilschmiedia louisii": {
+  "scientific_name": "Beilschmiedia louisii",
+  "family": "Lauraceae",
+  "density": 0.738,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Beilschmiedia mannii": {
+  "scientific_name": "Beilschmiedia mannii",
+  "family": "Lauraceae",
+  "density": 0.57,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Beilschmiedia membranifolia": {
+  "scientific_name": "Beilschmiedia membranifolia",
+  "family": "Lauraceae",
+  "density": 0.534,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Beilschmiedia nitida": {
+  "scientific_name": "Beilschmiedia nitida",
+  "family": "Lauraceae",
+  "density": 0.538,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Beilschmiedia oblongifolia": {
+  "scientific_name": "Beilschmiedia oblongifolia",
+  "family": "Lauraceae",
+  "density": 0.603,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Berchemia discolor": {
+  "scientific_name": "Berchemia discolor",
+  "family": "Rhamnaceae",
+  "density": 0.847,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Berchemia zeyheri": {
+  "scientific_name": "Berchemia zeyheri",
+  "family": "Rhamnaceae",
+  "density": 0.863,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Berlinia acuminata": {
+  "scientific_name": "Berlinia acuminata",
+  "family": "Fabaceae",
+  "density": 0.62,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Berlinia auriculata": {
+  "scientific_name": "Berlinia auriculata",
+  "family": "Fabaceae",
+  "density": 0.661,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Berlinia bracteosa": {
+  "scientific_name": "Berlinia bracteosa",
+  "family": "Fabaceae",
+  "density": 0.603,
+  "n": 10,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Berlinia confusa": {
+  "scientific_name": "Berlinia confusa",
+  "family": "Fabaceae",
+  "density": 0.602,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Berlinia grandiflora": {
+  "scientific_name": "Berlinia grandiflora",
+  "family": "Fabaceae",
+  "density": 0.626,
+  "n": 11,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Berlinia niembaensis": {
+  "scientific_name": "Berlinia niembaensis",
+  "family": "Fabaceae",
+  "density": 0.68,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Berlinia viridicans": {
+  "scientific_name": "Berlinia viridicans",
+  "family": "Fabaceae",
+  "density": 0.568,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Bersama abyssinica": {
+  "scientific_name": "Bersama abyssinica",
+  "family": "Melianthaceae",
+  "density": 0.617,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Bersama swynnertonii": {
+  "scientific_name": "Bersama swynnertonii",
+  "family": "Melianthaceae",
+  "density": 0.62,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Betula pendula": {
+  "scientific_name": "Betula pendula",
+  "family": "Betulaceae",
+  "density": 0.5,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Bischofia javanica": {
+  "scientific_name": "Bischofia javanica",
+  "family": "Phyllanthaceae",
+  "density": 0.56,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Blighia sapida": {
+  "scientific_name": "Blighia sapida",
+  "family": "Sapindaceae",
+  "density": 0.762,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Blighia unijugata": {
+  "scientific_name": "Blighia unijugata",
+  "family": "Sapindaceae",
+  "density": 0.508,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Blighia welwitschii": {
+  "scientific_name": "Blighia welwitschii",
+  "family": "Sapindaceae",
+  "density": 0.786,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Bolusanthus speciosus": {
+  "scientific_name": "Bolusanthus speciosus",
+  "family": "Fabaceae",
+  "density": 0.839,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Bombax brevicuspe": {
+  "scientific_name": "Bombax brevicuspe",
+  "family": "Malvaceae",
+  "density": 0.423,
+  "n": 10,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Bombax buonopozense": {
+  "scientific_name": "Bombax buonopozense",
+  "family": "Malvaceae",
+  "density": 0.325,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Bombax ceiba": {
+  "scientific_name": "Bombax ceiba",
+  "family": "Malvaceae",
+  "density": 0.414,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Bombax costatum": {
+  "scientific_name": "Bombax costatum",
+  "family": "Malvaceae",
+  "density": 0.374,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Bombax rhodognaphalon": {
+  "scientific_name": "Bombax rhodognaphalon",
+  "family": "Malvaceae",
+  "density": 0.385,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Boscia salicifolia": {
+  "scientific_name": "Boscia salicifolia",
+  "family": "Brassicaceae",
+  "density": 0.594,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Brachylaena huillensis": {
+  "scientific_name": "Brachylaena huillensis",
+  "family": "Asteraceae",
+  "density": 0.735,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Brachylaena rotundata": {
+  "scientific_name": "Brachylaena rotundata",
+  "family": "Asteraceae",
+  "density": 0.771,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Brachystegia allenii": {
+  "scientific_name": "Brachystegia allenii",
+  "family": "Fabaceae",
+  "density": 0.646,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Brachystegia appendiculata": {
+  "scientific_name": "Brachystegia appendiculata",
+  "family": "Fabaceae",
+  "density": 0.68,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Brachystegia boehmii": {
+  "scientific_name": "Brachystegia boehmii",
+  "family": "Fabaceae",
+  "density": 0.627,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Brachystegia cynometroides": {
+  "scientific_name": "Brachystegia cynometroides",
+  "family": "Fabaceae",
+  "density": 0.569,
+  "n": 10,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Brachystegia eurycoma": {
+  "scientific_name": "Brachystegia eurycoma",
+  "family": "Fabaceae",
+  "density": 0.602,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Brachystegia glaucescens": {
+  "scientific_name": "Brachystegia glaucescens",
+  "family": "Fabaceae",
+  "density": 0.827,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Brachystegia laurentii": {
+  "scientific_name": "Brachystegia laurentii",
+  "family": "Fabaceae",
+  "density": 0.5,
+  "n": 15,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Brachystegia leonensis": {
+  "scientific_name": "Brachystegia leonensis",
+  "family": "Fabaceae",
+  "density": 0.492,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Brachystegia mildbraedii": {
+  "scientific_name": "Brachystegia mildbraedii",
+  "family": "Fabaceae",
+  "density": 0.509,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Brachystegia nigerica": {
+  "scientific_name": "Brachystegia nigerica",
+  "family": "Fabaceae",
+  "density": 0.577,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Brachystegia spiciformis": {
+  "scientific_name": "Brachystegia spiciformis",
+  "family": "Fabaceae",
+  "density": 0.671,
+  "n": 4,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Brachystegia utilis": {
+  "scientific_name": "Brachystegia utilis",
+  "family": "Fabaceae",
+  "density": 0.827,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Brachystegia zenkeri": {
+  "scientific_name": "Brachystegia zenkeri",
+  "family": "Fabaceae",
+  "density": 0.48,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Breonadia salicina": {
+  "scientific_name": "Breonadia salicina",
+  "family": "Rubiaceae",
+  "density": 0.818,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Breviea sericea": {
+  "scientific_name": "Breviea sericea",
+  "family": "Sapotaceae",
+  "density": 0.481,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Bridelia grandis": {
+  "scientific_name": "Bridelia grandis",
+  "family": "Phyllanthaceae",
+  "density": 0.523,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Bridelia micrantha": {
+  "scientific_name": "Bridelia micrantha",
+  "family": "Phyllanthaceae",
+  "density": 0.51,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Bridelia ndellensis": {
+  "scientific_name": "Bridelia ndellensis",
+  "family": "Phyllanthaceae",
+  "density": 0.55,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Broussonetia greveana": {
+  "scientific_name": "Broussonetia greveana",
+  "family": "Moraceae",
+  "density": 0.418,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Burkea africana": {
+  "scientific_name": "Burkea africana",
+  "family": "Fabaceae",
+  "density": 0.647,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Bussea occidentalis": {
+  "scientific_name": "Bussea occidentalis",
+  "family": "Fabaceae",
+  "density": 0.792,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Buxus sempervirens": {
+  "scientific_name": "Buxus sempervirens",
+  "family": "Buxaceae",
+  "density": 0.78,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Calodendrum capense": {
+  "scientific_name": "Calodendrum capense",
+  "family": "Rutaceae",
+  "density": 0.62,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Calpocalyx brevibracteatus": {
+  "scientific_name": "Calpocalyx brevibracteatus",
+  "family": "Fabaceae",
+  "density": 0.727,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Calpocalyx heitzii": {
+  "scientific_name": "Calpocalyx heitzii",
+  "family": "Fabaceae",
+  "density": 0.727,
+  "n": 15,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Calpocalyx klainei": {
+  "scientific_name": "Calpocalyx klainei",
+  "family": "Fabaceae",
+  "density": 0.686,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Canarium schweinfurthii": {
+  "scientific_name": "Canarium schweinfurthii",
+  "family": "Burseraceae",
+  "density": 0.409,
+  "n": 16,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Canthium lactescens": {
+  "scientific_name": "Canthium lactescens",
+  "family": "Rubiaceae",
+  "density": 0.715,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Carapa procera": {
+  "scientific_name": "Carapa procera",
+  "family": "Meliaceae",
+  "density": 0.604,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Carphalea pubescens": {
+  "scientific_name": "Carphalea pubescens",
+  "family": "Rubiaceae",
+  "density": 0.857,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Casearia battiscombei": {
+  "scientific_name": "Casearia battiscombei",
+  "family": "Salicaceae",
+  "density": 0.508,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cassia abbreviata": {
+  "scientific_name": "Cassia abbreviata",
+  "family": "Fabaceae",
+  "density": 0.883,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cassia fistula": {
+  "scientific_name": "Cassia fistula",
+  "family": "Fabaceae",
+  "density": 0.719,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cassia javanica": {
+  "scientific_name": "Cassia javanica",
+  "family": "Fabaceae",
+  "density": 0.758,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cassine aethiopica": {
+  "scientific_name": "Cassine aethiopica",
+  "family": "Celastraceae",
+  "density": 0.827,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cassine papillosa": {
+  "scientific_name": "Cassine papillosa",
+  "family": "Celastraceae",
+  "density": 0.551,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cassine schlechteriana": {
+  "scientific_name": "Cassine schlechteriana",
+  "family": "Celastraceae",
+  "density": 0.775,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cassine transvaalensis": {
+  "scientific_name": "Cassine transvaalensis",
+  "family": "Celastraceae",
+  "density": 0.827,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cassipourea congoensis": {
+  "scientific_name": "Cassipourea congoensis",
+  "family": "Rhizophoraceae",
+  "density": 0.66,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cassipourea euryoides": {
+  "scientific_name": "Cassipourea euryoides",
+  "family": "Rhizophoraceae",
+  "density": 0.738,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cassipourea firestoneana": {
+  "scientific_name": "Cassipourea firestoneana",
+  "family": "Rhizophoraceae",
+  "density": 0.74,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cassipourea gummiflua": {
+  "scientific_name": "Cassipourea gummiflua",
+  "family": "Rhizophoraceae",
+  "density": 0.508,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cassipourea malosana": {
+  "scientific_name": "Cassipourea malosana",
+  "family": "Rhizophoraceae",
+  "density": 0.587,
+  "n": 4,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Castanea sativa": {
+  "scientific_name": "Castanea sativa",
+  "family": "Fagaceae",
+  "density": 0.463,
+  "n": 3,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Catalpa bignonioides": {
+  "scientific_name": "Catalpa bignonioides",
+  "family": "Bignoniaceae",
+  "density": 0.38,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Catha edulis": {
+  "scientific_name": "Catha edulis",
+  "family": "Celastraceae",
+  "density": 0.646,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Catunaregam obovata": {
+  "scientific_name": "Catunaregam obovata",
+  "family": "Rubiaceae",
+  "density": 0.814,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cedrelopsis grevei": {
+  "scientific_name": "Cedrelopsis grevei",
+  "family": "Rutaceae",
+  "density": 0.792,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Ceiba pentandra": {
+  "scientific_name": "Ceiba pentandra",
+  "family": "Malvaceae",
+  "density": 0.281,
+  "n": 14,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Celtis adolfi-fridericii": {
+  "scientific_name": "Celtis adolfi-fridericii",
+  "family": "Cannabaceae",
+  "density": 0.581,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Celtis africana": {
+  "scientific_name": "Celtis africana",
+  "family": "Cannabaceae",
+  "density": 0.619,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Celtis brieyi": {
+  "scientific_name": "Celtis brieyi",
+  "family": "Cannabaceae",
+  "density": 0.607,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Celtis gomphophylla": {
+  "scientific_name": "Celtis gomphophylla",
+  "family": "Cannabaceae",
+  "density": 0.568,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Celtis mildbraedii": {
+  "scientific_name": "Celtis mildbraedii",
+  "family": "Cannabaceae",
+  "density": 0.618,
+  "n": 7,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Celtis philippensis": {
+  "scientific_name": "Celtis philippensis",
+  "family": "Cannabaceae",
+  "density": 0.702,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Celtis prantlii": {
+  "scientific_name": "Celtis prantlii",
+  "family": "Cannabaceae",
+  "density": 0.67,
+  "n": 3,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Celtis tessmannii": {
+  "scientific_name": "Celtis tessmannii",
+  "family": "Cannabaceae",
+  "density": 0.656,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Celtis zenkeri": {
+  "scientific_name": "Celtis zenkeri",
+  "family": "Cannabaceae",
+  "density": 0.608,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cephalosphaera usambarensis": {
+  "scientific_name": "Cephalosphaera usambarensis",
+  "family": "Myristicaceae",
+  "density": 0.429,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Chloroxylon swietenia": {
+  "scientific_name": "Chloroxylon swietenia",
+  "family": "Rutaceae",
+  "density": 0.812,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Chorisia speciosa": {
+  "scientific_name": "Chorisia speciosa",
+  "family": "Malvaceae",
+  "density": 0.361,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Chrysophyllum africanum": {
+  "scientific_name": "Chrysophyllum africanum",
+  "family": "Sapotaceae",
+  "density": 0.61,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Chrysophyllum albidum": {
+  "scientific_name": "Chrysophyllum albidum",
+  "family": "Sapotaceae",
+  "density": 0.602,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Chrysophyllum boivinianum": {
+  "scientific_name": "Chrysophyllum boivinianum",
+  "family": "Sapotaceae",
+  "density": 0.551,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Chrysophyllum giganteum": {
+  "scientific_name": "Chrysophyllum giganteum",
+  "family": "Sapotaceae",
+  "density": 0.483,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Chrysophyllum gorungosanum": {
+  "scientific_name": "Chrysophyllum gorungosanum",
+  "family": "Sapotaceae",
+  "density": 0.538,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Chrysophyllum lacourtianum": {
+  "scientific_name": "Chrysophyllum lacourtianum",
+  "family": "Sapotaceae",
+  "density": 0.63,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Chrysophyllum lanceolatum": {
+  "scientific_name": "Chrysophyllum lanceolatum",
+  "family": "Sapotaceae",
+  "density": 0.678,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Chrysophyllum perpulchrum": {
+  "scientific_name": "Chrysophyllum perpulchrum",
+  "family": "Sapotaceae",
+  "density": 0.711,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Chrysophyllum subnudum": {
+  "scientific_name": "Chrysophyllum subnudum",
+  "family": "Sapotaceae",
+  "density": 0.64,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Chrysophyllum viridifolium": {
+  "scientific_name": "Chrysophyllum viridifolium",
+  "family": "Sapotaceae",
+  "density": 0.508,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cinnamomum camphora": {
+  "scientific_name": "Cinnamomum camphora",
+  "family": "Lauraceae",
+  "density": 0.42,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Citropsis daweana": {
+  "scientific_name": "Citropsis daweana",
+  "family": "Rutaceae",
+  "density": 0.827,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Clausena anisata": {
+  "scientific_name": "Clausena anisata",
+  "family": "Rutaceae",
+  "density": 0.482,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cleistanthus mildbraedii": {
+  "scientific_name": "Cleistanthus mildbraedii",
+  "family": "Phyllanthaceae",
+  "density": 0.921,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cleistanthus schlechteri": {
+  "scientific_name": "Cleistanthus schlechteri",
+  "family": "Phyllanthaceae",
+  "density": 0.633,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cleistopholis glauca": {
+  "scientific_name": "Cleistopholis glauca",
+  "family": "Annonaceae",
+  "density": 0.309,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cleistopholis patens": {
+  "scientific_name": "Cleistopholis patens",
+  "family": "Annonaceae",
+  "density": 0.336,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Clerodendrum glabrum": {
+  "scientific_name": "Clerodendrum glabrum",
+  "family": "Lamiaceae",
+  "density": 0.607,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Coelocaryon klainei": {
+  "scientific_name": "Coelocaryon klainei",
+  "family": "Myristicaceae",
+  "density": 0.534,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Coelocaryon oxycarpum": {
+  "scientific_name": "Coelocaryon oxycarpum",
+  "family": "Myristicaceae",
+  "density": 0.451,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Coelocaryon preussii": {
+  "scientific_name": "Coelocaryon preussii",
+  "family": "Myristicaceae",
+  "density": 0.495,
+  "n": 19,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Coffea arabica": {
+  "scientific_name": "Coffea arabica",
+  "family": "Rubiaceae",
+  "density": 0.62,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Coffea zanguebariae": {
+  "scientific_name": "Coffea zanguebariae",
+  "family": "Rubiaceae",
+  "density": 0.646,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cola acuminata": {
+  "scientific_name": "Cola acuminata",
+  "family": "Malvaceae",
+  "density": 0.508,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cola buntingii": {
+  "scientific_name": "Cola buntingii",
+  "family": "Malvaceae",
+  "density": 0.714,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cola cordifolia": {
+  "scientific_name": "Cola cordifolia",
+  "family": "Malvaceae",
+  "density": 0.523,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cola gigantea": {
+  "scientific_name": "Cola gigantea",
+  "family": "Malvaceae",
+  "density": 0.48,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cola greenwayi": {
+  "scientific_name": "Cola greenwayi",
+  "family": "Malvaceae",
+  "density": 0.696,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cola lateritia": {
+  "scientific_name": "Cola lateritia",
+  "family": "Malvaceae",
+  "density": 0.507,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cola natalensis": {
+  "scientific_name": "Cola natalensis",
+  "family": "Malvaceae",
+  "density": 0.738,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Colophospermum mopane": {
+  "scientific_name": "Colophospermum mopane",
+  "family": "Fabaceae",
+  "density": 0.904,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Combretum apiculatum": {
+  "scientific_name": "Combretum apiculatum",
+  "family": "Combretaceae",
+  "density": 0.87,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Combretum elaeagnoides": {
+  "scientific_name": "Combretum elaeagnoides",
+  "family": "Combretaceae",
+  "density": 0.857,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Combretum erythrophyllum": {
+  "scientific_name": "Combretum erythrophyllum",
+  "family": "Combretaceae",
+  "density": 0.603,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Combretum fragrans": {
+  "scientific_name": "Combretum fragrans",
+  "family": "Combretaceae",
+  "density": 0.646,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Combretum glutinosum": {
+  "scientific_name": "Combretum glutinosum",
+  "family": "Combretaceae",
+  "density": 0.9,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Combretum hereroense": {
+  "scientific_name": "Combretum hereroense",
+  "family": "Combretaceae",
+  "density": 0.814,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Combretum imberbe": {
+  "scientific_name": "Combretum imberbe",
+  "family": "Combretaceae",
+  "density": 1.059,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Combretum molle": {
+  "scientific_name": "Combretum molle",
+  "family": "Combretaceae",
+  "density": 0.758,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Combretum schumannii": {
+  "scientific_name": "Combretum schumannii",
+  "family": "Combretaceae",
+  "density": 0.929,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Commiphora africana": {
+  "scientific_name": "Commiphora africana",
+  "family": "Burseraceae",
+  "density": 0.276,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Commiphora caerulea": {
+  "scientific_name": "Commiphora caerulea",
+  "family": "Burseraceae",
+  "density": 0.37,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Commiphora edulis": {
+  "scientific_name": "Commiphora edulis",
+  "family": "Burseraceae",
+  "density": 0.646,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Commiphora marlothii": {
+  "scientific_name": "Commiphora marlothii",
+  "family": "Burseraceae",
+  "density": 0.456,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Commiphora mollis": {
+  "scientific_name": "Commiphora mollis",
+  "family": "Burseraceae",
+  "density": 0.37,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Copaifera mildbraedii": {
+  "scientific_name": "Copaifera mildbraedii",
+  "family": "Fabaceae",
+  "density": 0.66,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Copaifera officinalis": {
+  "scientific_name": "Copaifera officinalis",
+  "family": "Fabaceae",
+  "density": 0.636,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Copaifera religiosa": {
+  "scientific_name": "Copaifera religiosa",
+  "family": "Fabaceae",
+  "density": 0.512,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Copaifera salikounda": {
+  "scientific_name": "Copaifera salikounda",
+  "family": "Fabaceae",
+  "density": 0.696,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cordia abyssinica": {
+  "scientific_name": "Cordia abyssinica",
+  "family": "Boraginaceae",
+  "density": 0.577,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cordia africana": {
+  "scientific_name": "Cordia africana",
+  "family": "Boraginaceae",
+  "density": 0.466,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cordia caffra": {
+  "scientific_name": "Cordia caffra",
+  "family": "Boraginaceae",
+  "density": 0.723,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cordia goetzei": {
+  "scientific_name": "Cordia goetzei",
+  "family": "Boraginaceae",
+  "density": 0.758,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cordia millenii": {
+  "scientific_name": "Cordia millenii",
+  "family": "Boraginaceae",
+  "density": 0.409,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cordia platythyrsa": {
+  "scientific_name": "Cordia platythyrsa",
+  "family": "Boraginaceae",
+  "density": 0.385,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cordyla africana": {
+  "scientific_name": "Cordyla africana",
+  "family": "Fabaceae",
+  "density": 0.73,
+  "n": 4,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Cordyla pinnata": {
+  "scientific_name": "Cordyla pinnata",
+  "family": "Fabaceae",
+  "density": 0.754,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Corynanthe pachyceras": {
+  "scientific_name": "Corynanthe pachyceras",
+  "family": "Rubiaceae",
+  "density": 0.672,
+  "n": 3,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Coula edulis": {
+  "scientific_name": "Coula edulis",
+  "family": "Olacaceae",
+  "density": 0.895,
+  "n": 12,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Craibia brevicaudata": {
+  "scientific_name": "Craibia brevicaudata",
+  "family": "Fabaceae",
+  "density": 0.619,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Crassocephalum mannii": {
+  "scientific_name": "Crassocephalum mannii",
+  "family": "Asteraceae",
+  "density": 0.331,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Craterispermum schweinfurthii": {
+  "scientific_name": "Craterispermum schweinfurthii",
+  "family": "Rubiaceae",
+  "density": 0.663,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Crescentia cujete": {
+  "scientific_name": "Crescentia cujete",
+  "family": "Bignoniaceae",
+  "density": 0.568,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Crossopteryx febrifuga": {
+  "scientific_name": "Crossopteryx febrifuga",
+  "family": "Rubiaceae",
+  "density": 0.702,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Croton macrostachyus": {
+  "scientific_name": "Croton macrostachyus",
+  "family": "Euphorbiaceae",
+  "density": 0.479,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Croton megalobotrys": {
+  "scientific_name": "Croton megalobotrys",
+  "family": "Euphorbiaceae",
+  "density": 0.551,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Croton megalocarpus": {
+  "scientific_name": "Croton megalocarpus",
+  "family": "Euphorbiaceae",
+  "density": 0.563,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Croton oligandrus": {
+  "scientific_name": "Croton oligandrus",
+  "family": "Euphorbiaceae",
+  "density": 0.571,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Croton tchibangensis": {
+  "scientific_name": "Croton tchibangensis",
+  "family": "Euphorbiaceae",
+  "density": 0.36,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cryptosepalum staudtii": {
+  "scientific_name": "Cryptosepalum staudtii",
+  "family": "Fabaceae",
+  "density": 0.753,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Ctenolophon englerianus": {
+  "scientific_name": "Ctenolophon englerianus",
+  "family": "Ctenolophonaceae",
+  "density": 0.826,
+  "n": 7,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cupaniopsis apiocarpa": {
+  "scientific_name": "Cupaniopsis apiocarpa",
+  "family": "Sapindaceae",
+  "density": 0.715,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cupressus lusitanica": {
+  "scientific_name": "Cupressus lusitanica",
+  "family": "Cupressaceae",
+  "density": 0.39,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cupressus sempervirens": {
+  "scientific_name": "Cupressus sempervirens",
+  "family": "Cupressaceae",
+  "density": 0.49,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Curtisia dentata": {
+  "scientific_name": "Curtisia dentata",
+  "family": "Curtisiaceae",
+  "density": 0.801,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cussonia arborea": {
+  "scientific_name": "Cussonia arborea",
+  "family": "Araliaceae",
+  "density": 0.361,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cussonia spicata": {
+  "scientific_name": "Cussonia spicata",
+  "family": "Araliaceae",
+  "density": 0.445,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Cylicodiscus gabunensis": {
+  "scientific_name": "Cylicodiscus gabunensis",
+  "family": "Fabaceae",
+  "density": 0.79,
+  "n": 18,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cynometra alexandri": {
+  "scientific_name": "Cynometra alexandri",
+  "family": "Fabaceae",
+  "density": 0.744,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cynometra ananta": {
+  "scientific_name": "Cynometra ananta",
+  "family": "Fabaceae",
+  "density": 0.83,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Cynometra hankei": {
+  "scientific_name": "Cynometra hankei",
+  "family": "Fabaceae",
+  "density": 0.841,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dacryodes buettneri": {
+  "scientific_name": "Dacryodes buettneri",
+  "family": "Burseraceae",
+  "density": 0.513,
+  "n": 20,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dacryodes edulis": {
+  "scientific_name": "Dacryodes edulis",
+  "family": "Burseraceae",
+  "density": 0.516,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dacryodes heterotricha": {
+  "scientific_name": "Dacryodes heterotricha",
+  "family": "Burseraceae",
+  "density": 0.604,
+  "n": 7,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dacryodes igaganga": {
+  "scientific_name": "Dacryodes igaganga",
+  "family": "Burseraceae",
+  "density": 0.537,
+  "n": 11,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dacryodes klaineana": {
+  "scientific_name": "Dacryodes klaineana",
+  "family": "Burseraceae",
+  "density": 0.724,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dacryodes letestui": {
+  "scientific_name": "Dacryodes letestui",
+  "family": "Burseraceae",
+  "density": 0.548,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dacryodes macrophylla": {
+  "scientific_name": "Dacryodes macrophylla",
+  "family": "Burseraceae",
+  "density": 0.553,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dacryodes normandii": {
+  "scientific_name": "Dacryodes normandii",
+  "family": "Burseraceae",
+  "density": 0.517,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dacryodes pubescens": {
+  "scientific_name": "Dacryodes pubescens",
+  "family": "Burseraceae",
+  "density": 0.582,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dalbergia baronii": {
+  "scientific_name": "Dalbergia baronii",
+  "family": "Fabaceae",
+  "density": 0.439,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dalbergia latifolia": {
+  "scientific_name": "Dalbergia latifolia",
+  "family": "Fabaceae",
+  "density": 0.725,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dalbergia melanoxylon": {
+  "scientific_name": "Dalbergia melanoxylon",
+  "family": "Fabaceae",
+  "density": 1.077,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dalbergia sissoo": {
+  "scientific_name": "Dalbergia sissoo",
+  "family": "Fabaceae",
+  "density": 0.659,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Daniellia klainei": {
+  "scientific_name": "Daniellia klainei",
+  "family": "Fabaceae",
+  "density": 0.444,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Daniellia ogea": {
+  "scientific_name": "Daniellia ogea",
+  "family": "Fabaceae",
+  "density": 0.431,
+  "n": 7,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Daniellia oliveri": {
+  "scientific_name": "Daniellia oliveri",
+  "family": "Fabaceae",
+  "density": 0.493,
+  "n": 11,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Daniellia pynaertii": {
+  "scientific_name": "Daniellia pynaertii",
+  "family": "Fabaceae",
+  "density": 0.4,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Daniellia soyauxii": {
+  "scientific_name": "Daniellia soyauxii",
+  "family": "Fabaceae",
+  "density": 0.463,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Daniellia thurifera": {
+  "scientific_name": "Daniellia thurifera",
+  "family": "Fabaceae",
+  "density": 0.46,
+  "n": 8,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dasylepis integra": {
+  "scientific_name": "Dasylepis integra",
+  "family": "Salicaceae",
+  "density": 0.64,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Delonix regia": {
+  "scientific_name": "Delonix regia",
+  "family": "Fabaceae",
+  "density": 0.534,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Desbordesia glaucescens": {
+  "scientific_name": "Desbordesia glaucescens",
+  "family": "Irvingiaceae",
+  "density": 0.915,
+  "n": 7,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Desbordesia pierreana": {
+  "scientific_name": "Desbordesia pierreana",
+  "family": "Irvingiaceae",
+  "density": 0.947,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Detarium senegalense": {
+  "scientific_name": "Detarium senegalense",
+  "family": "Fabaceae",
+  "density": 0.7,
+  "n": 6,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Dialium bipindense": {
+  "scientific_name": "Dialium bipindense",
+  "family": "Fabaceae",
+  "density": 0.959,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dialium corbisieri": {
+  "scientific_name": "Dialium corbisieri",
+  "family": "Fabaceae",
+  "density": 0.876,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dialium dinklagei": {
+  "scientific_name": "Dialium dinklagei",
+  "family": "Fabaceae",
+  "density": 0.724,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dialium englerianum": {
+  "scientific_name": "Dialium englerianum",
+  "family": "Fabaceae",
+  "density": 0.801,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Dialium excelsum": {
+  "scientific_name": "Dialium excelsum",
+  "family": "Fabaceae",
+  "density": 0.824,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dialium pachyphyllum": {
+  "scientific_name": "Dialium pachyphyllum",
+  "family": "Fabaceae",
+  "density": 0.922,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dichrostachys cinerea": {
+  "scientific_name": "Dichrostachys cinerea",
+  "family": "Fabaceae",
+  "density": 0.99,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Dicranolepis usambarica": {
+  "scientific_name": "Dicranolepis usambarica",
+  "family": "Thymelaeaceae",
+  "density": 0.6,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Didelotia africana": {
+  "scientific_name": "Didelotia africana",
+  "family": "Fabaceae",
+  "density": 0.661,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Didelotia brevipaniculata": {
+  "scientific_name": "Didelotia brevipaniculata",
+  "family": "Fabaceae",
+  "density": 0.553,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Didelotia idae": {
+  "scientific_name": "Didelotia idae",
+  "family": "Fabaceae",
+  "density": 0.551,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Didelotia letouzeyi": {
+  "scientific_name": "Didelotia letouzeyi",
+  "family": "Fabaceae",
+  "density": 0.516,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Didymosalpinx norae": {
+  "scientific_name": "Didymosalpinx norae",
+  "family": "Rubiaceae",
+  "density": 0.715,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Diogoa zenkeri": {
+  "scientific_name": "Diogoa zenkeri",
+  "family": "Olacaceae",
+  "density": 0.696,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Diospyros crassiflora": {
+  "scientific_name": "Diospyros crassiflora",
+  "family": "Ebenaceae",
+  "density": 0.858,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Diospyros dendo": {
+  "scientific_name": "Diospyros dendo",
+  "family": "Ebenaceae",
+  "density": 0.905,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Diospyros ferrea": {
+  "scientific_name": "Diospyros ferrea",
+  "family": "Ebenaceae",
+  "density": 0.98,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Diospyros kamerunensis": {
+  "scientific_name": "Diospyros kamerunensis",
+  "family": "Ebenaceae",
+  "density": 0.825,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Diospyros kirkii": {
+  "scientific_name": "Diospyros kirkii",
+  "family": "Ebenaceae",
+  "density": 0.633,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Diospyros mannii": {
+  "scientific_name": "Diospyros mannii",
+  "family": "Ebenaceae",
+  "density": 0.813,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Diospyros mespiliformis": {
+  "scientific_name": "Diospyros mespiliformis",
+  "family": "Ebenaceae",
+  "density": 0.702,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Diospyros quiloensis": {
+  "scientific_name": "Diospyros quiloensis",
+  "family": "Ebenaceae",
+  "density": 0.814,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Diospyros sanza-minika": {
+  "scientific_name": "Diospyros sanza-minika",
+  "family": "Ebenaceae",
+  "density": 0.719,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Diospyros senensis": {
+  "scientific_name": "Diospyros senensis",
+  "family": "Ebenaceae",
+  "density": 0.676,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Diplorhynchus condylocarpon": {
+  "scientific_name": "Diplorhynchus condylocarpon",
+  "family": "Apocynaceae",
+  "density": 0.667,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Discoglypremna caloneura": {
+  "scientific_name": "Discoglypremna caloneura",
+  "family": "Euphorbiaceae",
+  "density": 0.34,
+  "n": 10,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Distemonanthus benthamianus": {
+  "scientific_name": "Distemonanthus benthamianus",
+  "family": "Fabaceae",
+  "density": 0.605,
+  "n": 14,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dombeya burgessiae": {
+  "scientific_name": "Dombeya burgessiae",
+  "family": "Malvaceae",
+  "density": 0.482,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Dovyalis caffra": {
+  "scientific_name": "Dovyalis caffra",
+  "family": "Salicaceae",
+  "density": 0.676,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Dovyalis macrocalyx": {
+  "scientific_name": "Dovyalis macrocalyx",
+  "family": "Salicaceae",
+  "density": 0.482,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Dracaena reflexa": {
+  "scientific_name": "Dracaena reflexa",
+  "family": "Ruscaceae",
+  "density": 0.413,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Drypetes aubrevillei": {
+  "scientific_name": "Drypetes aubrevillei",
+  "family": "Putranjavaceae",
+  "density": 0.826,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Drypetes gerrardii": {
+  "scientific_name": "Drypetes gerrardii",
+  "family": "Putranjavaceae",
+  "density": 0.703,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Drypetes gossweileri": {
+  "scientific_name": "Drypetes gossweileri",
+  "family": "Putranjavaceae",
+  "density": 0.669,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Drypetes usambarica": {
+  "scientific_name": "Drypetes usambarica",
+  "family": "Putranjavaceae",
+  "density": 0.62,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Duguetia confinis": {
+  "scientific_name": "Duguetia confinis",
+  "family": "Annonaceae",
+  "density": 0.621,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Duguetia staudtii": {
+  "scientific_name": "Duguetia staudtii",
+  "family": "Annonaceae",
+  "density": 0.643,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Ehretia cymosa": {
+  "scientific_name": "Ehretia cymosa",
+  "family": "Boraginaceae",
+  "density": 0.466,
+  "n": 3,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Ekebergia benguelensis": {
+  "scientific_name": "Ekebergia benguelensis",
+  "family": "Meliaceae",
+  "density": 0.508,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ekebergia capensis": {
+  "scientific_name": "Ekebergia capensis",
+  "family": "Meliaceae",
+  "density": 0.469,
+  "n": 3,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Elaeagnus angustifolia": {
+  "scientific_name": "Elaeagnus angustifolia",
+  "family": "Elaeagnaceae",
+  "density": 0.55,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Endodesmia calophylloides": {
+  "scientific_name": "Endodesmia calophylloides",
+  "family": "Clusiaceae",
+  "density": 0.679,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Entandrophragma angolense": {
+  "scientific_name": "Entandrophragma angolense",
+  "family": "Meliaceae",
+  "density": 0.483,
+  "n": 15,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Entandrophragma candollei": {
+  "scientific_name": "Entandrophragma candollei",
+  "family": "Meliaceae",
+  "density": 0.574,
+  "n": 10,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Entandrophragma congoense": {
+  "scientific_name": "Entandrophragma congoense",
+  "family": "Meliaceae",
+  "density": 0.474,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Entandrophragma cylindricum": {
+  "scientific_name": "Entandrophragma cylindricum",
+  "family": "Meliaceae",
+  "density": 0.572,
+  "n": 16,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Entandrophragma delevoyi": {
+  "scientific_name": "Entandrophragma delevoyi",
+  "family": "Meliaceae",
+  "density": 0.572,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Entandrophragma excelsum": {
+  "scientific_name": "Entandrophragma excelsum",
+  "family": "Meliaceae",
+  "density": 0.49,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Entandrophragma rederi": {
+  "scientific_name": "Entandrophragma rederi",
+  "family": "Meliaceae",
+  "density": 0.456,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Entandrophragma utile": {
+  "scientific_name": "Entandrophragma utile",
+  "family": "Meliaceae",
+  "density": 0.537,
+  "n": 18,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Eribroma oblongum": {
+  "scientific_name": "Eribroma oblongum",
+  "family": "Malvaceae",
+  "density": 0.638,
+  "n": 11,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Eriocoelum microspermum": {
+  "scientific_name": "Eriocoelum microspermum",
+  "family": "Sapindaceae",
+  "density": 0.523,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Erismadelphus exsul": {
+  "scientific_name": "Erismadelphus exsul",
+  "family": "Vochysiaceae",
+  "density": 0.607,
+  "n": 10,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Erythrina abyssinica": {
+  "scientific_name": "Erythrina abyssinica",
+  "family": "Fabaceae",
+  "density": 0.426,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Erythrina latissima": {
+  "scientific_name": "Erythrina latissima",
+  "family": "Fabaceae",
+  "density": 0.318,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Erythrina lysistemon": {
+  "scientific_name": "Erythrina lysistemon",
+  "family": "Fabaceae",
+  "density": 0.331,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Erythrina vogelii": {
+  "scientific_name": "Erythrina vogelii",
+  "family": "Fabaceae",
+  "density": 0.243,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Erythrophleum africanum": {
+  "scientific_name": "Erythrophleum africanum",
+  "family": "Fabaceae",
+  "density": 0.853,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Erythrophleum ivorense": {
+  "scientific_name": "Erythrophleum ivorense",
+  "family": "Fabaceae",
+  "density": 0.774,
+  "n": 19,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Erythrophleum lasianthum": {
+  "scientific_name": "Erythrophleum lasianthum",
+  "family": "Fabaceae",
+  "density": 0.842,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Erythrophleum suaveolens": {
+  "scientific_name": "Erythrophleum suaveolens",
+  "family": "Fabaceae",
+  "density": 0.865,
+  "n": 6,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Erythroxylum emarginatum": {
+  "scientific_name": "Erythroxylum emarginatum",
+  "family": "Erythroxylaceae",
+  "density": 0.784,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Erythroxylum mannii": {
+  "scientific_name": "Erythroxylum mannii",
+  "family": "Erythroxylaceae",
+  "density": 0.547,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Erythroxylum zambesiacum": {
+  "scientific_name": "Erythroxylum zambesiacum",
+  "family": "Erythroxylaceae",
+  "density": 0.87,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Euclea divinorum": {
+  "scientific_name": "Euclea divinorum",
+  "family": "Ebenaceae",
+  "density": 0.775,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Euclea natalensis": {
+  "scientific_name": "Euclea natalensis",
+  "family": "Ebenaceae",
+  "density": 0.814,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Euclea racemosa": {
+  "scientific_name": "Euclea racemosa",
+  "family": "Ebenaceae",
+  "density": 0.633,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Eugenia whytei": {
+  "scientific_name": "Eugenia whytei",
+  "family": "Myrtaceae",
+  "density": 0.851,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Euphorbia tirucalli": {
+  "scientific_name": "Euphorbia tirucalli",
+  "family": "Euphorbiaceae",
+  "density": 0.482,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Excoecaria bussei": {
+  "scientific_name": "Excoecaria bussei",
+  "family": "Euphorbiaceae",
+  "density": 0.525,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Fagaropsis angolensis": {
+  "scientific_name": "Fagaropsis angolensis",
+  "family": "Rutaceae",
+  "density": 0.504,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Faidherbia albida": {
+  "scientific_name": "Faidherbia albida",
+  "family": "Fabaceae",
+  "density": 0.585,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Faurea macnaughtonii": {
+  "scientific_name": "Faurea macnaughtonii",
+  "family": "Proteaceae",
+  "density": 0.815,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Faurea saligna": {
+  "scientific_name": "Faurea saligna",
+  "family": "Proteaceae",
+  "density": 0.646,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Faurea speciosa": {
+  "scientific_name": "Faurea speciosa",
+  "family": "Proteaceae",
+  "density": 0.715,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ficalhoa laurifolia": {
+  "scientific_name": "Ficalhoa laurifolia",
+  "family": "Theaceae",
+  "density": 0.57,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ficus capensis": {
+  "scientific_name": "Ficus capensis",
+  "family": "Moraceae",
+  "density": 0.288,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ficus capreaefolia": {
+  "scientific_name": "Ficus capreaefolia",
+  "family": "Moraceae",
+  "density": 0.387,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ficus exasperata": {
+  "scientific_name": "Ficus exasperata",
+  "family": "Moraceae",
+  "density": 0.344,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ficus ingens": {
+  "scientific_name": "Ficus ingens",
+  "family": "Moraceae",
+  "density": 0.508,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ficus kirkii": {
+  "scientific_name": "Ficus kirkii",
+  "family": "Moraceae",
+  "density": 0.426,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ficus mucuso": {
+  "scientific_name": "Ficus mucuso",
+  "family": "Moraceae",
+  "density": 0.405,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Ficus sansibarica": {
+  "scientific_name": "Ficus sansibarica",
+  "family": "Moraceae",
+  "density": 0.525,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ficus sycomorus": {
+  "scientific_name": "Ficus sycomorus",
+  "family": "Moraceae",
+  "density": 0.422,
+  "n": 3,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Ficus thonningii": {
+  "scientific_name": "Ficus thonningii",
+  "family": "Moraceae",
+  "density": 0.432,
+  "n": 4,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Fillaeopsis discophora": {
+  "scientific_name": "Fillaeopsis discophora",
+  "family": "Fabaceae",
+  "density": 0.501,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Flacourtia indica": {
+  "scientific_name": "Flacourtia indica",
+  "family": "Salicaceae",
+  "density": 0.784,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Funtumia africana": {
+  "scientific_name": "Funtumia africana",
+  "family": "Apocynaceae",
+  "density": 0.424,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Ganophyllum giganteum": {
+  "scientific_name": "Ganophyllum giganteum",
+  "family": "Sapindaceae",
+  "density": 0.698,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Garcinia buchananii": {
+  "scientific_name": "Garcinia buchananii",
+  "family": "Clusiaceae",
+  "density": 0.814,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Garcinia epunctata": {
+  "scientific_name": "Garcinia epunctata",
+  "family": "Clusiaceae",
+  "density": 0.843,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Garcinia gerrardii": {
+  "scientific_name": "Garcinia gerrardii",
+  "family": "Clusiaceae",
+  "density": 0.695,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Garcinia kola": {
+  "scientific_name": "Garcinia kola",
+  "family": "Clusiaceae",
+  "density": 0.727,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Garcinia livingstonei": {
+  "scientific_name": "Garcinia livingstonei",
+  "family": "Clusiaceae",
+  "density": 0.732,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Garcinia mannii": {
+  "scientific_name": "Garcinia mannii",
+  "family": "Clusiaceae",
+  "density": 0.824,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Garcinia punctata": {
+  "scientific_name": "Garcinia punctata",
+  "family": "Clusiaceae",
+  "density": 0.824,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Gardenia jovis-tonantis": {
+  "scientific_name": "Gardenia jovis-tonantis",
+  "family": "Rubiaceae",
+  "density": 0.732,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Gilbertiodendron brachystegioides": {
+  "scientific_name": "Gilbertiodendron brachystegioides",
+  "family": "Fabaceae",
+  "density": 0.635,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Gilbertiodendron dewevrei": {
+  "scientific_name": "Gilbertiodendron dewevrei",
+  "family": "Fabaceae",
+  "density": 0.707,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Gilbertiodendron grandiflorum": {
+  "scientific_name": "Gilbertiodendron grandiflorum",
+  "family": "Fabaceae",
+  "density": 0.613,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Gilbertiodendron ivorense": {
+  "scientific_name": "Gilbertiodendron ivorense",
+  "family": "Fabaceae",
+  "density": 0.668,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Gilbertiodendron klainei": {
+  "scientific_name": "Gilbertiodendron klainei",
+  "family": "Fabaceae",
+  "density": 0.659,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Gilbertiodendron mayombense": {
+  "scientific_name": "Gilbertiodendron mayombense",
+  "family": "Fabaceae",
+  "density": 0.656,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Gilbertiodendron preussii": {
+  "scientific_name": "Gilbertiodendron preussii",
+  "family": "Fabaceae",
+  "density": 0.697,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Gilbertiodendron splendidum": {
+  "scientific_name": "Gilbertiodendron splendidum",
+  "family": "Fabaceae",
+  "density": 0.611,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Gilletiodendron kisantuense": {
+  "scientific_name": "Gilletiodendron kisantuense",
+  "family": "Fabaceae",
+  "density": 0.86,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Gilletiodendron mildbraedii": {
+  "scientific_name": "Gilletiodendron mildbraedii",
+  "family": "Fabaceae",
+  "density": 0.921,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Gliricidia sepium": {
+  "scientific_name": "Gliricidia sepium",
+  "family": "Fabaceae",
+  "density": 0.56,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Gluema ivorensis": {
+  "scientific_name": "Gluema ivorensis",
+  "family": "Sapotaceae",
+  "density": 0.972,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Gluta tourtour": {
+  "scientific_name": "Gluta tourtour",
+  "family": "Anacardiaceae",
+  "density": 0.775,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Gmelina arborea": {
+  "scientific_name": "Gmelina arborea",
+  "family": "Lamiaceae",
+  "density": 0.423,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Gmelina philippensis": {
+  "scientific_name": "Gmelina philippensis",
+  "family": "Lamiaceae",
+  "density": 0.41,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Gonioma kamassi": {
+  "scientific_name": "Gonioma kamassi",
+  "family": "Apocynaceae",
+  "density": 0.741,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Grevillea robusta": {
+  "scientific_name": "Grevillea robusta",
+  "family": "Proteaceae",
+  "density": 0.514,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Grewia coriacea": {
+  "scientific_name": "Grewia coriacea",
+  "family": "Malvaceae",
+  "density": 0.437,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Grewia monticola": {
+  "scientific_name": "Grewia monticola",
+  "family": "Malvaceae",
+  "density": 0.758,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Grewia oligoneura": {
+  "scientific_name": "Grewia oligoneura",
+  "family": "Malvaceae",
+  "density": 0.415,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Guarea cedrata": {
+  "scientific_name": "Guarea cedrata",
+  "family": "Meliaceae",
+  "density": 0.51,
+  "n": 15,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Guarea laurentii": {
+  "scientific_name": "Guarea laurentii",
+  "family": "Meliaceae",
+  "density": 0.563,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Guarea thompsonii": {
+  "scientific_name": "Guarea thompsonii",
+  "family": "Meliaceae",
+  "density": 0.552,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Guazuma ulmifolia": {
+  "scientific_name": "Guazuma ulmifolia",
+  "family": "Malvaceae",
+  "density": 0.491,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Guibourtia arnoldiana": {
+  "scientific_name": "Guibourtia arnoldiana",
+  "family": "Fabaceae",
+  "density": 0.679,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Guibourtia coleosperma": {
+  "scientific_name": "Guibourtia coleosperma",
+  "family": "Fabaceae",
+  "density": 0.642,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Guibourtia conjugata": {
+  "scientific_name": "Guibourtia conjugata",
+  "family": "Fabaceae",
+  "density": 0.926,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Guibourtia demeusei": {
+  "scientific_name": "Guibourtia demeusei",
+  "family": "Fabaceae",
+  "density": 0.796,
+  "n": 10,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Guibourtia ehie": {
+  "scientific_name": "Guibourtia ehie",
+  "family": "Fabaceae",
+  "density": 0.712,
+  "n": 14,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Guibourtia pellegriniana": {
+  "scientific_name": "Guibourtia pellegriniana",
+  "family": "Fabaceae",
+  "density": 0.769,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Guibourtia tessmannii": {
+  "scientific_name": "Guibourtia tessmannii",
+  "family": "Fabaceae",
+  "density": 0.757,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Haematoxylum campechianum": {
+  "scientific_name": "Haematoxylum campechianum",
+  "family": "Fabaceae",
+  "density": 0.78,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Hagenia abyssinica": {
+  "scientific_name": "Hagenia abyssinica",
+  "family": "Rosaceae",
+  "density": 0.566,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Hallea ledermannii": {
+  "scientific_name": "Hallea ledermannii",
+  "family": "Rubiaceae",
+  "density": 0.468,
+  "n": 14,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Hallea stipulosa": {
+  "scientific_name": "Hallea stipulosa",
+  "family": "Rubiaceae",
+  "density": 0.479,
+  "n": 7,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Halleria lucida": {
+  "scientific_name": "Halleria lucida",
+  "family": "Stilbaceae",
+  "density": 0.715,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Haplocoelum foliolosum": {
+  "scientific_name": "Haplocoelum foliolosum",
+  "family": "Sapindaceae",
+  "density": 0.788,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Haplormosia monophylla": {
+  "scientific_name": "Haplormosia monophylla",
+  "family": "Fabaceae",
+  "density": 0.783,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Hardwickia mopane": {
+  "scientific_name": "Hardwickia mopane",
+  "family": "Fabaceae",
+  "density": 0.92,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Harungana madagascariensis": {
+  "scientific_name": "Harungana madagascariensis",
+  "family": "Clusiaceae",
+  "density": 0.469,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Heritiera densiflora": {
+  "scientific_name": "Heritiera densiflora",
+  "family": "Malvaceae",
+  "density": 0.651,
+  "n": 14,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Heritiera utilis": {
+  "scientific_name": "Heritiera utilis",
+  "family": "Malvaceae",
+  "density": 0.558,
+  "n": 25,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Heteropyxis natalensis": {
+  "scientific_name": "Heteropyxis natalensis",
+  "family": "Myrtaceae",
+  "density": 0.646,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Hexalobus crispiflorus": {
+  "scientific_name": "Hexalobus crispiflorus",
+  "family": "Annonaceae",
+  "density": 0.484,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Hexalobus monopetalus": {
+  "scientific_name": "Hexalobus monopetalus",
+  "family": "Annonaceae",
+  "density": 0.663,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Heywoodia lucens": {
+  "scientific_name": "Heywoodia lucens",
+  "family": "Phyllanthaceae",
+  "density": 0.745,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Holarrhena floribunda": {
+  "scientific_name": "Holarrhena floribunda",
+  "family": "Apocynaceae",
+  "density": 0.469,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Holarrhena pubescens": {
+  "scientific_name": "Holarrhena pubescens",
+  "family": "Apocynaceae",
+  "density": 0.732,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Holmskioldia tettensis": {
+  "scientific_name": "Holmskioldia tettensis",
+  "family": "Lamiaceae",
+  "density": 0.62,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Holoptelea grandis": {
+  "scientific_name": "Holoptelea grandis",
+  "family": "Ulmaceae",
+  "density": 0.594,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Homalium letestui": {
+  "scientific_name": "Homalium letestui",
+  "family": "Salicaceae",
+  "density": 0.714,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Hura crepitans": {
+  "scientific_name": "Hura crepitans",
+  "family": "Euphorbiaceae",
+  "density": 0.373,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Hylodendron gabunense": {
+  "scientific_name": "Hylodendron gabunense",
+  "family": "Fabaceae",
+  "density": 0.787,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Hymenaea verrucosa": {
+  "scientific_name": "Hymenaea verrucosa",
+  "family": "Fabaceae",
+  "density": 0.732,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Hymenocardia acida": {
+  "scientific_name": "Hymenocardia acida",
+  "family": "Phyllanthaceae",
+  "density": 0.702,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Hymenostegia afzelii": {
+  "scientific_name": "Hymenostegia afzelii",
+  "family": "Fabaceae",
+  "density": 0.824,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Hymenostegia pellegrinii": {
+  "scientific_name": "Hymenostegia pellegrinii",
+  "family": "Fabaceae",
+  "density": 0.837,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Ilex canariensis": {
+  "scientific_name": "Ilex canariensis",
+  "family": "Aquifoliaceae",
+  "density": 0.74,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ilex mitis": {
+  "scientific_name": "Ilex mitis",
+  "family": "Aquifoliaceae",
+  "density": 0.555,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Ilex perado": {
+  "scientific_name": "Ilex perado",
+  "family": "Aquifoliaceae",
+  "density": 0.52,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Inhambanella henriquesii": {
+  "scientific_name": "Inhambanella henriquesii",
+  "family": "Sapotaceae",
+  "density": 0.676,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Intsia bijuga": {
+  "scientific_name": "Intsia bijuga",
+  "family": "Fabaceae",
+  "density": 0.69,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Irvingia gabonensis": {
+  "scientific_name": "Irvingia gabonensis",
+  "family": "Irvingiaceae",
+  "density": 0.775,
+  "n": 8,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Irvingia grandifolia": {
+  "scientific_name": "Irvingia grandifolia",
+  "family": "Irvingiaceae",
+  "density": 0.8,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Isoberlinia doka": {
+  "scientific_name": "Isoberlinia doka",
+  "family": "Fabaceae",
+  "density": 0.627,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Isoberlinia scheffleri": {
+  "scientific_name": "Isoberlinia scheffleri",
+  "family": "Fabaceae",
+  "density": 0.689,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Isoberlinia schefflerii": {
+  "scientific_name": "Isoberlinia schefflerii",
+  "family": "Fabaceae",
+  "density": 0.75,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Isoberlinia tomentosa": {
+  "scientific_name": "Isoberlinia tomentosa",
+  "family": "Fabaceae",
+  "density": 0.723,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Julbernardia bifoliolata": {
+  "scientific_name": "Julbernardia bifoliolata",
+  "family": "Fabaceae",
+  "density": 0.577,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Julbernardia globiflora": {
+  "scientific_name": "Julbernardia globiflora",
+  "family": "Fabaceae",
+  "density": 0.734,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Julbernardia pellegriniana": {
+  "scientific_name": "Julbernardia pellegriniana",
+  "family": "Fabaceae",
+  "density": 0.675,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Julbernardia seretii": {
+  "scientific_name": "Julbernardia seretii",
+  "family": "Fabaceae",
+  "density": 0.689,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Juniperus cedrus": {
+  "scientific_name": "Juniperus cedrus",
+  "family": "Cupressaceae",
+  "density": 0.48,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Juniperus phoenicea": {
+  "scientific_name": "Juniperus phoenicea",
+  "family": "Cupressaceae",
+  "density": 0.55,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Juniperus thurifera": {
+  "scientific_name": "Juniperus thurifera",
+  "family": "Cupressaceae",
+  "density": 0.53,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Khaya anthotheca": {
+  "scientific_name": "Khaya anthotheca",
+  "family": "Meliaceae",
+  "density": 0.491,
+  "n": 11,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Khaya grandifoliola": {
+  "scientific_name": "Khaya grandifoliola",
+  "family": "Meliaceae",
+  "density": 0.534,
+  "n": 19,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Khaya ivorensis": {
+  "scientific_name": "Khaya ivorensis",
+  "family": "Meliaceae",
+  "density": 0.443,
+  "n": 14,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Khaya senegalensis": {
+  "scientific_name": "Khaya senegalensis",
+  "family": "Meliaceae",
+  "density": 0.635,
+  "n": 12,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Kigelia africana": {
+  "scientific_name": "Kigelia africana",
+  "family": "Bignoniaceae",
+  "density": 0.564,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Kiggelaria africana": {
+  "scientific_name": "Kiggelaria africana",
+  "family": "Achariaceae",
+  "density": 0.633,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Kirkia acuminata": {
+  "scientific_name": "Kirkia acuminata",
+  "family": "Kirkiaceae",
+  "density": 0.508,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Klainedoxa gabonensis": {
+  "scientific_name": "Klainedoxa gabonensis",
+  "family": "Irvingiaceae",
+  "density": 0.926,
+  "n": 12,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Klainedoxa latifolia": {
+  "scientific_name": "Klainedoxa latifolia",
+  "family": "Irvingiaceae",
+  "density": 0.91,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Lannea discolor": {
+  "scientific_name": "Lannea discolor",
+  "family": "Anacardiaceae",
+  "density": 0.456,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Lannea schweinfurthii": {
+  "scientific_name": "Lannea schweinfurthii",
+  "family": "Anacardiaceae",
+  "density": 0.551,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Lannea welwitschii": {
+  "scientific_name": "Lannea welwitschii",
+  "family": "Anacardiaceae",
+  "density": 0.405,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Lasiodiscus usambarensis": {
+  "scientific_name": "Lasiodiscus usambarensis",
+  "family": "Rhamnaceae",
+  "density": 0.784,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Laurus canariensis": {
+  "scientific_name": "Laurus canariensis",
+  "family": "Lauraceae",
+  "density": 0.54,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Lecomtedoxa klaineana": {
+  "scientific_name": "Lecomtedoxa klaineana",
+  "family": "Sapotaceae",
+  "density": 0.823,
+  "n": 11,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Letestua durissima": {
+  "scientific_name": "Letestua durissima",
+  "family": "Sapotaceae",
+  "density": 0.981,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Librevillea klainei": {
+  "scientific_name": "Librevillea klainei",
+  "family": "Fabaceae",
+  "density": 0.938,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Loesenera kalantha": {
+  "scientific_name": "Loesenera kalantha",
+  "family": "Fabaceae",
+  "density": 0.646,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Lonchocarpus capassa": {
+  "scientific_name": "Lonchocarpus capassa",
+  "family": "Fabaceae",
+  "density": 0.758,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Lonchocarpus nelsii": {
+  "scientific_name": "Lonchocarpus nelsii",
+  "family": "Fabaceae",
+  "density": 0.771,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Lonchocarpus sericeus": {
+  "scientific_name": "Lonchocarpus sericeus",
+  "family": "Fabaceae",
+  "density": 0.75,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Lophira alata": {
+  "scientific_name": "Lophira alata",
+  "family": "Ochnaceae",
+  "density": 0.897,
+  "n": 30,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Lophira lanceolata": {
+  "scientific_name": "Lophira lanceolata",
+  "family": "Ochnaceae",
+  "density": 0.792,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Lovoa swynnertonii": {
+  "scientific_name": "Lovoa swynnertonii",
+  "family": "Meliaceae",
+  "density": 0.566,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Lovoa trichilioides": {
+  "scientific_name": "Lovoa trichilioides",
+  "family": "Meliaceae",
+  "density": 0.455,
+  "n": 19,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Macaranga capensis": {
+  "scientific_name": "Macaranga capensis",
+  "family": "Euphorbiaceae",
+  "density": 0.449,
+  "n": 3,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Macaranga conglomerata": {
+  "scientific_name": "Macaranga conglomerata",
+  "family": "Euphorbiaceae",
+  "density": 0.414,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Macaranga mellifera": {
+  "scientific_name": "Macaranga mellifera",
+  "family": "Euphorbiaceae",
+  "density": 0.357,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Maesa lanceolata": {
+  "scientific_name": "Maesa lanceolata",
+  "family": "Maesaceae",
+  "density": 0.676,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Maesopsis eminii": {
+  "scientific_name": "Maesopsis eminii",
+  "family": "Rhamnaceae",
+  "density": 0.398,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Malus sylvestris": {
+  "scientific_name": "Malus sylvestris",
+  "family": "Rosaceae",
+  "density": 0.61,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Mammea africana": {
+  "scientific_name": "Mammea africana",
+  "family": "Clusiaceae",
+  "density": 0.627,
+  "n": 16,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Mangifera indica": {
+  "scientific_name": "Mangifera indica",
+  "family": "Anacardiaceae",
+  "density": 0.536,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Manilkara bidentata": {
+  "scientific_name": "Manilkara bidentata",
+  "family": "Sapotaceae",
+  "density": 0.911,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Manilkara fouilloyana": {
+  "scientific_name": "Manilkara fouilloyana",
+  "family": "Sapotaceae",
+  "density": 0.861,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Manilkara mochisia": {
+  "scientific_name": "Manilkara mochisia",
+  "family": "Sapotaceae",
+  "density": 1.076,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Manilkara obovata": {
+  "scientific_name": "Manilkara obovata",
+  "family": "Sapotaceae",
+  "density": 0.861,
+  "n": 8,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Mansonia altissima": {
+  "scientific_name": "Mansonia altissima",
+  "family": "Malvaceae",
+  "density": 0.564,
+  "n": 24,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Maranthes glabra": {
+  "scientific_name": "Maranthes glabra",
+  "family": "Chrysobalanaceae",
+  "density": 0.875,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Maranthes goetzeniana": {
+  "scientific_name": "Maranthes goetzeniana",
+  "family": "Chrysobalanaceae",
+  "density": 0.784,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Maranthes kerstingii": {
+  "scientific_name": "Maranthes kerstingii",
+  "family": "Chrysobalanaceae",
+  "density": 0.829,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Maranthes robusta": {
+  "scientific_name": "Maranthes robusta",
+  "family": "Chrysobalanaceae",
+  "density": 0.865,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Margaritaria discoidea": {
+  "scientific_name": "Margaritaria discoidea",
+  "family": "Phyllanthaceae",
+  "density": 0.72,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Markhamia acuminata": {
+  "scientific_name": "Markhamia acuminata",
+  "family": "Bignoniaceae",
+  "density": 0.775,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Markhamia lutea": {
+  "scientific_name": "Markhamia lutea",
+  "family": "Bignoniaceae",
+  "density": 0.474,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Markhamia tomentosa": {
+  "scientific_name": "Markhamia tomentosa",
+  "family": "Bignoniaceae",
+  "density": 0.473,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Marquesia macroura": {
+  "scientific_name": "Marquesia macroura",
+  "family": "Dipterocarpaceae",
+  "density": 0.758,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Maytenus acuminata": {
+  "scientific_name": "Maytenus acuminata",
+  "family": "Celastraceae",
+  "density": 0.627,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Maytenus heterophylla": {
+  "scientific_name": "Maytenus heterophylla",
+  "family": "Celastraceae",
+  "density": 0.495,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Maytenus undata": {
+  "scientific_name": "Maytenus undata",
+  "family": "Celastraceae",
+  "density": 0.732,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Michelsonia microphylla": {
+  "scientific_name": "Michelsonia microphylla",
+  "family": "Fabaceae",
+  "density": 0.766,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Microberlinia bisulcata": {
+  "scientific_name": "Microberlinia bisulcata",
+  "family": "Fabaceae",
+  "density": 0.655,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Microberlinia brazzavillensis": {
+  "scientific_name": "Microberlinia brazzavillensis",
+  "family": "Fabaceae",
+  "density": 0.692,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Microcos oligoneura": {
+  "scientific_name": "Microcos oligoneura",
+  "family": "Malvaceae",
+  "density": 0.413,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Milicia excelsa": {
+  "scientific_name": "Milicia excelsa",
+  "family": "Moraceae",
+  "density": 0.575,
+  "n": 24,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Milicia regia": {
+  "scientific_name": "Milicia regia",
+  "family": "Moraceae",
+  "density": 0.564,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Millettia laurentii": {
+  "scientific_name": "Millettia laurentii",
+  "family": "Fabaceae",
+  "density": 0.761,
+  "n": 8,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Millettia stuhlmannii": {
+  "scientific_name": "Millettia stuhlmannii",
+  "family": "Fabaceae",
+  "density": 0.768,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Mimosa scabrella": {
+  "scientific_name": "Mimosa scabrella",
+  "family": "Fabaceae",
+  "density": 0.482,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Mimusops calophylloides": {
+  "scientific_name": "Mimusops calophylloides",
+  "family": "Sapotaceae",
+  "density": 0.809,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Mimusops obovata": {
+  "scientific_name": "Mimusops obovata",
+  "family": "Sapotaceae",
+  "density": 0.745,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Mimusops zeyheri": {
+  "scientific_name": "Mimusops zeyheri",
+  "family": "Sapotaceae",
+  "density": 0.814,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Mitragyna rubrostipulata": {
+  "scientific_name": "Mitragyna rubrostipulata",
+  "family": "Rubiaceae",
+  "density": 0.537,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Monodora tenuifolia": {
+  "scientific_name": "Monodora tenuifolia",
+  "family": "Annonaceae",
+  "density": 0.49,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Monopetalanthus coriaceus": {
+  "scientific_name": "Monopetalanthus coriaceus",
+  "family": "Fabaceae",
+  "density": 0.516,
+  "n": 8,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Monopetalanthus durandii": {
+  "scientific_name": "Monopetalanthus durandii",
+  "family": "Fabaceae",
+  "density": 0.524,
+  "n": 12,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Monopetalanthus letestui": {
+  "scientific_name": "Monopetalanthus letestui",
+  "family": "Fabaceae",
+  "density": 0.545,
+  "n": 12,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Monopetalanthus pellegrini": {
+  "scientific_name": "Monopetalanthus pellegrini",
+  "family": "Fabaceae",
+  "density": 0.493,
+  "n": 7,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Monotes engleri": {
+  "scientific_name": "Monotes engleri",
+  "family": "Dipterocarpaceae",
+  "density": 0.771,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Monotes glaber": {
+  "scientific_name": "Monotes glaber",
+  "family": "Dipterocarpaceae",
+  "density": 0.745,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Morus alba": {
+  "scientific_name": "Morus alba",
+  "family": "Moraceae",
+  "density": 0.57,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Morus mesozygia": {
+  "scientific_name": "Morus mesozygia",
+  "family": "Moraceae",
+  "density": 0.724,
+  "n": 9,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Mundulea sericea": {
+  "scientific_name": "Mundulea sericea",
+  "family": "Fabaceae",
+  "density": 0.839,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Musanga cecropioides": {
+  "scientific_name": "Musanga cecropioides",
+  "family": "Urticaceae",
+  "density": 0.243,
+  "n": 12,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Myrianthus holstii": {
+  "scientific_name": "Myrianthus holstii",
+  "family": "Urticaceae",
+  "density": 0.469,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Myrianthus libericus": {
+  "scientific_name": "Myrianthus libericus",
+  "family": "Urticaceae",
+  "density": 0.43,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Myrica faya": {
+  "scientific_name": "Myrica faya",
+  "family": "Myricaceae",
+  "density": 0.66,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Myrica pilulifera": {
+  "scientific_name": "Myrica pilulifera",
+  "family": "Myricaceae",
+  "density": 0.426,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Myrsine canariensis": {
+  "scientific_name": "Myrsine canariensis",
+  "family": "Myrsinaceae",
+  "density": 0.75,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Nauclea diderrichii": {
+  "scientific_name": "Nauclea diderrichii",
+  "family": "Rubiaceae",
+  "density": 0.676,
+  "n": 22,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Nauclea gilletii": {
+  "scientific_name": "Nauclea gilletii",
+  "family": "Rubiaceae",
+  "density": 0.654,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Neoboutonia macrocalyx": {
+  "scientific_name": "Neoboutonia macrocalyx",
+  "family": "Euphorbiaceae",
+  "density": 0.33,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Nesogordonia leplaei": {
+  "scientific_name": "Nesogordonia leplaei",
+  "family": "Malvaceae",
+  "density": 0.718,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Nesogordonia papaverifera": {
+  "scientific_name": "Nesogordonia papaverifera",
+  "family": "Malvaceae",
+  "density": 0.645,
+  "n": 14,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Newtonia buchananii": {
+  "scientific_name": "Newtonia buchananii",
+  "family": "Fabaceae",
+  "density": 0.506,
+  "n": 8,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Newtonia glandulifera": {
+  "scientific_name": "Newtonia glandulifera",
+  "family": "Fabaceae",
+  "density": 0.712,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Newtonia leucocarpa": {
+  "scientific_name": "Newtonia leucocarpa",
+  "family": "Fabaceae",
+  "density": 0.604,
+  "n": 10,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Newtonia paucijuga": {
+  "scientific_name": "Newtonia paucijuga",
+  "family": "Fabaceae",
+  "density": 0.619,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Nuxia congesta": {
+  "scientific_name": "Nuxia congesta",
+  "family": "Stilbaceae",
+  "density": 0.676,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Nuxia floribunda": {
+  "scientific_name": "Nuxia floribunda",
+  "family": "Stilbaceae",
+  "density": 0.646,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ochna arborea": {
+  "scientific_name": "Ochna arborea",
+  "family": "Ochnaceae",
+  "density": 0.913,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ochna gambleoides": {
+  "scientific_name": "Ochna gambleoides",
+  "family": "Ochnaceae",
+  "density": 0.758,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ochna holstii": {
+  "scientific_name": "Ochna holstii",
+  "family": "Ochnaceae",
+  "density": 0.745,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ochna puberula": {
+  "scientific_name": "Ochna puberula",
+  "family": "Ochnaceae",
+  "density": 0.758,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ochna pulchra": {
+  "scientific_name": "Ochna pulchra",
+  "family": "Ochnaceae",
+  "density": 0.633,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ochna schweinfurthiana": {
+  "scientific_name": "Ochna schweinfurthiana",
+  "family": "Ochnaceae",
+  "density": 0.62,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ocotea bullata": {
+  "scientific_name": "Ocotea bullata",
+  "family": "Lauraceae",
+  "density": 0.619,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Ocotea comoriensis": {
+  "scientific_name": "Ocotea comoriensis",
+  "family": "Lauraceae",
+  "density": 0.542,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Ocotea usambarensis": {
+  "scientific_name": "Ocotea usambarensis",
+  "family": "Lauraceae",
+  "density": 0.528,
+  "n": 4,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Octoknema borealis": {
+  "scientific_name": "Octoknema borealis",
+  "family": "Olacaceae",
+  "density": 0.688,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Oddoniodendron micranthum": {
+  "scientific_name": "Oddoniodendron micranthum",
+  "family": "Fabaceae",
+  "density": 0.918,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Odyendea gabonensis": {
+  "scientific_name": "Odyendea gabonensis",
+  "family": "Simaroubaceae",
+  "density": 0.326,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Olax dissitiflora": {
+  "scientific_name": "Olax dissitiflora",
+  "family": "Olacaceae",
+  "density": 0.771,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Oldfieldia africana": {
+  "scientific_name": "Oldfieldia africana",
+  "family": "Euphorbiaceae",
+  "density": 0.837,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Olea capensis": {
+  "scientific_name": "Olea capensis",
+  "family": "Oleaceae",
+  "density": 0.774,
+  "n": 7,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Olea europaea": {
+  "scientific_name": "Olea europaea",
+  "family": "Oleaceae",
+  "density": 0.806,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Olinia cymosa": {
+  "scientific_name": "Olinia cymosa",
+  "family": "Oliniaceae",
+  "density": 0.621,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Olinia vanguerioides": {
+  "scientific_name": "Olinia vanguerioides",
+  "family": "Oliniaceae",
+  "density": 0.857,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Omphalocarpum elatum": {
+  "scientific_name": "Omphalocarpum elatum",
+  "family": "Sapotaceae",
+  "density": 0.55,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Oncoba welwitschii": {
+  "scientific_name": "Oncoba welwitschii",
+  "family": "Salicaceae",
+  "density": 0.58,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ongokea gore": {
+  "scientific_name": "Ongokea gore",
+  "family": "Olacaceae",
+  "density": 0.749,
+  "n": 10,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Oricia bachmannii": {
+  "scientific_name": "Oricia bachmannii",
+  "family": "Rutaceae",
+  "density": 0.715,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ormocarpum kirkii": {
+  "scientific_name": "Ormocarpum kirkii",
+  "family": "Fabaceae",
+  "density": 0.742,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Oxyanthus speciosus": {
+  "scientific_name": "Oxyanthus speciosus",
+  "family": "Rubiaceae",
+  "density": 0.525,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Oxystigma mannii": {
+  "scientific_name": "Oxystigma mannii",
+  "family": "Fabaceae",
+  "density": 0.439,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Ozoroa longipetiolata": {
+  "scientific_name": "Ozoroa longipetiolata",
+  "family": "Anacardiaceae",
+  "density": 0.715,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Pachyelasma tessmannii": {
+  "scientific_name": "Pachyelasma tessmannii",
+  "family": "Fabaceae",
+  "density": 0.738,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Panda oleosa": {
+  "scientific_name": "Panda oleosa",
+  "family": "Pandaceae",
+  "density": 0.565,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pappea capensis": {
+  "scientific_name": "Pappea capensis",
+  "family": "Sapindaceae",
+  "density": 0.883,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Paraserianthes falcataria": {
+  "scientific_name": "Paraserianthes falcataria",
+  "family": "Fabaceae",
+  "density": 0.331,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Parinari curatellifolia": {
+  "scientific_name": "Parinari curatellifolia",
+  "family": "Chrysobalanaceae",
+  "density": 0.62,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Parinari excelsa": {
+  "scientific_name": "Parinari excelsa",
+  "family": "Chrysobalanaceae",
+  "density": 0.701,
+  "n": 10,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Parinari glabra": {
+  "scientific_name": "Parinari glabra",
+  "family": "Chrysobalanaceae",
+  "density": 0.913,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Parkia bicolor": {
+  "scientific_name": "Parkia bicolor",
+  "family": "Fabaceae",
+  "density": 0.449,
+  "n": 7,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Parkia biglobosa": {
+  "scientific_name": "Parkia biglobosa",
+  "family": "Fabaceae",
+  "density": 0.525,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Parkia filicoidea": {
+  "scientific_name": "Parkia filicoidea",
+  "family": "Fabaceae",
+  "density": 0.458,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pausinystalia brachythyrsa": {
+  "scientific_name": "Pausinystalia brachythyrsa",
+  "family": "Rubiaceae",
+  "density": 0.603,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pausinystalia brachythyrsum": {
+  "scientific_name": "Pausinystalia brachythyrsum",
+  "family": "Rubiaceae",
+  "density": 0.597,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pausinystalia lane-poolei": {
+  "scientific_name": "Pausinystalia lane-poolei",
+  "family": "Rubiaceae",
+  "density": 0.619,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pausinystalia macroceras": {
+  "scientific_name": "Pausinystalia macroceras",
+  "family": "Rubiaceae",
+  "density": 0.588,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pausinystalia talbotii": {
+  "scientific_name": "Pausinystalia talbotii",
+  "family": "Rubiaceae",
+  "density": 0.587,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Peltophorum africanum": {
+  "scientific_name": "Peltophorum africanum",
+  "family": "Fabaceae",
+  "density": 0.594,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Pentaclethra eetveldeana": {
+  "scientific_name": "Pentaclethra eetveldeana",
+  "family": "Fabaceae",
+  "density": 0.663,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pentaclethra macrophylla": {
+  "scientific_name": "Pentaclethra macrophylla",
+  "family": "Fabaceae",
+  "density": 0.841,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pentadesma butyracea": {
+  "scientific_name": "Pentadesma butyracea",
+  "family": "Clusiaceae",
+  "density": 0.806,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pentadesma lebrunii": {
+  "scientific_name": "Pentadesma lebrunii",
+  "family": "Clusiaceae",
+  "density": 0.56,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pericopsis angolensis": {
+  "scientific_name": "Pericopsis angolensis",
+  "family": "Fabaceae",
+  "density": 0.723,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pericopsis elata": {
+  "scientific_name": "Pericopsis elata",
+  "family": "Fabaceae",
+  "density": 0.639,
+  "n": 12,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Persea americana": {
+  "scientific_name": "Persea americana",
+  "family": "Lauraceae",
+  "density": 0.523,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Persea indica": {
+  "scientific_name": "Persea indica",
+  "family": "Lauraceae",
+  "density": 0.43,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Petersianthus macrocarpus": {
+  "scientific_name": "Petersianthus macrocarpus",
+  "family": "Lecythidaceae",
+  "density": 0.676,
+  "n": 10,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Phyllanthus inflatus": {
+  "scientific_name": "Phyllanthus inflatus",
+  "family": "Phyllanthaceae",
+  "density": 0.482,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Phyllocosmus africanus": {
+  "scientific_name": "Phyllocosmus africanus",
+  "family": "Ixonanthaceae",
+  "density": 0.78,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Picralima nitida": {
+  "scientific_name": "Picralima nitida",
+  "family": "Apocynaceae",
+  "density": 0.775,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Piptadeniastrum africanum": {
+  "scientific_name": "Piptadeniastrum africanum",
+  "family": "Fabaceae",
+  "density": 0.605,
+  "n": 23,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pittosporum viridiflorum": {
+  "scientific_name": "Pittosporum viridiflorum",
+  "family": "Pittosporaceae",
+  "density": 0.633,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Placodiscus pseudostipularis": {
+  "scientific_name": "Placodiscus pseudostipularis",
+  "family": "Sapindaceae",
+  "density": 0.793,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Plagiostyles africana": {
+  "scientific_name": "Plagiostyles africana",
+  "family": "Euphorbiaceae",
+  "density": 0.741,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Platylophus trifoliatus": {
+  "scientific_name": "Platylophus trifoliatus",
+  "family": "Cunoniaceae",
+  "density": 0.483,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pleurostylia africana": {
+  "scientific_name": "Pleurostylia africana",
+  "family": "Celastraceae",
+  "density": 0.745,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Pleurostylia capensis": {
+  "scientific_name": "Pleurostylia capensis",
+  "family": "Celastraceae",
+  "density": 0.717,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Podocarpus henckelii": {
+  "scientific_name": "Podocarpus henckelii",
+  "family": "Podocarpaceae",
+  "density": 0.497,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Podocarpus latifolius": {
+  "scientific_name": "Podocarpus latifolius",
+  "family": "Podocarpaceae",
+  "density": 0.469,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Podocarpus usambarensis": {
+  "scientific_name": "Podocarpus usambarensis",
+  "family": "Podocarpaceae",
+  "density": 0.491,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Poga oleosa": {
+  "scientific_name": "Poga oleosa",
+  "family": "Anisophylleaceae",
+  "density": 0.393,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Polyalthia suaveolens": {
+  "scientific_name": "Polyalthia suaveolens",
+  "family": "Annonaceae",
+  "density": 0.695,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Polyscias fulva": {
+  "scientific_name": "Polyscias fulva",
+  "family": "Araliaceae",
+  "density": 0.237,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Polyscias kikuyuensis": {
+  "scientific_name": "Polyscias kikuyuensis",
+  "family": "Araliaceae",
+  "density": 0.31,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Populus deltoides": {
+  "scientific_name": "Populus deltoides",
+  "family": "Salicaceae",
+  "density": 0.37,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Potameia antevaratra": {
+  "scientific_name": "Potameia antevaratra",
+  "family": "Lauraceae",
+  "density": 0.706,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pouteria adolfi-friedericii": {
+  "scientific_name": "Pouteria adolfi-friedericii",
+  "family": "Sapotaceae",
+  "density": 0.43,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Pouteria alnifolia": {
+  "scientific_name": "Pouteria alnifolia",
+  "family": "Sapotaceae",
+  "density": 0.554,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pouteria altissima": {
+  "scientific_name": "Pouteria altissima",
+  "family": "Sapotaceae",
+  "density": 0.442,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pouteria aningeri": {
+  "scientific_name": "Pouteria aningeri",
+  "family": "Sapotaceae",
+  "density": 0.445,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pouteria superba": {
+  "scientific_name": "Pouteria superba",
+  "family": "Sapotaceae",
+  "density": 0.461,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Premna angolensis": {
+  "scientific_name": "Premna angolensis",
+  "family": "Lamiaceae",
+  "density": 0.667,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Premna maxima": {
+  "scientific_name": "Premna maxima",
+  "family": "Lamiaceae",
+  "density": 0.568,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Prioria balsamifera": {
+  "scientific_name": "Prioria balsamifera",
+  "family": "Fabaceae",
+  "density": 0.407,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Prioria mannii": {
+  "scientific_name": "Prioria mannii",
+  "family": "Fabaceae",
+  "density": 0.44,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Prioria oxyphylla": {
+  "scientific_name": "Prioria oxyphylla",
+  "family": "Fabaceae",
+  "density": 0.57,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Prosopis africana": {
+  "scientific_name": "Prosopis africana",
+  "family": "Fabaceae",
+  "density": 0.879,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Prosopis cineraria": {
+  "scientific_name": "Prosopis cineraria",
+  "family": "Fabaceae",
+  "density": 0.663,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Prosopis glandulosa": {
+  "scientific_name": "Prosopis glandulosa",
+  "family": "Fabaceae",
+  "density": 0.712,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Protea angolensis": {
+  "scientific_name": "Protea angolensis",
+  "family": "Proteaceae",
+  "density": 0.663,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Protomegabaria stapfiana": {
+  "scientific_name": "Protomegabaria stapfiana",
+  "family": "Euphorbiaceae",
+  "density": 0.602,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Prunus africana": {
+  "scientific_name": "Prunus africana",
+  "family": "Rosaceae",
+  "density": 0.685,
+  "n": 4,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Pseudocedrela kotschyi": {
+  "scientific_name": "Pseudocedrela kotschyi",
+  "family": "Meliaceae",
+  "density": 0.621,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pseudolachnostylis maprouneifolia": {
+  "scientific_name": "Pseudolachnostylis maprouneifolia",
+  "family": "Phyllanthaceae",
+  "density": 0.62,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Psorospermum febrifugum": {
+  "scientific_name": "Psorospermum febrifugum",
+  "family": "Clusiaceae",
+  "density": 0.689,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Psydrax parviflora": {
+  "scientific_name": "Psydrax parviflora",
+  "family": "Rubiaceae",
+  "density": 0.663,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Ptaeroxylon obliquum": {
+  "scientific_name": "Ptaeroxylon obliquum",
+  "family": "Rutaceae",
+  "density": 0.882,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Pteleopsis hylodendron": {
+  "scientific_name": "Pteleopsis hylodendron",
+  "family": "Combretaceae",
+  "density": 0.678,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pteleopsis myrtifolia": {
+  "scientific_name": "Pteleopsis myrtifolia",
+  "family": "Combretaceae",
+  "density": 0.54,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Pterocarpus angolensis": {
+  "scientific_name": "Pterocarpus angolensis",
+  "family": "Fabaceae",
+  "density": 0.561,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pterocarpus brenanii": {
+  "scientific_name": "Pterocarpus brenanii",
+  "family": "Fabaceae",
+  "density": 0.801,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Pterocarpus erinaceus": {
+  "scientific_name": "Pterocarpus erinaceus",
+  "family": "Fabaceae",
+  "density": 0.74,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pterocarpus lucens": {
+  "scientific_name": "Pterocarpus lucens",
+  "family": "Fabaceae",
+  "density": 0.56,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pterocarpus officinalis": {
+  "scientific_name": "Pterocarpus officinalis",
+  "family": "Fabaceae",
+  "density": 0.413,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pterocarpus osun": {
+  "scientific_name": "Pterocarpus osun",
+  "family": "Fabaceae",
+  "density": 0.68,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pterocarpus soyauxii": {
+  "scientific_name": "Pterocarpus soyauxii",
+  "family": "Fabaceae",
+  "density": 0.658,
+  "n": 14,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pterocelastrus echinatus": {
+  "scientific_name": "Pterocelastrus echinatus",
+  "family": "Celastraceae",
+  "density": 0.788,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Pterygota bequaertii": {
+  "scientific_name": "Pterygota bequaertii",
+  "family": "Malvaceae",
+  "density": 0.534,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pterygota macrocarpa": {
+  "scientific_name": "Pterygota macrocarpa",
+  "family": "Malvaceae",
+  "density": 0.493,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Pycnanthus angolensis": {
+  "scientific_name": "Pycnanthus angolensis",
+  "family": "Myristicaceae",
+  "density": 0.409,
+  "n": 20,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Quassia undulata": {
+  "scientific_name": "Quassia undulata",
+  "family": "Simaroubaceae",
+  "density": 0.274,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Quercus robur": {
+  "scientific_name": "Quercus robur",
+  "family": "Fagaceae",
+  "density": 0.577,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Rapanea melanophloeos": {
+  "scientific_name": "Rapanea melanophloeos",
+  "family": "Myrsinaceae",
+  "density": 0.706,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Rauvolfia caffra": {
+  "scientific_name": "Rauvolfia caffra",
+  "family": "Apocynaceae",
+  "density": 0.459,
+  "n": 4,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Rawsonia lucida": {
+  "scientific_name": "Rawsonia lucida",
+  "family": "Achariaceae",
+  "density": 0.745,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Rhamnus glandulosa": {
+  "scientific_name": "Rhamnus glandulosa",
+  "family": "Rhamnaceae",
+  "density": 0.58,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Rhamnus purshiana": {
+  "scientific_name": "Rhamnus purshiana",
+  "family": "Rhamnaceae",
+  "density": 0.5,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Rhizophora mangle": {
+  "scientific_name": "Rhizophora mangle",
+  "family": "Rhizophoraceae",
+  "density": 0.91,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Rhizophora racemosa": {
+  "scientific_name": "Rhizophora racemosa",
+  "family": "Rhizophoraceae",
+  "density": 0.96,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Rhoicissus revoilii": {
+  "scientific_name": "Rhoicissus revoilii",
+  "family": "Vitaceae",
+  "density": 0.538,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Rhus lancea": {
+  "scientific_name": "Rhus lancea",
+  "family": "Anacardiaceae",
+  "density": 0.827,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Rhus longipes": {
+  "scientific_name": "Rhus longipes",
+  "family": "Anacardiaceae",
+  "density": 0.702,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Rhus pyroides": {
+  "scientific_name": "Rhus pyroides",
+  "family": "Anacardiaceae",
+  "density": 1.007,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Rhus tenuinervis": {
+  "scientific_name": "Rhus tenuinervis",
+  "family": "Anacardiaceae",
+  "density": 0.947,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ricinodendron heudelotii": {
+  "scientific_name": "Ricinodendron heudelotii",
+  "family": "Euphorbiaceae",
+  "density": 0.211,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Rinorea ferruginea": {
+  "scientific_name": "Rinorea ferruginea",
+  "family": "Violaceae",
+  "density": 0.689,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Rothmannia fischeri": {
+  "scientific_name": "Rothmannia fischeri",
+  "family": "Rubiaceae",
+  "density": 0.745,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Rothmannia urcelliformis": {
+  "scientific_name": "Rothmannia urcelliformis",
+  "family": "Rubiaceae",
+  "density": 0.538,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Sacoglottis gabonensis": {
+  "scientific_name": "Sacoglottis gabonensis",
+  "family": "Humiriaceae",
+  "density": 0.796,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Salix subserrata": {
+  "scientific_name": "Salix subserrata",
+  "family": "Salicaceae",
+  "density": 0.525,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Salvadora persica": {
+  "scientific_name": "Salvadora persica",
+  "family": "Salvadoraceae",
+  "density": 0.594,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Santiria trimera": {
+  "scientific_name": "Santiria trimera",
+  "family": "Burseraceae",
+  "density": 0.546,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Sapium ellipticum": {
+  "scientific_name": "Sapium ellipticum",
+  "family": "Euphorbiaceae",
+  "density": 0.551,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Schefflera umbellifera": {
+  "scientific_name": "Schefflera umbellifera",
+  "family": "Araliaceae",
+  "density": 0.276,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Schinus molle": {
+  "scientific_name": "Schinus molle",
+  "family": "Anacardiaceae",
+  "density": 0.525,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Schinziophyton rautanenii": {
+  "scientific_name": "Schinziophyton rautanenii",
+  "family": "Euphorbiaceae",
+  "density": 0.169,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Schrebera alata": {
+  "scientific_name": "Schrebera alata",
+  "family": "Oleaceae",
+  "density": 0.607,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Schrebera arborea": {
+  "scientific_name": "Schrebera arborea",
+  "family": "Oleaceae",
+  "density": 0.663,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Schrebera trichoclada": {
+  "scientific_name": "Schrebera trichoclada",
+  "family": "Oleaceae",
+  "density": 0.801,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Sclerocarya birrea": {
+  "scientific_name": "Sclerocarya birrea",
+  "family": "Anacardiaceae",
+  "density": 0.508,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Sclerocarya caffra": {
+  "scientific_name": "Sclerocarya caffra",
+  "family": "Anacardiaceae",
+  "density": 0.469,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Scolopia zeyheri": {
+  "scientific_name": "Scolopia zeyheri",
+  "family": "Salicaceae",
+  "density": 0.715,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Scorodophloeus zenkeri": {
+  "scientific_name": "Scorodophloeus zenkeri",
+  "family": "Fabaceae",
+  "density": 0.724,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Scottellia kamerunensis": {
+  "scientific_name": "Scottellia kamerunensis",
+  "family": "Achariaceae",
+  "density": 0.542,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Scottellia klaineana": {
+  "scientific_name": "Scottellia klaineana",
+  "family": "Achariaceae",
+  "density": 0.576,
+  "n": 8,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Scyphocephalium mannii": {
+  "scientific_name": "Scyphocephalium mannii",
+  "family": "Myristicaceae",
+  "density": 0.507,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Scytopetalum tieghemii": {
+  "scientific_name": "Scytopetalum tieghemii",
+  "family": "Lecythidaceae",
+  "density": 0.625,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Senna singueana": {
+  "scientific_name": "Senna singueana",
+  "family": "Fabaceae",
+  "density": 0.706,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Sesbania grandiflora": {
+  "scientific_name": "Sesbania grandiflora",
+  "family": "Fabaceae",
+  "density": 0.431,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Shirakiopsis elliptica": {
+  "scientific_name": "Shirakiopsis elliptica",
+  "family": "Euphorbiaceae",
+  "density": 0.512,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Sideroxylon inerme": {
+  "scientific_name": "Sideroxylon inerme",
+  "family": "Sapotaceae",
+  "density": 0.857,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Sindora klaineana": {
+  "scientific_name": "Sindora klaineana",
+  "family": "Fabaceae",
+  "density": 0.578,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Sindoropsis letestui": {
+  "scientific_name": "Sindoropsis letestui",
+  "family": "Fabaceae",
+  "density": 0.64,
+  "n": 8,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Sorindeia madagascariensis": {
+  "scientific_name": "Sorindeia madagascariensis",
+  "family": "Anacardiaceae",
+  "density": 0.56,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Spathodea campanulata": {
+  "scientific_name": "Spathodea campanulata",
+  "family": "Bignoniaceae",
+  "density": 0.232,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Spirostachys africana": {
+  "scientific_name": "Spirostachys africana",
+  "family": "Euphorbiaceae",
+  "density": 0.825,
+  "n": 3,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Spondianthus preussii": {
+  "scientific_name": "Spondianthus preussii",
+  "family": "Euphorbiaceae",
+  "density": 0.645,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Spondias cytherea": {
+  "scientific_name": "Spondias cytherea",
+  "family": "Anacardiaceae",
+  "density": 0.312,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Spondias mombin": {
+  "scientific_name": "Spondias mombin",
+  "family": "Anacardiaceae",
+  "density": 0.414,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Stachyothyrsus stapfiana": {
+  "scientific_name": "Stachyothyrsus stapfiana",
+  "family": "Fabaceae",
+  "density": 0.645,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Staudtia gabonensis": {
+  "scientific_name": "Staudtia gabonensis",
+  "family": "Myristicaceae",
+  "density": 0.749,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Staudtia kamerunensis": {
+  "scientific_name": "Staudtia kamerunensis",
+  "family": "Myristicaceae",
+  "density": 0.797,
+  "n": 17,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Stemonocoleus micranthus": {
+  "scientific_name": "Stemonocoleus micranthus",
+  "family": "Fabaceae",
+  "density": 0.581,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Sterculia africana": {
+  "scientific_name": "Sterculia africana",
+  "family": "Malvaceae",
+  "density": 0.276,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Sterculia appendiculata": {
+  "scientific_name": "Sterculia appendiculata",
+  "family": "Malvaceae",
+  "density": 0.607,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Sterculia dawei": {
+  "scientific_name": "Sterculia dawei",
+  "family": "Malvaceae",
+  "density": 0.393,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Sterculia quinqueloba": {
+  "scientific_name": "Sterculia quinqueloba",
+  "family": "Malvaceae",
+  "density": 0.536,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Sterculia rhinopetala": {
+  "scientific_name": "Sterculia rhinopetala",
+  "family": "Malvaceae",
+  "density": 0.673,
+  "n": 4,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Sterculia setigera": {
+  "scientific_name": "Sterculia setigera",
+  "family": "Malvaceae",
+  "density": 0.32,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Stereospermum kunthianum": {
+  "scientific_name": "Stereospermum kunthianum",
+  "family": "Bignoniaceae",
+  "density": 0.603,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Streblus dimepate": {
+  "scientific_name": "Streblus dimepate",
+  "family": "Moraceae",
+  "density": 0.771,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Strephonema pseudocolum": {
+  "scientific_name": "Strephonema pseudocolum",
+  "family": "Combretaceae",
+  "density": 0.633,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Strombosia grandifolia": {
+  "scientific_name": "Strombosia grandifolia",
+  "family": "Olacaceae",
+  "density": 0.825,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Strombosia pustulata": {
+  "scientific_name": "Strombosia pustulata",
+  "family": "Olacaceae",
+  "density": 0.83,
+  "n": 7,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Strombosia scheffleri": {
+  "scientific_name": "Strombosia scheffleri",
+  "family": "Olacaceae",
+  "density": 0.584,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Strombosiopsis tetrandra": {
+  "scientific_name": "Strombosiopsis tetrandra",
+  "family": "Olacaceae",
+  "density": 0.663,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Strychnos cocculoides": {
+  "scientific_name": "Strychnos cocculoides",
+  "family": "Loganiaceae",
+  "density": 0.646,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Strychnos decussata": {
+  "scientific_name": "Strychnos decussata",
+  "family": "Loganiaceae",
+  "density": 0.759,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Strychnos innocua": {
+  "scientific_name": "Strychnos innocua",
+  "family": "Loganiaceae",
+  "density": 0.87,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Strychnos madagascariensis": {
+  "scientific_name": "Strychnos madagascariensis",
+  "family": "Loganiaceae",
+  "density": 0.663,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Strychnos mellodora": {
+  "scientific_name": "Strychnos mellodora",
+  "family": "Loganiaceae",
+  "density": 0.689,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Strychnos mitis": {
+  "scientific_name": "Strychnos mitis",
+  "family": "Loganiaceae",
+  "density": 0.676,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Strychnos pungens": {
+  "scientific_name": "Strychnos pungens",
+  "family": "Loganiaceae",
+  "density": 0.702,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Strychnos spinosa": {
+  "scientific_name": "Strychnos spinosa",
+  "family": "Loganiaceae",
+  "density": 0.646,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Strychnos usambarensis": {
+  "scientific_name": "Strychnos usambarensis",
+  "family": "Loganiaceae",
+  "density": 0.715,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Suregada procera": {
+  "scientific_name": "Suregada procera",
+  "family": "Euphorbiaceae",
+  "density": 0.676,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Swartzia fistuloides": {
+  "scientific_name": "Swartzia fistuloides",
+  "family": "Fabaceae",
+  "density": 0.866,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Symphonia globulifera": {
+  "scientific_name": "Symphonia globulifera",
+  "family": "Clusiaceae",
+  "density": 0.589,
+  "n": 8,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Synsepalum afzelii": {
+  "scientific_name": "Synsepalum afzelii",
+  "family": "Sapotaceae",
+  "density": 0.815,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Synsepalum msolo": {
+  "scientific_name": "Synsepalum msolo",
+  "family": "Sapotaceae",
+  "density": 0.54,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Syzygium cordatum": {
+  "scientific_name": "Syzygium cordatum",
+  "family": "Myrtaceae",
+  "density": 0.62,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Syzygium gerrardii": {
+  "scientific_name": "Syzygium gerrardii",
+  "family": "Myrtaceae",
+  "density": 0.646,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Syzygium guineense": {
+  "scientific_name": "Syzygium guineense",
+  "family": "Myrtaceae",
+  "density": 0.61,
+  "n": 3,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Tabebuia donnell-smithii": {
+  "scientific_name": "Tabebuia donnell-smithii",
+  "family": "Bignoniaceae",
+  "density": 0.39,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Tabebuia heterophylla": {
+  "scientific_name": "Tabebuia heterophylla",
+  "family": "Bignoniaceae",
+  "density": 0.568,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Tabebuia rosea": {
+  "scientific_name": "Tabebuia rosea",
+  "family": "Bignoniaceae",
+  "density": 0.51,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Tabernaemontana crassa": {
+  "scientific_name": "Tabernaemontana crassa",
+  "family": "Apocynaceae",
+  "density": 0.55,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Tabernaemontana elegans": {
+  "scientific_name": "Tabernaemontana elegans",
+  "family": "Apocynaceae",
+  "density": 0.646,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Tabernaemontana pachysiphon": {
+  "scientific_name": "Tabernaemontana pachysiphon",
+  "family": "Apocynaceae",
+  "density": 0.523,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Tabernaemontana ventricosa": {
+  "scientific_name": "Tabernaemontana ventricosa",
+  "family": "Apocynaceae",
+  "density": 0.542,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Tamarindus indica": {
+  "scientific_name": "Tamarindus indica",
+  "family": "Fabaceae",
+  "density": 0.903,
+  "n": 4,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Tamarix aphylla": {
+  "scientific_name": "Tamarix aphylla",
+  "family": "Tamaricaceae",
+  "density": 0.592,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Tannodia swynnertonii": {
+  "scientific_name": "Tannodia swynnertonii",
+  "family": "Euphorbiaceae",
+  "density": 0.525,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Tarchonanthus camphoratus": {
+  "scientific_name": "Tarchonanthus camphoratus",
+  "family": "Asteraceae",
+  "density": 0.964,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Tarenna neurophylla": {
+  "scientific_name": "Tarenna neurophylla",
+  "family": "Rubiaceae",
+  "density": 0.839,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Tarenna pavettoides": {
+  "scientific_name": "Tarenna pavettoides",
+  "family": "Rubiaceae",
+  "density": 0.508,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Teclea nobilis": {
+  "scientific_name": "Teclea nobilis",
+  "family": "Rutaceae",
+  "density": 0.745,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Tectona grandis": {
+  "scientific_name": "Tectona grandis",
+  "family": "Verbenaceae",
+  "density": 0.601,
+  "n": 33,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Terminalia arjuna": {
+  "scientific_name": "Terminalia arjuna",
+  "family": "Combretaceae",
+  "density": 0.703,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Terminalia catappa": {
+  "scientific_name": "Terminalia catappa",
+  "family": "Combretaceae",
+  "density": 0.461,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Terminalia gazensis": {
+  "scientific_name": "Terminalia gazensis",
+  "family": "Combretaceae",
+  "density": 0.603,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Terminalia glaucescens": {
+  "scientific_name": "Terminalia glaucescens",
+  "family": "Combretaceae",
+  "density": 0.732,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Terminalia ivorensis": {
+  "scientific_name": "Terminalia ivorensis",
+  "family": "Combretaceae",
+  "density": 0.447,
+  "n": 16,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Terminalia macroptera": {
+  "scientific_name": "Terminalia macroptera",
+  "family": "Combretaceae",
+  "density": 0.819,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Terminalia mollis": {
+  "scientific_name": "Terminalia mollis",
+  "family": "Combretaceae",
+  "density": 0.883,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Terminalia prunioides": {
+  "scientific_name": "Terminalia prunioides",
+  "family": "Combretaceae",
+  "density": 0.93,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Terminalia randii": {
+  "scientific_name": "Terminalia randii",
+  "family": "Combretaceae",
+  "density": 0.814,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Terminalia sericea": {
+  "scientific_name": "Terminalia sericea",
+  "family": "Combretaceae",
+  "density": 0.715,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Terminalia stenostachya": {
+  "scientific_name": "Terminalia stenostachya",
+  "family": "Combretaceae",
+  "density": 0.883,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Terminalia superba": {
+  "scientific_name": "Terminalia superba",
+  "family": "Combretaceae",
+  "density": 0.459,
+  "n": 57,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Terminalia tomentosa": {
+  "scientific_name": "Terminalia tomentosa",
+  "family": "Combretaceae",
+  "density": 0.73,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Tessmannia africana": {
+  "scientific_name": "Tessmannia africana",
+  "family": "Fabaceae",
+  "density": 0.824,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Tessmannia lescrauwaetii": {
+  "scientific_name": "Tessmannia lescrauwaetii",
+  "family": "Fabaceae",
+  "density": 0.749,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Testulea gabonensis": {
+  "scientific_name": "Testulea gabonensis",
+  "family": "Ochnaceae",
+  "density": 0.639,
+  "n": 10,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Tetraberlinia bifoliolata": {
+  "scientific_name": "Tetraberlinia bifoliolata",
+  "family": "Fabaceae",
+  "density": 0.512,
+  "n": 13,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Tetraberlinia tubmaniana": {
+  "scientific_name": "Tetraberlinia tubmaniana",
+  "family": "Fabaceae",
+  "density": 0.595,
+  "n": 6,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Tetraclinis articulata": {
+  "scientific_name": "Tetraclinis articulata",
+  "family": "Cupressaceae",
+  "density": 0.59,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Tetrapleura tetraptera": {
+  "scientific_name": "Tetrapleura tetraptera",
+  "family": "Fabaceae",
+  "density": 0.57,
+  "n": 5,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Tetrorchidium didymostemon": {
+  "scientific_name": "Tetrorchidium didymostemon",
+  "family": "Euphorbiaceae",
+  "density": 0.439,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Thespesia garckeana": {
+  "scientific_name": "Thespesia garckeana",
+  "family": "Malvaceae",
+  "density": 0.732,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Thespesia populnea": {
+  "scientific_name": "Thespesia populnea",
+  "family": "Malvaceae",
+  "density": 0.61,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Tieghemella africana": {
+  "scientific_name": "Tieghemella africana",
+  "family": "Sapotaceae",
+  "density": 0.652,
+  "n": 9,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Tieghemella heckelii": {
+  "scientific_name": "Tieghemella heckelii",
+  "family": "Sapotaceae",
+  "density": 0.553,
+  "n": 12,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Trema orientalis": {
+  "scientific_name": "Trema orientalis",
+  "family": "Cannabaceae",
+  "density": 0.416,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Trichilia dregeana": {
+  "scientific_name": "Trichilia dregeana",
+  "family": "Meliaceae",
+  "density": 0.482,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Trichilia emetica": {
+  "scientific_name": "Trichilia emetica",
+  "family": "Meliaceae",
+  "density": 0.537,
+  "n": 2,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Trichilia heudelotii": {
+  "scientific_name": "Trichilia heudelotii",
+  "family": "Meliaceae",
+  "density": 0.439,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Trichilia monadelpha": {
+  "scientific_name": "Trichilia monadelpha",
+  "family": "Meliaceae",
+  "density": 0.481,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Trichilia prieuriana": {
+  "scientific_name": "Trichilia prieuriana",
+  "family": "Meliaceae",
+  "density": 0.663,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Trichoscypha arborea": {
+  "scientific_name": "Trichoscypha arborea",
+  "family": "Anacardiaceae",
+  "density": 0.644,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Trichoscypha ulugurensis": {
+  "scientific_name": "Trichoscypha ulugurensis",
+  "family": "Anacardiaceae",
+  "density": 0.56,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Triplochiton scleroxylon": {
+  "scientific_name": "Triplochiton scleroxylon",
+  "family": "Malvaceae",
+  "density": 0.335,
+  "n": 24,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Turraea nilotica": {
+  "scientific_name": "Turraea nilotica",
+  "family": "Meliaceae",
+  "density": 0.663,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Turraeanthus africanus": {
+  "scientific_name": "Turraeanthus africanus",
+  "family": "Meliaceae",
+  "density": 0.495,
+  "n": 10,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Turraeanthus vignei": {
+  "scientific_name": "Turraeanthus vignei",
+  "family": "Meliaceae",
+  "density": 0.482,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Uapaca esculenta": {
+  "scientific_name": "Uapaca esculenta",
+  "family": "Phyllanthaceae",
+  "density": 0.611,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Uapaca guineensis": {
+  "scientific_name": "Uapaca guineensis",
+  "family": "Phyllanthaceae",
+  "density": 0.612,
+  "n": 7,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Uapaca heudelotii": {
+  "scientific_name": "Uapaca heudelotii",
+  "family": "Phyllanthaceae",
+  "density": 0.614,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Uapaca kirkiana": {
+  "scientific_name": "Uapaca kirkiana",
+  "family": "Phyllanthaceae",
+  "density": 0.577,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Uapaca nitida": {
+  "scientific_name": "Uapaca nitida",
+  "family": "Phyllanthaceae",
+  "density": 0.646,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Uapaca paludosa": {
+  "scientific_name": "Uapaca paludosa",
+  "family": "Phyllanthaceae",
+  "density": 0.652,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Uapaca sansibarica": {
+  "scientific_name": "Uapaca sansibarica",
+  "family": "Phyllanthaceae",
+  "density": 0.525,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Vangueria esculenta": {
+  "scientific_name": "Vangueria esculenta",
+  "family": "Rubiaceae",
+  "density": 0.676,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Vangueria infausta": {
+  "scientific_name": "Vangueria infausta",
+  "family": "Rubiaceae",
+  "density": 0.689,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Vangueria randii": {
+  "scientific_name": "Vangueria randii",
+  "family": "Rubiaceae",
+  "density": 0.607,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Vepris amaniensis": {
+  "scientific_name": "Vepris amaniensis",
+  "family": "Rutaceae",
+  "density": 0.58,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Vepris lanceolata": {
+  "scientific_name": "Vepris lanceolata",
+  "family": "Rutaceae",
+  "density": 0.738,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Vitex doniana": {
+  "scientific_name": "Vitex doniana",
+  "family": "Lamiaceae",
+  "density": 0.4,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Vitex grandifolia": {
+  "scientific_name": "Vitex grandifolia",
+  "family": "Lamiaceae",
+  "density": 0.424,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Vitex keniensis": {
+  "scientific_name": "Vitex keniensis",
+  "family": "Lamiaceae",
+  "density": 0.469,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Vitex micrantha": {
+  "scientific_name": "Vitex micrantha",
+  "family": "Lamiaceae",
+  "density": 0.454,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Vitex oxycuspis": {
+  "scientific_name": "Vitex oxycuspis",
+  "family": "Lamiaceae",
+  "density": 0.499,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Vitex pachyphylla": {
+  "scientific_name": "Vitex pachyphylla",
+  "family": "Lamiaceae",
+  "density": 0.449,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Vitex payos": {
+  "scientific_name": "Vitex payos",
+  "family": "Lamiaceae",
+  "density": 0.633,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Warburgia salutaris": {
+  "scientific_name": "Warburgia salutaris",
+  "family": "Canellaceae",
+  "density": 0.689,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Widdringtonia nodiflora": {
+  "scientific_name": "Widdringtonia nodiflora",
+  "family": "Cupressaceae",
+  "density": 0.413,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Xanthocercis zambesiaca": {
+  "scientific_name": "Xanthocercis zambesiaca",
+  "family": "Fabaceae",
+  "density": 0.883,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Xeroderris stuhlmannii": {
+  "scientific_name": "Xeroderris stuhlmannii",
+  "family": "Fabaceae",
+  "density": 0.633,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ximenia americana": {
+  "scientific_name": "Ximenia americana",
+  "family": "Olacaceae",
+  "density": 0.95,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Xylia torreana": {
+  "scientific_name": "Xylia torreana",
+  "family": "Fabaceae",
+  "density": 0.99,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Xylocarpus moluccensis": {
+  "scientific_name": "Xylocarpus moluccensis",
+  "family": "Meliaceae",
+  "density": 0.611,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Xylopia aethiopica": {
+  "scientific_name": "Xylopia aethiopica",
+  "family": "Annonaceae",
+  "density": 0.442,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Xylopia cupularis": {
+  "scientific_name": "Xylopia cupularis",
+  "family": "Annonaceae",
+  "density": 0.738,
+  "n": 1,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Xylopia hypolampra": {
+  "scientific_name": "Xylopia hypolampra",
+  "family": "Annonaceae",
+  "density": 0.64,
+  "n": 3,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Xylopia parviflora": {
+  "scientific_name": "Xylopia parviflora",
+  "family": "Annonaceae",
+  "density": 0.81,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Xylopia quintasii": {
+  "scientific_name": "Xylopia quintasii",
+  "family": "Annonaceae",
+  "density": 0.763,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Xylopia staudtii": {
+  "scientific_name": "Xylopia staudtii",
+  "family": "Annonaceae",
+  "density": 0.401,
+  "n": 2,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Zanha africana": {
+  "scientific_name": "Zanha africana",
+  "family": "Sapindaceae",
+  "density": 0.857,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Zanha golungensis": {
+  "scientific_name": "Zanha golungensis",
+  "family": "Sapindaceae",
+  "density": 0.732,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Zanthoxylum gilletii": {
+  "scientific_name": "Zanthoxylum gilletii",
+  "family": "Rutaceae",
+  "density": 0.686,
+  "n": 11,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Zanthoxylum heitzii": {
+  "scientific_name": "Zanthoxylum heitzii",
+  "family": "Rutaceae",
+  "density": 0.45,
+  "n": 7,
+  "regions": [
+   "Africa (tropical)"
+  ]
+ },
+ "Zanthoxylum leprieurii": {
+  "scientific_name": "Zanthoxylum leprieurii",
+  "family": "Rutaceae",
+  "density": 0.546,
+  "n": 3,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Ziziphus abyssinica": {
+  "scientific_name": "Ziziphus abyssinica",
+  "family": "Rhamnaceae",
+  "density": 0.814,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ },
+ "Ziziphus mauritiana": {
+  "scientific_name": "Ziziphus mauritiana",
+  "family": "Rhamnaceae",
+  "density": 0.618,
+  "n": 3,
+  "regions": [
+   "Africa (extratropical)",
+   "Africa (tropical)"
+  ]
+ },
+ "Ziziphus mucronata": {
+  "scientific_name": "Ziziphus mucronata",
+  "family": "Rhamnaceae",
+  "density": 0.758,
+  "n": 1,
+  "regions": [
+   "Africa (extratropical)"
+  ]
+ }
+}
