@@ -28,6 +28,9 @@ backend-python/data/raw/*
 backend-python/weights/*.pt
 !backend-python/weights/.gitkeep
 
+# Raw CITES/EU/CMS listing exports (large; distilled by tools/import_listings.py)
+docs/*listings*.csv
+
 # Logs
 *.log
 npm-debug.log*

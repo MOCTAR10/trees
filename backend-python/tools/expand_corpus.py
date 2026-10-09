@@ -53,6 +53,7 @@ GBIF_CACHE = DATA_DIR / "gbif_species_cache.json"
 GBIF_DIST_CACHE = DATA_DIR / "gbif_distributions_cache.json"
 IUCN_CACHE = DATA_DIR / "iucn_cache.json"
 CITES_CACHE = DATA_DIR / "cites_cache.json"
+LISTINGS_CACHE = DATA_DIR / "listings_cache.json"
 GENERATED_KNOWLEDGE = KNOWLEDGE_DIR / "species" / "africa_wood_density.json"
 GENERATED_REFERENCE = DATA_DIR / "species_reference.json"
 CURATED_SPECIES = KNOWLEDGE_DIR / "species" / "congo_basin_species.json"
@@ -316,6 +317,9 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
     )
     iucn = json.loads(IUCN_CACHE.read_text(encoding="utf-8")) if IUCN_CACHE.exists() else {}
     cites = json.loads(CITES_CACHE.read_text(encoding="utf-8")) if CITES_CACHE.exists() else {}
+    listings = (
+        json.loads(LISTINGS_CACHE.read_text(encoding="utf-8")) if LISTINGS_CACHE.exists() else {}
+    )
     curated = _curated_species() if skip_curated else set()
 
     docs: list[dict] = []
@@ -339,12 +343,19 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
         d = dist.get(name, {})
         range_txt = _distribution_text(d)
         iucn_code = (iucn.get(name, {}).get("status") or {}).get("code") if iucn.get(name) else None
-        cites_ap = (cites.get(name) or {}).get("appendix")
+        lst = listings.get(name, {})
+        cites_ap = lst.get("cites_appendix") or (cites.get(name) or {}).get("appendix")
+        eu_ap = lst.get("eu_listing")
+        cms_ap = lst.get("cms_listing")
         status_txt = ""
         if iucn_code:
             status_txt += f" IUCN Red List status: {iucn_code}."
         if cites_ap:
             status_txt += f" CITES Appendix {cites_ap} (international trade regulated)."
+        if eu_ap:
+            status_txt += f" EU wildlife-trade Annex {eu_ap}."
+        if cms_ap:
+            status_txt += f" CMS Appendix {cms_ap} (migratory species)."
         content = (
             f"{name} — {family or 'family unknown'}. Wood density rho = {d2:.2f} g/cm3 "
             f"(mean of {info['n']} measurements; region: {regions}). Source: {SOURCE_LABEL}."
@@ -368,6 +379,8 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
                     "gbif_occurrences": d.get("occurrence_count") or 0,
                     "iucn_status": iucn_code or "",
                     "cites_appendix": cites_ap or "",
+                    "eu_listing": eu_ap or "",
+                    "cms_listing": cms_ap or "",
                     "doc_type": "species",
                     "language": "en",
                     "source": SOURCE_LABEL,
@@ -383,6 +396,7 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
                 "native_range": "; ".join(d.get("native_range") or []),
                 "iucn_status": iucn_code or "NE",
                 "cites_appendix": cites_ap or "",
+                "eu_listing": eu_ap or "",
                 "cr_asymptote_a_cm": a,
                 "cr_rate_k": k,
                 "cr_shape_p": p,

@@ -12,7 +12,7 @@ precedence over the generated cohort.
 """
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 
@@ -33,6 +33,8 @@ class SpeciesProfile:
     aliases: tuple = field(default_factory=tuple)
     family: str = ""
     cr_source: str = "literature"
+    cites_appendix: str = ""
+    eu_listing: str = ""
 
 
 _CURATED_SPECIES: dict[str, SpeciesProfile] = {
@@ -213,6 +215,8 @@ def _load_generated_reference() -> dict[str, SpeciesProfile]:
             family=entry.get("family") or "",
             cr_source=entry.get("cr_source") or "reference",
             iucn_status=entry.get("iucn_status") or "NE",
+            cites_appendix=entry.get("cites_appendix") or "",
+            eu_listing=entry.get("eu_listing") or "",
         )
     return loaded
 
@@ -222,6 +226,37 @@ SPECIES_DB: dict[str, SpeciesProfile] = {
     **_load_generated_reference(),
     **_CURATED_SPECIES,
 }
+
+
+def _apply_listings(
+    profiles: dict[str, SpeciesProfile],
+) -> dict[str, SpeciesProfile]:
+    """Overlay CITES/EU listing status from the imported listing cache.
+
+    Keeps curated profiles authoritative for growth/density while still
+    reflecting the latest CITES/EU annexes (``data/listings_cache.json``,
+    produced by ``tools.import_listings``).
+    """
+    path = Path(__file__).resolve().parents[2] / "data" / "listings_cache.json"
+    try:
+        cache = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return profiles
+    out: dict[str, SpeciesProfile] = {}
+    for name, profile in profiles.items():
+        entry = cache.get(name)
+        if not entry:
+            out[name] = profile
+            continue
+        out[name] = replace(
+            profile,
+            cites_appendix=entry.get("cites_appendix") or profile.cites_appendix,
+            eu_listing=entry.get("eu_listing") or profile.eu_listing,
+        )
+    return out
+
+
+SPECIES_DB = _apply_listings(SPECIES_DB)
 
 DEFAULT_SPECIES = _CURATED_SPECIES["Aucoumea klaineana"]
 DEFAULT_WOOD_DENSITY = 0.62  # mean Central African moist forest
