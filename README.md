@@ -106,6 +106,7 @@ If the phone cannot reach Metro, the Windows Firewall is likely blocking port
 | Gateway tests | `npm test` (in `backend-node/`) |
 | Gateway syntax | `node --check src/index.js` (in `backend-node/`) |
 | Mobile typecheck | `npx tsc --noEmit` (in `mobile/`) |
+| Mobile tests | `npm test` (in `mobile/`) |
 | Stack smoke | `python backend-python/scripts/smoke_stack.py` (stack up) |
 
 `ruff` is not part of `requirements.txt`; install it in the running container

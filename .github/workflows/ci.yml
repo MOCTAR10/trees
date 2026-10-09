@@ -79,7 +79,7 @@ jobs:
 
   # ─────────────────────────────────────────────────────────────
   mobile:
-    name: Mobile · TypeScript typecheck
+    name: Mobile · typecheck + tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -99,6 +99,9 @@ jobs:
 
       - name: Typecheck
         run: npx tsc --noEmit
+
+      - name: Unit tests (jest)
+        run: npm test -- --ci
 
   # ─────────────────────────────────────────────────────────────
   # Builds all three images, boots the real compose stack and runs the

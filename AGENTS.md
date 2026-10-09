@@ -34,6 +34,7 @@ Mobile (`mobile/`):
 
 ```
 npx tsc --noEmit
+npm test
 ```
 
 Full stack smoke (stack must be running):
