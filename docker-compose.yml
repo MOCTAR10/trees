@@ -39,6 +39,24 @@ services:
       retries: 12
       start_period: 40s
 
+  # One-shot corpus loader. Opt-in via `docker compose --profile tools run --rm ingest`
+  # (or `docker compose --profile tools up ingest`); never started by default `up`,
+  # so CI boot + smoke stack stay light.
+  ingest:
+    build: ./backend-python
+    profiles: ["tools"]
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-forestry}:${POSTGRES_PASSWORD:-forestry_secret}@db:5432/${POSTGRES_DB:-forestry}
+      HF_HOME: /app/.cache/huggingface
+    volumes:
+      - ./backend-python:/app
+      - forestry_hf_cache:/app/.cache/huggingface
+    command: python -m ingestion.ingest
+
   gateway:
     build: ./backend-node
     container_name: forestry_gateway
@@ -67,3 +85,4 @@ services:
 
 volumes:
   forestry_pgdata:
+  forestry_hf_cache:
