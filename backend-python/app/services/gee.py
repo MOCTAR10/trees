@@ -56,7 +56,7 @@ def _gee_fcd(key: dict, project: str, latitude: float, longitude: float) -> floa
         _initialized = True
 
     # Hansen global forest cover as FCD proxy: canopy cover % / 100
-    hansen = ee.Image("UMD/hansen/global_forest_change_2023_v1_11")
+    hansen = ee.Image("UMD/hansen/global_forest_change_2025_v1_13")
     canopy = hansen.select("treecover2000")
     region = ee.Geometry.Point([longitude, latitude]).buffer(500).bounds()
     stats = canopy.reduceRegion(reducer=ee.Reducer.mean(), geometry=region, scale=30, maxPixels=1e9)
