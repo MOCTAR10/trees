@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { adminStats, AdminStats, AuthUser } from "../api/client";
+import AdminUsers from "../components/AdminUsers";
 import RoleHeader from "../components/RoleHeader";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
@@ -15,6 +16,7 @@ export default function AdminScreen({ user, onLogout }: Props) {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<"stats" | "users">("stats");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -55,7 +57,23 @@ export default function AdminScreen({ user, onLogout }: Props) {
         onLogout={onLogout}
       />
 
-      {loading ? (
+      <View style={styles.tabs}>
+        {(["stats", "users"] as const).map((key) => (
+          <TouchableOpacity
+            key={key}
+            style={[styles.tab, tab === key && styles.tabActive]}
+            onPress={() => setTab(key)}
+          >
+            <Text style={[styles.tabText, tab === key && styles.tabTextActive]}>
+              {key === "stats" ? fr.admin.tabStats : fr.admin.tabUsers}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {tab === "users" ? (
+        <AdminUsers />
+      ) : loading ? (
         <ActivityIndicator style={styles.center} color={colors.accent} />
       ) : error ? (
         <View style={styles.center}>
@@ -80,6 +98,22 @@ export default function AdminScreen({ user, onLogout }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  tabs: {
+    flexDirection: "row",
+    padding: spacing.sm,
+    gap: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  tab: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: spacing.sm,
+    borderRadius: 8,
+  },
+  tabActive: { backgroundColor: colors.surface },
+  tabText: { color: colors.textDim, fontSize: type.body, fontWeight: "600" },
+  tabTextActive: { color: colors.primary, fontWeight: "800" },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.md },
   error: { color: colors.error, fontSize: type.body },
   link: { color: colors.accent, fontSize: type.body, fontWeight: "700" },

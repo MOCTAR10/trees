@@ -295,3 +295,55 @@ export async function adminStats(): Promise<AdminStats> {
   if (!resp.ok) throw new Error(`Admin stats ${resp.status}`);
   return resp.json();
 }
+
+export interface AdminUser {
+  id: number;
+  email: string;
+  display_name: string;
+  role: Role;
+  is_active: boolean;
+  cooperative_id: number | null;
+  company_id: number | null;
+  created_at?: string;
+}
+
+export async function listUsers(): Promise<AdminUser[]> {
+  const resp = await fetch(`${API_BASE}/api/admin/users`, { headers: headers() });
+  if (!resp.ok) throw new Error(`Admin users ${resp.status}`);
+  return resp.json();
+}
+
+export interface CreateUserPayload {
+  email: string;
+  display_name: string;
+  password: string;
+  role: Role;
+  cooperative_id?: number | null;
+  company_id?: number | null;
+}
+
+export async function createUser(payload: CreateUserPayload): Promise<AdminUser> {
+  const resp = await fetch(`${API_BASE}/api/admin/users`, {
+    method: "POST",
+    headers: headers(true),
+    body: JSON.stringify(payload),
+  });
+  if (!resp.ok) throw new Error(`Create user ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
+export async function adminCooperatives(): Promise<Cooperation[]> {
+  const resp = await fetch(`${API_BASE}/api/admin/cooperatives`, { headers: headers() });
+  if (!resp.ok) throw new Error(`Admin cooperatives ${resp.status}`);
+  return resp.json();
+}
+
+export async function setUserActive(userId: number, isActive: boolean): Promise<AdminUser> {
+  const resp = await fetch(`${API_BASE}/api/admin/users/${userId}`, {
+    method: "PATCH",
+    headers: headers(true),
+    body: JSON.stringify({ is_active: isActive }),
+  });
+  if (!resp.ok) throw new Error(`Update user ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}

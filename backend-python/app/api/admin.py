@@ -22,6 +22,14 @@ class CreateUserRequest(BaseModel):
     company_id: int | None = None
 
 
+class UpdateUserRequest(BaseModel):
+    is_active: bool | None = None
+    display_name: str | None = None
+    role: str | None = None
+    password: str | None = None
+    cooperative_id: int | None = None
+
+
 @router.post("/users", status_code=201)
 async def create_user(body: CreateUserRequest, _admin: dict = Depends(require_roles("admin"))):
     if body.role not in VALID_ROLES:
@@ -61,6 +69,55 @@ async def create_user(body: CreateUserRequest, _admin: dict = Depends(require_ro
 async def list_users(admin: dict = Depends(require_roles("admin"))):
     rows = await db.fetch_all(f"SELECT {_USER_COLUMNS} FROM users ORDER BY id")
     return [dict(r) for r in rows]
+
+
+@router.patch("/users/{user_id}")
+async def update_user(
+    user_id: int,
+    body: UpdateUserRequest,
+    admin: dict = Depends(require_roles("admin")),
+):
+    if body.role is not None and body.role not in VALID_ROLES:
+        raise HTTPException(status_code=400, detail=f"Rôle invalide: {body.role}")
+    if user_id == admin["id"] and body.is_active is False:
+        raise HTTPException(status_code=400, detail="Impossible de désactiver votre propre compte")
+
+    current = await db.fetch_one(f"SELECT {_USER_COLUMNS} FROM users WHERE id=$1", user_id)
+    if current is None:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+
+    sets: list[str] = []
+    values: list = []
+    if body.is_active is not None:
+        sets.append(f"is_active=${len(values) + 1}")
+        values.append(body.is_active)
+    if body.display_name is not None:
+        sets.append(f"display_name=${len(values) + 1}")
+        values.append(body.display_name)
+    if body.role is not None:
+        sets.append(f"role=${len(values) + 1}")
+        values.append(body.role)
+    if body.password is not None:
+        sets.append(f"password_hash=${len(values) + 1}")
+        values.append(security.hash_password(body.password))
+    if body.cooperative_id is not None:
+        coop = await db.fetch_one(
+            "SELECT id FROM community_cooperatives WHERE id=$1", body.cooperative_id
+        )
+        if coop is None:
+            raise HTTPException(status_code=404, detail="Coopérative introuvable")
+        sets.append(f"cooperative_id=${len(values) + 1}")
+        values.append(body.cooperative_id)
+
+    if not sets:
+        raise HTTPException(status_code=400, detail="Aucune modification fournie")
+
+    values.append(user_id)
+    row = await db.fetch_one(
+        f"UPDATE users SET {', '.join(sets)} WHERE id=${len(values)} RETURNING {_USER_COLUMNS}",
+        *values,
+    )
+    return dict(row)
 
 
 @router.get("/cooperatives")

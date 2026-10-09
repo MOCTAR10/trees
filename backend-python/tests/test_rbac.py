@@ -28,6 +28,15 @@ def _install_fake_db(monkeypatch, users, coops, residues):
 
     async def fetch_one(sql, *args):
         s = " ".join(sql.split()).lower()
+        if "update users set" in s:
+            set_clause = s.split("set", 1)[1].split(" where ")[0]
+            cols = [c.split("=")[0].strip() for c in set_clause.split(",")]
+            user = users.get(args[-1])
+            if user is None:
+                return None
+            for col, val in zip(cols, args[:-1], strict=False):
+                user[col] = val
+            return {k: v for k, v in user.items() if k != "password_hash"}
         if "insert into users" in s:
             uid = state["next_id"]
             state["next_id"] += 1
@@ -330,6 +339,53 @@ def test_admin_creates_user_and_stats(client, monkeypatch):
     stats = client.get("/api/admin/stats", headers={"Authorization": f"Bearer {token}"})
     assert stats.status_code == 200
     assert stats.json()["cooperatives"] == 1
+
+
+def test_admin_deactivates_user(client, monkeypatch):
+    users, _, _ = _setup(monkeypatch)
+    token = _token(users[1])
+    resp = client.patch(
+        "/api/admin/users/4",
+        json={"is_active": False},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["is_active"] is False
+    assert users[4]["is_active"] is False
+
+
+def test_admin_cannot_deactivate_self(client, monkeypatch):
+    users, _, _ = _setup(monkeypatch)
+    token = _token(users[1])
+    resp = client.patch(
+        "/api/admin/users/1",
+        json={"is_active": False},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 400
+    assert users[1]["is_active"] is True
+
+
+def test_admin_update_unknown_user(client, monkeypatch):
+    users, _, _ = _setup(monkeypatch)
+    token = _token(users[1])
+    resp = client.patch(
+        "/api/admin/users/999",
+        json={"is_active": False},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 404
+
+
+def test_admin_update_validates_role(client, monkeypatch):
+    users, _, _ = _setup(monkeypatch)
+    token = _token(users[1])
+    resp = client.patch(
+        "/api/admin/users/4",
+        json={"role": "wizard"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 400
 
 
 def _setup(monkeypatch):
