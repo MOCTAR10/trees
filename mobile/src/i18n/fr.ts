@@ -25,6 +25,11 @@ export const fr = {
     tagline:
       "Identification de l'espèce, mensuration (DBH), âge estimé et plan de valorisation circulaire des résidus.",
     newScan: "Nouvelle analyse",
+    syncQueue: (n: number) => `Synchroniser les analyses en attente (${n})`,
+    syncing: "Synchronisation…",
+    syncDoneTitle: "Synchronisation terminée",
+    syncDoneMsg: (n: number) =>
+      `${n} analyse${n > 1 ? "s" : ""} enregistrée${n > 1 ? "s" : ""} sur le serveur.`,
     history: (n: number) =>
       `Historique des analyses${n > 0 ? ` (${n})` : ""}`,
   },
@@ -61,6 +66,7 @@ export const fr = {
     back: "← Historique",
     error: "L'analyse a échoué. Vérifiez votre connexion.",
     startOver: "Nouvelle analyse",
+    offlineQueued: "Connexion perdue : l'analyse est en file d'attente et sera synchronisée automatiquement.",
   },
 
   valorization: {
@@ -89,6 +95,7 @@ export const fr = {
     mapTitle: "Position sur le terrain",
     scanPoint: "Point d'analyse",
     error: "Génération du plan échouée.",
+    offlineQueued: "Connexion perdue : le plan sera généré et synchronisé dès que la connexion revient.",
     backToStart: "Retour à l'accueil",
   },
 

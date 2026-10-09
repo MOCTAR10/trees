@@ -1,16 +1,19 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
 
 interface Props {
   scanCount: number;
+  pendingCount: number;
+  syncing: boolean;
   onNew: () => void;
   onHistory: () => void;
+  onSync: () => void;
 }
 
-export default function HomeScreen({ scanCount, onNew, onHistory }: Props) {
+export default function HomeScreen({ scanCount, pendingCount, syncing, onNew, onHistory, onSync }: Props) {
   return (
     <View style={styles.container}>
       <Text style={styles.leaf}>🌳</Text>
@@ -24,6 +27,16 @@ export default function HomeScreen({ scanCount, onNew, onHistory }: Props) {
       <TouchableOpacity style={styles.secondary} onPress={onHistory}>
         <Text style={styles.secondaryText}>{fr.home.history(scanCount)}</Text>
       </TouchableOpacity>
+
+      {(pendingCount > 0 || syncing) && (
+        <TouchableOpacity style={styles.syncButton} onPress={onSync} disabled={syncing}>
+          {syncing ? (
+            <ActivityIndicator color={colors.text} />
+          ) : (
+            <Text style={styles.syncText}>{fr.home.syncQueue(pendingCount)}</Text>
+          )}
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -61,4 +74,15 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   secondaryText: { color: colors.text, fontSize: type.body, fontWeight: "600" },
+  syncButton: {
+    backgroundColor: colors.primaryLight,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    borderRadius: 12,
+    alignItems: "center",
+    alignSelf: "stretch",
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  syncText: { color: colors.text, fontSize: type.body, fontWeight: "700" },
 });

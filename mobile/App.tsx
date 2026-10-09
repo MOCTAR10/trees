@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -26,6 +26,13 @@ import {
   StoredScan,
   updateScanValorization,
 } from "./src/storage/history";
+import {
+  copyToOutbox,
+  enqueue,
+  flushQueue,
+  isNetworkError,
+  loadQueue,
+} from "./src/storage/queue";
 import { colors, spacing, type } from "./src/theme";
 
 type Phase =
@@ -46,15 +53,62 @@ export default function App() {
   const [activeScanId, setActiveScanId] = useState<string | null>(null);
   const [historyReturn, setHistoryReturn] = useState(false);
   const [scans, setScans] = useState<StoredScan[]>([]);
+  const [queueCount, setQueueCount] = useState(0);
+  const [syncing, setSyncing] = useState(false);
   const [exporting, setExporting] = useState<"report" | "plan" | null>(null);
 
   const refreshScans = useCallback(async () => {
     setScans(await loadScans());
   }, []);
 
+  const refreshQueue = useCallback(async () => {
+    setQueueCount((await loadQueue()).length);
+  }, []);
+
+  const mountedRef = useRef(false);
+
   useEffect(() => {
     refreshScans();
-  }, [refreshScans]);
+    refreshQueue();
+  }, [refreshScans, refreshQueue]);
+
+  const syncQueue = useCallback(async () => {
+    if (syncing) return;
+    setSyncing(true);
+    try {
+      const { synced } = await flushQueue({
+        onV1Success: async (entry, report) => {
+          await saveScan({
+            id: entry.scan_id,
+            created_at: entry.created_at,
+            latitude: entry.latitude,
+            longitude: entry.longitude,
+            report,
+            valorization: null,
+          });
+        },
+        onV2Success: async (entry, v2) => {
+          if (entry.scan_id) await updateScanValorization(entry.scan_id, v2);
+        },
+      });
+      if (synced > 0) {
+        Alert.alert(fr.home.syncDoneTitle, fr.home.syncDoneMsg(synced));
+      }
+    } catch (err) {
+      console.error("queue sync failed", err);
+    } finally {
+      await refreshScans();
+      await refreshQueue();
+      setSyncing(false);
+    }
+  }, [refreshScans, refreshQueue, syncing]);
+
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      syncQueue();
+    }
+  }, [syncQueue]);
 
   const goHome = useCallback(() => {
     setReport(null);
@@ -92,6 +146,31 @@ export default function App() {
       setPhase("report");
     } catch (err) {
       console.error("V1 failed", err);
+      if (isNetworkError(err)) {
+        try {
+          const [trunk, leaf, habitat] = await Promise.all([
+            copyToOutbox(capture.trunk.uri, capture.trunk.name),
+            copyToOutbox(capture.leaf.uri, capture.leaf.name),
+            copyToOutbox(capture.habitat.uri, capture.habitat.name),
+          ]);
+          await enqueue({
+            kind: "v1",
+            id: scanId,
+            scan_id: scanId,
+            created_at: new Date().toISOString(),
+            latitude: capture.latitude,
+            longitude: capture.longitude,
+            ar_depth_m: capture.arDepthM,
+            images: { trunk, leaf, habitat },
+          });
+          refreshQueue();
+        } catch (copyErr) {
+          console.error("offline enqueue failed", copyErr);
+        }
+        Alert.alert(fr.appTitle, fr.report.offlineQueued);
+        goHome();
+        return;
+      }
       setPhase("error");
     }
   };
@@ -116,6 +195,28 @@ export default function App() {
       setPhase("valorization");
     } catch (err) {
       console.error("V2 failed", err);
+      if (isNetworkError(err)) {
+        try {
+          await enqueue({
+            kind: "v2",
+            id: newScanId(),
+            scan_id: activeScanId,
+            created_at: new Date().toISOString(),
+            payload: {
+              species_scientific_name: report.species_scientific_name,
+              measured_dbh_cm: report.measured_dbh_cm,
+              latitude: coords.latitude,
+              longitude: coords.longitude,
+              canopy_density_fcd: report.canopy_density_fcd ?? undefined,
+            },
+          });
+          refreshQueue();
+        } catch (queueErr) {
+          console.error("offline v2 enqueue failed", queueErr);
+        }
+        Alert.alert(fr.appTitle, fr.valorization.offlineQueued);
+        return;
+      }
       setPhase("error");
     }
   };
@@ -178,7 +279,14 @@ export default function App() {
       </View>
 
       {phase === "home" && (
-        <HomeScreen scanCount={scans.length} onNew={() => setPhase("capture")} onHistory={goHistory} />
+        <HomeScreen
+          scanCount={scans.length}
+          pendingCount={queueCount}
+          syncing={syncing}
+          onNew={() => setPhase("capture")}
+          onHistory={goHistory}
+          onSync={syncQueue}
+        />
       )}
       {phase === "capture" && <CaptureScreen onCaptured={handleCaptured} />}
       {phase === "history" && (
