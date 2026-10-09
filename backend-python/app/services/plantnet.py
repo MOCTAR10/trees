@@ -36,13 +36,13 @@ async def identify(
         raise ValueError("organs list must match images list")
 
     settings = get_settings()
-    if not settings.plantnet_api_key:
-        raise RuntimeError("PLANTNET_API_KEY is not configured")
-
     limit = settings.max_image_bytes
     for image in images:
         if len(image) > limit:
             raise ValueError(f"image exceeds {limit} bytes")
+
+    if not settings.plantnet_api_key:
+        raise RuntimeError("PLANTNET_API_KEY is not configured")
 
     url = f"{settings.plantnet_base_url}/{project}"
     params = {"api-key": settings.plantnet_api_key, "lang": lang}
