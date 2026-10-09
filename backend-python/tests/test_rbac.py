@@ -256,6 +256,37 @@ def test_company_cannot_allocate_foreign_residue(client, monkeypatch):
     assert resp.status_code == 409
 
 
+def test_cooperative_nearby_matching(client, monkeypatch):
+    users, _, residues = _setup(monkeypatch)
+    residues[100]["weight_branches_fine_kg"] = 300.0
+    residues[100]["weight_bark_kg"] = 100.0
+    token = _token(users[3])
+    resp = client.get(
+        "/api/cooperative/residues?latitude=0&longitude=0&radius_km=100",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["profile_type"] == "agricultural_biochar"
+    top = body["residues"][0]
+    assert top["id"] == 100
+    assert top["relevant_mass_kg"] == 300.0
+    assert top["match_score"] == 0.75
+
+
+def test_cooperative_only_matching_filter(client, monkeypatch):
+    users, _, residues = _setup(monkeypatch)
+    residues[100]["weight_bark_kg"] = 12.0
+    token = _token(users[3])
+    resp = client.get(
+        "/api/cooperative/residues?latitude=0&longitude=0&only_matching=true",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 200
+    ids = [r["id"] for r in resp.json()["residues"]]
+    assert 100 not in ids
+
+
 def test_cooperative_collect(client, monkeypatch):
     users, _, residues = _setup(monkeypatch)
     residues[100]["status"] = "allocated"
