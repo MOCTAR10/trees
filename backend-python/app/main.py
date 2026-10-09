@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api import v1, v2
+from app.api import knowledge, v1, v2
 from app.services import db
 
 
@@ -20,6 +20,7 @@ app = FastAPI(
 
 app.include_router(v1.router, prefix="/api/v1", tags=["v1-measurement"])
 app.include_router(v2.router, prefix="/api/v2", tags=["v2-valorization"])
+app.include_router(knowledge.router, prefix="/api/knowledge", tags=["knowledge"])
 
 
 @app.get("/health")

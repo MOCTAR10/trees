@@ -12,6 +12,7 @@ services:
       - forestry_pgdata:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
       - ./db/migrations/002_circular_economy.sql:/docker-entrypoint-initdb.d/02_circular_economy.sql:ro
+      - ./db/migrations/003_hybrid_search.sql:/docker-entrypoint-initdb.d/03_hybrid_search.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-forestry} -d ${POSTGRES_DB:-forestry}"]
       interval: 5s
