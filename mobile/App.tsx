@@ -6,17 +6,30 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 
-import { processScanV1, processScanV2, V1Report, V2Response } from "./src/api/client";
+import {
+  AuthUser,
+  getMe,
+  processScanV1,
+  processScanV2,
+  V1Report,
+  V2Response,
+} from "./src/api/client";
 import { fr } from "./src/i18n/fr";
 import { sharePdf, exportPlanPdf, exportReportPdf } from "./src/pdf";
+import AdminScreen from "./src/screens/AdminScreen";
 import CaptureScreen, { CaptureResult } from "./src/screens/CaptureScreen";
+import CompanyScreen from "./src/screens/CompanyScreen";
+import CooperativeScreen from "./src/screens/CooperativeScreen";
 import HistoryScreen from "./src/screens/HistoryScreen";
 import HomeScreen from "./src/screens/HomeScreen";
+import LoginScreen from "./src/screens/LoginScreen";
 import ReportScreen from "./src/screens/ReportScreen";
 import ValorizationScreen from "./src/screens/ValorizationScreen";
+import { applySession, clearSession, loadSession, saveSession, Session } from "./src/storage/session";
 import {
   clearScans,
   deleteScan,
@@ -56,6 +69,37 @@ export default function App() {
   const [queueCount, setQueueCount] = useState(0);
   const [syncing, setSyncing] = useState(false);
   const [exporting, setExporting] = useState<"report" | "plan" | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [bootstrapping, setBootstrapping] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const session = await loadSession();
+      if (session) {
+        applySession(session);
+        try {
+          setUser(await getMe());
+        } catch {
+          applySession(null);
+          await clearSession();
+        }
+      }
+      setBootstrapping(false);
+    })();
+  }, []);
+
+  const handleLogin = useCallback(async (session: Session) => {
+    applySession(session);
+    await saveSession(session);
+    setUser(session.user);
+  }, []);
+
+  const handleLogout = useCallback(async () => {
+    applySession(null);
+    await clearSession();
+    setUser(null);
+    setPhase("home");
+  }, []);
 
   const refreshScans = useCallback(async () => {
     setScans(await loadScans());
@@ -270,12 +314,49 @@ export default function App() {
 
   const returnTarget = () => (historyReturn ? goHistory() : goHome());
 
+  if (bootstrapping) {
+    return (
+      <View style={styles.boot}>
+        <ActivityIndicator color={colors.accent} />
+      </View>
+    );
+  }
+
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <StatusBar style="light" />
+        <LoginScreen onLogin={handleLogin} />
+      </SafeAreaView>
+    );
+  }
+
+  if (user.role !== "operator") {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <StatusBar style="light" />
+        {user.role === "company" && <CompanyScreen user={user} onLogout={handleLogout} />}
+        {user.role === "cooperative" && (
+          <CooperativeScreen user={user} onLogout={handleLogout} />
+        )}
+        {user.role === "admin" && <AdminScreen user={user} onLogout={handleLogout} />}
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar style="light" />
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{fr.appTitle}</Text>
-        <Text style={styles.headerSubtitle}>{fr.appSubtitle}</Text>
+        <View style={styles.headerTexts}>
+          <Text style={styles.headerTitle}>{fr.appTitle}</Text>
+          <Text style={styles.headerSubtitle}>
+            {fr.roles.operator} · {user.display_name}
+          </Text>
+        </View>
+        <TouchableOpacity onPress={handleLogout} style={styles.headerLogout}>
+          <Text style={styles.headerLogoutText}>{fr.common.logout}</Text>
+        </TouchableOpacity>
       </View>
 
       {phase === "home" && (
@@ -344,7 +425,11 @@ export default function App() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background, position: "relative" },
+  boot: { flex: 1, backgroundColor: colors.background, alignItems: "center", justifyContent: "center" },
   header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.sm,
@@ -352,8 +437,17 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
     backgroundColor: colors.primary,
   },
+  headerTexts: { flex: 1, minWidth: 0 },
   headerTitle: { color: colors.text, fontSize: type.title, fontWeight: "800" },
   headerSubtitle: { color: colors.textDim, fontSize: type.caption },
+  headerLogout: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  headerLogoutText: { color: colors.text, fontSize: type.caption, fontWeight: "700" },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.md },
   loading: { color: colors.text, fontSize: type.body },
   error: { color: colors.error, fontSize: type.body },

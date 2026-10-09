@@ -29,6 +29,19 @@ async def my_residues(company: dict = Depends(require_roles("company"))):
     return [dict(r) for r in rows]
 
 
+@router.get("/cooperatives")
+async def list_cooperatives(company: dict = Depends(require_roles("company"))):
+    rows = await db.fetch_all(
+        """
+        SELECT id, cooperative_name, profile_type, capacity_kg_per_day, is_certified,
+               ST_Y(geom) AS latitude, ST_X(geom) AS longitude
+        FROM community_cooperatives
+        ORDER BY cooperative_name
+        """
+    )
+    return [dict(r) for r in rows]
+
+
 class AllocateRequest(BaseModel):
     cooperative_id: int
 

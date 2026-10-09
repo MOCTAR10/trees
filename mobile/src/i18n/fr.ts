@@ -34,6 +34,68 @@ export const fr = {
       `Historique des analyses${n > 0 ? ` (${n})` : ""}`,
   },
 
+  auth: {
+    title: "Connexion",
+    subtitle: "Accédez à votre espace selon votre rôle",
+    email: "Adresse e-mail",
+    password: "Mot de passe",
+    submit: "Se connecter",
+    hint: "Comptes de démonstration fournis par l'administrateur.",
+    error: "Connexion impossible. Vérifiez vos identifiants.",
+  },
+
+  roles: {
+    operator: "Opérateur",
+    company: "Entreprise",
+    cooperative: "Coopérative",
+    admin: "Administrateur",
+  },
+
+  company: {
+    title: "Espace entreprise",
+    subtitle: "Résidus produits et affectation aux coopératives",
+    empty: "Aucun résidu enregistré pour votre compte.",
+    allocate: "Allouer",
+    chooseCoop: "Choisir une coopérative",
+    cancel: "Annuler",
+    allocatedTo: (name: string) => `Alloué à ${name}`,
+    biomass: (kg: number) => `${Math.round(kg)} kg`,
+    status: {
+      available: "Disponible",
+      allocated: "Alloué",
+      collected: "Collecté",
+    } as Record<string, string>,
+    error: "Chargement impossible.",
+  },
+
+  cooperative: {
+    title: "Espace coopérative",
+    subtitle: "Résidus à proximité, classés par pertinence",
+    locate: "Me localiser",
+    empty: "Aucun résidu à proximité.",
+    distance: (km: number) => `${km.toFixed(1)} km`,
+    relevant: (kg: number) => `${Math.round(kg)} kg pertinents`,
+    match: (pct: number) => `Pertinence ${Math.round(pct * 100)} %`,
+    onlyMatching: "Filtrer par pertinence",
+    collect: "Collecter",
+    mine: "Alloué à ma coopérative",
+    error: "Chargement impossible.",
+  },
+
+  admin: {
+    title: "Administration",
+    subtitle: "Vue d'ensemble de la plateforme",
+    users: "Utilisateurs",
+    cooperatives: "Coopératives",
+    scans: "Analyses",
+    residues: "Résidus",
+    available: "Disponibles",
+    allocated: "Alloués",
+    collected: "Collectés",
+    waste: "Biomasse résiduelle",
+    error: "Chargement impossible.",
+  },
+
   history: {
     title: "Historique des analyses",
     empty: "Aucune analyse enregistrée pour l'instant.",
@@ -104,5 +166,6 @@ export const fr = {
     loading: "Chargement…",
     retry: "Réessayer",
     exporting: "Préparation du PDF…",
+    logout: "Déconnexion",
   },
 };
