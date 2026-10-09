@@ -23,9 +23,8 @@ class Settings(BaseSettings):
 
     embedding_model: str = "intfloat/multilingual-e5-small"
 
-    # Conservation / trade status enrichment (optional, tools only)
+    # IUCN Red List status enrichment (optional, tools only)
     iucn_api_token: str = ""
-    speciesplus_api_token: str = ""
 
 
 @lru_cache

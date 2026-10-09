@@ -61,6 +61,25 @@ def test_generated_cohort_is_loaded_into_registry():
     assert len(SPECIES_DB) >= 800
 
 
+def test_trade_names_resolve_for_generated_species():
+    assert resolve_species("kevazingo").scientific_name.startswith("Guibourtia")
+    assert resolve_species("assamela").scientific_name == "Pericopsis elata"
+    assert resolve_species("afrormosia").scientific_name == "Pericopsis elata"
+    assert resolve_species("acajou bassam").scientific_name == "Khaya ivorensis"
+    # inputs shorter than 3 chars must never match via substring
+    assert resolve_species("a") is None
+    assert resolve_species("  ") is None
+
+
+def test_introduced_species_flagged_native_to_africa():
+    assert SPECIES_DB["Tabebuia rosea"].native_to_africa is False
+    assert SPECIES_DB["Dalbergia sissoo"].native_to_africa is False
+    assert SPECIES_DB["Baillonella toxisperma"].native_to_africa is True
+    docs = _species_docs()
+    tab = next(d for d in docs.values() if d["species"] == "Tabebuia rosea")
+    assert "not indigenous to Africa" in tab["content"]
+
+
 def test_generated_corpus_files_are_consistent():
     import json
     from pathlib import Path

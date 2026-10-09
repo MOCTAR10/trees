@@ -1,21 +1,20 @@
-"""Conservation and trade-status enrichment.
+"""IUCN Red List status enrichment.
 
-Pulls two auth-gated but free authoritative sources and caches the result
-so the corpus can be rebuilt offline:
+Pulls the latest IUCN Red List category from the free, auth-gated IUCN Red
+List API v4 (``IUCN_API_TOKEN``) and caches the result so the corpus can be
+rebuilt offline.
 
-- IUCN Red List API v4 (``IUCN_API_TOKEN``) -> latest Red List category.
-- Species+ / CITES Checklist API (``SPECIESPLUS_API_TOKEN``) -> current CITES
-  appendix listing.
+CITES / EU / CMS listings are NOT fetched here: those come from the
+checklist.cites.org CSV exports via ``tools.import_listings`` (no token
+required). See ``data/listings_cache.json``.
 
-Tokens are read from the process environment or from the repository ``.env``.
-Both steps are idempotent and resumable: existing cache entries are skipped and
+The token is read from the process environment or from the repository ``.env``.
+The step is idempotent and resumable: existing cache entries are skipped and
 the cache is flushed periodically.
 
 Usage::
 
     python -m tools.enrich_status iucn
-    python -m tools.enrich_status cites
-    python -m tools.enrich_status all
 """
 
 from __future__ import annotations
@@ -34,14 +33,10 @@ DATA_DIR = BACKEND_DIR / "data"
 ENV_FILE = BACKEND_DIR.parent / ".env"
 WOOD_DENSITY_OUT = DATA_DIR / "wood_density_africa.json"
 IUCN_CACHE = DATA_DIR / "iucn_cache.json"
-CITES_CACHE = DATA_DIR / "cites_cache.json"
 
 IUCN_URL = "https://api.iucnredlist.org/api/v4/taxa/scientific_name"
-SPECIESPLUS_CONCEPTS_URL = "https://api.speciesplus.net/api/v1/taxon_concepts"
-SPECIESPLUS_LEG_URL = "https://api.speciesplus.net/api/v1/taxon_concepts/{id}/cites_legislation"
 
 IUCN_CATEGORIES = {"EX", "EW", "CR", "EN", "VU", "NT", "LC", "DD", "NE"}
-CITES_ORDER = {"I": 3, "II": 2, "III": 1}
 
 
 # --------------------------------------------------------------------------- #
@@ -84,7 +79,7 @@ def _species() -> list[str]:
 
 
 # --------------------------------------------------------------------------- #
-# Parsers (pure; unit-tested offline)
+# Parser (pure; unit-tested offline)
 # --------------------------------------------------------------------------- #
 def parse_iucn(payload: dict) -> dict | None:
     """Extract the latest Red List assessment category from an IUCN v4 payload."""
@@ -101,18 +96,6 @@ def parse_iucn(payload: dict) -> dict | None:
         "assessment_id": latest.get("assessment_id"),
         "year": latest.get("year_published"),
     }
-
-
-def parse_cites(listings: list[dict]) -> str | None:
-    """Return the most restrictive current CITES appendix (I > II > III)."""
-    best: str | None = None
-    for listing in listings:
-        if not listing.get("is_current", True):
-            continue
-        appendix = listing.get("appendix")
-        if appendix in CITES_ORDER and (best is None or CITES_ORDER[appendix] > CITES_ORDER[best]):
-            best = appendix
-    return best
 
 
 # --------------------------------------------------------------------------- #
@@ -146,50 +129,12 @@ def enrich_iucn(species: list[str], pause: float = 0.1) -> dict:
     return cache
 
 
-def enrich_cites(species: list[str], pause: float = 0.1) -> dict:
-    token = _token("SPECIESPLUS_API_TOKEN")
-    if not token:
-        print("SPECIESPLUS_API_TOKEN not set — skipping CITES enrichment")
-        return _load(CITES_CACHE)
-    headers = {"X-Authentication-Token": token, "Accept": "application/json"}
-    cache = _load(CITES_CACHE)
-    todo = [s for s in species if s not in cache]
-    print(f"cites: {len(todo)} to fetch ({len(cache)} cached)")
-    for i, name in enumerate(todo, 1):
-        entry: dict = {"scientific_name": name, "appendix": None, "taxon_concept_id": None}
-        try:
-            concepts = _http_json(SPECIESPLUS_CONCEPTS_URL, {"name": name}, headers)
-            results = concepts.get("taxon_concepts") or concepts.get("results") or []
-            if results:
-                concept_id = results[0].get("id")
-                entry["taxon_concept_id"] = concept_id
-                if concept_id:
-                    legislation = _http_json(
-                        SPECIESPLUS_LEG_URL.format(id=concept_id), {"scope": "current"}, headers
-                    )
-                    entry["appendix"] = parse_cites(legislation.get("cites_listings") or [])
-        except Exception as exc:
-            entry["error"] = repr(exc)[:160]
-        cache[name] = entry
-        if i % 25 == 0 or i == len(todo):
-            CITES_CACHE.write_text(
-                json.dumps(cache, ensure_ascii=False, indent=1), encoding="utf-8"
-            )
-            print(f"  {i}/{len(todo)} ({name})")
-        time.sleep(pause)
-    return cache
-
-
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["iucn", "cites", "all"])
+    parser.add_argument("command", choices=["iucn"])
     parser.add_argument("--pause", type=float, default=0.1)
     args = parser.parse_args(argv)
-    species = _species()
-    if args.command in ("iucn", "all"):
-        enrich_iucn(species, pause=args.pause)
-    if args.command in ("cites", "all"):
-        enrich_cites(species, pause=args.pause)
+    enrich_iucn(_species(), pause=args.pause)
     return 0
 
 

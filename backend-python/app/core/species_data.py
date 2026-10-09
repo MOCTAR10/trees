@@ -35,6 +35,9 @@ class SpeciesProfile:
     cr_source: str = "literature"
     cites_appendix: str = ""
     eu_listing: str = ""
+    # True for the curated Central African cohort; generated species carry the
+    # value inferred from GBIF/WCVP range data (None when unknown).
+    native_to_africa: bool | None = True
 
 
 _CURATED_SPECIES: dict[str, SpeciesProfile] = {
@@ -217,6 +220,8 @@ def _load_generated_reference() -> dict[str, SpeciesProfile]:
             iucn_status=entry.get("iucn_status") or "NE",
             cites_appendix=entry.get("cites_appendix") or "",
             eu_listing=entry.get("eu_listing") or "",
+            aliases=tuple(entry.get("aliases") or []),
+            native_to_africa=entry.get("native_to_africa"),
         )
     return loaded
 
@@ -228,50 +233,95 @@ SPECIES_DB: dict[str, SpeciesProfile] = {
 }
 
 
-def _apply_listings(
-    profiles: dict[str, SpeciesProfile],
-) -> dict[str, SpeciesProfile]:
-    """Overlay CITES/EU listing status from the imported listing cache.
+# Curated trade / local names for high-value Central African species, incl. the
+# CITES-listed timbers whose generated cohort has no aliases of its own.
+_TRADE_ALIASES: dict[str, tuple[str, ...]] = {
+    "Guibourtia demeusei": ("kevazingo", "bubinga", "akume", "essak"),
+    "Guibourtia tessmannii": ("kevazingo", "bubinga", "gabon rosewood"),
+    "Guibourtia pellegriniana": ("kevazingo", "bubinga"),
+    "Pericopsis elata": ("assamela", "afrormosia", "kokrodua", "obang"),
+    "Khaya anthotheca": ("african mahogany", "white mahogany", "acajou"),
+    "Khaya ivorensis": ("african mahogany", "acajou bassam", "lagos mahogany"),
+    "Khaya grandifoliola": ("african mahogany", "benin mahogany"),
+    "Khaya senegalensis": ("african mahogany", "dry zone mahogany"),
+    "Pterocarpus erinaceus": ("kino", "barwood", "african rosewood"),
+    "Pterocarpus angolensis": ("mukwa", "kiaat", "african teak"),
+    "Afzelia africana": ("doussie", "lingue"),
+    "Afzelia bipindensis": ("doussie", "lingue"),
+    "Prunus africana": ("pygeum", "african cherry", "red stinkwood"),
+    "Entandrophragma cylindricum": ("sapelli", "sapele", "aboudikro"),
+    "Entandrophragma utile": ("sipo", "assie"),
+}
 
-    Keeps curated profiles authoritative for growth/density while still
-    reflecting the latest CITES/EU annexes (``data/listings_cache.json``,
-    produced by ``tools.import_listings``).
-    """
+
+def _load_listings() -> dict[str, dict]:
     path = Path(__file__).resolve().parents[2] / "data" / "listings_cache.json"
     try:
-        cache = json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
-        return profiles
+        return {}
+
+
+def _apply_overlays(
+    profiles: dict[str, SpeciesProfile],
+) -> dict[str, SpeciesProfile]:
+    """Merge trade aliases and latest CITES/EU listings into the registry.
+
+    Keeps curated profiles authoritative for growth/density while reflecting
+    ``data/listings_cache.json`` (produced by ``tools.import_listings``).
+    """
+    cache = _load_listings()
     out: dict[str, SpeciesProfile] = {}
     for name, profile in profiles.items():
+        aliases = tuple(dict.fromkeys((*profile.aliases, *_TRADE_ALIASES.get(name, ()))))
         entry = cache.get(name)
-        if not entry:
-            out[name] = profile
-            continue
-        out[name] = replace(
-            profile,
-            cites_appendix=entry.get("cites_appendix") or profile.cites_appendix,
-            eu_listing=entry.get("eu_listing") or profile.eu_listing,
-        )
+        changes: dict = {}
+        if aliases != profile.aliases:
+            changes["aliases"] = aliases
+        if entry:
+            if entry.get("cites_appendix"):
+                changes["cites_appendix"] = entry["cites_appendix"]
+            if entry.get("eu_listing"):
+                changes["eu_listing"] = entry["eu_listing"]
+        out[name] = replace(profile, **changes) if changes else profile
     return out
 
 
-SPECIES_DB = _apply_listings(SPECIES_DB)
+SPECIES_DB = _apply_overlays(SPECIES_DB)
 
 DEFAULT_SPECIES = _CURATED_SPECIES["Aucoumea klaineana"]
 DEFAULT_WOOD_DENSITY = 0.62  # mean Central African moist forest
 
 
 def resolve_species(name: str | None) -> SpeciesProfile | None:
+    """Resolve a free-text name to a profile.
+
+    Exact matches on the scientific name or any alias win; curated profiles are
+    checked first so authoritative local names beat generated vernaculars.
+    A substring fallback (min length 4) handles partial input.
+    """
     if not name:
         return None
     key = name.strip().lower()
-    for profile in SPECIES_DB.values():
-        if key == profile.scientific_name.lower():
+    if len(key) < 3:
+        return None
+
+    ordered = [SPECIES_DB[n] for n in _CURATED_SPECIES if n in SPECIES_DB]
+    ordered += [p for n, p in SPECIES_DB.items() if n not in _CURATED_SPECIES]
+
+    for profile in ordered:
+        if key == profile.scientific_name.lower() or key in profile.aliases:
             return profile
-        if any(key in alias or alias in key for alias in profile.aliases):
-            return profile
-    return None
+
+    best: SpeciesProfile | None = None
+    best_len = 1 << 30
+    for profile in ordered:
+        for alias in profile.aliases:
+            if len(key) >= 4 and len(alias) >= 4 and (key in alias or alias in key):
+                span = max(len(alias), len(key))
+                if span < best_len:
+                    best_len, best = span, profile
+    return best
 
 
 def wood_density_for(name: str | None) -> float:

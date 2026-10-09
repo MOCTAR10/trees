@@ -1,6 +1,31 @@
 """Corpus + ingestion tests (no DB / no embedding model)."""
 
-from ingestion.ingest import KNOWLEDGE_DIR, SUBDIR_MAP, _upsert_sql, load_corpus
+from ingestion.ingest import (
+    KNOWLEDGE_DIR,
+    SUBDIR_MAP,
+    _prune_sql,
+    _upsert_sql,
+    load_corpus,
+    table_ids,
+)
+
+
+def test_table_ids_groups_corpus_by_table():
+    rows = [
+        {"table": "rag_documents", "id": "a"},
+        {"table": "rag_documents", "id": "b"},
+        {"table": "circular_economy_knowledge", "id": "c"},
+    ]
+    assert table_ids(rows) == {
+        "rag_documents": ["a", "b"],
+        "circular_economy_knowledge": ["c"],
+    }
+
+
+def test_prune_sql_deletes_ids_not_in_corpus():
+    sql = _prune_sql("rag_documents")
+    assert "DELETE FROM rag_documents" in sql
+    assert "ANY($1" in sql
 
 
 def test_load_corpus_parses_all_subdirs():

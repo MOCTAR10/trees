@@ -61,6 +61,18 @@ def load_corpus(root: Path = KNOWLEDGE_DIR) -> list[dict]:
     return rows
 
 
+def _prune_sql(table: str) -> str:
+    return f"DELETE FROM {table} WHERE NOT (id = ANY($1::text[]))"
+
+
+def table_ids(rows: list[dict]) -> dict[str, list[str]]:
+    """Group corpus ids by target table (pure helper for prune + tests)."""
+    out: dict[str, list[str]] = {}
+    for row in rows:
+        out.setdefault(row["table"], []).append(row["id"])
+    return out
+
+
 def _upsert_sql(table: str) -> str:
     if table == "rag_documents":
         return """
@@ -132,6 +144,12 @@ async def ingest(dry_run: bool = False) -> int:
                 json.dumps(row["metadata"]),
             )
         await db.execute(sql, *args)
+
+    # Drop rows whose ids are no longer in the corpus (stale/renamed docs).
+    for table, ids in table_ids(rows).items():
+        if ids:
+            status = await db.execute(_prune_sql(table), ids)
+            print(f"pruned {table}: {status}")
 
     await db.close_pool()
     print(f"ingested {len(rows)} documents")

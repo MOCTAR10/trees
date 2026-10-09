@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import re
 import sys
 import time
 import urllib.parse
@@ -52,7 +53,6 @@ WOOD_DENSITY_OUT = DATA_DIR / "wood_density_africa.json"
 GBIF_CACHE = DATA_DIR / "gbif_species_cache.json"
 GBIF_DIST_CACHE = DATA_DIR / "gbif_distributions_cache.json"
 IUCN_CACHE = DATA_DIR / "iucn_cache.json"
-CITES_CACHE = DATA_DIR / "cites_cache.json"
 LISTINGS_CACHE = DATA_DIR / "listings_cache.json"
 GENERATED_KNOWLEDGE = KNOWLEDGE_DIR / "species" / "africa_wood_density.json"
 GENERATED_REFERENCE = DATA_DIR / "species_reference.json"
@@ -69,6 +69,75 @@ GBIF_DISTRIBUTIONS_URL = "https://api.gbif.org/v1/species/{key}/distributions"
 GBIF_OCCURRENCE_URL = "https://api.gbif.org/v1/occurrence/search"
 GBIF_MAX_RANGE = 6
 GBIF_MAX_COUNTRIES = 6
+
+# Country/territory names as they appear in WCVP distribution strings (GBIF).
+AFRICAN_COUNTRIES = (
+    "Algeria",
+    "Angola",
+    "Benin",
+    "Botswana",
+    "Burkina Faso",
+    "Burundi",
+    "Cabinda",
+    "Cameroon",
+    "Cape Verde",
+    "Cabo Verde",
+    "Central African Republic",
+    "Chad",
+    "Comoros",
+    "Congo",
+    "Djibouti",
+    "DR Congo",
+    "D.R.Congo",
+    "Egypt",
+    "Equatorial Guinea",
+    "Eritrea",
+    "Eswatini",
+    "Swaziland",
+    "Ethiopia",
+    "Gabon",
+    "Gambia",
+    "Ghana",
+    "Guinea",
+    "Guinea-Bissau",
+    "Ivory Coast",
+    "Côte d'Ivoire",
+    "Kenya",
+    "Lesotho",
+    "Liberia",
+    "Libya",
+    "Madagascar",
+    "Malawi",
+    "Mali",
+    "Mauritania",
+    "Mauritius",
+    "Mayotte",
+    "Morocco",
+    "Mozambique",
+    "Namibia",
+    "Niger",
+    "Nigeria",
+    "Réunion",
+    "Reunion",
+    "Rwanda",
+    "São Tomé",
+    "Sao Tome",
+    "Senegal",
+    "Seychelles",
+    "Sierra Leone",
+    "Somalia",
+    "South Africa",
+    "South Sudan",
+    "Sudan",
+    "Tanzania",
+    "Togo",
+    "Tunisia",
+    "Uganda",
+    "Western Sahara",
+    "Zaire",
+    "Zambia",
+    "Zimbabwe",
+)
 
 
 # --------------------------------------------------------------------------- #
@@ -265,6 +334,38 @@ def enrich_distributions(pause: float = 0.02) -> dict[str, dict]:
     return cache
 
 
+def _native_to_africa(entry: dict) -> bool | None:
+    """Infer whether a species is indigenous to Africa from the GBIF range.
+
+    Returns None when there is no range data. The WCVP strings mark planted
+    records with a trailing ``[I]``; those are ignored so a species that only
+    occurs in Africa as an introduction (e.g. Tabebuia) is not called native.
+    """
+    ranges = entry.get("native_range") or []
+    if not ranges:
+        return None
+    text = "; ".join(ranges)
+    if re.search(r"\bAfrica\b", text):
+        return True
+    for country in AFRICAN_COUNTRIES:
+        if re.search(rf"\b{re.escape(country)}\b(?!\s*\[I\])", text):
+            return True
+    return False
+
+
+def _vernacular_aliases(name: str, fr: list[str], en: list[str]) -> list[str]:
+    """Clean FR/EN vernacular names into alias strings for resolution."""
+    out: list[str] = []
+    sci = name.lower()
+    for value in [*fr, *en]:
+        v = re.sub(r"\s+", " ", value.strip().lower())
+        if len(v) < 4 or v == sci or sci in v or v in sci or not re.search(r"[a-z]", v):
+            continue
+        if v not in out:
+            out.append(v)
+    return out[:8]
+
+
 def _distribution_text(entry: dict) -> str:
     """Human-readable range sentence for a generated species doc."""
     if not entry:
@@ -316,7 +417,6 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
         json.loads(GBIF_DIST_CACHE.read_text(encoding="utf-8")) if GBIF_DIST_CACHE.exists() else {}
     )
     iucn = json.loads(IUCN_CACHE.read_text(encoding="utf-8")) if IUCN_CACHE.exists() else {}
-    cites = json.loads(CITES_CACHE.read_text(encoding="utf-8")) if CITES_CACHE.exists() else {}
     listings = (
         json.loads(LISTINGS_CACHE.read_text(encoding="utf-8")) if LISTINGS_CACHE.exists() else {}
     )
@@ -342,9 +442,11 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
         common_txt = (" Common names " + "; ".join(common) + ".") if common else ""
         d = dist.get(name, {})
         range_txt = _distribution_text(d)
+        aliases = _vernacular_aliases(name, fr, en)
+        native = _native_to_africa(d)
         iucn_code = (iucn.get(name, {}).get("status") or {}).get("code") if iucn.get(name) else None
         lst = listings.get(name, {})
-        cites_ap = lst.get("cites_appendix") or (cites.get(name) or {}).get("appendix")
+        cites_ap = lst.get("cites_appendix")
         eu_ap = lst.get("eu_listing")
         cms_ap = lst.get("cms_listing")
         status_txt = ""
@@ -356,12 +458,18 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
             status_txt += f" EU wildlife-trade Annex {eu_ap}."
         if cms_ap:
             status_txt += f" CMS Appendix {cms_ap} (migratory species)."
+        origin_txt = ""
+        if native is False:
+            origin_txt = (
+                " Note: not indigenous to Africa (planted or naturalised); verify before "
+                "using for field identification."
+            )
         content = (
             f"{name} — {family or 'family unknown'}. Wood density rho = {d2:.2f} g/cm3 "
             f"(mean of {info['n']} measurements; region: {regions}). Source: {SOURCE_LABEL}."
-            f"{common_txt}{range_txt}{status_txt} Growth constants are not locally fitted; the engine "
-            f"applies a transparent density-based prior (A = {a} cm, k = {k}/yr, p = {p}) pending "
-            f"increment data."
+            f"{common_txt}{range_txt}{status_txt}{origin_txt} Growth constants are not locally "
+            f"fitted; the engine applies a transparent density-based prior (A = {a} cm, "
+            f"k = {k}/yr, p = {p}) pending increment data."
         )
         doc_id = f"species_{_slug(name)}"
         docs.append(
@@ -381,6 +489,8 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
                     "cites_appendix": cites_ap or "",
                     "eu_listing": eu_ap or "",
                     "cms_listing": cms_ap or "",
+                    "aliases": aliases,
+                    "native_to_africa": native,
                     "doc_type": "species",
                     "language": "en",
                     "source": SOURCE_LABEL,
@@ -397,6 +507,8 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
                 "iucn_status": iucn_code or "NE",
                 "cites_appendix": cites_ap or "",
                 "eu_listing": eu_ap or "",
+                "aliases": aliases,
+                "native_to_africa": native,
                 "cr_asymptote_a_cm": a,
                 "cr_rate_k": k,
                 "cr_shape_p": p,

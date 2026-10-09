@@ -1,4 +1,4 @@
-"""Offline tests for the IUCN/CITES status enrichment parsers."""
+"""Offline tests for the IUCN status enrichment parser."""
 
 import os
 
@@ -24,15 +24,10 @@ def test_parse_iucn_nested_category_and_empty():
     assert es.parse_iucn({"assessments": []}) is None
 
 
-def test_parse_cites_picks_most_restrictive_current():
-    listings = [
-        {"appendix": "II", "is_current": True},
-        {"appendix": "I", "is_current": True},
-        {"appendix": "III", "is_current": False},
-    ]
-    assert es.parse_cites(listings) == "I"
-    assert es.parse_cites([{"appendix": "II", "is_current": False}]) is None
-    assert es.parse_cites([]) is None
+def test_enrich_status_has_no_cites_side_effects():
+    # CITES now comes from tools.import_listings, not the Species+ API.
+    assert not hasattr(es, "enrich_cites")
+    assert not hasattr(es, "parse_cites")
 
 
 def test_token_reads_environment(monkeypatch):
