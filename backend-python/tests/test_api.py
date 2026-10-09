@@ -69,6 +69,9 @@ def test_v1_process_scan(client, monkeypatch):
     async def fake_narrative(system_prompt, user_prompt, **kwargs):
         return "Cet arbre témoigne de la forêt dense humide du Gabon..."
 
+    async def fake_forestry_rag(**kwargs):
+        return []
+
     async def fake_execute(sql, *args):
         return "INSERT 0 1"
 
@@ -79,6 +82,7 @@ def test_v1_process_scan(client, monkeypatch):
     monkeypatch.setattr(v1, "soilgrids", type("S", (), {"fetch_soil": staticmethod(fake_soil)})())
     monkeypatch.setattr(v1, "gee", type("E", (), {"canopy_density": staticmethod(fake_fcd)})())
     monkeypatch.setattr(v1.groq_llm, "chat_text", fake_narrative)
+    monkeypatch.setattr(v1.rag, "query_forestry", fake_forestry_rag)
     monkeypatch.setattr(v1.db, "execute", fake_execute)
     monkeypatch.setattr(v1, "measure_dbh", lambda img, depth_m, focal_px: _FakeMeasure())
 

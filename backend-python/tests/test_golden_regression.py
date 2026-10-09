@@ -108,6 +108,9 @@ def install_v1_fakes(monkeypatch=None) -> list:
     async def fake_narrative(system_prompt, user_prompt, **kwargs):
         return "Cet arbre témoigne de la forêt dense humide du Gabon..."
 
+    async def fake_forestry_rag(**kwargs):
+        return []
+
     async def fake_execute(sql, *args):
         return "INSERT 0 1"
 
@@ -122,6 +125,7 @@ def install_v1_fakes(monkeypatch=None) -> list:
     _install(monkeypatch, v1, "soilgrids", types.SimpleNamespace(fetch_soil=fake_soil), restores)
     _install(monkeypatch, v1, "gee", types.SimpleNamespace(canopy_density=fake_fcd), restores)
     _install(monkeypatch, v1.groq_llm, "chat_text", fake_narrative, restores)
+    _install(monkeypatch, v1.rag, "query_forestry", fake_forestry_rag, restores)
     _install(monkeypatch, v1.db, "execute", fake_execute, restores)
     _install(
         monkeypatch, v1, "measure_dbh", lambda img, depth_m, focal_px: _FakeMeasure(), restores

@@ -10,7 +10,7 @@ from app.core.growth_models import estimate_age_by_integration
 from app.core.height_diameter import estimate_height_m
 from app.core.species_data import resolve_species
 from app.models.schemas import V1Report
-from app.services import db, gbif, gee, groq_llm, pdf_report, plantnet, soilgrids
+from app.services import db, gbif, gee, groq_llm, pdf_report, plantnet, rag, soilgrids
 from app.services.vision import measure_dbh
 
 router = APIRouter()
@@ -113,21 +113,39 @@ async def process_scan(
     # --- Health heuristic ---
     health = _bark_health(trunk_img)
 
-    # --- STEP 6: French narrative via Groq ---
-    narrative = None
+    # --- STEP 6: grounded retrieval (Phase-1 RAG) + French narrative via Groq ---
     profile = resolve_species(species_name)
+    rag_chunks = []
+    try:
+        rag_chunks = await rag.query_forestry(
+            query=(
+                f"{species_name or 'espèce tropicale'} croissance diamètre densité du bois "
+                "allométrie hauteur biomasse"
+            ),
+            top_k=4,
+            species=species_name,
+            soil_type=soil,
+        )
+    except Exception:
+        rag_chunks = []
+    rag_sources = list(dict.fromkeys(c.source for c in rag_chunks if c.source)) or None
+    rag_context = "\n".join(f"- [{c.doc_type}] {c.content}" for c in rag_chunks)
+
+    narrative = None
     try:
         narrative = await groq_llm.chat_text(
             system_prompt=(
                 "Tu es un ingénieur forestier spécialisé des forêts du Bassin du Congo. "
                 "Rédige un récit professionnel et chaleureux en français (120-180 mots) sur cet arbre : "
-                "espèce, âge estimé, état sanitaire, rôle écologique et contexte climatique historique."
+                "espèce, âge estimé, état sanitaire, rôle écologique et contexte climatique historique. "
+                "Appuie-toi uniquement sur les connaissances de référence fournies et n'invente pas de chiffres."
             ),
             user_prompt=(
                 f"Espèce: {species_name or 'inconnue'}"
                 f"{' (' + profile.common_name_fr + ')' if profile else ''}. "
                 f"DBH: {dbh_cm or 'N/A'} cm. Âge estimé: {age or 'N/A'} ans. "
-                f"Sol: {soil or 'inconnu'}. Canopée (FCD): {fcd}. Santé: {health}."
+                f"Sol: {soil or 'inconnu'}. Canopée (FCD): {fcd}. Santé: {health}.\n"
+                f"Connaissances de référence (RAG):\n{rag_context or 'non disponible'}"
             ),
         )
     except Exception:
@@ -181,6 +199,7 @@ async def process_scan(
         soil_type=soil,
         canopy_density_fcd=fcd,
         narrative_fr=narrative,
+        rag_sources=rag_sources,
     )
 
 

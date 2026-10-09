@@ -29,6 +29,9 @@ class V1Report(BaseModel):
     soil_type: str | None
     canopy_density_fcd: float | None
     narrative_fr: str | None = Field(None, description="Récit historique et climatique (français)")
+    rag_sources: list[str] | None = Field(
+        None, description="Sources du corpus Phase 1 (RAG) ayant appuyé le récit"
+    )
 
 
 class ResidueChannel(BaseModel):

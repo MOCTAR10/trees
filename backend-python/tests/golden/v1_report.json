@@ -11,5 +11,6 @@
   "health_status": "surface_lisse_a_verifier",
   "soil_type": "clay",
   "canopy_density_fcd": 0.62,
-  "narrative_fr": "Cet arbre témoigne de la forêt dense humide du Gabon..."
+  "narrative_fr": "Cet arbre témoigne de la forêt dense humide du Gabon...",
+  "rag_sources": null
 }

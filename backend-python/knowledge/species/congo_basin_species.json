@@ -1,27 +1,62 @@
 [
   {
     "id": "species_aucoumea_klaineana",
-    "content": "Aucoumea klaineana Pierre (Okoume, Gabonese mahogany) — Burseraceae. Gabon's dominant commercial species, occurring in semi-deciduous and secondary forests from 0-800 m elevation. Wood density rho = 0.44 g/cm3 (basic density), light pink to reddish, low durability (Class 4-5), excellent peeling quality for plywood. Diameter growth is fast: peak mean annual increment of about 2.26 cm/year at DBH 21 cm (Engone Obiang et al. 2013); trees reach 50-60 cm DBH in 40-50 years on productive sites. Chapman-Richards diameter asymptote A = 75 cm, growth rate k = 0.055/yr, shape p = 1.8. Commercially mature at 55-60 years. Common names FR: Okoume, Okoumé. Grows on ferrallitic soils with 1200-1800 mm rainfall. Height-diameter: H = 1.3 + 42.7 * exp(-1.426/D) approx (Central African moist forest form).",
+    "content": "Aucoumea klaineana Pierre (Okoume, Gabonese mahogany) — Burseraceae. Gabon's dominant commercial species, occurring in semi-deciduous and secondary forests from 0-800 m elevation. Wood density rho = 0.44 g/cm3 (basic density), light pink to reddish, low durability (Class 4-5), excellent peeling quality for plywood. Diameter growth is fast: peak mean annual increment of about 2.26 cm/year near DBH 21 cm (Engone Obiang et al. 2013). Engine canonical Chapman-Richards diameter model: A = 80 cm, k = 0.035/yr, p = 1.20; commercially mature at 55-60 years. Common names FR: Okoume, Okoumé. Grows on ferrallitic soils with 1200-1800 mm rainfall. Height-diameter: H = 1.3 + 40 * D / (25 + D) approx (Central African moist forest form).",
     "metadata": { "species": "Aucoumea klaineana", "common_name_fr": "Okoumé", "doc_type": "species", "language": "en" }
   },
   {
     "id": "species_lophira_alata",
-    "content": "Lophira alata Banks ex Gaertn.f. (Azobe, Red Ironwood) — Ochnaceae. Very heavy hardwood, wood density rho = 1.06 g/cm3, deep red-brown, extremely durable (Class 1-2, highly resistant to marine borers and termites). Slow growth: Chapman-Richards diameter asymptote A = 60 cm, k = 0.032/yr, p = 1.6; peak MAI under 1.0 cm/year. Trees require 80-120+ years to reach commercial 60 cm DBH. Shade-tolerant late-successional species of moist evergreen forest, Gabon/Cameroon basin. Common names FR: Azobe, Bilinga. High shrinkage, hard to season (18-24 months air drying); used for heavy construction, railway sleepers, harbour works.",
+    "content": "Lophira alata Banks ex Gaertn.f. (Azobe, Red Ironwood) — Ochnaceae. Very heavy hardwood, wood density rho = 1.06 g/cm3, deep red-brown, extremely durable (Class 1-2, highly resistant to marine borers and termites). Slow growth: engine canonical Chapman-Richards A = 140 cm, k = 0.012/yr, p = 1.50; peak MAI under 1.0 cm/year. Trees require 80-120+ years to reach commercial 60 cm DBH. Shade-tolerant late-successional species of moist evergreen forest, Gabon/Cameroon basin. Common names FR: Azobe, Azobé, Belli. High shrinkage, hard to season (18-24 months air drying); used for heavy construction, railway sleepers, harbour works.",
     "metadata": { "species": "Lophira alata", "common_name_fr": "Azobé", "doc_type": "species", "language": "en" }
   },
   {
     "id": "species_pterocarpus_soyauxii",
-    "content": "Pterocarpus soyauxii Taub. (Padouk, African Padauk) — Fabaceae. Wood density rho = 0.75 g/cm3, vivid orange-red heartwood turning brown, durable Class 2. Moderate-fast growth: Chapman-Richards A = 65 cm, k = 0.045/yr, p = 1.7; commercial diameter 50-60 cm reached in 50-70 years. Light-demanding pioneer of gaps and secondary forest, 0-600 m elevation, 1200-2000 mm rainfall. Common names FR: Padouk, Bété. Bark rich in tannins; heartwood extractives used traditionally against fungal infection. Low formaldehyde-free bio-glue potential from bark flavanols.",
+    "content": "Pterocarpus soyauxii Taub. (Padouk, African Padauk) — Fabaceae. Wood density rho = 0.75 g/cm3, vivid orange-red heartwood turning brown, durable Class 2. Moderate-fast growth: engine canonical Chapman-Richards A = 100 cm, k = 0.020/yr, p = 1.30; commercial diameter 50-60 cm reached in 50-70 years. Light-demanding pioneer of gaps and secondary forest, 0-600 m elevation, 1200-2000 mm rainfall. Common names FR: Padouk, Bete, Bété. Bark rich in tannins; heartwood extractives used traditionally against fungal infection. Low formaldehyde-free bio-glue potential from bark flavanols.",
     "metadata": { "species": "Pterocarpus soyauxii", "common_name_fr": "Padouk", "doc_type": "species", "language": "en" }
   },
   {
-    "id": "species_perse_buxifolia",
-    "content": "Perse buxifolia (Ozigo, Whitewood) — Lauraceae (syn. Ocotea usambarensis var. overallii for Gabonese ozigo populations reported in forestry literature). Wood density rho = 0.47 g/cm3, light, pale yellow-brown, moderate durability Class 3-4, used for joinery, matches, plywood. Moderate growth: Chapman-Richards A = 70 cm, k = 0.050/yr, p = 1.75; commercial 50 cm DBH in 35-45 years. Common names FR: Ozigo. Occurs in moist evergreen lowland forest, Gabon basin; secondary successional. Fast recovery after disturbance makes it suitable for reduced-impact logging (EFIR) rotations.",
-    "metadata": { "species": "Perse buxifolia", "common_name_fr": "Ozigo", "doc_type": "species", "language": "en" }
+    "id": "species_dacryodes_glaucescens",
+    "content": "Dacryodes glaucescens (Engl.) H.J.Lam (Ozigo, Whitewood) — Burseraceae (syn. Pachylobus glaucescens; commonly confused with Persea/Perse buxifolia in older literature). Wood density rho = 0.47 g/cm3, light, pale yellow-brown, moderate durability Class 3-4, used for joinery, matches, plywood. Engine canonical Chapman-Richards A = 90 cm, k = 0.025/yr, p = 1.25; commercial 50 cm DBH in 35-45 years. Common names FR: Ozigo. Occurs in moist evergreen lowland forest, Gabon basin; secondary successional. Fast recovery after disturbance makes it suitable for reduced-impact logging (EFIR) rotations. The genus also yields edible fruits and oleoresin tapped locally.",
+    "metadata": { "species": "Dacryodes glaucescens", "common_name_fr": "Ozigo", "doc_type": "species", "language": "en" }
   },
   {
     "id": "species_baillonella_toxisperma",
-    "content": "Baillonella toxisperma Pierre (Moabi, Djave) — Sapotaceae. Wood density rho = 0.83 g/cm3, pink-brown, durable Class 2, heavy hardwood. Slow growth: Chapman-Richards A = 62 cm, k = 0.035/yr, p = 1.65; commercial 60 cm DBH in 80-100 years. Large emergent tree (40-50 m) of undisturbed evergreen forest; animal-dispersed seeds; slow regeneration, vulnerable to over-exploitation — protected under Gabonese forest law with exploitation quotas. Common names FR: Moabi. Kernel fat (moabi butter) used in food and cosmetics. Biodiversity indicator: presence of large Moabi signals intact forest.",
+    "content": "Baillonella toxisperma Pierre (Moabi, Djave) — Sapotaceae. Wood density rho = 0.83 g/cm3, pink-brown, durable Class 2, heavy hardwood. Slow growth: engine canonical Chapman-Richards A = 120 cm, k = 0.015/yr, p = 1.40; commercial 60 cm DBH in 80-100 years. Large emergent tree (40-50 m) of undisturbed evergreen forest; animal-dispersed seeds; slow regeneration, vulnerable to over-exploitation — protected under Gabonese forest law with exploitation quotas. Common names FR: Moabi, Adjap. Kernel fat (moabi butter) used in food and cosmetics. Biodiversity indicator: presence of large Moabi signals intact forest.",
     "metadata": { "species": "Baillonella toxisperma", "common_name_fr": "Moabi", "doc_type": "species", "language": "en" }
+  },
+  {
+    "id": "species_entandrophragma_cylindricum",
+    "content": "Entandrophragma cylindricum (Sprague) Sprague (Sapelli, Sapele) — Meliaceae. Major export hardwood, wood density rho = 0.60 g/cm3, moderately durable Class 2-3, fine interlocked grain prized for furniture, joinery and veneer. Engine provisional Chapman-Richards A = 95 cm, k = 0.020/yr, p = 1.30; commercial 60-70 cm DBH in about 60-80 years. Canopy tree of semi-deciduous and evergreen moist forest, 0-800 m; light-demanding once established, regeneration benefits from gaps. Common names FR: Sapelli, Aboudikro. IUCN VU (timber over-harvest pressure). Seedlings and bark used in local medicine; sustainable management requires retention trees and reduced-impact logging.",
+    "metadata": { "species": "Entandrophragma cylindricum", "common_name_fr": "Sapelli", "doc_type": "species", "language": "en" }
+  },
+  {
+    "id": "species_entandrophragma_utile",
+    "content": "Entandrophragma utile (Dawe & Sprague) Sprague (Sipo, Utile) — Meliaceae. Wood density rho = 0.62 g/cm3, red-brown, durable Class 2-3, used for joinery, furniture, boat building and veneer. Engine provisional Chapman-Richards A = 90 cm, k = 0.022/yr, p = 1.30; commercial 60-70 cm DBH in roughly 60-80 years. Semi-deciduous moist forest species of the Congo Basin, often associated with Sapelli; slightly more light-demanding. Common names FR: Sipo, Assie. Bark and seeds used in traditional medicine. Retain seed trees during felling to secure regeneration.",
+    "metadata": { "species": "Entandrophragma utile", "common_name_fr": "Sipo", "doc_type": "species", "language": "en" }
+  },
+  {
+    "id": "species_milicia_excelsa",
+    "content": "Milicia excelsa (Welw.) C.C.Berg (Iroko, African teak) — Moraceae. Wood density rho = 0.64 g/cm3, golden-brown darkening with age, durable Class 1-2, highly valued for marine and exterior construction, joinery and furniture. Fast early growth: engine provisional Chapman-Richards A = 100 cm, k = 0.021/yr, p = 1.35; can be a large tree to 40 m. Occurs in moist semi-deciduous and secondary forests, often in farmland as a protected shade species. Common names FR: Iroko, Kambala, Abang. Culturally important; planted around villages. Silviculture by natural regeneration and enrichment planting.",
+    "metadata": { "species": "Milicia excelsa", "common_name_fr": "Iroko", "doc_type": "species", "language": "en" }
+  },
+  {
+    "id": "species_terminalia_superba",
+    "content": "Terminalia superba Engl. & Diels (Frake, Limba) — Combretaceae. Wood density rho = 0.52 g/cm3, light cream to grey, low durability Class 3-4, easy to work; used for plywood, furniture cores, joinery. Fast-growing, light-demanding pioneer of secondary forest and gaps: engine provisional Chapman-Richards A = 110 cm, k = 0.030/yr, p = 1.40; commercial diameter reached in 30-50 years. Occurs 0-1000 m in moist and semi-deciduous forest, tolerant of disturbed soils. Common names FR: Frake, Fraké, Limba. Suitable for short-rotation community timber and for recolonizing degraded land near concessions.",
+    "metadata": { "species": "Terminalia superba", "common_name_fr": "Fraké", "doc_type": "species", "language": "en" }
+  },
+  {
+    "id": "species_cylicodiscus_gabunensis",
+    "content": "Cylicodiscus gabunensis Harms (Okan, African greenheart) — Fabaceae. Very heavy and durable hardwood, wood density rho = 0.88 g/cm3, yellowish-green with interlocked grain, Class 1-2 durability; used for heavy construction, flooring, railway sleepers and marine works. Slow growth: engine provisional Chapman-Richards A = 95 cm, k = 0.017/yr, p = 1.50; trees take a long time to reach commercial 60 cm DBH. Large tree to 50 m of evergreen and semi-deciduous moist forest, Gabon/Cameroon. Common names FR: Okan, Adenkama. Bark extractives (cyclodiscin) have documented antimicrobial activity; a valuable candidate for bio-chemical residue valorization.",
+    "metadata": { "species": "Cylicodiscus gabunensis", "common_name_fr": "Okan", "doc_type": "species", "language": "en" }
+  },
+  {
+    "id": "species_irvingia_gabonensis",
+    "content": "Irvingia gabonensis (Aubry-Lecomte ex O'Rorke) Baill. (Andok, Wild mango) — Irvingiaceae. Agroforestry / non-timber forest product (NTFP) species; wood density rho = 0.72 g/cm3 but primarily valued for its fruits. The kernel yields 'dika' butter/fat rich in myristic and lauric acids, used in cosmetics, food and traditional medicine; the pulp is eaten fresh. Engine provisional Chapman-Richards A = 80 cm, k = 0.028/yr, p = 1.30; medium tree to 35 m in moist forest and farmland, 0-500 m. Common names FR: Andok, Mangue sauvage. Community income driver: kernel pressing and oil sales are a proven women-led cooperative activity. Timber and offcuts can feed local joinery or biochar.",
+    "metadata": { "species": "Irvingia gabonensis", "common_name_fr": "Andok (mangue sauvage)", "doc_type": "species", "language": "en" }
+  },
+  {
+    "id": "species_ricinodendron_heudelotii",
+    "content": "Ricinodendron heudelotii (Baill.) Pierre ex Heckel (Njansang, African nut tree) — Euphorbiaceae. Fast-growing light-wood pioneer and NTFP species; wood density rho = 0.36 g/cm3 (very light, used for carvings, floats, boxes). The kernel 'njansang' is a valued spice and its oil is used in varnish and cosmetics. Engine provisional Chapman-Richards A = 85 cm, k = 0.038/yr, p = 1.35; colonizes secondary forest and fallow rapidly, 0-1000 m. Common names FR: Njansang, Essessang, Erimado. Its fast growth and light wood make it ideal for community short rotations; fruit processing residues are excellent feedstock for oil pressing and compost.",
+    "metadata": { "species": "Ricinodendron heudelotii", "common_name_fr": "Njansang", "doc_type": "species", "language": "en" }
   }
 ]

@@ -1,0 +1,139 @@
+"""RAG layer tests (no DB, no embedding model).
+
+Covers corpus/registry consistency and the retrieval SQL/metadata mapping
+with the embedder and the database connection stubbed out.
+"""
+
+from app.core.species_data import SPECIES_DB, resolve_species
+from app.services import rag
+from ingestion.ingest import load_corpus
+
+
+def _species_docs() -> dict[str, dict]:
+    return {
+        r["id"]: r
+        for r in load_corpus()
+        if r["table"] == "rag_documents" and r["doc_type"] == "species"
+    }
+
+
+def test_every_registry_species_has_a_corpus_doc():
+    """Engine registry and RAG corpus must agree on scientific names."""
+    docs = _species_docs()
+    corpus_species = {d["species"] for d in docs.values()}
+    registry = set(SPECIES_DB)
+    missing = registry - corpus_species
+    assert not missing, f"registry species without corpus doc: {sorted(missing)}"
+    assert corpus_species == registry, (
+        f"corpus/registry mismatch: corpus-only={sorted(corpus_species - registry)}"
+    )
+
+
+def test_species_doc_density_matches_registry():
+    """Density quoted in the corpus text must match the deterministic registry."""
+    for doc in _species_docs().values():
+        profile = SPECIES_DB[doc["species"]]
+        assert f"{profile.wood_density_g_cm3:.2f}" in doc["content"], (
+            f"{doc['id']}: density {profile.wood_density_g_cm3} not found in content"
+        )
+
+
+def test_new_species_resolvable_and_aliases_fixed():
+    assert resolve_species("Sapelli").scientific_name == "Entandrophragma cylindricum"
+    assert resolve_species("Sipo").scientific_name == "Entandrophragma utile"
+    assert resolve_species("Iroko").scientific_name == "Milicia excelsa"
+    assert resolve_species("Fraké").scientific_name == "Terminalia superba"
+    assert resolve_species("Okan").scientific_name == "Cylicodiscus gabunensis"
+    # "sipo" must NOT resolve to Moabi any more (taxonomy bug fixed)
+    assert resolve_species("Moabi").scientific_name == "Baillonella toxisperma"
+
+
+class _FakeCoop(dict):
+    pass
+
+
+def test_query_forestry_builds_filters_and_maps_rows(monkeypatch):
+    captured: dict = {}
+
+    def fake_embed_query(text):
+        return [0.0] * 384
+
+    async def fake_fetch_all(sql, *args):
+        captured["sql"] = sql
+        captured["args"] = args
+        return [
+            {
+                "id": "species_aucoumea_klaineana",
+                "content": "Okoume profile",
+                "source": "knowledge/species/congo_basin_species.json",
+                "doc_type": "species",
+                "metadata": '{"species": "Aucoumea klaineana"}',
+                "score": 0.91,
+            }
+        ]
+
+    monkeypatch.setattr(rag, "embed_query", fake_embed_query)
+    monkeypatch.setattr(rag.db, "fetch_all", fake_fetch_all)
+
+    import asyncio
+
+    chunks = asyncio.run(
+        rag.query_forestry(
+            "croissance okoume", top_k=3, species="Aucoumea klaineana", soil_type="clay"
+        )
+    )
+    assert "FROM rag_documents" in captured["sql"]
+    assert "species = $2 OR species = '*'" in captured["sql"]
+    assert "soil_type = $3 OR soil_type IS NULL" in captured["sql"]
+    # embedding, species, soil_type, top_k
+    assert len(captured["args"]) == 4
+    assert captured["args"][1] == "Aucoumea klaineana"
+    assert captured["args"][3] == 3
+    assert chunks[0].id == "species_aucoumea_klaineana"
+    assert chunks[0].metadata["species"] == "Aucoumea klaineana"
+    assert chunks[0].score == 0.91
+
+
+def test_query_circular_economy_maps_legal_reference(monkeypatch):
+    captured: dict = {}
+
+    def fake_embed_query(text):
+        return [0.0] * 384
+
+    async def fake_fetch_all(sql, *args):
+        captured["sql"] = sql
+        captured["args"] = args
+        return [
+            {
+                "id": "legal_paris_article_6",
+                "content": "Paris Art 6 avoided methane",
+                "source": "UNFCCC Paris Agreement Art. 6",
+                "doc_type": None,
+                "legal_framework_reference": "paris_art6",
+                "metadata": "{}",
+                "score": 0.88,
+            }
+        ]
+
+    monkeypatch.setattr(rag, "embed_query", fake_embed_query)
+    monkeypatch.setattr(rag.db, "fetch_all", fake_fetch_all)
+
+    import asyncio
+
+    chunks = asyncio.run(
+        rag.query_circular_economy(
+            "branches biochar", top_k=3, residue_type="branches", species="Aucoumea klaineana"
+        )
+    )
+    assert "FROM circular_economy_knowledge" in captured["sql"]
+    assert "residue_type = $2 OR residue_type = 'mixed'" in captured["sql"]
+    assert "species_target = $3 OR species_target = '*'" in captured["sql"]
+    assert chunks[0].doc_type == "protocol"  # falls back when column is NULL
+    assert chunks[0].metadata["legal_framework_reference"] == "paris_art6"
+    assert isinstance(chunks[0].metadata, dict)
+
+
+def test_retrieved_chunk_defaults():
+    chunk = rag.RetrievedChunk(id="x", content="c", source="s", doc_type="species")
+    assert chunk.score is None
+    assert chunk.metadata is None
