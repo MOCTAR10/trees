@@ -40,6 +40,23 @@ def test_health(client):
     assert resp.json() == {"status": "ok"}
 
 
+def test_v1_rejects_oversized_image(client, monkeypatch):
+    from app.api import v1
+    from app.config import Settings
+
+    monkeypatch.setattr(v1, "get_settings", lambda: Settings(max_image_bytes=32))
+    resp = client.post(
+        "/api/v1/process-scan",
+        data={"latitude": "0.4162", "longitude": "9.4541"},
+        files={
+            "trunk_image": ("trunk.png", io.BytesIO(b"x" * 64), "image/png"),
+            "leaf_image": ("leaf.png", io.BytesIO(_png()), "image/png"),
+            "habitat_image": ("habitat.png", io.BytesIO(_png()), "image/png"),
+        },
+    )
+    assert resp.status_code == 413
+
+
 class _FakeMeasure:
     dbh_cm = 62.5
     method = "yolo_ar_hybrid"

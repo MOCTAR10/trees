@@ -47,6 +47,15 @@ async def test_plantnet_rejects_wrong_image_count():
 
 
 @pytest.mark.asyncio
+async def test_plantnet_rejects_oversized_image(monkeypatch):
+    from app.config import Settings
+
+    monkeypatch.setattr(plantnet, "get_settings", lambda: Settings(max_image_bytes=8))
+    with pytest.raises(ValueError):
+        await plantnet.identify(images=[b"x" * 20], organs=["bark"])
+
+
+@pytest.mark.asyncio
 async def test_gbif_match_returns_taxon():
     with respx.mock:
         respx.get("https://api.gbif.org/v1/species/match").mock(

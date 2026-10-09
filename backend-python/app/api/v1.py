@@ -7,6 +7,7 @@ import numpy as np
 from fastapi import APIRouter, Body, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
 
+from app.config import get_settings
 from app.core.chapman_richards import estimate_age_for_species
 from app.core.growth_models import estimate_age_by_integration
 from app.core.height_diameter import estimate_height_m
@@ -25,6 +26,17 @@ def _decode(data: bytes) -> np.ndarray:
     if image is None:
         raise HTTPException(status_code=400, detail="Image décodable requise")
     return image
+
+
+async def _read_capped(upload: UploadFile, limit: int) -> bytes:
+    """Read an upload up to `limit` bytes, rejecting anything larger (413)."""
+    data = await upload.read(limit + 1)
+    if len(data) > limit:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Image trop volumineuse (max {limit // (1024 * 1024)} Mo)",
+        )
+    return data
 
 
 def _bark_health(image_bgr: np.ndarray) -> str:
@@ -49,8 +61,9 @@ async def process_scan(
     ar_depth_m: float | None = Form(None, description="Distance tronc- téléphone à 1,30 m"),
     focal_px: float | None = Form(None, description="Focale caméra en pixels"),
 ):
-    trunk_bytes = await trunk_image.read()
-    leaf_bytes = await leaf_image.read()
+    limit = get_settings().max_image_bytes
+    trunk_bytes = await _read_capped(trunk_image, limit)
+    leaf_bytes = await _read_capped(leaf_image, limit)
     trunk_img = _decode(trunk_bytes)
     _decode(leaf_bytes)  # validate the leaf view is a decodable image
 

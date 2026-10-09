@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     gee_service_account_json: str = ""
     gee_service_account_file: str = ""
 
+    # Max size per uploaded image (bytes); guards memory before Pl@ntNet upload.
+    max_image_bytes: int = 10 * 1024 * 1024
+
     yolo_weights_path: str = "weights/trunk-seg.pt"
     yolo_enabled: bool = True
 
