@@ -64,6 +64,7 @@ async def process_scan_v2(request: V2ScanRequest):
 
     # --- RAG: per-residue technical/legal context (Phase 2 filters) ---
     rag_context: dict[str, list[str]] = {}
+    rag_references: list[str] = []
     residue_queries = {
         "canopy_and_branches": (
             "branches fines ramilles biochar briquelettes pyrolyse TLUD protocole",
@@ -87,6 +88,11 @@ async def process_scan_v2(request: V2ScanRequest):
                 species=request.species_scientific_name,
             )
             rag_context[channel] = [c.content for c in chunks]
+            for chunk in chunks:
+                legal_ref = (chunk.metadata or {}).get("legal_framework_reference")
+                label = f"{chunk.source} [{legal_ref}]" if legal_ref else chunk.source
+                if label and label not in rag_references:
+                    rag_references.append(label)
         except Exception:
             rag_context[channel] = []
 
@@ -167,6 +173,7 @@ Schéma JSON exact:
             impact["logistical_distance_km"] = round(best_coop["distance_km"], 2)
             impact["target_cooperative_latitude"] = best_coop.get("latitude")
             impact["target_cooperative_longitude"] = best_coop.get("longitude")
+        plan_json["references"] = rag_references or None
         plan = ValorizationPlan.model_validate(plan_json)
     except Exception as exc:
         raise HTTPException(

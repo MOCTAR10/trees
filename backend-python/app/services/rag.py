@@ -101,7 +101,9 @@ async def query_circular_economy(
         filters.append(f"(residue_type = ${len(args) + 1} OR residue_type = 'mixed')")
     if species:
         args.append(species)
-        filters.append(f"(species_target = ${len(args) + 1} OR species_target = '*')")
+        filters.append(
+            f"(species_target = ${len(args) + 1} OR species_target = '*' OR species_target IS NULL)"
+        )
     where = ("WHERE " + " AND ".join(filters)) if filters else ""
 
     sql = f"""

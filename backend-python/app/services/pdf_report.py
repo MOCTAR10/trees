@@ -198,6 +198,16 @@ LEGAL_NOTE = (
 )
 
 
+def _references_block(items: Any) -> list:
+    """Optional 'Références (corpus RAG)' section."""
+    if not items:
+        return []
+    flowables: list = [Spacer(1, 4 * mm), Paragraph("Références (corpus RAG)", S_H2)]
+    for item in items:
+        flowables.append(Paragraph(_safe(f"• {item}"), S_SMALL))
+    return flowables
+
+
 def render_measurement_pdf(report: dict) -> bytes:
     """Phase 1 report -> branded A4 PDF."""
     species = report.get("species_scientific_name")
@@ -246,6 +256,7 @@ def render_measurement_pdf(report: dict) -> bytes:
             Paragraph(_safe(report["narrative_fr"]), S_BODY),
         ]
 
+    story += _references_block(report.get("rag_sources"))
     story += [
         Spacer(1, 5 * mm),
         KeepTogether(
@@ -383,6 +394,7 @@ def render_valorization_pdf(payload: dict) -> bytes:
             ),
         ]
 
+    story += _references_block(plan.get("references"))
     story += [
         Spacer(1, 5 * mm),
         KeepTogether(

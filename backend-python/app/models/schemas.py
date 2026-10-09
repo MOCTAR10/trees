@@ -88,3 +88,6 @@ class ValorizationPlan(BaseModel):
     residue_breakdown: ResidueBreakdownPlan
     win_win_synergy_plan: WinWinSynergyPlan
     carbon_offset_metadata: CarbonOffsetMetadata
+    references: list[str] | None = Field(
+        None, description="Sources du corpus Phase 2 (RAG) ayant appuyé le plan"
+    )

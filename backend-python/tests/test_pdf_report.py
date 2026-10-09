@@ -107,6 +107,20 @@ def test_renders_with_missing_fields():
     _assert_pdf(pdf_report.render_valorization_pdf({}))
 
 
+def test_renders_with_rag_references():
+    v1 = dict(V1_REPORT, rag_sources=["Chave et al. 2014 GCB", "knowledge/species/congo.json"])
+    _assert_pdf(pdf_report.render_measurement_pdf(v1))
+
+    v2 = {
+        **V2_PAYLOAD,
+        "valorization_plan": {
+            **V2_PAYLOAD["valorization_plan"],
+            "references": ["knowledge/legal/frameworks.json [loi_016_01]", "PEFC/PAFC"],
+        },
+    }
+    _assert_pdf(pdf_report.render_valorization_pdf(v2))
+
+
 def test_renders_with_unencodable_characters():
     # Emoji / arrows not in WinAnsi must be dropped, not crash
     report = dict(V1_REPORT)

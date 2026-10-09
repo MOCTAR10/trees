@@ -231,3 +231,51 @@ def test_v2_process_scan(client, monkeypatch):
     assert impact["target_cooperative_name"] == "Coopérative Akanda"
     assert impact["logistical_distance_km"] == 8.4
     assert body["matched_cooperatives"][0]["distance_km"] == 8.4
+    # No RAG chunks in this fake -> no references
+    assert plan["references"] is None
+
+
+def test_v2_references_from_rag(client, monkeypatch):
+    """Retrieved RAG chunks are surfaced as deduplicated citations."""
+    import types
+
+    from app.api import v2
+    from tests.test_golden_regression import install_v2_fakes
+
+    install_v2_fakes(monkeypatch)
+
+    async def fake_rag(**kwargs):
+        return [
+            types.SimpleNamespace(
+                id="proto_x",
+                content="protocol",
+                doc_type="protocol",
+                score=0.8,
+                source="knowledge/protocols/residue_protocols.json",
+                metadata={"legal_framework_reference": "loi_016_01"},
+            ),
+            types.SimpleNamespace(
+                id="legal_y",
+                content="legal",
+                doc_type="protocol",
+                score=0.7,
+                source="knowledge/legal/frameworks.json",
+                metadata={},
+            ),
+        ]
+
+    monkeypatch.setattr(v2.rag, "query_circular_economy", fake_rag)
+
+    resp = client.post(
+        "/api/v2/process-scan",
+        json={
+            "species_scientific_name": "Aucoumea klaineana",
+            "measured_dbh_cm": 62.5,
+            "latitude": 0.4162,
+            "longitude": 9.4541,
+        },
+    )
+    assert resp.status_code == 200, resp.text
+    refs = resp.json()["valorization_plan"]["references"]
+    assert "knowledge/protocols/residue_protocols.json [loi_016_01]" in refs
+    assert "knowledge/legal/frameworks.json" in refs

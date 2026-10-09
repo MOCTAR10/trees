@@ -127,7 +127,9 @@ def test_query_circular_economy_maps_legal_reference(monkeypatch):
     )
     assert "FROM circular_economy_knowledge" in captured["sql"]
     assert "residue_type = $2 OR residue_type = 'mixed'" in captured["sql"]
-    assert "species_target = $3 OR species_target = '*'" in captured["sql"]
+    assert (
+        "species_target = $3 OR species_target = '*' OR species_target IS NULL" in captured["sql"]
+    )
     assert chunks[0].doc_type == "protocol"  # falls back when column is NULL
     assert chunks[0].metadata["legal_framework_reference"] == "paris_art6"
     assert isinstance(chunks[0].metadata, dict)

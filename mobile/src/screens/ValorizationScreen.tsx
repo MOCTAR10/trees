@@ -100,6 +100,17 @@ export default function ValorizationScreen({ data, origin, exporting, onExportPd
 
       {origin && mapTarget && <CoopMap origin={origin} target={mapTarget} />}
 
+      {plan.references && plan.references.length > 0 && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>{t.sources}</Text>
+          {plan.references.map((ref) => (
+            <Text key={ref} style={styles.dim}>
+              • {ref}
+            </Text>
+          ))}
+        </View>
+      )}
+
       <View style={[styles.card, styles.carbonCard]}>
         <Text style={styles.cardTitle}>{t.carbon}</Text>
         <Text style={styles.carbonValue}>

@@ -32,6 +32,7 @@ export interface V1Report {
   soil_type: string | null;
   canopy_density_fcd: number | null;
   narrative_fr: string | null;
+  rag_sources?: string[] | null;
 }
 
 export interface ResidueChannel {
@@ -74,6 +75,7 @@ export interface ValorizationPlan {
   carbon_offset_metadata: {
     avoided_methane_emissions_co2eq_kg: number;
   };
+  references?: string[] | null;
 }
 
 export interface MatchedCooperative {

@@ -95,6 +95,7 @@ export const fr = {
     mapTitle: "Position sur le terrain",
     scanPoint: "Point d'analyse",
     error: "Génération du plan échouée.",
+    sources: "Sources",
     offlineQueued: "Connexion perdue : le plan sera généré et synchronisé dès que la connexion revient.",
     backToStart: "Retour à l'accueil",
   },
