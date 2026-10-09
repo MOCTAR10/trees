@@ -212,6 +212,7 @@ def _load_generated_reference() -> dict[str, SpeciesProfile]:
             cr_shape_p=float(entry.get("cr_shape_p", 1.35)),
             family=entry.get("family") or "",
             cr_source=entry.get("cr_source") or "reference",
+            iucn_status=entry.get("iucn_status") or "NE",
         )
     return loaded
 

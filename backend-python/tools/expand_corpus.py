@@ -51,6 +51,8 @@ WOOD_DENSITY_OBA = "OBA_1000040"  # wood density trait ontology term
 WOOD_DENSITY_OUT = DATA_DIR / "wood_density_africa.json"
 GBIF_CACHE = DATA_DIR / "gbif_species_cache.json"
 GBIF_DIST_CACHE = DATA_DIR / "gbif_distributions_cache.json"
+IUCN_CACHE = DATA_DIR / "iucn_cache.json"
+CITES_CACHE = DATA_DIR / "cites_cache.json"
 GENERATED_KNOWLEDGE = KNOWLEDGE_DIR / "species" / "africa_wood_density.json"
 GENERATED_REFERENCE = DATA_DIR / "species_reference.json"
 CURATED_SPECIES = KNOWLEDGE_DIR / "species" / "congo_basin_species.json"
@@ -312,6 +314,8 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
     dist = (
         json.loads(GBIF_DIST_CACHE.read_text(encoding="utf-8")) if GBIF_DIST_CACHE.exists() else {}
     )
+    iucn = json.loads(IUCN_CACHE.read_text(encoding="utf-8")) if IUCN_CACHE.exists() else {}
+    cites = json.loads(CITES_CACHE.read_text(encoding="utf-8")) if CITES_CACHE.exists() else {}
     curated = _curated_species() if skip_curated else set()
 
     docs: list[dict] = []
@@ -334,11 +338,19 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
         common_txt = (" Common names " + "; ".join(common) + ".") if common else ""
         d = dist.get(name, {})
         range_txt = _distribution_text(d)
+        iucn_code = (iucn.get(name, {}).get("status") or {}).get("code") if iucn.get(name) else None
+        cites_ap = (cites.get(name) or {}).get("appendix")
+        status_txt = ""
+        if iucn_code:
+            status_txt += f" IUCN Red List status: {iucn_code}."
+        if cites_ap:
+            status_txt += f" CITES Appendix {cites_ap} (international trade regulated)."
         content = (
             f"{name} — {family or 'family unknown'}. Wood density rho = {d2:.2f} g/cm3 "
             f"(mean of {info['n']} measurements; region: {regions}). Source: {SOURCE_LABEL}."
-            f"{common_txt}{range_txt} Growth constants are not locally fitted; the engine applies a "
-            f"transparent density-based prior (A = {a} cm, k = {k}/yr, p = {p}) pending increment data."
+            f"{common_txt}{range_txt}{status_txt} Growth constants are not locally fitted; the engine "
+            f"applies a transparent density-based prior (A = {a} cm, k = {k}/yr, p = {p}) pending "
+            f"increment data."
         )
         doc_id = f"species_{_slug(name)}"
         docs.append(
@@ -354,6 +366,8 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
                     "native_range": d.get("native_range") or [],
                     "gbif_countries": d.get("countries") or [],
                     "gbif_occurrences": d.get("occurrence_count") or 0,
+                    "iucn_status": iucn_code or "",
+                    "cites_appendix": cites_ap or "",
                     "doc_type": "species",
                     "language": "en",
                     "source": SOURCE_LABEL,
@@ -367,6 +381,8 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
                 "wood_density_g_cm3": d2,
                 "family": family,
                 "native_range": "; ".join(d.get("native_range") or []),
+                "iucn_status": iucn_code or "NE",
+                "cites_appendix": cites_ap or "",
                 "cr_asymptote_a_cm": a,
                 "cr_rate_k": k,
                 "cr_shape_p": p,
