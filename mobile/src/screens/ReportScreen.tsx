@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { V1Report } from "../api/client";
 import { fr } from "../i18n/fr";
@@ -9,7 +9,11 @@ const t = fr.report;
 
 interface Props {
   report: V1Report;
-  onValorize: () => void;
+  exporting?: boolean;
+  onValorize: (() => void) | null;
+  onOpenPlan?: () => void;
+  onExportPdf?: () => void;
+  onBack?: () => void;
 }
 
 function Row({ label, value }: { label: string; value: string }) {
@@ -21,12 +25,24 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-export default function ReportScreen({ report, onValorize }: Props) {
+export default function ReportScreen({
+  report,
+  exporting,
+  onValorize,
+  onOpenPlan,
+  onExportPdf,
+  onBack,
+}: Props) {
   const fmt = (v: number | null | undefined, unit = "", digits = 1) =>
     v == null ? t.unknown : `${v.toFixed(digits)}${unit}`;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {onBack && (
+        <TouchableOpacity onPress={onBack}>
+          <Text style={styles.link}>{t.back}</Text>
+        </TouchableOpacity>
+      )}
       <Text style={styles.title}>{t.title}</Text>
 
       <View style={styles.card}>
@@ -56,9 +72,29 @@ export default function ReportScreen({ report, onValorize }: Props) {
         </View>
       )}
 
-      <TouchableOpacity style={styles.button} onPress={onValorize}>
-        <Text style={styles.buttonText}>{t.toValorization}</Text>
-      </TouchableOpacity>
+      {onValorize && (
+        <TouchableOpacity style={styles.button} onPress={onValorize} disabled={!!exporting}>
+          <Text style={styles.buttonText}>{t.toValorization}</Text>
+        </TouchableOpacity>
+      )}
+      {onOpenPlan && (
+        <TouchableOpacity style={styles.button} onPress={onOpenPlan} disabled={!!exporting}>
+          <Text style={styles.buttonText}>{t.openPlan}</Text>
+        </TouchableOpacity>
+      )}
+      {onExportPdf && (
+        <TouchableOpacity
+          style={styles.exportButton}
+          onPress={onExportPdf}
+          disabled={!!exporting}
+        >
+          {exporting ? (
+            <ActivityIndicator color={colors.text} />
+          ) : (
+            <Text style={styles.exportText}>{t.exportReport}</Text>
+          )}
+        </TouchableOpacity>
+      )}
     </ScrollView>
   );
 }
@@ -89,4 +125,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   buttonText: { color: colors.primary, fontSize: type.body, fontWeight: "700" },
+  exportButton: {
+    backgroundColor: colors.surfaceAlt,
+    padding: spacing.md,
+    borderRadius: 10,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: spacing.xl,
+  },
+  exportText: { color: colors.text, fontSize: type.body, fontWeight: "600" },
+  link: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
 });

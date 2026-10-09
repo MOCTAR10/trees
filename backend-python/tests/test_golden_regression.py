@@ -137,6 +137,8 @@ def install_v2_fakes(monkeypatch=None) -> list:
         "profile_type": "agricultural_biochar",
         "is_certified": True,
         "distance_km": 8.4,
+        "latitude": 0.3823,
+        "longitude": 9.4541,
     }
 
     async def fake_coops_near(lat, lon, radius_km=15.0, certified_only=False):

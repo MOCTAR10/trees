@@ -38,9 +38,15 @@ def main() -> int:
         # 1. API health
         try:
             r = client.get(f"{API}/health")
-            body = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
-            check("api /health", r.status_code == 200 and body.get("status") == "ok", f"{r.status_code} {body}")
-        except Exception as exc:  # noqa: BLE001 - report, do not crash
+            body = (
+                r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
+            )
+            check(
+                "api /health",
+                r.status_code == 200 and body.get("status") == "ok",
+                f"{r.status_code} {body}",
+            )
+        except Exception as exc:
             check("api /health", False, repr(exc))
 
         # 2. Gateway health (upstream reachability through the proxy config)
@@ -53,21 +59,21 @@ def main() -> int:
                 r.status_code == 200 and upstream.get("status") == "ok",
                 f"{r.status_code} {body}",
             )
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             check("gateway /health upstream", False, repr(exc))
 
         # 3. Gateway -> FastAPI JSON forwarding (v2)
         try:
             r = client.post(f"{GATEWAY}/api/v2/process-scan", json={})
             check("gateway -> v2 (422 on empty)", r.status_code == 422, f"status={r.status_code}")
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             check("gateway -> v2 (422 on empty)", False, repr(exc))
 
         # 4. Gateway -> FastAPI multipart forwarding (v1, imports cv2)
         try:
             r = client.post(f"{GATEWAY}/api/v1/process-scan", data={})
             check("gateway -> v1 (422, cv2 loads)", r.status_code == 422, f"status={r.status_code}")
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             check("gateway -> v1 (422, cv2 loads)", False, repr(exc))
 
     failed = [c for c in _checks if not c[1]]

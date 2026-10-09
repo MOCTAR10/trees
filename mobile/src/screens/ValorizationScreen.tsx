@@ -1,7 +1,15 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import { V2Response } from "../api/client";
+import CoopMap from "../components/CoopMap";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
 
@@ -9,15 +17,23 @@ const t = fr.valorization;
 
 interface Props {
   data: V2Response;
+  origin?: { latitude: number; longitude: number } | null;
+  exporting?: boolean;
+  onExportPdf?: () => void;
   onBack: () => void;
 }
 
-export default function ValorizationScreen({ data, onBack }: Props) {
+export default function ValorizationScreen({ data, origin, exporting, onExportPdf, onBack }: Props) {
   const plan = data.valorization_plan;
   const rb = plan.residue_breakdown;
   const csr = plan.win_win_synergy_plan.logging_company_csr_benefits;
   const impact = plan.win_win_synergy_plan.community_impact_plan;
   const carbon = plan.carbon_offset_metadata.avoided_methane_emissions_co2eq_kg;
+  const firstCoop = data.matched_cooperatives[0];
+  const mapTarget =
+    firstCoop?.latitude != null && firstCoop.longitude != null
+      ? { latitude: firstCoop.latitude, longitude: firstCoop.longitude, name: firstCoop.name }
+      : null;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -82,6 +98,8 @@ export default function ValorizationScreen({ data, onBack }: Props) {
         <Text style={styles.body}>{impact.local_economic_value_creation_estimate}</Text>
       </View>
 
+      {origin && mapTarget && <CoopMap origin={origin} target={mapTarget} />}
+
       <View style={[styles.card, styles.carbonCard]}>
         <Text style={styles.cardTitle}>{t.carbon}</Text>
         <Text style={styles.carbonValue}>
@@ -102,6 +120,16 @@ export default function ValorizationScreen({ data, onBack }: Props) {
           </View>
         ))}
       </View>
+
+      {onExportPdf && (
+        <TouchableOpacity style={styles.exportButton} onPress={onExportPdf} disabled={!!exporting}>
+          {exporting ? (
+            <ActivityIndicator color={colors.text} />
+          ) : (
+            <Text style={styles.exportText}>{t.exportPlan}</Text>
+          )}
+        </TouchableOpacity>
+      )}
 
       <TouchableOpacity style={styles.button} onPress={onBack}>
         <Text style={styles.buttonText}>{t.backToStart}</Text>
@@ -141,4 +169,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   buttonText: { color: colors.text, fontSize: type.body, fontWeight: "700" },
+  exportButton: {
+    backgroundColor: colors.primaryLight,
+    padding: spacing.md,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  exportText: { color: colors.text, fontSize: type.body, fontWeight: "700" },
 });

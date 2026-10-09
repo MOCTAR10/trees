@@ -18,9 +18,16 @@
     },
     "android": {
       "package": "ga.foresterie.numerique",
-      "permissions": ["CAMERA", "ACCESS_FINE_LOCATION"]
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION"
+      ]
     },
-    "plugins": ["expo-camera", "expo-location"],
+    "plugins": [
+      "expo-camera",
+      "expo-location",
+      "expo-sharing"
+    ],
     "extra": {
       "apiUrl": "http://localhost:3000"
     }

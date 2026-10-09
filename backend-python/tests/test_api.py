@@ -144,6 +144,8 @@ def test_v2_process_scan(client, monkeypatch):
             "profile_type": "agricultural_biochar",
             "is_certified": True,
             "distance_km": 8.4,
+            "latitude": 0.3823,
+            "longitude": 9.4541,
         }
     )
 

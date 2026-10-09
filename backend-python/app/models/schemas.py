@@ -57,6 +57,8 @@ class CommunityImpactPlan(BaseModel):
     target_cooperative_name: str | None = None
     profile_type: str | None = None
     logistical_distance_km: float | None = None
+    target_cooperative_latitude: float | None = None
+    target_cooperative_longitude: float | None = None
     local_economic_value_creation_estimate: str = ""
 
 

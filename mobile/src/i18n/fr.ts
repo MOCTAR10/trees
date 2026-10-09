@@ -21,6 +21,27 @@ export const fr = {
     depthHint: "Mesurée par AR à 1,30 m du sol (modifiable)",
   },
 
+  home: {
+    tagline:
+      "Identification de l'espèce, mensuration (DBH), âge estimé et plan de valorisation circulaire des résidus.",
+    newScan: "Nouvelle analyse",
+    history: (n: number) =>
+      `Historique des analyses${n > 0 ? ` (${n})` : ""}`,
+  },
+
+  history: {
+    title: "Historique des analyses",
+    empty: "Aucune analyse enregistrée pour l'instant.",
+    back: "← Retour",
+    clear: "Effacer",
+    cancel: "Annuler",
+    clearConfirmTitle: "Effacer l'historique ?",
+    clearConfirmMsg: "Cette action est irréversible.",
+    unknown: "Espèce inconnue",
+    dbh: (v: number | null) => (v == null ? "DBH —" : `DBH ${v.toFixed(1)} cm`),
+    planDone: "plan généré",
+  },
+
   report: {
     title: "Rapport forestier",
     species: "Espèce",
@@ -35,6 +56,9 @@ export const fr = {
     narrative: "Récit de l'ingénieur forestier",
     unknown: "Non déterminé",
     toValorization: "Plan de valorisation circulaire →",
+    openPlan: "Voir le plan de valorisation →",
+    exportReport: "Exporter le rapport (PDF)",
+    back: "← Historique",
     error: "L'analyse a échoué. Vérifiez votre connexion.",
     startOver: "Nouvelle analyse",
   },
@@ -61,6 +85,9 @@ export const fr = {
     matchedCoops: "Coopératives à proximité",
     certified: "Certifiée",
     nonCertified: "Non certifiée",
+    exportPlan: "Exporter le plan (PDF)",
+    mapTitle: "Position sur le terrain",
+    scanPoint: "Point d'analyse",
     error: "Génération du plan échouée.",
     backToStart: "Retour à l'accueil",
   },
@@ -68,5 +95,6 @@ export const fr = {
   common: {
     loading: "Chargement…",
     retry: "Réessayer",
+    exporting: "Préparation du PDF…",
   },
 };

@@ -47,6 +47,8 @@
         "target_cooperative_name": "Coopérative Akanda",
         "profile_type": "agricultural_biochar",
         "logistical_distance_km": 8.4,
+        "target_cooperative_latitude": 0.3823,
+        "target_cooperative_longitude": 9.4541,
         "local_economic_value_creation_estimate": "Creation de 3-5 emplois locaux"
       }
     },
@@ -60,7 +62,9 @@
       "name": "Coopérative Akanda",
       "profile_type": "agricultural_biochar",
       "distance_km": 8.4,
-      "is_certified": true
+      "is_certified": true,
+      "latitude": 0.3823,
+      "longitude": 9.4541
     }
   ]
 }

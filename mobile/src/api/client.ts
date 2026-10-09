@@ -57,6 +57,8 @@ export interface ValorizationPlan {
       target_cooperative_name: string | null;
       profile_type: string | null;
       logistical_distance_km: number | null;
+      target_cooperative_latitude: number | null;
+      target_cooperative_longitude: number | null;
       local_economic_value_creation_estimate: string;
     };
   };
@@ -71,6 +73,8 @@ export interface MatchedCooperative {
   profile_type: string;
   distance_km: number;
   is_certified: boolean;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export interface V2Response {

@@ -165,6 +165,8 @@ Schéma JSON exact:
             impact["target_cooperative_name"] = best_coop["cooperative_name"]
             impact["profile_type"] = best_coop["profile_type"]
             impact["logistical_distance_km"] = round(best_coop["distance_km"], 2)
+            impact["target_cooperative_latitude"] = best_coop.get("latitude")
+            impact["target_cooperative_longitude"] = best_coop.get("longitude")
         plan = ValorizationPlan.model_validate(plan_json)
     except Exception as exc:
         raise HTTPException(
@@ -220,6 +222,8 @@ Schéma JSON exact:
                 "profile_type": c["profile_type"],
                 "distance_km": round(c["distance_km"], 2),
                 "is_certified": c["is_certified"],
+                "latitude": c.get("latitude"),
+                "longitude": c.get("longitude"),
             }
             for c in cooperatives[:5]
         ],

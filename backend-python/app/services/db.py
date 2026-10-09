@@ -47,6 +47,7 @@ async def find_cooperatives_near(
     certified_clause = "AND is_certified = TRUE" if certified_only else ""
     sql = f"""
         SELECT id, cooperative_name, profile_type, capacity_kg_per_day, is_certified,
+               ST_Y(geom) AS latitude, ST_X(geom) AS longitude,
                ST_Distance(
                    geom::geography,
                    ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography
