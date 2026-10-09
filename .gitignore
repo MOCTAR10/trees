@@ -31,6 +31,12 @@ backend-python/weights/*.pt
 # Raw CITES/EU/CMS listing exports (large; distilled by tools/import_listings.py)
 docs/*listings*.csv
 
+# Secret JSON (e.g. GEE service-account keys dropped in docs/)
+docs/*.json
+*service-account*.json
+secrets/
+backend-python/secrets/
+
 # Logs
 *.log
 npm-debug.log*

@@ -16,7 +16,9 @@ class Settings(BaseSettings):
     groq_base_url: str = "https://api.groq.com/openai/v1"
 
     gee_enabled: bool = False
+    gee_project: str = ""
     gee_service_account_json: str = ""
+    gee_service_account_file: str = ""
 
     yolo_weights_path: str = "weights/trunk-seg.pt"
     yolo_enabled: bool = True
