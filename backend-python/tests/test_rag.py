@@ -77,6 +77,21 @@ def test_generated_corpus_files_are_consistent():
     assert all(0.05 < r["wood_density_g_cm3"] < 1.6 for r in ref)
 
 
+def test_generated_cohort_has_distribution_data():
+    import json
+    from pathlib import Path
+
+    backend = Path(__file__).resolve().parents[1]
+    cache = json.loads(
+        (backend / "data" / "gbif_distributions_cache.json").read_text(encoding="utf-8")
+    )
+    assert len(cache) >= 800
+    assert sum(1 for v in cache.values() if v.get("native_range")) >= 300
+    afzelia = cache["Afzelia africana"]
+    assert "Cameroon" in afzelia["native_range"]
+    assert afzelia["occurrence_count"] > 0
+
+
 def test_rrf_fuse_ranks_consensus_first():
     # 'b' appears high in both lists -> should win over list-specific winners
     fused = rag.rrf_fuse(["a", "b", "c"], ["b", "c", "a"])

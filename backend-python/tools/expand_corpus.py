@@ -50,6 +50,7 @@ WOOD_DENSITY_OBA = "OBA_1000040"  # wood density trait ontology term
 
 WOOD_DENSITY_OUT = DATA_DIR / "wood_density_africa.json"
 GBIF_CACHE = DATA_DIR / "gbif_species_cache.json"
+GBIF_DIST_CACHE = DATA_DIR / "gbif_distributions_cache.json"
 GENERATED_KNOWLEDGE = KNOWLEDGE_DIR / "species" / "africa_wood_density.json"
 GENERATED_REFERENCE = DATA_DIR / "species_reference.json"
 CURATED_SPECIES = KNOWLEDGE_DIR / "species" / "congo_basin_species.json"
@@ -61,6 +62,10 @@ SOURCE_LABEL = "Zanne et al. 2009, Global Wood Density Database (Dryad doi:10.50
 AFRICA_MARKER = "africa"
 GBIF_MATCH_URL = "https://api.gbif.org/v1/species/match"
 GBIF_VERNACULAR_URL = "https://api.gbif.org/v1/species/{key}/vernacularNames"
+GBIF_DISTRIBUTIONS_URL = "https://api.gbif.org/v1/species/{key}/distributions"
+GBIF_OCCURRENCE_URL = "https://api.gbif.org/v1/occurrence/search"
+GBIF_MAX_RANGE = 6
+GBIF_MAX_COUNTRIES = 6
 
 
 # --------------------------------------------------------------------------- #
@@ -200,6 +205,81 @@ def enrich(species: list[str], pause: float = 0.05) -> dict[str, dict]:
 
 
 # --------------------------------------------------------------------------- #
+# GBIF distributions
+# --------------------------------------------------------------------------- #
+def enrich_distributions(pause: float = 0.02) -> dict[str, dict]:
+    """Fetch curated native range + occurrence countries per species (cached)."""
+    gbif = json.loads(GBIF_CACHE.read_text(encoding="utf-8")) if GBIF_CACHE.exists() else {}
+    cache: dict[str, dict] = {}
+    if GBIF_DIST_CACHE.exists():
+        cache = json.loads(GBIF_DIST_CACHE.read_text(encoding="utf-8"))
+
+    todo = [name for name in gbif if name not in cache]
+    print(f"gbif distributions: {len(todo)} to fetch ({len(cache)} cached)")
+    for i, name in enumerate(todo, 1):
+        key = (gbif[name].get("match") or {}).get("usageKey")
+        entry: dict = {
+            "scientific_name": name,
+            "native_range": [],
+            "countries": [],
+            "occurrence_count": 0,
+        }
+        if key:
+            try:
+                d = _http_json(GBIF_DISTRIBUTIONS_URL.format(key=key))
+                native = []
+                for res in d.get("results", []):
+                    means = (res.get("establishmentMeans") or "").upper()
+                    locality = (res.get("locality") or "").strip()
+                    if locality and means in ("", "NATIVE", "NATIVE_REINTRODUCED"):
+                        native.append(locality)
+                entry["native_range"] = native[:GBIF_MAX_RANGE]
+            except Exception as exc:
+                entry["error_range"] = repr(exc)[:160]
+            try:
+                occ = _http_json(
+                    GBIF_OCCURRENCE_URL,
+                    {
+                        "taxonKey": key,
+                        "facet": "country",
+                        "facetLimit": GBIF_MAX_COUNTRIES,
+                        "limit": 0,
+                    },
+                )
+                entry["occurrence_count"] = occ.get("count", 0)
+                facets = occ.get("facets") or []
+                if facets:
+                    entry["countries"] = [c["name"] for c in facets[0].get("counts", [])]
+            except Exception as exc:
+                entry["error_occ"] = repr(exc)[:160]
+        cache[name] = entry
+        if i % 25 == 0 or i == len(todo):
+            GBIF_DIST_CACHE.write_text(
+                json.dumps(cache, ensure_ascii=False, indent=1), encoding="utf-8"
+            )
+            print(f"  {i}/{len(todo)} ({name})")
+        time.sleep(pause)
+    return cache
+
+
+def _distribution_text(entry: dict) -> str:
+    """Human-readable range sentence for a generated species doc."""
+    if not entry:
+        return ""
+    ranges = entry.get("native_range") or []
+    countries = entry.get("countries") or []
+    count = entry.get("occurrence_count") or 0
+    text = ""
+    if ranges:
+        text = " Native range (GBIF / Catalogue of Life): " + "; ".join(ranges) + "."
+    elif countries:
+        text = " Recorded in GBIF occurrence countries: " + ", ".join(countries) + "."
+    if count:
+        text += f" GBIF occurrence records: {count}."
+    return text
+
+
+# --------------------------------------------------------------------------- #
 # Build
 # --------------------------------------------------------------------------- #
 def _growth_prior(density: float) -> tuple[float, float, float]:
@@ -229,6 +309,9 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
     """Write generated knowledge docs + species reference table."""
     density = json.loads(WOOD_DENSITY_OUT.read_text(encoding="utf-8"))
     gbif = json.loads(GBIF_CACHE.read_text(encoding="utf-8")) if GBIF_CACHE.exists() else {}
+    dist = (
+        json.loads(GBIF_DIST_CACHE.read_text(encoding="utf-8")) if GBIF_DIST_CACHE.exists() else {}
+    )
     curated = _curated_species() if skip_curated else set()
 
     docs: list[dict] = []
@@ -249,11 +332,13 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
         if en:
             common.append("EN: " + ", ".join(en))
         common_txt = (" Common names " + "; ".join(common) + ".") if common else ""
+        d = dist.get(name, {})
+        range_txt = _distribution_text(d)
         content = (
             f"{name} — {family or 'family unknown'}. Wood density rho = {d2:.2f} g/cm3 "
             f"(mean of {info['n']} measurements; region: {regions}). Source: {SOURCE_LABEL}."
-            f"{common_txt} Growth constants are not locally fitted; the engine applies a transparent "
-            f"density-based prior (A = {a} cm, k = {k}/yr, p = {p}) pending increment data."
+            f"{common_txt}{range_txt} Growth constants are not locally fitted; the engine applies a "
+            f"transparent density-based prior (A = {a} cm, k = {k}/yr, p = {p}) pending increment data."
         )
         doc_id = f"species_{_slug(name)}"
         docs.append(
@@ -266,6 +351,9 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
                     "family": family,
                     "wood_density_g_cm3": info["density"],
                     "sample_count": info["n"],
+                    "native_range": d.get("native_range") or [],
+                    "gbif_countries": d.get("countries") or [],
+                    "gbif_occurrences": d.get("occurrence_count") or 0,
                     "doc_type": "species",
                     "language": "en",
                     "source": SOURCE_LABEL,
@@ -278,6 +366,7 @@ def build(skip_curated: bool = True) -> tuple[int, int]:
                 "common_name_fr": fr[0] if fr else "",
                 "wood_density_g_cm3": d2,
                 "family": family,
+                "native_range": "; ".join(d.get("native_range") or []),
                 "cr_asymptote_a_cm": a,
                 "cr_rate_k": k,
                 "cr_shape_p": p,
@@ -313,7 +402,9 @@ def _parse_wood_density_cmd() -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["fetch", "parse", "enrich", "build", "all"])
+    parser.add_argument(
+        "command", choices=["fetch", "parse", "enrich", "distributions", "build", "all"]
+    )
     parser.add_argument("--force", action="store_true", help="re-download raw archive")
     args = parser.parse_args(argv)
 
@@ -324,6 +415,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.command in ("enrich", "all"):
         species = list(json.loads(WOOD_DENSITY_OUT.read_text(encoding="utf-8")))
         enrich(species)
+    if args.command in ("distributions", "all"):
+        enrich_distributions()
     if args.command in ("build", "all"):
         build()
     return 0
