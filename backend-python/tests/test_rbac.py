@@ -242,6 +242,21 @@ def test_login_wrong_password(client, monkeypatch):
     assert resp.status_code == 401
 
 
+def test_check_email_returns_role(client, monkeypatch):
+    _setup(monkeypatch)
+    resp = client.post("/api/auth/check-email", json={"email": "co@x"})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["role"] == "company"
+    assert body["display_name"]
+
+
+def test_check_email_unknown_returns_404(client, monkeypatch):
+    _setup(monkeypatch)
+    resp = client.post("/api/auth/check-email", json={"email": "ghost@x"})
+    assert resp.status_code == 404
+
+
 def test_requires_authentication(client):
     assert client.get("/api/auth/me").status_code == 401
     assert client.get("/api/admin/stats").status_code == 401

@@ -189,6 +189,21 @@ export async function login(email: string, password: string): Promise<LoginRespo
   return resp.json();
 }
 
+export interface EmailCheckResponse {
+  role: Role;
+  display_name: string;
+}
+
+export async function checkEmail(email: string): Promise<EmailCheckResponse> {
+  const resp = await fetch(`${API_BASE}/api/auth/check-email`, {
+    method: "POST",
+    headers: headers(true),
+    body: JSON.stringify({ email }),
+  });
+  if (!resp.ok) throw new Error(`CheckEmail ${resp.status}`);
+  return resp.json();
+}
+
 export async function getMe(): Promise<AuthUser> {
   const resp = await fetch(`${API_BASE}/api/auth/me`, { headers: headers() });
   if (!resp.ok) throw new Error(`Me ${resp.status}`);

@@ -36,11 +36,30 @@ export const fr = {
 
   auth: {
     title: "Connexion",
-    subtitle: "Accédez à votre espace selon votre rôle",
+    subtitle: "Accédez à votre espace",
+    official: "Ministère des Eaux et Forêts",
+    republic: "République Gabonaise",
     email: "Adresse e-mail",
     password: "Mot de passe",
+    showPassword: "Afficher",
+    hidePassword: "Masquer",
     submit: "Se connecter",
-    hint: "Comptes de démonstration fournis par l'administrateur.",
+    verify: "Vérifier",
+    nextStep: "Continuer",
+    backStep: "Modifier l'adresse",
+    verifTitle: "Adresse reconnue",
+    roleFound: "Espace",
+    emailNotFound: "Aucun compte associé à cette adresse.",
+    emailInvalid: "Saisissez une adresse e-mail valide.",
+    forgot: "Mot de passe oublié ?",
+    forgotHint:
+      "Contactez votre administrateur pour réinitialiser votre mot de passe.",
+    hint: "Entrez votre e-mail pour vérifier votre accès.",
+    footer:
+      "Accès réservé aux agents habilités. Toute connexion est journalisée conformément à la réglementation.",
+    copyright: "© 2026 Green Leave Gabon. Tous droits réservés.",
+    version: "Version 0.1.0",
+    developedBy: "Application développée par",
     error: "Connexion impossible. Vérifiez vos identifiants.",
   },
 

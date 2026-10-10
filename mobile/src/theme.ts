@@ -11,6 +11,9 @@ export const colors = {
   warning: "#E0A82E",
   error: "#D95757",
   border: "#2A3B34",
+  flagGreen: "#009E60",
+  flagGold: "#FEED01",
+  flagBlue: "#4664B2",
 };
 
 export const spacing = {

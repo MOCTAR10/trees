@@ -16,6 +16,21 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class CheckEmailRequest(BaseModel):
+    email: str
+
+
+@router.post("/check-email")
+async def check_email(body: CheckEmailRequest):
+    row = await db.fetch_one(
+        "SELECT role, display_name FROM users WHERE email=$1 AND is_active",
+        body.email,
+    )
+    if row is None:
+        raise HTTPException(status_code=404, detail="Aucun compte associé à cette adresse")
+    return {"role": row["role"], "display_name": row["display_name"]}
+
+
 @router.post("/login")
 async def login(body: LoginRequest):
     row = await db.fetch_one(

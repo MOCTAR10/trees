@@ -1,4 +1,5 @@
-import { act, fireEvent, render } from "@testing-library/react-native";
+import { act, fireEvent, render, waitFor } from "@testing-library/react-native";
+
 import React from "react";
 
 import * as client from "../src/api/client";
@@ -11,13 +12,14 @@ const mocked = client as jest.Mocked<typeof client>;
 
 const flush = () =>
   act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 1200));
   });
 
 describe("LoginScreen", () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it("signs in and returns the session", async () => {
+  it("signs in and returns the session after email verification", async () => {
+    mocked.checkEmail.mockResolvedValue({ role: "admin", display_name: "Administrateur" });
     mocked.login.mockResolvedValue({
       access_token: "token-1",
       token_type: "bearer",
@@ -27,7 +29,7 @@ describe("LoginScreen", () => {
     });
     mocked.getMe.mockResolvedValue({
       id: 1,
-      email: "admin@x",
+      email: "admin@x.com",
       display_name: "Administrateur",
       role: "admin",
       is_active: true,
@@ -36,25 +38,47 @@ describe("LoginScreen", () => {
     });
 
     const onLogin = jest.fn();
-    const { getByPlaceholderText, getByText } = render(<LoginScreen onLogin={onLogin} />);
+    const { getByPlaceholderText, getByTestId, getByText, getByLabelText } = render(
+      <LoginScreen onLogin={onLogin} />,
+    );
 
-    fireEvent.changeText(getByPlaceholderText("Adresse e-mail"), "admin@x");
+    fireEvent.changeText(getByPlaceholderText("Adresse e-mail"), "admin@x.com");
+    fireEvent.press(getByTestId("verify-button"));
+    await flush();
+    expect(mocked.checkEmail).toHaveBeenCalledWith("admin@x.com");
+    expect(getByText(/Espace/)).toBeTruthy();
+
     fireEvent.changeText(getByPlaceholderText("Mot de passe"), "secret");
     fireEvent.press(getByText("Se connecter"));
     await flush();
 
-    expect(mocked.login).toHaveBeenCalledWith("admin@x", "secret");
+    expect(mocked.login).toHaveBeenCalledWith("admin@x.com", "secret");
     expect(onLogin).toHaveBeenCalledWith({
       token: "token-1",
       user: expect.objectContaining({ role: "admin" }),
     });
   });
 
+  it("shows a not-found error when the email is unknown", async () => {
+    mocked.checkEmail.mockRejectedValue(new Error("404"));
+
+    const { getByPlaceholderText, getByTestId, getByText } = render(<LoginScreen onLogin={jest.fn()} />);
+    fireEvent.changeText(getByPlaceholderText("Adresse e-mail"), "ghost@x.com");
+    fireEvent.press(getByTestId("verify-button"));
+    await flush();
+
+    expect(getByText("Aucun compte associé à cette adresse.")).toBeTruthy();
+  });
+
   it("shows an error when credentials fail", async () => {
+    mocked.checkEmail.mockResolvedValue({ role: "admin", display_name: "Administrateur" });
     mocked.login.mockRejectedValue(new Error("401"));
 
-    const { getByPlaceholderText, getByText } = render(<LoginScreen onLogin={jest.fn()} />);
-    fireEvent.changeText(getByPlaceholderText("Adresse e-mail"), "admin@x");
+    const { getByPlaceholderText, getByTestId, getByText } = render(<LoginScreen onLogin={jest.fn()} />);
+    fireEvent.changeText(getByPlaceholderText("Adresse e-mail"), "admin@x.com");
+    fireEvent.press(getByTestId("verify-button"));
+    await flush();
+
     fireEvent.changeText(getByPlaceholderText("Mot de passe"), "wrong");
     fireEvent.press(getByText("Se connecter"));
     await flush();
