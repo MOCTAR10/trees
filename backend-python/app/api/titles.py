@@ -9,12 +9,12 @@ Annual operations (company-driven on its own title): prepare → soumettre PAO
 from datetime import date, timedelta
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 
 from app.api.organizations import require_org
 from app.core.deps import require_roles
-from app.services import db
+from app.services import db, pdf_report
 
 router = APIRouter()
 
@@ -62,6 +62,35 @@ class AacActionIn(BaseModel):
     reference: str | None = None
     valid_to: date | None = None
     motif: str | None = None
+
+
+class AuthorizationIn(BaseModel):
+    authorization_type: Literal[
+        "certificat_assiette", "permis_annuel_operations", "certificat_vente_coupe", "cae"
+    ] = "permis_annuel_operations"
+    reference: str | None = None
+    valid_from: date | None = None
+    valid_to: date | None = None
+    plan_document_id: int | None = None
+
+
+class AuthorizationDecisionIn(BaseModel):
+    decision: Literal["delivre", "rejete"]
+    motif: str | None = None
+
+
+_AUTH_SELECT = (
+    "SELECT aa.id, aa.aac_id, aa.authorization_type, aa.reference, aa.issued_by,"
+    " aa.issued_at, aa.valid_from, aa.valid_to, aa.startup_notified_at,"
+    " aa.startup_notified_by, aa.plan_document_id, aa.status, aa.decision_motif,"
+    " aa.created_at, a.label AS aac_label, t.id AS title_id, t.reference AS title_ref,"
+    " t.holder_org_id, o.name AS org_name"
+    " FROM aac_authorizations aa"
+    " JOIN annual_cut_blocks a ON a.id = aa.aac_id"
+    " JOIN management_units u ON u.id = a.ufa_id"
+    " JOIN forest_titles t ON t.id = u.title_id"
+    " LEFT JOIN organizations o ON o.id = t.holder_org_id"
+)
 
 
 async def _owner_of_aac(aac_id: int) -> tuple[int, dict] | None:
@@ -329,3 +358,135 @@ async def act_on_aac(
             aac_id,
         )
     return dict(row)
+
+
+# ───────────────────────── Autorisation d'exploiter ─────────────────────────
+# The four TTP authorizations (certificat d'assiette, PAO, certificat de vente
+# de coupe, CAE) that let a company legally start harvesting an AAC (art. 14).
+# The company requests one (soumis); the Ministry delivers or rejects it; the
+# company then notifies the start of activities.
+
+
+async def _owner_of_authorization(auth_id: int) -> tuple[int, dict] | None:
+    row = await db.fetch_one(f"{_AUTH_SELECT} WHERE aa.id = $1", auth_id)
+    if row is None:
+        return None
+    return row["holder_org_id"], dict(row)
+
+
+@router.get("/aacs/{aac_id}/authorizations")
+async def list_authorizations(
+    aac_id: int,
+    user: dict = Depends(require_roles("company", "admin")),
+):
+    owned = await _owner_of_aac(aac_id)
+    if owned is None:
+        raise HTTPException(status_code=404, detail="AAC introuvable")
+    owner_org_id, _ = owned
+    if user["role"] == "company" and owner_org_id != require_org(user):
+        raise HTTPException(status_code=403, detail="AAC d'une autre organisation")
+    rows = await db.fetch_all(
+        f"{_AUTH_SELECT} WHERE aa.aac_id = $1 ORDER BY aa.created_at DESC",
+        aac_id,
+    )
+    return [dict(r) for r in rows]
+
+
+@router.post("/aacs/{aac_id}/authorizations", status_code=201)
+async def request_authorization(
+    aac_id: int,
+    body: AuthorizationIn,
+    user: dict = Depends(require_roles("company")),
+):
+    org_id = require_org(user)
+    owned = await _owner_of_aac(aac_id)
+    if owned is None:
+        raise HTTPException(status_code=404, detail="AAC introuvable")
+    if owned[0] != org_id:
+        raise HTTPException(status_code=403, detail="AAC d'une autre organisation")
+    row = await db.fetch_one(
+        """
+        INSERT INTO aac_authorizations
+            (aac_id, authorization_type, reference, valid_from, valid_to,
+             plan_document_id, status)
+        VALUES ($1, $2, $3, $4, $5, $6, 'soumis')
+        RETURNING id, aac_id, authorization_type, reference, valid_from, valid_to,
+                  plan_document_id, status, decision_motif, startup_notified_at, created_at
+        """,
+        aac_id,
+        body.authorization_type,
+        body.reference,
+        body.valid_from,
+        body.valid_to,
+        body.plan_document_id,
+    )
+    return dict(row)
+
+
+@router.patch("/authorizations/{auth_id}")
+async def decide_authorization(
+    auth_id: int,
+    body: AuthorizationDecisionIn,
+    admin: dict = Depends(require_roles("admin")),
+):
+    if body.decision == "rejete" and not body.motif:
+        raise HTTPException(status_code=400, detail="Motif de rejet requis")
+    current = await db.fetch_one(f"{_AUTH_SELECT} WHERE aa.id = $1", auth_id)
+    if current is None:
+        raise HTTPException(status_code=404, detail="Autorisation introuvable")
+    issued_by = admin["id"] if body.decision == "delivre" else current["issued_by"]
+    issued_at = date.today() if body.decision == "delivre" else current["issued_at"]
+    row = await db.fetch_one(
+        "UPDATE aac_authorizations SET status = $1, decision_motif = $2,"
+        " issued_by = $3, issued_at = $4"
+        " WHERE id = $5 RETURNING id, aac_id, status, decision_motif, issued_at",
+        body.decision,
+        body.motif,
+        issued_by,
+        issued_at,
+        auth_id,
+    )
+    return dict(row)
+
+
+@router.post("/authorizations/{auth_id}/notify-startup")
+async def notify_startup(
+    auth_id: int,
+    user: dict = Depends(require_roles("company")),
+):
+    org_id = require_org(user)
+    current = await _owner_of_authorization(auth_id)
+    if current is None:
+        raise HTTPException(status_code=404, detail="Autorisation introuvable")
+    if current[0] != org_id:
+        raise HTTPException(status_code=403, detail="Autorisation d'une autre organisation")
+    auth = current[1]
+    if auth["status"] != "delivre":
+        raise HTTPException(
+            status_code=409,
+            detail="L'autorisation doit être délivrée avant de notifier le démarrage",
+        )
+    if auth["startup_notified_at"] is not None:
+        raise HTTPException(status_code=409, detail="Démarrage des activités déjà notifié")
+    row = await db.fetch_one(
+        "UPDATE aac_authorizations SET startup_notified_at = now(), startup_notified_by = $1"
+        " WHERE id = $2 RETURNING id, aac_id, status, startup_notified_at",
+        user["id"],
+        auth_id,
+    )
+    return dict(row)
+
+
+@router.get("/authorizations/{auth_id}/pdf")
+async def authorization_pdf(
+    auth_id: int,
+    user: dict = Depends(require_roles("company", "admin")),
+):
+    current = await _owner_of_authorization(auth_id)
+    if current is None:
+        raise HTTPException(status_code=404, detail="Autorisation introuvable")
+    if user["role"] == "company" and current[0] != require_org(user):
+        raise HTTPException(status_code=403, detail="Autorisation d'une autre organisation")
+    data = current[1]
+    pdf = pdf_report.render_authorization_pdf(data, data.get("org_name"))
+    return Response(content=pdf, media_type="application/pdf")

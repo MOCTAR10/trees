@@ -173,6 +173,27 @@ def test_render_diligence_pdf():
     _assert_pdf(pdf_report.render_diligence_pdf({}))
 
 
+def test_render_authorization_pdf():
+    doc = {
+        "id": 12,
+        "aac_id": 40,
+        "aac_label": "AAC-2026",
+        "org_name": "Bois SA",
+        "title_id": 30,
+        "title_ref": "T-1",
+        "authorization_type": "permis_annuel_operations",
+        "reference": "PAO-2026-1",
+        "status": "delivre",
+        "valid_from": "2026-01-01",
+        "valid_to": "2026-12-31",
+        "plan_document_id": 55,
+        "startup_notified_at": "2026-02-01T08:00:00",
+        "decision_motif": None,
+    }
+    _assert_pdf(pdf_report.render_authorization_pdf(doc, org_name="Bois SA"))
+    _assert_pdf(pdf_report.render_authorization_pdf({}))
+
+
 def test_renders_with_missing_fields():
     # None / empty values must not raise
     _assert_pdf(pdf_report.render_measurement_pdf({}))

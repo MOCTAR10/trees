@@ -422,6 +422,17 @@ EUDR_STATUS_LABEL = {
     "valide": "Validé",
     "rejete": "Rejeté",
 }
+AUTHORIZATION_TYPE_LABEL = {
+    "certificat_assiette": "Certificat annuel d'assiette de coupe",
+    "permis_annuel_operations": "Permis annuel d'opérations",
+    "certificat_vente_coupe": "Certificat de vente de coupe",
+    "cae": "Cahier des charges (CAE)",
+}
+AUTHORIZATION_STATUS_LABEL = {
+    "soumis": "Soumis",
+    "delivre": "Délivré",
+    "rejete": "Rejeté",
+}
 
 
 def _fmt_date(value: Any) -> str:
@@ -720,3 +731,72 @@ def render_diligence_pdf(doc: dict, org_name: str | None = None) -> bytes:
         ),
     ]
     return _build(story, "Déclaration de diligence raisonnée (RDUE)")
+
+
+def render_authorization_pdf(doc: dict, org_name: str | None = None) -> bytes:
+    """Harvest authorization (assiette / PAO / vente de coupe / CAE) -> PDF.
+
+    Materialises the Ministry decision that lets a company legally start
+    harvesting a given annual cut block (Loi 016/01, art. 14: no felling
+    without prior authorization).
+    """
+    doc = doc or {}
+    auth_type = doc.get("authorization_type")
+    title = doc.get("title_ref") or (f"#{doc.get('title_id')}" if doc.get("title_id") else None)
+    plan_doc = doc.get("plan_document_id")
+    validity_from = _fmt_date(doc.get("valid_from"))
+    validity_to = _fmt_date(doc.get("valid_to"))
+    validity = " → ".join(p for p in (validity_from, validity_to) if p) or "—"
+    notified = doc.get("startup_notified_at")
+
+    story: list = [
+        Paragraph(
+            _safe(AUTHORIZATION_TYPE_LABEL.get(auth_type, "Autorisation d'exploiter")),
+            S_TITLE,
+        ),
+        Paragraph(_safe(TAGLINE), S_SUB),
+        Spacer(1, 6 * mm),
+        _kv_table(
+            [
+                ("Opérateur", org_name or doc.get("org_name") or "—"),
+                ("Titre", title),
+                ("AAC", doc.get("aac_label") or f"#{doc.get('aac_id')}"),
+                ("Type", AUTHORIZATION_TYPE_LABEL.get(auth_type, auth_type)),
+                ("Référence", doc.get("reference") or "—"),
+                ("Statut", AUTHORIZATION_STATUS_LABEL.get(doc.get("status"), doc.get("status"))),
+                ("Validité", validity),
+                ("Pièce liée", f"Document #{plan_doc}" if plan_doc else "—"),
+                (
+                    "Notification de démarrage",
+                    _fmt_date(notified) if notified else "Non notifiée",
+                ),
+            ]
+        ),
+    ]
+
+    if doc.get("decision_motif"):
+        story += [
+            Spacer(1, 4 * mm),
+            Paragraph("Décision de l'administration", S_H2),
+            Paragraph(_safe(doc["decision_motif"]), S_BODY),
+        ]
+
+    story += [
+        Spacer(1, 5 * mm),
+        KeepTogether(
+            [
+                Paragraph("Base légale", S_H2),
+                Paragraph(
+                    _safe(
+                        "Aucun abattage n'est autorisé sans autorisation préalable (Code forestier "
+                        "gabonais, Loi 016/01, art. 14). L'exploitation d'une assiette annuelle de "
+                        "coupe requiert le certificat annuel d'assiette de coupe, le permis annuel "
+                        "d'opérations, le certificat de vente de coupe ou le cahier des charges (CAE) "
+                        "délivré par l'administration. Le démarrage des activités doit lui être notifié."
+                    ),
+                    S_SMALL,
+                ),
+            ]
+        ),
+    ]
+    return _build(story, "Autorisation d'exploiter")
