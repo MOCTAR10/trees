@@ -29,6 +29,7 @@ import {
 } from "../api/client";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
+import AacAuthorizations from "./AacAuthorizations";
 import Badge, { aacTone, titleTone } from "./Badge";
 
 const DECISIONS: Record<TitleStatus, TitleDecision[]> = {
@@ -328,6 +329,7 @@ export default function AdminTitles() {
                                       ))}
                                     </View>
                                   ) : null}
+                                  <AacAuthorizations aacId={aac.id} mode="admin" />
                                 </View>
                               ))
                             )}

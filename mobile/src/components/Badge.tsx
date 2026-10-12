@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import type { AacStatus, DocStatus, TaxStatus, TitleStatus } from "../api/client";
+import type { AacStatus, AuthorizationStatus, DocStatus, TaxStatus, TitleStatus } from "../api/client";
 import { colors, spacing, type } from "../theme";
 
 export type Tone = "neutral" | "success" | "warning" | "danger" | "accent";
@@ -52,6 +52,12 @@ export function aacTone(status: AacStatus): Tone {
 export function taxTone(status: TaxStatus): Tone {
   if (status === "paye") return "success";
   if (status === "en_retard") return "danger";
+  return "warning";
+}
+
+export function authTone(status: AuthorizationStatus): Tone {
+  if (status === "delivre") return "success";
+  if (status === "rejete") return "danger";
   return "warning";
 }
 

@@ -82,6 +82,11 @@ export async function exportDiligencePdf(id: number): Promise<string> {
   return getPdfToCache(`/api/eudr/diligence/${id}/pdf`, `diligence_eudr_${id}.pdf`);
 }
 
+/** Harvest authorization (assiette / PAO / vente de coupe / CAE) PDF. */
+export async function exportAuthorizationPdf(id: number): Promise<string> {
+  return getPdfToCache(`/api/titles/authorizations/${id}/pdf`, `autorisation_${id}.pdf`);
+}
+
 export async function sharePdf(uri: string): Promise<void> {
   if (await Sharing.isAvailableAsync()) {
     await Sharing.shareAsync(uri, {

@@ -1224,6 +1224,82 @@ export async function actOnAac(
   return resp.json();
 }
 
+export type AuthorizationType =
+  | "certificat_assiette"
+  | "permis_annuel_operations"
+  | "certificat_vente_coupe"
+  | "cae";
+export type AuthorizationStatus = "soumis" | "delivre" | "rejete";
+
+export interface AacAuthorization {
+  id: number;
+  aac_id: number;
+  authorization_type: AuthorizationType;
+  reference: string | null;
+  issued_by?: number | null;
+  issued_at?: string | null;
+  valid_from: string | null;
+  valid_to: string | null;
+  startup_notified_at: string | null;
+  plan_document_id: number | null;
+  status: AuthorizationStatus;
+  decision_motif?: string | null;
+  created_at: string;
+  aac_label?: string | null;
+  title_ref?: string | null;
+}
+
+export async function listAuthorizations(aacId: number): Promise<AacAuthorization[]> {
+  const resp = await timedFetch(`${API_BASE}/api/titles/aacs/${aacId}/authorizations`, {
+    headers: headers(),
+  });
+  if (!resp.ok) throw new Error(`Authorizations ${resp.status}`);
+  return resp.json();
+}
+
+export async function requestAuthorization(
+  aacId: number,
+  input: {
+    authorization_type: AuthorizationType;
+    reference?: string | null;
+    valid_from?: string | null;
+    valid_to?: string | null;
+  },
+): Promise<AacAuthorization> {
+  const resp = await timedFetch(`${API_BASE}/api/titles/aacs/${aacId}/authorizations`, {
+    method: "POST",
+    headers: headers(true),
+    body: JSON.stringify(input),
+  });
+  if (!resp.ok) throw new Error(`Authorization ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
+export async function decideAuthorization(
+  id: number,
+  decision: "delivre" | "rejete",
+  motif?: string | null,
+): Promise<{ id: number; aac_id: number; status: AuthorizationStatus }> {
+  const resp = await timedFetch(`${API_BASE}/api/titles/authorizations/${id}`, {
+    method: "PATCH",
+    headers: headers(true),
+    body: JSON.stringify({ decision, motif: motif ?? null }),
+  });
+  if (!resp.ok) throw new Error(`Authorization ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
+export async function notifyStartup(
+  id: number,
+): Promise<{ id: number; aac_id: number; status: AuthorizationStatus }> {
+  const resp = await timedFetch(`${API_BASE}/api/titles/authorizations/${id}/notify-startup`, {
+    method: "POST",
+    headers: headers(true),
+  });
+  if (!resp.ok) throw new Error(`Startup ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
 export type TaxType =
   | "superficie"
   | "abattage"

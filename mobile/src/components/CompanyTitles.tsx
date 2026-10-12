@@ -24,6 +24,7 @@ import {
 } from "../api/client";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
+import AacAuthorizations from "./AacAuthorizations";
 import Badge, { aacTone, titleTone } from "./Badge";
 
 const TITLE_TYPES: TitleType[] = ["CFAD", "PFA", "PGG", "FC"];
@@ -219,6 +220,7 @@ export default function CompanyTitles() {
                                     <Text style={styles.actionText}>{fr.titles.submitPao}</Text>
                                   </TouchableOpacity>
                                 ) : null}
+                                <AacAuthorizations aacId={aac.id} mode="company" />
                               </View>
                             ))
                           )}

@@ -4,6 +4,7 @@ import React from "react";
 import * as client from "../src/api/client";
 
 jest.mock("../src/api/client");
+jest.mock("../src/pdf");
 
 import AdminTitles from "../src/components/AdminTitles";
 
