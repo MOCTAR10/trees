@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS tree_scans (
     -- Dendrometry
     measured_dbh_cm         DOUBLE PRECISION,
     dbh_method              TEXT DEFAULT 'yolo_opencv_hybrid'
-                            CHECK (dbh_method IN ('yolo_opencv_hybrid', 'opencv_fallback', 'manual', 'mock')),
+                            CHECK (dbh_method IN ('yolo_opencv_hybrid', 'opencv_fallback', 'manual', 'mock', 'multi_view_avg')),
     dbh_confidence          DOUBLE PRECISION,
     estimated_height_m      DOUBLE PRECISION,
     estimated_age_years     DOUBLE PRECISION,
@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS tree_scans (
     -- Environment
     soil_type               TEXT,
     canopy_density_fcd      DOUBLE PRECISION,
+    health_status           TEXT,
 
     -- Capture artefacts
     image_trunk_url         TEXT,

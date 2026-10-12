@@ -14,6 +14,13 @@ services:
       - ./db/migrations/002_circular_economy.sql:/docker-entrypoint-initdb.d/02_circular_economy.sql:ro
       - ./db/migrations/003_hybrid_search.sql:/docker-entrypoint-initdb.d/03_hybrid_search.sql:ro
       - ./db/migrations/004_rbac.sql:/docker-entrypoint-initdb.d/04_rbac.sql:ro
+      - ./db/migrations/005_multi_view_images.sql:/docker-entrypoint-initdb.d/05_multi_view_images.sql:ro
+      - ./db/migrations/006_scan_health.sql:/docker-entrypoint-initdb.d/06_scan_health.sql:ro
+      - ./db/migrations/007_projects.sql:/docker-entrypoint-initdb.d/07_projects.sql:ro
+      - ./db/migrations/008_abattage.sql:/docker-entrypoint-initdb.d/08_abattage.sql:ro
+      - ./db/migrations/009_gouvernance.sql:/docker-entrypoint-initdb.d/09_gouvernance.sql:ro
+      - ./db/migrations/010_traceability.sql:/docker-entrypoint-initdb.d/10_traceability.sql:ro
+      - ./db/migrations/011_slice5.sql:/docker-entrypoint-initdb.d/11_slice5.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-forestry} -d ${POSTGRES_DB:-forestry}"]
       interval: 5s
