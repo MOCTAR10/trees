@@ -301,11 +301,7 @@ def _load_distributions() -> dict[str, list[str]]:
         raw = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return {}
-    return {
-        name: d.get("countries", [])
-        for name, d in raw.items()
-        if isinstance(d, dict)
-    }
+    return {name: d.get("countries", []) for name, d in raw.items() if isinstance(d, dict)}
 
 
 def _apply_overlays(

@@ -79,7 +79,7 @@ def fetch(limit: int) -> list[dict]:
             continue
         try:
             species = _species_in_family(key, family, limit)
-        except Exception as exc:  # noqa: BLE001 — keep going on transient failures
+        except Exception as exc:
             print(f"{family} failed: {exc}", file=sys.stderr)
             continue
         for s in species:

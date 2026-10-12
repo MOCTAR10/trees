@@ -1,7 +1,6 @@
 """Projects: field data-collection campaigns (Ministry / companies)."""
 
 from fastapi import APIRouter, Depends, HTTPException
-
 from pydantic import BaseModel, Field
 
 from app.core.deps import get_current_user
@@ -161,9 +160,7 @@ async def attribute_scan(
         raise HTTPException(status_code=404, detail="Scan introuvable")
     if scan["user_id"] != user["id"]:
         raise HTTPException(status_code=403, detail="Ce scan ne vous appartient pas")
-    await db.execute(
-        "UPDATE tree_scans SET project_id=$2 WHERE id=$1", payload.scan_id, project_id
-    )
+    await db.execute("UPDATE tree_scans SET project_id=$2 WHERE id=$1", payload.scan_id, project_id)
     return {"scan_id": payload.scan_id, "project_id": project_id}
 
 

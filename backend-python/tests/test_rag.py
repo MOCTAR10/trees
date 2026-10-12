@@ -21,10 +21,15 @@ def _species_docs() -> dict[str, dict]:
 
 
 def test_every_registry_species_has_a_corpus_doc():
-    """Every engine species must have an embeddable corpus document."""
+    """Every engine species must have an embeddable corpus document.
+
+    The woody ("arbre") cohort feeds the valuation/RAG engine and must always
+    be documented. The non-woody plant cohort is identified for biodiversity
+    only and deliberately has no wood-based corpus doc.
+    """
     docs = _species_docs()
     corpus_species = {d["species"] for d in docs.values()}
-    registry = set(SPECIES_DB)
+    registry = {name for name, profile in SPECIES_DB.items() if profile.type != "plante"}
     missing = registry - corpus_species
     assert not missing, f"registry species without corpus doc: {sorted(missing)[:10]}"
     assert len(docs) >= 800, f"corpus expanded too little: {len(docs)} species docs"

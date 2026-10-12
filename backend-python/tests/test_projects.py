@@ -120,7 +120,5 @@ def test_admin_can_create_project(client, monkeypatch):
 
 def test_attribute_scan_requires_ownership(client, monkeypatch):
     _install(monkeypatch)
-    resp = client.post(
-        "/api/projects/1/attribute", json={"scan_id": 10}, headers=_auth(USERS[4])
-    )
+    resp = client.post("/api/projects/1/attribute", json={"scan_id": 10}, headers=_auth(USERS[4]))
     assert resp.status_code == 403

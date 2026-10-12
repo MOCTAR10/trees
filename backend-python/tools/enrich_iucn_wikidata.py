@@ -83,7 +83,7 @@ def enrich(species: list[str]) -> dict[str, dict]:
             for name, code in _query(batch).items():
                 cache[name] = {"status": {"code": code}}
             print(f"batch {i // BATCH_SIZE + 1}: +{len(batch)} queried")
-        except Exception as exc:  # noqa: BLE001 — keep going on transient failures
+        except Exception as exc:
             print(f"batch {i // BATCH_SIZE + 1} failed: {exc}", file=sys.stderr)
         time.sleep(PAUSE)
     return cache
