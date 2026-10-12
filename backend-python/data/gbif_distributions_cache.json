@@ -15179,5 +15179,976 @@
    "TZ"
   ],
   "occurrence_count": 7088
+ },
+ "Alluaudia procera": {
+  "scientific_name": "Alluaudia procera",
+  "native_range": [
+   "S-Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "US",
+   "ZA",
+   "DE",
+   "BE",
+   "PF"
+  ],
+  "occurrence_count": 377
+ },
+ "Anthostema madagascariense": {
+  "scientific_name": "Anthostema madagascariense",
+  "native_range": [
+   "Madagascar; Comores (Mayotte, etc.)",
+   "Comoros",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "YT",
+   "KM"
+  ],
+  "occurrence_count": 408
+ },
+ "Apodocephala pauciflora": {
+  "scientific_name": "Apodocephala pauciflora",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global",
+   "Madagascar"
+  ],
+  "countries": [
+   "MG",
+   "BR"
+  ],
+  "occurrence_count": 365
+ },
+ "Apollonias velutina": {
+  "scientific_name": "Apollonias velutina",
+  "native_range": [],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 2
+ },
+ "Asteropeia rhopaloides": {
+  "scientific_name": "Asteropeia rhopaloides",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "ZZ"
+  ],
+  "occurrence_count": 345
+ },
+ "Beilschmiedia velutina": {
+  "scientific_name": "Beilschmiedia velutina",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "TH"
+  ],
+  "occurrence_count": 248
+ },
+ "Brachylaena ramiflora": {
+  "scientific_name": "Brachylaena ramiflora",
+  "native_range": [
+   "Madagascar",
+   "Comoros",
+   "Madagascar",
+   "Global",
+   "Madagascar"
+  ],
+  "countries": [
+   "MG",
+   "KM"
+  ],
+  "occurrence_count": 683
+ },
+ "Breonia decidua": {
+  "scientific_name": "Breonia decidua",
+  "native_range": [
+   "Madagascar"
+  ],
+  "countries": [
+   "MG",
+   "ID",
+   "BR",
+   "IN",
+   "PG",
+   "CN"
+  ],
+  "occurrence_count": 2718
+ },
+ "Breonia keliravina": {
+  "scientific_name": "Breonia keliravina",
+  "native_range": [],
+  "countries": [],
+  "occurrence_count": 1
+ },
+ "Breonia madagascariensis": {
+  "scientific_name": "Breonia madagascariensis",
+  "native_range": [
+   "+Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 31
+ },
+ "Breonia perrieri": {
+  "scientific_name": "Breonia perrieri",
+  "native_range": [
+   "N- & W-Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 407
+ },
+ "Bridelia tulasneana": {
+  "scientific_name": "Bridelia tulasneana",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "CD"
+  ],
+  "occurrence_count": 450
+ },
+ "Broussonetia greveanus": {
+  "scientific_name": "Broussonetia greveanus",
+  "native_range": [],
+  "countries": [
+   "MG",
+   "YT"
+  ],
+  "occurrence_count": 201
+ },
+ "Calophyllum drouhardii": {
+  "scientific_name": "Calophyllum drouhardii",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 111
+ },
+ "Calophyllum parviflorum": {
+  "scientific_name": "Calophyllum parviflorum",
+  "native_range": [
+   "Madagascar; Mauritius; Seychelles [I]",
+   "Mauritius"
+  ],
+  "countries": [
+   "MU",
+   "MG",
+   "PG",
+   "SC"
+  ],
+  "occurrence_count": 67
+ },
+ "Canarium madagascariense": {
+  "scientific_name": "Canarium madagascariense",
+  "native_range": [
+   "NE-Tanzania; NC-Mozambique; Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "MZ",
+   "TZ",
+   "ZZ"
+  ],
+  "occurrence_count": 305
+ },
+ "Chrysophyllum madagascariensis": {
+  "scientific_name": "Chrysophyllum madagascariensis",
+  "native_range": [
+   "Municipios de Carmen del Darién, Río Sucio y Unguía, Cuenca del Atrato",
+   "Parque Nacional Natural Serranía de Chiribiquete (PNNSCh)",
+   "Argentina Northeast",
+   "Argentina Northwest",
+   "Bahamas",
+   "Belize"
+  ],
+  "countries": [
+   "BR",
+   "CO",
+   "PE",
+   "MX",
+   "EC",
+   "CR"
+  ],
+  "occurrence_count": 47926
+ },
+ "Colubrina faralaotra": {
+  "scientific_name": "Colubrina faralaotra",
+  "native_range": [
+   "Madagascar"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 344
+ },
+ "Commiphora barorum": {
+  "scientific_name": "Commiphora barorum",
+  "native_range": [],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 15
+ },
+ "Commiphora pterocarpa": {
+  "scientific_name": "Commiphora pterocarpa",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 210
+ },
+ "Cordyla madagascariensis": {
+  "scientific_name": "Cordyla madagascariensis",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "BE",
+   "ZZ"
+  ],
+  "occurrence_count": 730
+ },
+ "Craspidospermum verticillatum": {
+  "scientific_name": "Craspidospermum verticillatum",
+  "native_range": [
+   "Madagascar",
+   "Madagascar"
+  ],
+  "countries": [
+   "MG",
+   "ZZ",
+   "MU"
+  ],
+  "occurrence_count": 1063
+ },
+ "Cryptocarya louvelii": {
+  "scientific_name": "Cryptocarya louvelii",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 7
+ },
+ "Cryptocarya thouvenotii": {
+  "scientific_name": "Cryptocarya thouvenotii",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 153
+ },
+ "Dalbergia greveana": {
+  "scientific_name": "Dalbergia greveana",
+  "native_range": [
+   "Africa",
+   "Madagascar",
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "PA"
+  ],
+  "occurrence_count": 1823
+ },
+ "Dilobeia thouarsii": {
+  "scientific_name": "Dilobeia thouarsii",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 706
+ },
+ "Dombeya lucida": {
+  "scientific_name": "Dombeya lucida",
+  "native_range": [
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 556
+ },
+ "Elaeocarpus quadrilobus": {
+  "scientific_name": "Elaeocarpus quadrilobus",
+  "native_range": [],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 1
+ },
+ "Eugenia parkeri": {
+  "scientific_name": "Eugenia parkeri",
+  "native_range": [],
+  "countries": [
+   "MG",
+   "BR"
+  ],
+  "occurrence_count": 9
+ },
+ "Faucherea ambrensis": {
+  "scientific_name": "Faucherea ambrensis",
+  "native_range": [
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 131
+ },
+ "Faucherea parvifolia": {
+  "scientific_name": "Faucherea parvifolia",
+  "native_range": [],
+  "countries": [
+   "MG",
+   "BR"
+  ],
+  "occurrence_count": 211
+ },
+ "Foetidia clusioides": {
+  "scientific_name": "Foetidia clusioides",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 93
+ },
+ "Garcinia verrucosa": {
+  "scientific_name": "Garcinia verrucosa",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "BR"
+  ],
+  "occurrence_count": 1254
+ },
+ "Grewia brideliaefolia": {
+  "scientific_name": "Grewia brideliaefolia",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "ZZ"
+  ],
+  "occurrence_count": 321
+ },
+ "Hernandia voyroni": {
+  "scientific_name": "Hernandia voyroni",
+  "native_range": [
+   "Madagascar"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 107
+ },
+ "Hibiscus lasiococcus": {
+  "scientific_name": "Hibiscus lasiococcus",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "US",
+   "ZZ"
+  ],
+  "occurrence_count": 89
+ },
+ "Humbertia madagascariensis": {
+  "scientific_name": "Humbertia madagascariensis",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 213
+ },
+ "Labramia louvelii": {
+  "scientific_name": "Labramia louvelii",
+  "native_range": [
+   "E-Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 85
+ },
+ "Leptolaena multiflora": {
+  "scientific_name": "Leptolaena multiflora",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "ZZ"
+  ],
+  "occurrence_count": 615
+ },
+ "Macarisia pyramidata": {
+  "scientific_name": "Macarisia pyramidata",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 446
+ },
+ "Mammea bongo": {
+  "scientific_name": "Mammea bongo",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 207
+ },
+ "Neonauclea foveolata": {
+  "scientific_name": "Neonauclea foveolata",
+  "native_range": [],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 4
+ },
+ "Ocotea auriculata": {
+  "scientific_name": "Ocotea auriculata",
+  "native_range": [
+   "Panama; Venezuela (Aragua)",
+   "Venezuela",
+   "Global"
+  ],
+  "countries": [
+   "VE",
+   "CO"
+  ],
+  "occurrence_count": 12
+ },
+ "Ocotea cymosa": {
+  "scientific_name": "Ocotea cymosa",
+  "native_range": [
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "CH",
+   "ZZ"
+  ],
+  "occurrence_count": 616
+ },
+ "Ocotea faucherei": {
+  "scientific_name": "Ocotea faucherei",
+  "native_range": [],
+  "countries": [
+   "MG",
+   "GA",
+   "ZZ"
+  ],
+  "occurrence_count": 31
+ },
+ "Ocotea laevis": {
+  "scientific_name": "Ocotea laevis",
+  "native_range": [],
+  "countries": [
+   "MG",
+   "GY",
+   "ZZ"
+  ],
+  "occurrence_count": 159
+ },
+ "Ocotea macrocarpa": {
+  "scientific_name": "Ocotea macrocarpa",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "BR",
+   "ZZ"
+  ],
+  "occurrence_count": 93
+ },
+ "Ocotea platydisca": {
+  "scientific_name": "Ocotea platydisca",
+  "native_range": [],
+  "countries": [
+   "MG",
+   "ZZ"
+  ],
+  "occurrence_count": 7
+ },
+ "Ocotea racemosa": {
+  "scientific_name": "Ocotea racemosa",
+  "native_range": [
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "KM",
+   "BR",
+   "ZZ"
+  ],
+  "occurrence_count": 1679
+ },
+ "Ocotea thouvenotii": {
+  "scientific_name": "Ocotea thouvenotii",
+  "native_range": [
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "ZZ"
+  ],
+  "occurrence_count": 183
+ },
+ "Ocotea trichophlebia": {
+  "scientific_name": "Ocotea trichophlebia",
+  "native_range": [
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "ZZ"
+  ],
+  "occurrence_count": 152
+ },
+ "Olea lancea": {
+  "scientific_name": "Olea lancea",
+  "native_range": [
+   "Madagascar; Mauritius; La Réunion; Rodrigues",
+   "Madagascar",
+   "Mauritius",
+   "Rodrigues",
+   "Réunion",
+   "Global"
+  ],
+  "countries": [
+   "RE",
+   "MU",
+   "MG",
+   "ZZ",
+   "MR"
+  ],
+  "occurrence_count": 2428
+ },
+ "Phyllarthron articulatum": {
+  "scientific_name": "Phyllarthron articulatum",
+  "native_range": [
+   "Madagascar; India (Maharashtra, Tamil Nadu, Uttar Pradesh, West Bengal)",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "ZZ"
+  ],
+  "occurrence_count": 63
+ },
+ "Phyllarthron madagascariense": {
+  "scientific_name": "Phyllarthron madagascariense",
+  "native_range": [],
+  "countries": [
+   "MG",
+   "ID"
+  ],
+  "occurrence_count": 122
+ },
+ "Polyscias ornifolia": {
+  "scientific_name": "Polyscias ornifolia",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "ES"
+  ],
+  "occurrence_count": 943
+ },
+ "Protorhus ditimena": {
+  "scientific_name": "Protorhus ditimena",
+  "native_range": [],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 32
+ },
+ "Protorhus thouarsii": {
+  "scientific_name": "Protorhus thouarsii",
+  "native_range": [
+   "Madagascar"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 12
+ },
+ "Ravensara ovalifolia": {
+  "scientific_name": "Ravensara ovalifolia",
+  "native_range": [],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 26
+ },
+ "Ravensara polyneura": {
+  "scientific_name": "Ravensara polyneura",
+  "native_range": [],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 17
+ },
+ "Ravensara retusa": {
+  "scientific_name": "Ravensara retusa",
+  "native_range": [],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 12
+ },
+ "Rhodolaena bakeriana": {
+  "scientific_name": "Rhodolaena bakeriana",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "ZZ"
+  ],
+  "occurrence_count": 437
+ },
+ "Sloanea rhodantha": {
+  "scientific_name": "Sloanea rhodantha",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 962
+ },
+ "Stereospermum variabile": {
+  "scientific_name": "Stereospermum variabile",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "ZA"
+  ],
+  "occurrence_count": 178
+ },
+ "Symphonia acuminata": {
+  "scientific_name": "Symphonia acuminata",
+  "native_range": [],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 11
+ },
+ "Symphonia fasciculata": {
+  "scientific_name": "Symphonia fasciculata",
+  "native_range": [
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 209
+ },
+ "Symphonia louvelii": {
+  "scientific_name": "Symphonia louvelii",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 384
+ },
+ "Symphonia microphylla": {
+  "scientific_name": "Symphonia microphylla",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "CO"
+  ],
+  "occurrence_count": 262
+ },
+ "Symphonia tanalensis": {
+  "scientific_name": "Symphonia tanalensis",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 310
+ },
+ "Tambourissa thouvenotii": {
+  "scientific_name": "Tambourissa thouvenotii",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "BR"
+  ],
+  "occurrence_count": 405
+ },
+ "Terminalia mantaly": {
+  "scientific_name": "Terminalia mantaly",
+  "native_range": [
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "TW",
+   "BJ",
+   "IN",
+   "RE",
+   "NG"
+  ],
+  "occurrence_count": 743
+ },
+ "Terminalia tetrandra": {
+  "scientific_name": "Terminalia tetrandra",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 195
+ },
+ "Terminaliopsis tetrandus": {
+  "scientific_name": "Terminaliopsis tetrandus",
+  "native_range": [],
+  "countries": [],
+  "occurrence_count": 0
+ },
+ "Tinopsis apiculata": {
+  "scientific_name": "Tinopsis apiculata",
+  "native_range": [],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 25
+ },
+ "Trilepisium madagascariense": {
+  "scientific_name": "Trilepisium madagascariense",
+  "native_range": [
+   "Guinea; Sierra Leone; Liberia; Ivory Coast; Ghana; Togo; Benin; Nigeria; Cameroon; São Tomé; Gabon; Gabon; Congo [Brazzaville]; Central African Republic; D.R.Congo [Zaire]; South Sudan; Ethiopia; Uganda; Kenya; Tanzania; Angola; Zambia; Malawi; Zimbabwe; Mozambique; South Africa (Limpopo); Madagascar; Seychelles",
+   "Angola",
+   "Benin",
+   "Cameroon",
+   "Central African Republic",
+   "Congo"
+  ],
+  "countries": [
+   "MG",
+   "CM",
+   "CD",
+   "BJ",
+   "GN",
+   "TZ"
+  ],
+  "occurrence_count": 3683
+ },
+ "Uapaca densifolia": {
+  "scientific_name": "Uapaca densifolia",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 1261
+ },
+ "Uapaca louvelii": {
+  "scientific_name": "Uapaca louvelii",
+  "native_range": [
+   "E-Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "BR"
+  ],
+  "occurrence_count": 423
+ },
+ "Uapaca thouarsii": {
+  "scientific_name": "Uapaca thouarsii",
+  "native_range": [
+   "E-Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 793
+ },
+ "Weinmannia minutiflora": {
+  "scientific_name": "Weinmannia minutiflora",
+  "native_range": [
+   "Parque Nacional Natural Chingaza"
+  ],
+  "countries": [
+   "AU",
+   "NZ",
+   "CO",
+   "NC",
+   "BR",
+   "PG"
+  ],
+  "occurrence_count": 190957
+ },
+ "Weinmannia rutenbergii": {
+  "scientific_name": "Weinmannia rutenbergii",
+  "native_range": [],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 450
+ },
+ "Xanthocercis madagascariensis": {
+  "scientific_name": "Xanthocercis madagascariensis",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG",
+   "GA",
+   "CA",
+   "MW",
+   "NL"
+  ],
+  "occurrence_count": 506
+ },
+ "Zanthoxylum tsihanimposa": {
+  "scientific_name": "Zanthoxylum tsihanimposa",
+  "native_range": [
+   "Madagascar",
+   "Madagascar",
+   "Global"
+  ],
+  "countries": [
+   "MG"
+  ],
+  "occurrence_count": 128
  }
 }

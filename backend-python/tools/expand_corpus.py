@@ -187,8 +187,10 @@ def parse_wood_density(africa_only: bool = True) -> dict[str, dict]:
         taxon, locality = occ.get(row["Occurrence ID"], (None, ""))
         if not taxon:
             continue
-        if africa_only and AFRICA_MARKER not in locality.lower():
-            continue
+        if africa_only:
+            low = locality.lower()
+            if AFRICA_MARKER not in low and not any(c.lower() in low for c in AFRICAN_COUNTRIES):
+                continue
         try:
             value = float(row["Measurement Value"])
         except (TypeError, ValueError):

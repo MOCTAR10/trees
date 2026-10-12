@@ -1,5 +1,6 @@
 """Phase 1 endpoint: full measurement pipeline -> structured forestry report."""
 
+import json
 import logging
 
 import cv2
@@ -52,11 +53,140 @@ def _bark_health(image_bgr: np.ndarray) -> str:
     return "saine_apparence"
 
 
+_ORGAN_ALIASES = {
+    "bark": "bark",
+    "trunk": "bark",
+    "ecorce": "bark",
+    "écorce": "bark",
+    "leaf": "leaf",
+    "leaves": "leaf",
+    "feuille": "leaf",
+    "feuilles": "leaf",
+    "flower": "flower",
+    "fleur": "flower",
+    "fruit": "fruit",
+    "whole": "auto",
+    "habit": "auto",
+    "habitat": "auto",
+    "auto": "auto",
+}
+
+# Lower rank = more informative for identification (Pl@ntNet organ priority).
+_ORGAN_PRIORITY = {"flower": 0, "fruit": 1, "leaf": 2, "auto": 3, "bark": 4}
+_PLANTNET_MAX_IMAGES = 5
+_PER_ORGAN_CAP = 3
+
+
+def _norm_organ(value: str | None) -> str:
+    """Map a free-form organ label to a Pl@ntNet organ (bark/leaf/flower/fruit/auto)."""
+    if not value:
+        return "auto"
+    return _ORGAN_ALIASES.get(value.strip().lower(), "auto")
+
+
+async def _collect_views(
+    limit: int,
+    singulars: list[tuple[UploadFile | None, str]],
+    images: list[UploadFile] | None,
+    organs: list[str] | None,
+    azimuths: list[int] | None,
+) -> list[dict]:
+    """Normalise legacy singular fields + repeated lists into decoded view dicts."""
+    raw: list[tuple[bytes, str, int | None]] = []
+    for upload, organ in singulars:
+        if upload is not None:
+            raw.append((await _read_capped(upload, limit), organ, None))
+    for i, upload in enumerate(images or []):
+        if upload is None:
+            continue
+        organ = _norm_organ(organs[i]) if organs and i < len(organs) else "auto"
+        azimuth = azimuths[i] if azimuths and i < len(azimuths) else None
+        if azimuth is not None and azimuth < 0:
+            azimuth = None
+        raw.append((await _read_capped(upload, limit), organ, azimuth))
+
+    views: list[dict] = []
+    for data, organ, azimuth in raw:
+        image = _decode(data)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        views.append(
+            {
+                "bytes": data,
+                "organ": organ,
+                "azimuth": azimuth,
+                "bgr": image,
+                "sharpness": float(cv2.Laplacian(gray, cv2.CV_64F).var()),
+            }
+        )
+    return views
+
+
+def _select_views(views: list[dict], max_images: int = _PLANTNET_MAX_IMAGES) -> list[dict]:
+    """Pick the most informative views for Pl@ntNet (organ priority, then sharpness)."""
+    ordered = sorted(views, key=lambda v: (_ORGAN_PRIORITY.get(v["organ"], 3), -v["sharpness"]))
+    selected: list[dict] = []
+    per_organ: dict[str, int] = {}
+    for view in ordered:
+        if len(selected) >= max_images:
+            break
+        organ = view["organ"]
+        if per_organ.get(organ, 0) >= _PER_ORGAN_CAP:
+            continue
+        selected.append(view)
+        per_organ[organ] = per_organ.get(organ, 0) + 1
+    return selected
+
+
+def _measure_dbh_multi(
+    views: list[dict], ar_depth_m: float | None, focal_px: float | None
+) -> tuple[float | None, str, float | None]:
+    """Average DBH across trunk/bark views (falls back to a single measurement)."""
+    if not (ar_depth_m and focal_px):
+        return None, "mock", None
+    trunk_views = [v for v in views if v["organ"] == "bark"] or views
+    dbhs: list[float] = []
+    confs: list[float] = []
+    methods: list[str] = []
+    for view in trunk_views:
+        try:
+            measurement = measure_dbh(view["bgr"], depth_m=ar_depth_m, focal_px=focal_px)
+        except RuntimeError as exc:
+            logger.warning("DBH measurement skipped: %s", exc)
+            continue
+        dbhs.append(measurement.dbh_cm)
+        methods.append(measurement.method)
+        confs.append(measurement.confidence or 0.0)
+    if not dbhs:
+        return None, "mock", None
+    if len(dbhs) == 1:
+        return dbhs[0], methods[0], confs[0]
+    return sum(dbhs) / len(dbhs), "multi_view_avg", sum(confs) / len(confs)
+
+
+def _aggregate_health(views: list[dict]) -> str:
+    """Worst-case health read across bark views (falls back to the first view)."""
+    trunk_views = [v for v in views if v["organ"] == "bark"] or views
+    readings = [_bark_health(v["bgr"]) for v in trunk_views]
+    for bad in ("anomalie_sombre_possible", "surface_lisse_a_verifier"):
+        if bad in readings:
+            return bad
+    return readings[0] if readings else "saine_apparence"
+
+
 @router.post("/process-scan", response_model=V1Report)
 async def process_scan(
-    trunk_image: UploadFile = File(..., description="Vue 1 : écorce / tronc"),
-    leaf_image: UploadFile = File(..., description="Vue 2 : feuilles"),
-    habitat_image: UploadFile = File(..., description="Vue 3 : contexte habitat"),
+    trunk_image: UploadFile | None = File(None, description="Vue écorce / tronc (legacy)"),
+    leaf_image: UploadFile | None = File(None, description="Vue feuilles (legacy)"),
+    habitat_image: UploadFile | None = File(None, description="Vue habitat (legacy)"),
+    images: list[UploadFile] | None = File(
+        None, description="Vues multiples (organes fournis par le paramètre organs)"
+    ),
+    organs: list[str] | None = Form(
+        None, description="Organe de chaque vue: bark/leaf/flower/fruit/whole"
+    ),
+    azimuths: list[int] | None = Form(
+        None, description="Azimut (degrés) de chaque vue autour du tronc"
+    ),
     latitude: float = Form(...),
     longitude: float = Form(...),
     ar_depth_m: float | None = Form(None, description="Distance tronc- téléphone à 1,30 m"),
@@ -64,18 +194,24 @@ async def process_scan(
     user: dict | None = Depends(get_optional_user),
 ):
     limit = get_settings().max_image_bytes
-    trunk_bytes = await _read_capped(trunk_image, limit)
-    leaf_bytes = await _read_capped(leaf_image, limit)
-    trunk_img = _decode(trunk_bytes)
-    _decode(leaf_bytes)  # validate the leaf view is a decodable image
+    views = await _collect_views(
+        limit,
+        [(trunk_image, "bark"), (leaf_image, "leaf"), (habitat_image, "auto")],
+        images,
+        organs,
+        azimuths,
+    )
+    if not views:
+        raise HTTPException(status_code=400, detail="Au moins une image est requise")
 
     # --- STEP 2: species identification (Pl@ntNet multi-organ fusion) ---
     species_name = None
     species_score = None
     try:
+        selected = _select_views(views)
         pn = await plantnet.identify(
-            images=[trunk_bytes, leaf_bytes],
-            organs=["bark", "leaf"],
+            images=[v["bytes"] for v in selected],
+            organs=[v["organ"] for v in selected],
             lang="fr",
         )
         species_name = pn.scientific_name
@@ -92,16 +228,8 @@ async def process_scan(
         except Exception as exc:
             logger.warning("GBIF location cross-check skipped: %s", exc)
 
-    # --- STEP 3: DBH via YOLO+OpenCV hybrid ---
-    dbh_cm, dbh_method, dbh_conf = None, "mock", None
-    if ar_depth_m and focal_px:
-        try:
-            measurement = measure_dbh(trunk_img, depth_m=ar_depth_m, focal_px=focal_px)
-            dbh_cm = measurement.dbh_cm
-            dbh_method = measurement.method
-            dbh_conf = measurement.confidence
-        except RuntimeError as exc:
-            logger.warning("DBH measurement skipped: %s", exc)
+    # --- STEP 3: DBH via YOLO+OpenCV hybrid (averaged over trunk/bark views) ---
+    dbh_cm, dbh_method, dbh_conf = _measure_dbh_multi(views, ar_depth_m, focal_px)
 
     # --- STEP 4: geospatial context ---
     soil = None
@@ -128,8 +256,8 @@ async def process_scan(
         except ValueError:
             model_label = "asymptote_reached_undefined"
 
-    # --- Health heuristic ---
-    health = _bark_health(trunk_img)
+    # --- Health heuristic (worst-case across bark views) ---
+    health = _aggregate_health(views)
 
     # --- STEP 6: grounded retrieval (Phase-1 RAG) + French narrative via Groq ---
     profile = resolve_species(species_name)
@@ -171,6 +299,13 @@ async def process_scan(
         logger.warning("Groq narrative skipped: %s", exc)
 
     # --- Persist ---
+    image_urls: dict[str, list[str]] = {}
+    for i, view in enumerate(views):
+        image_urls.setdefault(view["organ"], []).append(f"stored://{view['organ']}/{i}")
+    view_meta = [
+        {"organ": v["organ"], "azimuth": v["azimuth"], "sharpness": round(v["sharpness"], 1)}
+        for v in views
+    ]
     try:
         await db.execute(
             """
@@ -178,9 +313,10 @@ async def process_scan(
                 species_scientific_name, species_confidence,
                 geom, measured_dbh_cm, dbh_method, dbh_confidence,
                 estimated_height_m, estimated_age_years, age_model_used,
-                soil_type, canopy_density_fcd, image_trunk_url, image_leaf_url,
-                image_habitat_url, ar_depth_m, camera_focal_px, user_id
-            ) VALUES ($1, $2, ST_SetSRID(ST_MakePoint($4, $3), 4326), $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+                soil_type, canopy_density_fcd, health_status, image_trunk_url, image_leaf_url,
+                image_habitat_url, ar_depth_m, camera_focal_px, user_id,
+                image_urls, view_meta
+            ) VALUES ($1, $2, ST_SetSRID(ST_MakePoint($4, $3), 4326), $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20::jsonb, $21::jsonb)
             RETURNING id
             """,
             species_name,
@@ -195,12 +331,15 @@ async def process_scan(
             model_label,
             soil,
             fcd,
+            health,
             "stored://trunk",
             "stored://leaf",
             "stored://habitat",
             ar_depth_m,
             focal_px,
             user["id"] if user else None,
+            json.dumps(image_urls),
+            json.dumps(view_meta),
         )
     except Exception as exc:
         logger.warning("v1 persistence failed (report still returned): %s", exc)

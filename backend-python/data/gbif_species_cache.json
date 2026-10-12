@@ -10909,5 +10909,927 @@
    "Buffalo-Thorn Jujube",
    "Wait-A-Bit Tree"
   ]
+ },
+ "Alluaudia procera": {
+  "scientific_name": "Alluaudia procera",
+  "match": {
+   "usageKey": 5687098,
+   "scientificName": "Alluaudia procera (Drake) Drake",
+   "status": "ACCEPTED",
+   "family": "Didiereaceae"
+  },
+  "vernacular_fr": [
+   "Arbre Pieuvre"
+  ],
+  "vernacular_en": [
+   "Madagascar Ocotillo"
+  ]
+ },
+ "Anthostema madagascariense": {
+  "scientific_name": "Anthostema madagascariense",
+  "match": {
+   "usageKey": 3055963,
+   "scientificName": "Anthostema madagascariense Baill.",
+   "status": "ACCEPTED",
+   "family": "Euphorbiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Apodocephala pauciflora": {
+  "scientific_name": "Apodocephala pauciflora",
+  "match": {
+   "usageKey": 3149934,
+   "scientificName": "Apodocephala pauciflora Baker",
+   "status": "ACCEPTED",
+   "family": "Asteraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Apollonias velutina": {
+  "scientific_name": "Apollonias velutina",
+  "match": {
+   "usageKey": 4179730,
+   "scientificName": "Apollonias velutina Kosterm.",
+   "status": "SYNONYM",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Asteropeia rhopaloides": {
+  "scientific_name": "Asteropeia rhopaloides",
+  "match": {
+   "usageKey": 3761062,
+   "scientificName": "Asteropeia rhopaloides (Baker) Baill.",
+   "status": "ACCEPTED",
+   "family": "Asteropeiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Beilschmiedia velutina": {
+  "scientific_name": "Beilschmiedia velutina",
+  "match": {
+   "usageKey": 4182692,
+   "scientificName": "Beilschmiedia velutina Kosterm.",
+   "status": "ACCEPTED",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Brachylaena ramiflora": {
+  "scientific_name": "Brachylaena ramiflora",
+  "match": {
+   "usageKey": 3140969,
+   "scientificName": "Brachylaena ramiflora Humbert",
+   "status": "ACCEPTED",
+   "family": "Asteraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Breonia decidua": {
+  "scientific_name": "Breonia decidua",
+  "match": {
+   "usageKey": 2911259,
+   "scientificName": "Breonia A.Rich. ex DC.",
+   "status": "ACCEPTED",
+   "family": "Rubiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Breonia keliravina": {
+  "scientific_name": "Breonia keliravina",
+  "match": {
+   "usageKey": 2911277,
+   "scientificName": "Breonia keliravina Homolle",
+   "status": "SYNONYM",
+   "family": "Rubiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Breonia madagascariensis": {
+  "scientific_name": "Breonia madagascariensis",
+  "match": {
+   "usageKey": 2911280,
+   "scientificName": "Breonia madagascariensis A.Rich. ex DC.",
+   "status": "ACCEPTED",
+   "family": "Rubiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Breonia perrieri": {
+  "scientific_name": "Breonia perrieri",
+  "match": {
+   "usageKey": 2911287,
+   "scientificName": "Breonia perrieri Homolle",
+   "status": "ACCEPTED",
+   "family": "Rubiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Bridelia tulasneana": {
+  "scientific_name": "Bridelia tulasneana",
+  "match": {
+   "usageKey": 3076173,
+   "scientificName": "Bridelia tulasneana Baill.",
+   "status": "ACCEPTED",
+   "family": "Phyllanthaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Broussonetia greveanus": {
+  "scientific_name": "Broussonetia greveanus",
+  "match": {
+   "usageKey": 5569781,
+   "scientificName": "Broussonetia greveana (Baill.) C.C.Berg",
+   "status": "SYNONYM",
+   "family": "Moraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Calophyllum drouhardii": {
+  "scientific_name": "Calophyllum drouhardii",
+  "match": {
+   "usageKey": 8265639,
+   "scientificName": "Calophyllum drouhardii H.Perrier",
+   "status": "ACCEPTED",
+   "family": "Calophyllaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Calophyllum parviflorum": {
+  "scientific_name": "Calophyllum parviflorum",
+  "match": {
+   "usageKey": 7669145,
+   "scientificName": "Calophyllum parviflorum Bojer ex Baker",
+   "status": "ACCEPTED",
+   "family": "Calophyllaceae"
+  },
+  "vernacular_fr": [
+   "Tatamaka a petite feuilles"
+  ],
+  "vernacular_en": []
+ },
+ "Canarium madagascariense": {
+  "scientific_name": "Canarium madagascariense",
+  "match": {
+   "usageKey": 5636178,
+   "scientificName": "Canarium madagascariense Engl.",
+   "status": "ACCEPTED",
+   "family": "Burseraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Chrysophyllum madagascariensis": {
+  "scientific_name": "Chrysophyllum madagascariensis",
+  "match": {
+   "usageKey": 2885576,
+   "scientificName": "Chrysophyllum L.",
+   "status": "ACCEPTED",
+   "family": "Sapotaceae"
+  },
+  "vernacular_fr": [
+   "Jacquinie, Chrysophylle, Chrysophyllum"
+  ],
+  "vernacular_en": [
+   "Goldenleaf"
+  ]
+ },
+ "Colubrina faralaotra": {
+  "scientific_name": "Colubrina faralaotra",
+  "match": {
+   "usageKey": 5603148,
+   "scientificName": "Colubrina faralaotra (H.Perrier) Capuron",
+   "status": "ACCEPTED",
+   "family": "Rhamnaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Commiphora barorum": {
+  "scientific_name": "Commiphora barorum",
+  "match": {
+   "usageKey": 11147639,
+   "scientificName": "Commiphora barorum Mscr.",
+   "status": "ACCEPTED",
+   "family": "Burseraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Commiphora pterocarpa": {
+  "scientific_name": "Commiphora pterocarpa",
+  "match": {
+   "usageKey": 3993761,
+   "scientificName": "Commiphora pterocarpa H.Perrier",
+   "status": "ACCEPTED",
+   "family": "Burseraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Cordyla madagascariensis": {
+  "scientific_name": "Cordyla madagascariensis",
+  "match": {
+   "usageKey": 5358327,
+   "scientificName": "Cordyla madagascariensis R.Vig.",
+   "status": "ACCEPTED",
+   "family": "Fabaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Craspidospermum verticillatum": {
+  "scientific_name": "Craspidospermum verticillatum",
+  "match": {
+   "usageKey": 8116531,
+   "scientificName": "Craspidospermum verticillatum Bojer ex Decne.",
+   "status": "ACCEPTED",
+   "family": "Apocynaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Cryptocarya louvelii": {
+  "scientific_name": "Cryptocarya louvelii",
+  "match": {
+   "usageKey": 4175719,
+   "scientificName": "Cryptocarya louvelii Danguy",
+   "status": "ACCEPTED",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Cryptocarya thouvenotii": {
+  "scientific_name": "Cryptocarya thouvenotii",
+  "match": {
+   "usageKey": 4181227,
+   "scientificName": "Cryptocarya thouvenotii (Danguy) Kosterm.",
+   "status": "ACCEPTED",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Dalbergia greveana": {
+  "scientific_name": "Dalbergia greveana",
+  "match": {
+   "usageKey": 2968520,
+   "scientificName": "Dalbergia greveana Baill.",
+   "status": "ACCEPTED",
+   "family": "Fabaceae"
+  },
+  "vernacular_fr": [
+   "Palissandre foncé"
+  ],
+  "vernacular_en": []
+ },
+ "Dilobeia thouarsii": {
+  "scientific_name": "Dilobeia thouarsii",
+  "match": {
+   "usageKey": 7590974,
+   "scientificName": "Dilobeia thouarsii Roem. & Schult.",
+   "status": "ACCEPTED",
+   "family": "Proteaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": [
+   "Common Vivaona"
+  ]
+ },
+ "Dombeya lucida": {
+  "scientific_name": "Dombeya lucida",
+  "match": {
+   "usageKey": 7751948,
+   "scientificName": "Dombeya lucida Baill.",
+   "status": "ACCEPTED",
+   "family": "Malvaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Elaeocarpus quadrilobus": {
+  "scientific_name": "Elaeocarpus quadrilobus",
+  "match": {
+   "usageKey": 4031164,
+   "scientificName": "Elaeocarpus quadrilobus Jum. & H.Perrier",
+   "status": "SYNONYM",
+   "family": "Elaeocarpaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Eugenia parkeri": {
+  "scientific_name": "Eugenia parkeri",
+  "match": {
+   "usageKey": 5419320,
+   "scientificName": "Eugenia parkeri Baker",
+   "status": "SYNONYM",
+   "family": "Myrtaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Faucherea ambrensis": {
+  "scientific_name": "Faucherea ambrensis",
+  "match": {
+   "usageKey": 2883941,
+   "scientificName": "Faucherea ambrensis Aubrév.",
+   "status": "ACCEPTED",
+   "family": "Sapotaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Faucherea parvifolia": {
+  "scientific_name": "Faucherea parvifolia",
+  "match": {
+   "usageKey": 2883932,
+   "scientificName": "Faucherea parvifolia Lecomte",
+   "status": "ACCEPTED",
+   "family": "Sapotaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Foetidia clusioides": {
+  "scientific_name": "Foetidia clusioides",
+  "match": {
+   "usageKey": 3083073,
+   "scientificName": "Foetidia clusioides Baker",
+   "status": "ACCEPTED",
+   "family": "Lecythidaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Garcinia verrucosa": {
+  "scientific_name": "Garcinia verrucosa",
+  "match": {
+   "usageKey": 3712332,
+   "scientificName": "Garcinia verrucosa Jum. & H.Perrier",
+   "status": "ACCEPTED",
+   "family": "Clusiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Grewia brideliaefolia": {
+  "scientific_name": "Grewia brideliaefolia",
+  "match": {
+   "usageKey": 4260897,
+   "scientificName": "Grewia brideliifolia Baill.",
+   "status": "ACCEPTED",
+   "family": "Malvaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Hernandia voyroni": {
+  "scientific_name": "Hernandia voyroni",
+  "match": {
+   "usageKey": 7807378,
+   "scientificName": "Hernandia voyronii Jum.",
+   "status": "SYNONYM",
+   "family": "Hernandiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Hibiscus lasiococcus": {
+  "scientific_name": "Hibiscus lasiococcus",
+  "match": {
+   "usageKey": 3936064,
+   "scientificName": "Hibiscus lasiococcus Baill.",
+   "status": "ACCEPTED",
+   "family": "Malvaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Humbertia madagascariensis": {
+  "scientific_name": "Humbertia madagascariensis",
+  "match": {
+   "usageKey": 5549091,
+   "scientificName": "Humbertia madagascariensis Lam.",
+   "status": "ACCEPTED",
+   "family": "Convolvulaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Labramia louvelii": {
+  "scientific_name": "Labramia louvelii",
+  "match": {
+   "usageKey": 2886311,
+   "scientificName": "Labramia louvelii Aubrév.",
+   "status": "ACCEPTED",
+   "family": "Sapotaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Leptolaena multiflora": {
+  "scientific_name": "Leptolaena multiflora",
+  "match": {
+   "usageKey": 3783225,
+   "scientificName": "Leptolaena multiflora Thouars",
+   "status": "ACCEPTED",
+   "family": "Sarcolaenaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Macarisia pyramidata": {
+  "scientific_name": "Macarisia pyramidata",
+  "match": {
+   "usageKey": 3873874,
+   "scientificName": "Macarisia pyramidata Thouars",
+   "status": "ACCEPTED",
+   "family": "Rhizophoraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Mammea bongo": {
+  "scientific_name": "Mammea bongo",
+  "match": {
+   "usageKey": 7386783,
+   "scientificName": "Mammea bongo (R.Vig. & Humbert) Kosterm.",
+   "status": "ACCEPTED",
+   "family": "Calophyllaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Neonauclea foveolata": {
+  "scientific_name": "Neonauclea foveolata",
+  "match": {
+   "usageKey": 2900033,
+   "scientificName": "Neonauclea foveolata Capuron",
+   "status": "SYNONYM",
+   "family": "Rubiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Ocotea auriculata": {
+  "scientific_name": "Ocotea auriculata",
+  "match": {
+   "usageKey": 4177387,
+   "scientificName": "Ocotea auriculata Lasser",
+   "status": "ACCEPTED",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [
+   "Ocotéa Auriculé"
+  ],
+  "vernacular_en": [
+   "Auriculate Ocotea"
+  ]
+ },
+ "Ocotea cymosa": {
+  "scientific_name": "Ocotea cymosa",
+  "match": {
+   "usageKey": 7373619,
+   "scientificName": "Ocotea cymosa (Nees) Palacký",
+   "status": "SYNONYM",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Ocotea faucherei": {
+  "scientific_name": "Ocotea faucherei",
+  "match": {
+   "usageKey": 4181938,
+   "scientificName": "Ocotea faucherei (Danguy) Kosterm.",
+   "status": "SYNONYM",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Ocotea laevis": {
+  "scientific_name": "Ocotea laevis",
+  "match": {
+   "usageKey": 4180005,
+   "scientificName": "Ocotea laevis Kosterm.",
+   "status": "SYNONYM",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Ocotea macrocarpa": {
+  "scientific_name": "Ocotea macrocarpa",
+  "match": {
+   "usageKey": 4179241,
+   "scientificName": "Ocotea macrocarpa Kosterm.",
+   "status": "ACCEPTED",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Ocotea platydisca": {
+  "scientific_name": "Ocotea platydisca",
+  "match": {
+   "usageKey": 4176632,
+   "scientificName": "Ocotea platydisca Kosterm.",
+   "status": "SYNONYM",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Ocotea racemosa": {
+  "scientific_name": "Ocotea racemosa",
+  "match": {
+   "usageKey": 4175818,
+   "scientificName": "Ocotea racemosa (Danguy) Kosterm.",
+   "status": "SYNONYM",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Ocotea thouvenotii": {
+  "scientific_name": "Ocotea thouvenotii",
+  "match": {
+   "usageKey": 4181664,
+   "scientificName": "Ocotea thouvenotii (Danguy) Kosterm.",
+   "status": "SYNONYM",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Ocotea trichophlebia": {
+  "scientific_name": "Ocotea trichophlebia",
+  "match": {
+   "usageKey": 4181497,
+   "scientificName": "Ocotea trichophlebia Baker",
+   "status": "SYNONYM",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Olea lancea": {
+  "scientific_name": "Olea lancea",
+  "match": {
+   "usageKey": 5549923,
+   "scientificName": "Olea lancea Lam.",
+   "status": "ACCEPTED",
+   "family": "Oleaceae"
+  },
+  "vernacular_fr": [
+   "Bois d'olive blanc"
+  ],
+  "vernacular_en": []
+ },
+ "Phyllarthron articulatum": {
+  "scientific_name": "Phyllarthron articulatum",
+  "match": {
+   "usageKey": 4091658,
+   "scientificName": "Phyllarthron articulatum (Desf.) K.Schum.",
+   "status": "ACCEPTED",
+   "family": "Bignoniaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Phyllarthron madagascariense": {
+  "scientific_name": "Phyllarthron madagascariense",
+  "match": {
+   "usageKey": 8113355,
+   "scientificName": "Phyllarthron madagascariense (Bojer) K.Schum.",
+   "status": "SYNONYM",
+   "family": "Bignoniaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Polyscias ornifolia": {
+  "scientific_name": "Polyscias ornifolia",
+  "match": {
+   "usageKey": 3035609,
+   "scientificName": "Polyscias ornifolia (Baker) Harms",
+   "status": "ACCEPTED",
+   "family": "Araliaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Protorhus ditimena": {
+  "scientific_name": "Protorhus ditimena",
+  "match": {
+   "usageKey": 3661345,
+   "scientificName": "Protorhus ditimena H.Perrier",
+   "status": "SYNONYM",
+   "family": "Anacardiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Protorhus thouarsii": {
+  "scientific_name": "Protorhus thouarsii",
+  "match": {
+   "usageKey": 3661216,
+   "scientificName": "Protorhus thouarsii Engl.",
+   "status": "SYNONYM",
+   "family": "Anacardiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Ravensara ovalifolia": {
+  "scientific_name": "Ravensara ovalifolia",
+  "match": {
+   "usageKey": 4179474,
+   "scientificName": "Ravensara ovalifolia Danguy",
+   "status": "SYNONYM",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Ravensara polyneura": {
+  "scientific_name": "Ravensara polyneura",
+  "match": {
+   "usageKey": 4179410,
+   "scientificName": "Ravensara polyneura Kosterm.",
+   "status": "SYNONYM",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Ravensara retusa": {
+  "scientific_name": "Ravensara retusa",
+  "match": {
+   "usageKey": 4179400,
+   "scientificName": "Ravensara retusa (Willd. ex Meisn.) Baill.",
+   "status": "SYNONYM",
+   "family": "Lauraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Rhodolaena bakeriana": {
+  "scientific_name": "Rhodolaena bakeriana",
+  "match": {
+   "usageKey": 3783222,
+   "scientificName": "Rhodolaena bakeriana Baill.",
+   "status": "ACCEPTED",
+   "family": "Sarcolaenaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Sloanea rhodantha": {
+  "scientific_name": "Sloanea rhodantha",
+  "match": {
+   "usageKey": 7291069,
+   "scientificName": "Sloanea rhodantha (Baker) Capuron",
+   "status": "ACCEPTED",
+   "family": "Elaeocarpaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Stereospermum variabile": {
+  "scientific_name": "Stereospermum variabile",
+  "match": {
+   "usageKey": 4091906,
+   "scientificName": "Stereospermum variabile H.Perrier",
+   "status": "ACCEPTED",
+   "family": "Bignoniaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Symphonia acuminata": {
+  "scientific_name": "Symphonia acuminata",
+  "match": {
+   "usageKey": 5555854,
+   "scientificName": "Symphonia acuminata Baker",
+   "status": "SYNONYM",
+   "family": "Clusiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Symphonia fasciculata": {
+  "scientific_name": "Symphonia fasciculata",
+  "match": {
+   "usageKey": 5555836,
+   "scientificName": "Symphonia fasciculata (Noronha ex Thouars) Vesque",
+   "status": "ACCEPTED",
+   "family": "Clusiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Symphonia louvelii": {
+  "scientific_name": "Symphonia louvelii",
+  "match": {
+   "usageKey": 5555807,
+   "scientificName": "Symphonia louvelii Jum.",
+   "status": "ACCEPTED",
+   "family": "Clusiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Symphonia microphylla": {
+  "scientific_name": "Symphonia microphylla",
+  "match": {
+   "usageKey": 5555801,
+   "scientificName": "Symphonia microphylla Benth. & Hook.fil. ex Vesque",
+   "status": "ACCEPTED",
+   "family": "Clusiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Symphonia tanalensis": {
+  "scientific_name": "Symphonia tanalensis",
+  "match": {
+   "usageKey": 5555790,
+   "scientificName": "Symphonia tanalensis Jum.",
+   "status": "ACCEPTED",
+   "family": "Clusiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Tambourissa thouvenotii": {
+  "scientific_name": "Tambourissa thouvenotii",
+  "match": {
+   "usageKey": 3783076,
+   "scientificName": "Tambourissa thouvenotii Danguy",
+   "status": "ACCEPTED",
+   "family": "Monimiaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Terminalia mantaly": {
+  "scientific_name": "Terminalia mantaly",
+  "match": {
+   "usageKey": 3699873,
+   "scientificName": "Terminalia mantaly H.Perrier",
+   "status": "SYNONYM",
+   "family": "Combretaceae"
+  },
+  "vernacular_fr": [
+   "Badamier à petites feuilles, Badamier de Madagascar"
+  ],
+  "vernacular_en": []
+ },
+ "Terminalia tetrandra": {
+  "scientific_name": "Terminalia tetrandra",
+  "match": {
+   "usageKey": 3699285,
+   "scientificName": "Terminalia tetrandra (Danguy) Capuron",
+   "status": "ACCEPTED",
+   "family": "Combretaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Terminaliopsis tetrandus": {
+  "scientific_name": "Terminaliopsis tetrandus",
+  "match": {
+   "usageKey": 8480300,
+   "scientificName": "Terminaliopsis tetrandus Danguy",
+   "status": "DOUBTFUL",
+   "family": "Combretaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Tinopsis apiculata": {
+  "scientific_name": "Tinopsis apiculata",
+  "match": {
+   "usageKey": 3786675,
+   "scientificName": "Tinopsis apiculata Radlk.",
+   "status": "SYNONYM",
+   "family": "Sapindaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Trilepisium madagascariense": {
+  "scientific_name": "Trilepisium madagascariense",
+  "match": {
+   "usageKey": 3766911,
+   "scientificName": "Trilepisium madagascariense DC.",
+   "status": "ACCEPTED",
+   "family": "Moraceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": [
+   "False Fig",
+   "False-Fig",
+   "Urn-Fig"
+  ]
+ },
+ "Uapaca densifolia": {
+  "scientific_name": "Uapaca densifolia",
+  "match": {
+   "usageKey": 3079839,
+   "scientificName": "Uapaca densifolia Baker",
+   "status": "ACCEPTED",
+   "family": "Phyllanthaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Uapaca louvelii": {
+  "scientific_name": "Uapaca louvelii",
+  "match": {
+   "usageKey": 3079913,
+   "scientificName": "Uapaca louvelii Denis",
+   "status": "ACCEPTED",
+   "family": "Phyllanthaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Uapaca thouarsii": {
+  "scientific_name": "Uapaca thouarsii",
+  "match": {
+   "usageKey": 3079875,
+   "scientificName": "Uapaca thouarsii Baill.",
+   "status": "ACCEPTED",
+   "family": "Phyllanthaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Weinmannia minutiflora": {
+  "scientific_name": "Weinmannia minutiflora",
+  "match": {
+   "usageKey": 2405,
+   "scientificName": "Cunoniaceae",
+   "status": "ACCEPTED",
+   "family": "Cunoniaceae"
+  },
+  "vernacular_fr": [
+   "Cunoniacées"
+  ],
+  "vernacular_en": [
+   "butterspoon family",
+   "wild alder family"
+  ]
+ },
+ "Weinmannia rutenbergii": {
+  "scientific_name": "Weinmannia rutenbergii",
+  "match": {
+   "usageKey": 3613548,
+   "scientificName": "Weinmannia rutenbergii Engl.",
+   "status": "SYNONYM",
+   "family": "Cunoniaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Xanthocercis madagascariensis": {
+  "scientific_name": "Xanthocercis madagascariensis",
+  "match": {
+   "usageKey": 2975470,
+   "scientificName": "Xanthocercis madagascariensis Baill.",
+   "status": "ACCEPTED",
+   "family": "Fabaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
+ },
+ "Zanthoxylum tsihanimposa": {
+  "scientific_name": "Zanthoxylum tsihanimposa",
+  "match": {
+   "usageKey": 3833425,
+   "scientificName": "Zanthoxylum tsihanimposa H.Perrier",
+   "status": "ACCEPTED",
+   "family": "Rutaceae"
+  },
+  "vernacular_fr": [],
+  "vernacular_en": []
  }
 }

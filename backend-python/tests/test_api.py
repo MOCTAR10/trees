@@ -396,3 +396,174 @@ def test_v2_references_from_rag(client, monkeypatch):
     refs = resp.json()["valorization_plan"]["references"]
     assert "knowledge/protocols/residue_protocols.json [loi_016_01]" in refs
     assert "knowledge/legal/frameworks.json" in refs
+
+
+def test_select_views_priority_and_cap():
+    from app.api.v1 import _norm_organ, _select_views
+
+    assert _norm_organ("Écorce") == "bark"
+    assert _norm_organ("whole") == "auto"
+    assert _norm_organ(None) == "auto"
+
+    views = [{"organ": "bark", "sharpness": 100.0} for _ in range(4)]
+    views += [
+        {"organ": "leaf", "sharpness": 50.0},
+        {"organ": "flower", "sharpness": 10.0},
+    ]
+    organs = [v["organ"] for v in _select_views(views)]
+    assert len(organs) == 5
+    assert organs[0] == "flower"
+    assert organs.count("leaf") == 1
+    assert organs.count("bark") == 3
+
+
+def test_v1_multi_view_uses_best_five(client, monkeypatch):
+    from app.api import v1
+
+    captured = {}
+    persisted = {}
+
+    async def fake_identify(images, organs, **kwargs):
+        captured["count"] = len(images)
+        captured["organs"] = list(organs)
+        return _FakePlantNet()
+
+    async def fake_validate(name, lat, lon):
+        return {"valid": True, "reason": "ok", "taxon": {}, "occurrences": 5}
+
+    async def fake_soil(lat, lon):
+        return {"soil_class": "clay"}
+
+    async def fake_fcd(lat, lon):
+        return {"fcd": 0.5, "source": "mock", "competition_level": None}
+
+    async def fake_narrative(system_prompt, user_prompt, **kwargs):
+        return "narratif"
+
+    async def fake_rag(**kwargs):
+        return []
+
+    async def fake_execute(sql, *args):
+        persisted["args"] = args
+        return "INSERT 0 1"
+
+    monkeypatch.setattr(v1, "plantnet", type("M", (), {"identify": staticmethod(fake_identify)})())
+    monkeypatch.setattr(
+        v1, "gbif", type("G", (), {"validate_species_for_location": staticmethod(fake_validate)})()
+    )
+    monkeypatch.setattr(v1, "soilgrids", type("S", (), {"fetch_soil": staticmethod(fake_soil)})())
+    monkeypatch.setattr(v1, "gee", type("E", (), {"canopy_density": staticmethod(fake_fcd)})())
+    monkeypatch.setattr(v1.groq_llm, "chat_text", fake_narrative)
+    monkeypatch.setattr(v1.rag, "query_forestry", fake_rag)
+    monkeypatch.setattr(v1.db, "execute", fake_execute)
+    monkeypatch.setattr(v1, "measure_dbh", lambda img, depth_m, focal_px: _FakeMeasure())
+
+    files = [
+        ("images", ("whole0.png", io.BytesIO(_png()), "image/png")),
+        ("images", ("bark1.png", io.BytesIO(_png()), "image/png")),
+        ("images", ("bark2.png", io.BytesIO(_png()), "image/png")),
+        ("images", ("bark3.png", io.BytesIO(_png()), "image/png")),
+        ("images", ("leaf1.png", io.BytesIO(_png((60, 140, 50))), "image/png")),
+        ("images", ("leaf2.png", io.BytesIO(_png((60, 140, 50))), "image/png")),
+        ("images", ("flower.png", io.BytesIO(_png((200, 120, 180))), "image/png")),
+        ("organs", (None, "whole")),
+        ("organs", (None, "bark")),
+        ("organs", (None, "bark")),
+        ("organs", (None, "bark")),
+        ("organs", (None, "leaf")),
+        ("organs", (None, "leaf")),
+        ("organs", (None, "flower")),
+        ("azimuths", (None, "0")),
+        ("azimuths", (None, "-1")),
+        ("azimuths", (None, "-1")),
+        ("azimuths", (None, "-1")),
+        ("azimuths", (None, "-1")),
+        ("azimuths", (None, "-1")),
+        ("azimuths", (None, "-1")),
+        ("latitude", (None, "0.4162")),
+        ("longitude", (None, "9.4541")),
+        ("ar_depth_m", (None, "1.30")),
+        ("focal_px", (None, "2200")),
+    ]
+    resp = client.post("/api/v1/process-scan", files=files)
+    assert resp.status_code == 200, resp.text
+    assert captured["count"] == 5
+    assert "flower" in captured["organs"]
+    assert "bark" in captured["organs"]
+    # Multiple bark views are averaged for DBH.
+    assert resp.json()["dbh_method"] == "multi_view_avg"
+    # Per-organ image refs + view metadata persisted as JSON payloads.
+    assert '"bark"' in persisted["args"][-2]
+    assert '"azimuth"' in persisted["args"][-1]
+
+
+def test_v1_requires_at_least_one_image(client):
+    resp = client.post(
+        "/api/v1/process-scan",
+        data={"latitude": "0.4162", "longitude": "9.4541"},
+    )
+    assert resp.status_code == 400
+
+
+def test_v2_links_registered_tree_code(client, monkeypatch):
+    import types
+
+    from app.api import v2
+    from tests.test_golden_regression import install_v2_fakes
+
+    install_v2_fakes(monkeypatch)
+
+    # Golden fakes use a slim residues double without persist fields.
+    full_residues = types.SimpleNamespace(
+        species="Aucoumea klaineana",
+        dbh_cm=62.5,
+        height_m=32.7,
+        total_agb_kg=3800.0,
+        total_bgb_kg=760.0,
+        volume_branches_m3=1.2,
+        weight_branches_fine_kg=120.0,
+        weight_branches_thick_kg=340.0,
+        weight_bark_kg=190.0,
+        weight_foliar_kg=160.0,
+        volume_stump_m3=0.45,
+        weight_stump_kg=315.0,
+        weight_roots_kg=150.0,
+        volume_sawdust_m3=0.12,
+        total_waste_biomass_kg=1275.0,
+        to_dict=lambda: {"species": "Aucoumea klaineana", "total_waste_biomass_kg": 1275.0},
+    )
+    monkeypatch.setattr(v2, "compute_residues", lambda **kwargs: full_residues)
+
+    async def fake_fetch_one(sql, *args):
+        if "from tree_registry" in " ".join(sql.split()).lower():
+            if args[0] == "GA-2026-0001":
+                return {"tree_code": "GA-2026-0001", "company_id": None}
+            return None
+        return None
+
+    persisted = {}
+
+    async def fake_execute(sql, *args):
+        persisted["args"] = args
+        return "INSERT 0 1"
+
+    monkeypatch.setattr(v2.db, "fetch_one", fake_fetch_one)
+    monkeypatch.setattr(v2.db, "execute", fake_execute)
+
+    base = {
+        "species_scientific_name": "Aucoumea klaineana",
+        "measured_dbh_cm": 62.5,
+        "latitude": 0.4162,
+        "longitude": 9.4541,
+    }
+    resp = client.post("/api/v2/process-scan", json={**base, "tree_code": "GA-2026-0001"})
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["tree_code"] == "GA-2026-0001"
+    assert persisted["args"][-1] == "GA-2026-0001"
+
+    missing = client.post("/api/v2/process-scan", json={**base, "tree_code": "GA-NOPE"})
+    assert missing.status_code == 404
+
+    plain = client.post("/api/v2/process-scan", json=base)
+    assert plain.status_code == 200, plain.text
+    assert plain.json()["tree_code"] is None

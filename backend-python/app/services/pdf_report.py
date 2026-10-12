@@ -405,3 +405,318 @@ def render_valorization_pdf(payload: dict) -> bytes:
         ),
     ]
     return _build(story, "Plan de valorisation — Économie Circulaire")
+
+
+DOC_TYPE_LABEL = {
+    "bordereau_roulage": "Bordereau de roulage",
+    "feuille_route": "Feuille de route",
+    "specification": "Spécification (export)",
+}
+TRANSPORT_STATUS_LABEL = {
+    "brouillon": "Brouillon",
+    "emis": "Émis",
+    "receptionne": "Réceptionné",
+}
+EUDR_STATUS_LABEL = {
+    "soumis": "Soumis",
+    "valide": "Validé",
+    "rejete": "Rejeté",
+}
+
+
+def _fmt_date(value: Any) -> str:
+    if value is None:
+        return ""
+    if hasattr(value, "strftime"):
+        return value.strftime("%d/%m/%Y")
+    return str(value)[:10]
+
+
+def render_df10_pdf(
+    rows: list[dict],
+    org_name: str | None = None,
+    title_id: int | None = None,
+    aac_id: int | None = None,
+) -> bytes:
+    """Carnet de chantier (DF10) register -> branded A4 PDF."""
+    rows = rows or []
+    felled = [
+        r for r in rows if r.get("status") in ("abattu", "transporte", "receptionne", "transforme")
+    ]
+    abandoned = [r for r in rows if r.get("abandon_code")]
+
+    scope = org_name or "—"
+    if title_id is not None:
+        scope += f" · Titre #{title_id}"
+    if aac_id is not None:
+        scope += f" · AAC #{aac_id}"
+
+    story: list = [
+        Paragraph("Carnet de chantier (DF10)", S_TITLE),
+        Paragraph(_safe(TAGLINE), S_SUB),
+        Spacer(1, 6 * mm),
+        _kv_table(
+            [
+                ("Opérateur", org_name or "—"),
+                ("Périmètre", scope),
+                ("Nombre de lignes", str(len(rows))),
+                ("Arbres abattus", str(len(felled))),
+                ("Arbres abandonnés", str(len(abandoned))),
+            ]
+        ),
+        Spacer(1, 4 * mm),
+        Paragraph("Registre des arbres marqués", S_H2),
+    ]
+
+    grid_rows = [
+        [
+            r.get("df10_entry_no") or "—",
+            r.get("tree_code"),
+            r.get("species_scientific_name"),
+            _fr_num(r.get("measured_dbh_cm"), 1),
+            _fmt_date(r.get("felled_at")),
+            r.get("abandon_label") or r.get("abandon_code") or "",
+            r.get("status"),
+        ]
+        for r in rows
+    ]
+    if grid_rows:
+        story.append(
+            _grid_table(
+                ["N° DF10", "Code", "Espèce", "DBH", "Abattu le", "Abandon", "Statut"],
+                grid_rows,
+                widths=[22 * mm, 20 * mm, None, 14 * mm, 20 * mm, 32 * mm, 20 * mm],
+            )
+        )
+    else:
+        story.append(Paragraph("Aucun arbre enregistré pour ce périmètre.", S_BODY))
+
+    story += [
+        Spacer(1, 5 * mm),
+        KeepTogether(
+            [
+                Paragraph("Base légale", S_H2),
+                Paragraph(
+                    _safe(
+                        "Carnet de chantier obligatoire — Code forestier gabonais (Loi 016/01, "
+                        "art. 130 à 133). Toute mauvaise tenue du carnet est sanctionnée (art. 275). "
+                        "Le présent carnet numérique reprend les mentions du DF10 papier."
+                    ),
+                    S_SMALL,
+                ),
+            ]
+        ),
+    ]
+    return _build(story, "Carnet de chantier (DF10)")
+
+
+def render_transport_pdf(doc: dict, trees: list[dict]) -> bytes:
+    """Transport document (bordereau / feuille de route / spécification) -> PDF."""
+    doc = doc or {}
+    trees = trees or []
+    doc_type = doc.get("doc_type")
+
+    story: list = [
+        Paragraph(_safe(DOC_TYPE_LABEL.get(doc_type, "Document de transport")), S_TITLE),
+        Paragraph(_safe(TAGLINE), S_SUB),
+        Spacer(1, 6 * mm),
+        _kv_table(
+            [
+                ("Référence", doc.get("reference")),
+                ("Type", DOC_TYPE_LABEL.get(doc_type, doc_type)),
+                ("Statut", TRANSPORT_STATUS_LABEL.get(doc.get("status"), doc.get("status"))),
+                ("Origine", doc.get("from_label")),
+                ("Destination", doc.get("to_label")),
+                ("Transporteur", doc.get("transporter")),
+                ("Véhicule", doc.get("vehicle_ref")),
+                ("Nombre de grumes", str(len(trees))),
+                ("Volume estimé", _fr_num(doc.get("volume_m3"), 3, " m³")),
+            ]
+        ),
+        Spacer(1, 4 * mm),
+        Paragraph("Grumes transportées", S_H2),
+    ]
+
+    grid_rows = [
+        [
+            t.get("tree_code"),
+            t.get("species_scientific_name"),
+            _fr_num(t.get("measured_dbh_cm"), 1),
+            t.get("hammer_mark"),
+            t.get("status"),
+        ]
+        for t in trees
+    ]
+    if grid_rows:
+        story.append(
+            _grid_table(
+                ["Code arbre", "Espèce", "DBH", "Marteau", "Statut"],
+                grid_rows,
+                widths=[26 * mm, None, 16 * mm, 26 * mm, 26 * mm],
+            )
+        )
+    else:
+        story.append(Paragraph("Aucune grume rattachée à ce document.", S_BODY))
+
+    story += [
+        Spacer(1, 5 * mm),
+        KeepTogether(
+            [
+                Paragraph("Base légale", S_H2),
+                Paragraph(
+                    _safe(
+                        "Bordereau de roulage (Loi 016/01 art. 135) et spécification à l'export "
+                        "(art. 138 à 140). Ce document doit accompagner chaque mouvement de bois ; "
+                        "son absence constitue une anomalie relevée par l'administration."
+                    ),
+                    S_SMALL,
+                ),
+            ]
+        ),
+    ]
+    return _build(story, "Document de transport")
+
+
+def render_statement_pdf(data: dict, org_name: str | None = None) -> bytes:
+    """Regulatory statement (état trimestriel / annuel) -> branded A4 PDF."""
+    data = data or {}
+    period = data.get("period", {}) or {}
+    totals = data.get("totals", {}) or {}
+    by_status = totals.get("by_status", {}) or {}
+    by_species = data.get("by_species", []) or []
+    abandoned = data.get("abandoned", []) or []
+    transport = data.get("transport", {}) or {}
+
+    year = period.get("year")
+    quarter = period.get("quarter")
+    label = f"Année {year}" if not quarter else f"Année {year} — Trimestre {quarter}"
+
+    story: list = [
+        Paragraph("État d'exploitation", S_TITLE),
+        Paragraph(_safe(TAGLINE), S_SUB),
+        Spacer(1, 6 * mm),
+        _kv_table(
+            [
+                ("Opérateur", org_name or "—"),
+                ("Période", label),
+                ("Arbres abattus", str(totals.get("stems_felled", 0))),
+                ("Volume estimé", _fr_num(totals.get("estimated_volume_m3"), 3, " m³")),
+                ("Taux de transformation", _pct(data.get("transformation_rate"))),
+                ("Documents de transport", str(transport.get("documents", 0))),
+                ("Volume transporté", _fr_num(transport.get("volume_m3"), 3, " m³")),
+            ]
+        ),
+        Spacer(1, 4 * mm),
+        Paragraph("Répartition par statut", S_H2),
+        _grid_table(
+            ["Statut", "Arbres"],
+            [[status, str(by_status.get(status, 0))] for status in by_status] or [["—", "0"]],
+            widths=[None, 30 * mm],
+        ),
+        Spacer(1, 4 * mm),
+        Paragraph("Volumes par essence", S_H2),
+    ]
+
+    if by_species:
+        story.append(
+            _grid_table(
+                ["Essence", "Arbres", "Volume estimé (m³)"],
+                [
+                    [s.get("species"), str(s.get("stems", 0)), _fr_num(s.get("volume_m3"), 3)]
+                    for s in by_species
+                ],
+                widths=[None, 25 * mm, 40 * mm],
+            )
+        )
+    else:
+        story.append(Paragraph("Aucun arbre abattu sur la période.", S_BODY))
+
+    if abandoned:
+        story += [
+            Spacer(1, 4 * mm),
+            Paragraph("Arbres abandonnés (DF10)", S_H2),
+            _grid_table(
+                ["Motif", "Arbres"],
+                [[a.get("label") or a.get("code"), str(a.get("count", 0))] for a in abandoned],
+                widths=[None, 30 * mm],
+            ),
+        ]
+
+    story += [
+        Spacer(1, 5 * mm),
+        KeepTogether(
+            [
+                Paragraph("Base légale", S_H2),
+                Paragraph(
+                    _safe(
+                        "États périodiques d'exploitation — Code forestier gabonais (Loi 016/01). "
+                        "Volumes estimés à partir du diamètre (DBH) et d'un modèle hauteur-diamètre ; "
+                        "ils ne remplacent pas le cubage légal d'une spécification."
+                    ),
+                    S_SMALL,
+                ),
+            ]
+        ),
+    ]
+    return _build(story, "État d'exploitation")
+
+
+def render_diligence_pdf(doc: dict, org_name: str | None = None) -> bytes:
+    """EUDR due-diligence statement (parcel of origin) -> branded A4 PDF."""
+    doc = doc or {}
+    felled = doc.get("felled_stem_count") or 0
+    geolocated = doc.get("geolocated_stem_count") or 0
+    ratio = (geolocated / felled) if felled else None
+    title = doc.get("title_ref") or (f"#{doc.get('title_id')}" if doc.get("title_id") else None)
+    consultation = doc.get("consultation_document_id")
+
+    story: list = [
+        Paragraph("Déclaration de diligence raisonnée (RDUE)", S_TITLE),
+        Paragraph(_safe(TAGLINE), S_SUB),
+        Spacer(1, 6 * mm),
+        _kv_table(
+            [
+                ("Opérateur", org_name or doc.get("org_name")),
+                ("Titre", title),
+                ("Parcelle d'origine", doc.get("parcel_label")),
+                ("Statut", EUDR_STATUS_LABEL.get(doc.get("status"), doc.get("status"))),
+                ("Preuve de consultation", f"Document #{consultation}" if consultation else "—"),
+                ("Grumes abattues", str(felled)),
+                (
+                    "Grumes géolocalisées",
+                    f"{geolocated} ({_pct(ratio)})" if felled else str(geolocated),
+                ),
+                ("Volume déclaré", _fr_num(doc.get("declared_volume_m3"), 3, " m³")),
+            ]
+        ),
+        Spacer(1, 4 * mm),
+        Paragraph("Géolocalisation de la parcelle (WKT)", S_H2),
+        Paragraph(_safe(doc.get("parcel_wkt") or "Polygone de parcelle non fourni."), S_SMALL),
+    ]
+
+    if doc.get("decision_motif"):
+        story += [
+            Spacer(1, 4 * mm),
+            Paragraph("Décision de l'administration", S_H2),
+            Paragraph(_safe(doc["decision_motif"]), S_BODY),
+        ]
+
+    story += [
+        Spacer(1, 5 * mm),
+        KeepTogether(
+            [
+                Paragraph("Base légale", S_H2),
+                Paragraph(
+                    _safe(
+                        "Règlement (UE) 2023/1115 sur les produits zéro-déforestation (RDUE/EUDR), "
+                        "art. 9 à 11 : les opérateurs doivent recueillir les coordonnées "
+                        "géographiques de toutes les parcelles de production et des preuves de "
+                        "consultation des parties prenantes. Le titre d'exploitation gabonais "
+                        "(Loi 016/01) ne dispense pas de cette diligence."
+                    ),
+                    S_SMALL,
+                ),
+            ]
+        ),
+    ]
+    return _build(story, "Déclaration de diligence raisonnée (RDUE)")

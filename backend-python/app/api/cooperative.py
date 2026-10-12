@@ -21,6 +21,29 @@ async def _profile_type(cooperative: dict) -> str | None:
     return row["profile_type"] if row else None
 
 
+@router.get("/profile")
+async def my_cooperative(user: dict = Depends(require_roles("cooperative"))):
+    """Cooperative backing the header (role badge + cooperative name)."""
+    cooperative_id = user.get("cooperative_id")
+    if cooperative_id is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Ce compte coopérative n'est associé à aucune coopérative",
+        )
+    row = await db.fetch_one(
+        "SELECT id, cooperative_name, profile_type, is_certified "
+        "FROM community_cooperatives WHERE id=$1",
+        cooperative_id,
+    )
+    if row is None:
+        raise HTTPException(status_code=404, detail="Coopérative introuvable")
+    return {
+        "organization": row["cooperative_name"],
+        "organization_type": "cooperative",
+        "profile_type": row["profile_type"],
+    }
+
+
 @router.get("/residues")
 async def nearby_residues(
     latitude: float,

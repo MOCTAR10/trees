@@ -1,0 +1,3342 @@
+{
+  "Afzelia africana": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Acokanthera oppositifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Albizia adianthifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Albizia schimperiana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Albizia procera": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Albizia gummifera": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Afzelia bipindensis": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Afzelia pachyloba": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Albizia ferruginea": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Afzelia quanzensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Albizia amara": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Albizia lebbekoides": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Albizia tanganyicensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Aidia ochroleuca": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Aidia micrantha": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Afzelia bella": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Afzelia parviflora": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Albizia antunesiana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Albizia versicolor": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Albizia brevifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Albizia glaberrima": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Albizia grandibracteata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Albizia coriaria": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Albizia dinklagei": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Anacardium occidentale": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Aphloia theiformis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Alnus glutinosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Alluaudia procera": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Antrocaryon micraster": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Alstonia macrophylla": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Antiaris toxicaria": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Allanblackia floribunda": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Allanblackia stuhlmannii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Allophylus chirindensis": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Andira inermis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Anonidium mannii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Anopyxis klaineana": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Androstachys johnsonii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Alchornea hirtella": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Anthostema aubryanum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Anthostema madagascariense": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Alstonia boonei": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Alstonia congensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Aoranthe cladantha": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Annickia chlorantha": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Annickia polycarpa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Allophylus africanus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Albizia zygia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Amphimas pterocarpoides": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Anthonotha fragrans": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Anthonotha macrophylla": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Amphimas ferrugineus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Anisophyllea laurina": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Amblygonocarpus andongensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Antrocaryon klaineanum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Antrocaryon nannanii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Apodocephala pauciflora": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Anthocleista nobilis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Arbutus pavarii": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Betula pendula": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Balanites aegyptiaca": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Aucoumea klaineana": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Bersama abyssinica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Baillonella toxisperma": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Barringtonia racemosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Baikiaea plurijuga": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Apodytes dimidiata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Asteropeia rhopaloides": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Autranella congolensis": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Bauhinia petersiana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Beilschmiedia kweo": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Bersama swynnertonii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Baphia nitida": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Baphia kirkii": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Berlinia grandiflora": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Beilschmiedia velutina": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Baikiaea insignis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Berchemia discolor": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Beilschmiedia corbisieri": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Beilschmiedia diversiflora": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Beilschmiedia hutchinsoniana": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Beilschmiedia oblongifolia": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Beilschmiedia letouzeyi": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Beilschmiedia mannii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Beilschmiedia louisii": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Beilschmiedia nitida": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Berlinia auriculata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Berlinia bracteosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Berlinia confusa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Berlinia viridicans": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Berchemia zeyheri": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Bombax costatum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Burkea africana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Blighia sapida": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Brachystegia zenkeri": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Brachystegia nigerica": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Boscia salicifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Brachystegia allenii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Brachystegia boehmii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Brachystegia cynometroides": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Brachystegia eurycoma": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Brachystegia laurentii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Brachystegia leonensis": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Brachystegia mildbraedii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Brachystegia spiciformis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Brachystegia utilis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Bridelia micrantha": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Bombax buonopozense": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Brachylaena huillensis": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Breonadia salicina": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Breviea sericea": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Blighia unijugata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Bischofia javanica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Bolusanthus speciosus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Bombax ceiba": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Breonia perrieri": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Breonia madagascariensis": {
+    "status": {
+      "code": "CR"
+    }
+  },
+  "Broussonetia greveana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Bridelia grandis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Bridelia tulasneana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Blighia welwitschii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Brachylaena ramiflora": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Castanea sativa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Buxus sempervirens": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ceiba pentandra": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cassia abbreviata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cassia fistula": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Catalpa bignonioides": {
+    "status": {
+      "code": "DD"
+    }
+  },
+  "Cassia javanica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Catha edulis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Calodendrum capense": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cedrelopsis grevei": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Canarium schweinfurthii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Carapa procera": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Calpocalyx heitzii": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Calpocalyx klainei": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Celtis mildbraedii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Celtis tessmannii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Celtis philippensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Celtis gomphophylla": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cassine aethiopica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cassipourea malosana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cassine transvaalensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Calophyllum drouhardii": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Cassipourea firestoneana": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Cassipourea gummiflua": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cassipourea euryoides": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Catunaregam obovata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Bussea occidentalis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Calpocalyx brevibracteatus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Canarium madagascariense": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Coffea arabica": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Cinnamomum camphora": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cola acuminata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Colophospermum mopane": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Chloroxylon swietenia": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Combretum erythrophyllum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cephalosphaera usambarensis": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Cola cordifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Celtis zenkeri": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Combretum apiculatum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cola natalensis": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Cleistopholis glauca": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cleistopholis patens": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cola buntingii": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Cola gigantea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cola lateritia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Citropsis daweana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Clausena anisata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Coffea zanguebariae": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Cleistanthus schlechteri": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Combretum elaeagnoides": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Coelocaryon preussii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Crescentia cujete": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Combretum molle": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Commiphora africana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cordia africana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Combretum imberbe": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Combretum glutinosum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Coula edulis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Croton macrostachyus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Croton megalobotrys": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Croton megalocarpus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Croton oligandrus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Croton tchibangensis": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Copaifera salikounda": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Cordia platythyrsa": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Cordyla africana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Combretum hereroense": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Commiphora marlothii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Commiphora edulis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Commiphora mollis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Corynanthe pachyceras": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Crossopteryx febrifuga": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Craterispermum schweinfurthii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Copaifera religiosa": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Cordyla pinnata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Copaifera mildbraedii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Commiphora pterocarpa": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Commiphora caerulea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cordia millenii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Craspidospermum verticillatum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cryptocarya louvelii": {
+    "status": {
+      "code": "CR"
+    }
+  },
+  "Dalbergia melanoxylon": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Cupressus sempervirens": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Delonix regia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dalbergia latifolia": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Dalbergia sissoo": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Detarium senegalense": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cupressus lusitanica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dalbergia greveana": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Dalbergia baronii": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Dacryodes macrophylla": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Daniellia klainei": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dialium bipindense": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cussonia arborea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Curtisia dentata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ctenolophon englerianus": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Cynometra alexandri": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cynometra ananta": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cynometra hankei": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cryptosepalum staudtii": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Daniellia ogea": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Daniellia oliveri": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Daniellia pynaertii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Daniellia soyauxii": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Daniellia thurifera": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dacryodes letestui": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dacryodes buettneri": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Dacryodes heterotricha": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dacryodes igaganga": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Dacryodes normandii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dacryodes klaineana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Cryptocarya thouvenotii": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Cylicodiscus gabunensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dasylepis integra": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dracaena reflexa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Diplorhynchus condylocarpon": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dichrostachys cinerea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Diospyros mespiliformis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ekebergia capensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dombeya burgessiae": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dialium excelsum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Didelotia idae": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Diospyros crassiflora": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Dilobeia thouarsii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Diospyros quiloensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Diospyros kirkii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Diospyros mannii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Diospyros senensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Diospyros kamerunensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Diospyros dendo": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Diospyros sanza-minika": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Duguetia confinis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Duguetia staudtii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dombeya lucida": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Discoglypremna caloneura": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dovyalis macrocalyx": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Drypetes aubrevillei": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Drypetes gerrardii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Drypetes usambarica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Diogoa zenkeri": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Didymosalpinx norae": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Dialium pachyphyllum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dialium dinklagei": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Dialium englerianum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Didelotia africana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Didelotia brevipaniculata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Didelotia letouzeyi": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Distemonanthus benthamianus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ekebergia benguelensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ehretia cymosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Elaeagnus angustifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Entandrophragma cylindricum": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Faidherbia albida": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Entandrophragma utile": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Euphorbia tirucalli": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Erythrina abyssinica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Euclea divinorum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Erythrina lysistemon": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Erythrina latissima": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Erythrophleum africanum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Euclea racemosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Faurea macnaughtonii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Faurea saligna": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Entandrophragma excelsum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Entandrophragma angolense": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Entandrophragma candollei": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Euclea natalensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Erythrophleum suaveolens": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Erismadelphus exsul": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Faucherea ambrensis": {
+    "status": {
+      "code": "DD"
+    }
+  },
+  "Endodesmia calophylloides": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Erythroxylum emarginatum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Erythroxylum mannii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Erythroxylum zambesiacum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ficalhoa laurifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Erythrophleum ivorense": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Erythrophleum lasianthum": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Erythrina vogelii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Entandrophragma congoense": {
+    "status": {
+      "code": "DD"
+    }
+  },
+  "Gmelina arborea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Flacourtia indica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ficus sycomorus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Garcinia livingstonei": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Garcinia epunctata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Grevillea robusta": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Gliricidia sepium": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Gilbertiodendron splendidum": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Ficus ingens": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Funtumia africana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ficus thonningii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Garcinia kola": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Fillaeopsis discophora": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Gilbertiodendron klainei": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Gluema ivorensis": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Gilbertiodendron dewevrei": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Gmelina philippensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Gonioma kamassi": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Garcinia gerrardii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Garcinia verrucosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Garcinia punctata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Garcinia mannii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Foetidia clusioides": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Ficus exasperata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ficus mucuso": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Gilbertiodendron mayombense": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Gilbertiodendron brachystegioides": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Gilbertiodendron preussii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Gilbertiodendron grandiflorum": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Gilletiodendron kisantuense": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Gilbertiodendron ivorense": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Gilletiodendron mildbraedii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Gluta tourtour": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Humbertia madagascariensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Haematoxylum campechianum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Hagenia abyssinica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Heritiera utilis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Guibourtia ehie": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Guibourtia arnoldiana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Guazuma ulmifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Guibourtia demeusei": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Haplormosia monophylla": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Guibourtia coleosperma": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Guibourtia conjugata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Halleria lucida": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Holarrhena pubescens": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Heteropyxis natalensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Holarrhena floribunda": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Grewia monticola": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Hexalobus crispiflorus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Hexalobus monopetalus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Hibiscus lasiococcus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Haplocoelum foliolosum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Guibourtia pellegriniana": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Guibourtia tessmannii": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Hylodendron gabunense": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Holoptelea grandis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Homalium letestui": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Harungana madagascariensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Juniperus phoenicea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Khaya anthotheca": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Kigelia africana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Irvingia gabonensis": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Khaya senegalensis": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Juniperus thurifera": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Isoberlinia doka": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Juniperus cedrus": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Ilex mitis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ilex canariensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Khaya ivorensis": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Isoberlinia scheffleri": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Khaya grandifoliola": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Leptolaena multiflora": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Hymenocardia acida": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Julbernardia globiflora": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Kiggelaria africana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ilex perado": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Irvingia grandifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Klainedoxa gabonensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Intsia bijuga": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Lannea welwitschii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Lannea discolor": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Letestua durissima": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Isoberlinia tomentosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Julbernardia pellegriniana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Julbernardia seretii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Hymenostegia pellegrinii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Lasiodiscus usambarensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Kirkia acuminata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Malus sylvestris": {
+    "status": {
+      "code": "DD"
+    }
+  },
+  "Lophira alata": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Manilkara bidentata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Maesopsis eminii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Microberlinia bisulcata": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Macaranga capensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Mangifera indica": {
+    "status": {
+      "code": "DD"
+    }
+  },
+  "Microberlinia brazzavillensis": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Macaranga conglomerata": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Lovoa swynnertonii": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Margaritaria discoidea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Markhamia lutea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Maytenus acuminata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Lovoa trichilioides": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Loesenera kalantha": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Maytenus undata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Maesa lanceolata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Manilkara mochisia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Manilkara obovata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Lophira lanceolata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Macaranga mellifera": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Macarisia pyramidata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Mammea africana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Mammea bongo": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Maranthes glabra": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Maranthes goetzeniana": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Maranthes robusta": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Mansonia altissima": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Lonchocarpus sericeus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Librevillea klainei": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Michelsonia microphylla": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Markhamia tomentosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Musanga cecropioides": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Millettia laurentii": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Nauclea diderrichii": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Milicia excelsa": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Nesogordonia papaverifera": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Newtonia buchananii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Nuxia floribunda": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Mimusops zeyheri": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Newtonia paucijuga": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Milicia regia": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Ochna arborea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Mundulea sericea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Nuxia congesta": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ochna holstii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Mimusops obovata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Monodora tenuifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Neoboutonia macrocalyx": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ochna gambleoides": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Nauclea gilletii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Newtonia glandulifera": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Newtonia leucocarpa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Myrianthus holstii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Myrianthus libericus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Monotes glaber": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Monotes engleri": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Olea capensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ochna pulchra": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Olea lancea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Parinari curatellifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Panda oleosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pappea capensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ongokea gore": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Omphalocarpum elatum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Oldfieldia africana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ochna schweinfurthiana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Parinari excelsa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Olax dissitiflora": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Oxyanthus speciosus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Oddoniodendron micranthum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ormocarpum kirkii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pachyelasma tessmannii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ocotea thouvenotii": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Ocotea trichophlebia": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Ocotea faucherei": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Ocotea racemosa": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Ocotea cymosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Olinia vanguerioides": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Ocotea macrocarpa": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Octoknema borealis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Persea americana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Populus deltoides": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Podocarpus latifolius": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pericopsis elata": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Petersianthus macrocarpus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Persea indica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Parkia biglobosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Piptadeniastrum africanum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pentaclethra macrophylla": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pentadesma butyracea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pausinystalia brachythyrsum": {
+    "status": {
+      "code": "EX"
+    }
+  },
+  "Polyscias kikuyuensis": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Placodiscus pseudostipularis": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Pericopsis angolensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Peltophorum africanum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Platylophus trifoliatus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pleurostylia capensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Phyllocosmus africanus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Plagiostyles africana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Parkia bicolor": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Parkia filicoidea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pentaclethra eetveldeana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Phyllarthron articulatum": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Polyscias fulva": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Polyscias ornifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pittosporum viridiflorum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Poga oleosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pentadesma lebrunii": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Potameia antevaratra": {
+    "status": {
+      "code": "CR"
+    }
+  },
+  "Pterocarpus erinaceus": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Quercus robur": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ptaeroxylon obliquum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Prunus africana": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Pterocarpus angolensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Prosopis glandulosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pterocarpus officinalis": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Pterocarpus osun": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pouteria altissima": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pterocarpus brenanii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Premna maxima": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Pterygota bequaertii": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Pterygota macrocarpa": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Pycnanthus angolensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Protomegabaria stapfiana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Prosopis africana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pseudolachnostylis maprouneifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pouteria alnifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pterocelastrus echinatus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Premna angolensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Psydrax parviflora": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Prioria mannii": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Prioria oxyphylla": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pterocarpus lucens": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Pseudocedrela kotschyi": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Psorospermum febrifugum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Prioria balsamifera": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Salvadora persica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Sclerocarya birrea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Rhizophora mangle": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Schinus molle": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Schinziophyton rautanenii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ricinodendron heudelotii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Rhamnus glandulosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Sacoglottis gabonensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Scorodophloeus zenkeri": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Rhizophora racemosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Scolopia zeyheri": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Schrebera alata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Shirakiopsis elliptica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Rothmannia fischeri": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Rothmannia urcelliformis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Senna singueana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Santiria trimera": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Rhodolaena bakeriana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Rhoicissus revoilii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Schrebera trichoclada": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Scottellia klaineana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Rawsonia lucida": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Schrebera arborea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Scytopetalum tieghemii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Spathodea campanulata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Spondias mombin": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Stereospermum kunthianum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Strychnos mellodora": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Spirostachys africana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Strychnos pungens": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Sterculia africana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Strychnos madagascariensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Strychnos decussata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Strombosiopsis tetrandra": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Sloanea rhodantha": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Strychnos cocculoides": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Strychnos innocua": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Strombosia pustulata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Strombosia scheffleri": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Sterculia dawei": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Sterculia setigera": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Streblus dimepate": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Sorindeia madagascariensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Spondianthus preussii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Sindora klaineana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Stachyothyrsus stapfiana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Stemonocoleus micranthus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Stereospermum variabile": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Staudtia kamerunensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Sterculia rhinopetala": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tamarindus indica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tectona grandis": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Tabernaemontana elegans": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Terminalia catappa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Syzygium cordatum": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Terminalia ivorensis": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Tamarix aphylla": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tabebuia heterophylla": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tabernaemontana ventricosa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Syzygium guineense": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tabebuia rosea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tannodia swynnertonii": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Symphonia globulifera": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tarchonanthus camphoratus": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Terminalia macroptera": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Terminalia sericea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tabernaemontana crassa": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tabernaemontana pachysiphon": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Syzygium gerrardii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Synsepalum afzelii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Synsepalum msolo": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Symphonia fasciculata": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Symphonia microphylla": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Symphonia tanalensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tarenna pavettoides": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Terminalia prunioides": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Terminalia tetrandra": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Terminalia mollis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tambourissa thouvenotii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Terminalia randii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Terminalia gazensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Terminalia mantaly": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Symphonia louvelii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Terminalia glaucescens": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Triplochiton scleroxylon": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Thespesia populnea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tetraclinis articulata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tieghemella africana": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Tieghemella heckelii": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Tetraberlinia tubmaniana": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Trichilia dregeana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Trichilia emetica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Testulea gabonensis": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Tetrapleura tetraptera": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Thespesia garckeana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Turraeanthus africanus": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Uapaca kirkiana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Vangueria infausta": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tetrorchidium didymostemon": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Trichoscypha arborea": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Uapaca sansibarica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Uapaca louvelii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Uapaca densifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Uapaca thouarsii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Uapaca nitida": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Uapaca guineensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Uapaca heudelotii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Trichilia monadelpha": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Turraea nilotica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tetraberlinia bifoliolata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tessmannia africana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Tessmannia lescrauwaetii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Warburgia salutaris": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Ziziphus mucronata": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ziziphus mauritiana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Vitex keniensis": {
+    "status": {
+      "code": "EN"
+    }
+  },
+  "Ximenia americana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Xylopia aethiopica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Xylocarpus moluccensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Widdringtonia nodiflora": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Xanthocercis madagascariensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Xanthocercis zambesiaca": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Zanha golungensis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Xylopia parviflora": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Zanthoxylum gilletii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Xylopia cupularis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Xylopia staudtii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Xylopia hypolampra": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Xylopia quintasii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Vitex grandifolia": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Vitex micrantha": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Vitex payos": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Vitex doniana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Vitex oxycuspis": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Vepris amaniensis": {
+    "status": {
+      "code": "VU"
+    }
+  },
+  "Xylia torreana": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Vangueria randii": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Ziziphus abyssinica": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Weinmannia minutiflora": {
+    "status": {
+      "code": "LC"
+    }
+  },
+  "Zanthoxylum tsihanimposa": {
+    "status": {
+      "code": "NT"
+    }
+  },
+  "Zanthoxylum heitzii": {
+    "status": {
+      "code": "LC"
+    }
+  }
+}

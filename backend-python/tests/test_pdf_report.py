@@ -97,8 +97,80 @@ def test_render_measurement_pdf():
     _assert_pdf(pdf_report.render_measurement_pdf(V1_REPORT))
 
 
+def test_render_df10_pdf():
+    rows = [
+        {
+            "df10_entry_no": "DF10-2026-000001",
+            "tree_code": "GA-1",
+            "species_scientific_name": "Aucoumea klaineana",
+            "measured_dbh_cm": 80.0,
+            "felled_at": "2026-03-15",
+            "status": "abattu",
+        },
+        {
+            "tree_code": "GA-2",
+            "species_scientific_name": "Entandrophragma cylindricum",
+            "measured_dbh_cm": 95.0,
+            "abandon_code": "creux",
+            "abandon_label": "Creux / cœur pourri",
+            "status": "autorise",
+        },
+    ]
+    _assert_pdf(pdf_report.render_df10_pdf(rows, org_name="Bois SA", title_id=30, aac_id=40))
+    _assert_pdf(pdf_report.render_df10_pdf([]))
+
+
+def test_render_transport_pdf():
+    doc = {
+        "doc_type": "bordereau_roulage",
+        "reference": "BDR-ABC123",
+        "status": "emis",
+        "from_label": "AAC-1",
+        "to_label": "Port d'Owendo",
+        "transporter": "Transport Bois",
+        "vehicle_ref": "TR-1234",
+        "volume_m3": 4.21,
+    }
+    trees = [
+        {"tree_code": "GA-1", "species_scientific_name": "Aucoumea klaineana", "status": "abattu"}
+    ]
+    _assert_pdf(pdf_report.render_transport_pdf(doc, trees))
+    _assert_pdf(pdf_report.render_transport_pdf({}, []))
+
+
+def test_render_statement_pdf():
+    data = {
+        "period": {"year": 2026, "quarter": 1},
+        "totals": {"stems_felled": 3, "estimated_volume_m3": 12.5, "by_status": {"abattu": 2}},
+        "by_species": [{"species": "Aucoumea klaineana", "stems": 3, "volume_m3": 12.5}],
+        "transformation_rate": 0.33,
+        "abandoned": [{"code": "creux", "label": "Creux / cœur pourri", "count": 1}],
+        "transport": {"documents": 2, "volume_m3": 8.0},
+    }
+    _assert_pdf(pdf_report.render_statement_pdf(data, org_name="Bois SA"))
+    _assert_pdf(pdf_report.render_statement_pdf({}))
+
+
 def test_render_valorization_pdf():
     _assert_pdf(pdf_report.render_valorization_pdf(V2_PAYLOAD))
+
+
+def test_render_diligence_pdf():
+    doc = {
+        "id": 7,
+        "org_name": "Bois SA",
+        "title_id": 30,
+        "title_ref": "T-1",
+        "parcel_label": "Parcelle Nord",
+        "parcel_wkt": "POLYGON((0 0, 1 0, 1 1, 0 0))",
+        "status": "valide",
+        "consultation_document_id": 55,
+        "felled_stem_count": 3,
+        "geolocated_stem_count": 2,
+        "declared_volume_m3": 42.0,
+    }
+    _assert_pdf(pdf_report.render_diligence_pdf(doc, org_name="Bois SA"))
+    _assert_pdf(pdf_report.render_diligence_pdf({}))
 
 
 def test_renders_with_missing_fields():

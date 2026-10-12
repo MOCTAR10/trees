@@ -10,7 +10,7 @@ from app.services import db
 router = APIRouter()
 
 VALID_ROLES = {"operator", "cooperative", "company", "admin"}
-_USER_COLUMNS = "id, email, display_name, role, is_active, cooperative_id, company_id, created_at"
+_USER_COLUMNS = "id, email, display_name, role, is_active, cooperative_id, company_id, organization_id, created_at"
 
 
 class CreateUserRequest(BaseModel):
@@ -20,6 +20,7 @@ class CreateUserRequest(BaseModel):
     role: str
     cooperative_id: int | None = None
     company_id: int | None = None
+    organization_id: int | None = None
 
 
 class UpdateUserRequest(BaseModel):
@@ -28,6 +29,7 @@ class UpdateUserRequest(BaseModel):
     role: str | None = None
     password: str | None = None
     cooperative_id: int | None = None
+    organization_id: int | None = None
 
 
 @router.post("/users", status_code=201)
@@ -44,6 +46,10 @@ async def create_user(body: CreateUserRequest, _admin: dict = Depends(require_ro
         )
         if coop is None:
             raise HTTPException(status_code=404, detail="Coopérative introuvable")
+    if body.organization_id is not None:
+        org = await db.fetch_one("SELECT id FROM organizations WHERE id=$1", body.organization_id)
+        if org is None:
+            raise HTTPException(status_code=404, detail="Organisation introuvable")
 
     existing = await db.fetch_one("SELECT id FROM users WHERE email=$1", body.email)
     if existing is not None:
@@ -51,9 +57,10 @@ async def create_user(body: CreateUserRequest, _admin: dict = Depends(require_ro
 
     row = await db.fetch_one(
         """
-        INSERT INTO users (email, display_name, role, password_hash, cooperative_id, company_id)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING id, email, display_name, role, cooperative_id, company_id, created_at
+        INSERT INTO users
+            (email, display_name, role, password_hash, cooperative_id, company_id, organization_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING id, email, display_name, role, cooperative_id, company_id, organization_id, created_at
         """,
         body.email,
         body.display_name,
@@ -61,6 +68,7 @@ async def create_user(body: CreateUserRequest, _admin: dict = Depends(require_ro
         security.hash_password(body.password),
         body.cooperative_id,
         body.company_id,
+        body.organization_id,
     )
     return dict(row)
 
@@ -108,6 +116,12 @@ async def update_user(
             raise HTTPException(status_code=404, detail="Coopérative introuvable")
         sets.append(f"cooperative_id=${len(values) + 1}")
         values.append(body.cooperative_id)
+    if body.organization_id is not None:
+        org = await db.fetch_one("SELECT id FROM organizations WHERE id=$1", body.organization_id)
+        if org is None:
+            raise HTTPException(status_code=404, detail="Organisation introuvable")
+        sets.append(f"organization_id=${len(values) + 1}")
+        values.append(body.organization_id)
 
     if not sets:
         raise HTTPException(status_code=400, detail="Aucune modification fournie")

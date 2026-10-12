@@ -38,6 +38,10 @@ class SpeciesProfile:
     # True for the curated Central African cohort; generated species carry the
     # value inferred from GBIF/WCVP range data (None when unknown).
     native_to_africa: bool | None = True
+    countries: tuple = field(default_factory=tuple)
+    # Life form / category: "arbre" (woody, has wood density) vs "plante"
+    # (non-woody biodiversity) — extensible ("animal", "champignon", …).
+    type: str = "arbre"
 
 
 _CURATED_SPECIES: dict[str, SpeciesProfile] = {
@@ -226,9 +230,37 @@ def _load_generated_reference() -> dict[str, SpeciesProfile]:
     return loaded
 
 
+def _load_plants() -> dict[str, SpeciesProfile]:
+    """Load the plant (biodiversity) cohort (non-woody, no wood density)."""
+    path = Path(__file__).resolve().parents[2] / "data" / "plants_reference.json"
+    try:
+        entries = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    loaded: dict[str, SpeciesProfile] = {}
+    for entry in entries:
+        name = entry.get("scientific_name")
+        if not name:
+            continue
+        loaded[name] = SpeciesProfile(
+            scientific_name=name,
+            common_name_fr="",
+            wood_density_g_cm3=0.0,
+            cr_asymptote_a_cm=0.0,
+            cr_rate_k=0.0,
+            cr_shape_p=0.0,
+            family=entry.get("family") or "",
+            iucn_status="NE",
+            native_to_africa=None,
+            type="plante",
+        )
+    return loaded
+
+
 # Generated cohort first so curated profiles win on any name collision.
 SPECIES_DB: dict[str, SpeciesProfile] = {
     **_load_generated_reference(),
+    **_load_plants(),
     **_CURATED_SPECIES,
 }
 
@@ -262,6 +294,20 @@ def _load_listings() -> dict[str, dict]:
         return {}
 
 
+def _load_distributions() -> dict[str, list[str]]:
+    """Map scientific_name -> GBIF country codes (ISO alpha-2)."""
+    path = Path(__file__).resolve().parents[2] / "data" / "gbif_distributions_cache.json"
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return {
+        name: d.get("countries", [])
+        for name, d in raw.items()
+        if isinstance(d, dict)
+    }
+
+
 def _apply_overlays(
     profiles: dict[str, SpeciesProfile],
 ) -> dict[str, SpeciesProfile]:
@@ -271,6 +317,7 @@ def _apply_overlays(
     ``data/listings_cache.json`` (produced by ``tools.import_listings``).
     """
     cache = _load_listings()
+    distributions = _load_distributions()
     out: dict[str, SpeciesProfile] = {}
     for name, profile in profiles.items():
         aliases = tuple(dict.fromkeys((*profile.aliases, *_TRADE_ALIASES.get(name, ()))))
@@ -283,6 +330,9 @@ def _apply_overlays(
                 changes["cites_appendix"] = entry["cites_appendix"]
             if entry.get("eu_listing"):
                 changes["eu_listing"] = entry["eu_listing"]
+        countries = distributions.get(name)
+        if countries:
+            changes["countries"] = tuple(countries)
         out[name] = replace(profile, **changes) if changes else profile
     return out
 

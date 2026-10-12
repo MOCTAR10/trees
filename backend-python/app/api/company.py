@@ -18,6 +18,23 @@ _RESIDUE_COLS = (
 )
 
 
+@router.get("/profile")
+async def my_company(user: dict = Depends(require_roles("company", "operator"))):
+    """Organization backing the header (role badge + company name).
+
+    Company accounts own their row; operators inherit their company.
+    """
+    company_id = user.get("company_id")
+    if company_id is None and user["role"] == "company":
+        company_id = user["id"]
+    if company_id is None:
+        raise HTTPException(status_code=404, detail="Aucune entreprise associée")
+    row = await db.fetch_one("SELECT display_name FROM users WHERE id=$1", company_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Entreprise introuvable")
+    return {"organization": row["display_name"], "organization_type": "company"}
+
+
 @router.get("/residues")
 async def my_residues(company: dict = Depends(require_roles("company"))):
     rows = await db.fetch_all(
@@ -26,7 +43,7 @@ async def my_residues(company: dict = Depends(require_roles("company"))):
                (coalesce(weight_branches_fine_kg, 0) + coalesce(weight_branches_thick_kg, 0)
                 + coalesce(weight_bark_kg, 0) + coalesce(weight_foliar_kg, 0)
                 + coalesce(weight_roots_kg, 0)) AS residue_biomass_kg,
-               status, assigned_community_cooperative_id,
+               status, assigned_community_cooperative_id, tree_code,
                ST_Y(geom) AS latitude, ST_X(geom) AS longitude, created_at
         FROM tree_scans_and_residues
         WHERE logging_company_id = $1

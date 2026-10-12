@@ -23,12 +23,41 @@ class CheckEmailRequest(BaseModel):
 @router.post("/check-email")
 async def check_email(body: CheckEmailRequest):
     row = await db.fetch_one(
-        "SELECT role, display_name FROM users WHERE email=$1 AND is_active",
+        "SELECT id, role, display_name, cooperative_id, company_id "
+        "FROM users WHERE email=$1 AND is_active",
         body.email,
     )
     if row is None:
         raise HTTPException(status_code=404, detail="Aucun compte associé à cette adresse")
-    return {"role": row["role"], "display_name": row["display_name"]}
+
+    organization, organization_type = await _resolve_organization(row)
+    return {
+        "role": row["role"],
+        "display_name": row["display_name"],
+        "organization": organization,
+        "organization_type": organization_type,
+    }
+
+
+async def _resolve_organization(row: dict) -> tuple[str | None, str | None]:
+    """Resolve the company/cooperative a user is attached to."""
+    company_id = row.get("company_id")
+    if company_id:
+        company = await db.fetch_one("SELECT display_name FROM users WHERE id=$1", company_id)
+        return (company or {}).get("display_name"), "company"
+
+    cooperative_id = row.get("cooperative_id")
+    if cooperative_id:
+        cooperative = await db.fetch_one(
+            "SELECT cooperative_name FROM community_cooperatives WHERE id=$1",
+            cooperative_id,
+        )
+        return (cooperative or {}).get("cooperative_name"), "cooperative"
+
+    if row["role"] == "company":
+        return row["display_name"], "company"
+
+    return None, None
 
 
 @router.post("/login")

@@ -249,6 +249,37 @@ def test_check_email_returns_role(client, monkeypatch):
     body = resp.json()
     assert body["role"] == "company"
     assert body["display_name"]
+    assert body["organization"] == "Co"
+    assert body["organization_type"] == "company"
+
+
+def test_check_email_returns_operator_company(client, monkeypatch):
+    _setup(monkeypatch)
+    resp = client.post("/api/auth/check-email", json={"email": "field@x"})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["role"] == "operator"
+    assert body["organization"] == "Co"
+    assert body["organization_type"] == "company"
+
+
+def test_check_email_returns_cooperative_name(client, monkeypatch):
+    _setup(monkeypatch)
+    resp = client.post("/api/auth/check-email", json={"email": "op@x"})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["role"] == "cooperative"
+    assert body["organization"] == "Coop Test"
+    assert body["organization_type"] == "cooperative"
+
+
+def test_check_email_admin_has_no_organization(client, monkeypatch):
+    _setup(monkeypatch)
+    resp = client.post("/api/auth/check-email", json={"email": "admin@x"})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["organization"] is None
+    assert body["organization_type"] is None
 
 
 def test_check_email_unknown_returns_404(client, monkeypatch):
@@ -371,6 +402,47 @@ def test_company_cooperatives_unknown_residue(client, monkeypatch):
         headers={"Authorization": f"Bearer {token}"},
     )
     assert resp.status_code == 404
+
+
+def test_company_profile_returns_own_name(client, monkeypatch):
+    users, _, _ = _setup(monkeypatch)
+    token = _token(users[2])
+    resp = client.get("/api/company/profile", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    assert resp.json() == {"organization": "Co", "organization_type": "company"}
+
+
+def test_company_profile_operator_inherits_company(client, monkeypatch):
+    users, _, _ = _setup(monkeypatch)
+    token = _token(users[4])
+    resp = client.get("/api/company/profile", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    assert resp.json()["organization"] == "Co"
+
+
+def test_company_profile_forbidden_for_cooperative(client, monkeypatch):
+    users, _, _ = _setup(monkeypatch)
+    token = _token(users[3])
+    resp = client.get("/api/company/profile", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 403
+
+
+def test_cooperative_profile_returns_name(client, monkeypatch):
+    users, _, _ = _setup(monkeypatch)
+    token = _token(users[3])
+    resp = client.get("/api/cooperative/profile", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["organization"] == "Coop Test"
+    assert body["organization_type"] == "cooperative"
+    assert body["profile_type"] == "agricultural_biochar"
+
+
+def test_cooperative_profile_forbidden_for_operator(client, monkeypatch):
+    users, _, _ = _setup(monkeypatch)
+    token = _token(users[4])
+    resp = client.get("/api/cooperative/profile", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 403
 
 
 def test_cooperative_nearby_matching(client, monkeypatch):

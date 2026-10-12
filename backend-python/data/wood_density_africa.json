@@ -218,10 +218,11 @@
  "Albizia adianthifolia": {
   "scientific_name": "Albizia adianthifolia",
   "family": "Fabaceae",
-  "density": 0.51,
-  "n": 7,
+  "density": 0.507,
+  "n": 8,
   "regions": [
-   "Africa (tropical)"
+   "Africa (tropical)",
+   "Madagascar"
   ]
  },
  "Albizia amara": {
@@ -441,6 +442,15 @@
    "Africa (extratropical)"
   ]
  },
+ "Alluaudia procera": {
+  "scientific_name": "Alluaudia procera",
+  "family": "Portulacaceae",
+  "density": 0.383,
+  "n": 5,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Alnus glutinosa": {
   "scientific_name": "Alnus glutinosa",
   "family": "Betulaceae",
@@ -632,6 +642,15 @@
    "Africa (tropical)"
   ]
  },
+ "Anthostema madagascariense": {
+  "scientific_name": "Anthostema madagascariense",
+  "family": "Euphorbiaceae",
+  "density": 0.487,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Antiaris toxicaria": {
   "scientific_name": "Antiaris toxicaria",
   "family": "Moraceae",
@@ -695,6 +714,15 @@
    "Africa (extratropical)"
   ]
  },
+ "Apodocephala pauciflora": {
+  "scientific_name": "Apodocephala pauciflora",
+  "family": "Asteraceae",
+  "density": 0.527,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Apodytes dimidiata": {
   "scientific_name": "Apodytes dimidiata",
   "family": "Icacinaceae",
@@ -703,6 +731,15 @@
   "regions": [
    "Africa (extratropical)",
    "Africa (tropical)"
+  ]
+ },
+ "Apollonias velutina": {
+  "scientific_name": "Apollonias velutina",
+  "family": "Lauraceae",
+  "density": 0.59,
+  "n": 1,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Arbutus pavarii": {
@@ -721,6 +758,15 @@
   "n": 1,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Asteropeia rhopaloides": {
+  "scientific_name": "Asteropeia rhopaloides",
+  "family": "Asteropeiaceae",
+  "density": 0.854,
+  "n": 2,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Aucoumea klaineana": {
@@ -921,6 +967,15 @@
   "n": 1,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Beilschmiedia velutina": {
+  "scientific_name": "Beilschmiedia velutina",
+  "family": "Lauraceae",
+  "density": 0.46,
+  "n": 1,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Berchemia discolor": {
@@ -1142,6 +1197,15 @@
    "Africa (tropical)"
   ]
  },
+ "Brachylaena ramiflora": {
+  "scientific_name": "Brachylaena ramiflora",
+  "family": "Asteraceae",
+  "density": 0.808,
+  "n": 5,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Brachylaena rotundata": {
   "scientific_name": "Brachylaena rotundata",
   "family": "Asteraceae",
@@ -1279,6 +1343,42 @@
    "Africa (tropical)"
   ]
  },
+ "Breonia decidua": {
+  "scientific_name": "Breonia decidua",
+  "family": "Rubiaceae",
+  "density": 0.655,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Breonia keliravina": {
+  "scientific_name": "Breonia keliravina",
+  "family": "Rubiaceae",
+  "density": 0.822,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Breonia madagascariensis": {
+  "scientific_name": "Breonia madagascariensis",
+  "family": "Rubiaceae",
+  "density": 0.708,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Breonia perrieri": {
+  "scientific_name": "Breonia perrieri",
+  "family": "Rubiaceae",
+  "density": 0.765,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Breviea sericea": {
   "scientific_name": "Breviea sericea",
   "family": "Sapotaceae",
@@ -1315,6 +1415,15 @@
    "Africa (tropical)"
   ]
  },
+ "Bridelia tulasneana": {
+  "scientific_name": "Bridelia tulasneana",
+  "family": "Phyllanthaceae",
+  "density": 0.473,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Broussonetia greveana": {
   "scientific_name": "Broussonetia greveana",
   "family": "Moraceae",
@@ -1322,6 +1431,15 @@
   "n": 1,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Broussonetia greveanus": {
+  "scientific_name": "Broussonetia greveanus",
+  "family": "Moraceae",
+  "density": 0.425,
+  "n": 3,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Burkea africana": {
@@ -1361,6 +1479,24 @@
    "Africa (tropical)"
   ]
  },
+ "Calophyllum drouhardii": {
+  "scientific_name": "Calophyllum drouhardii",
+  "family": "Clusiaceae",
+  "density": 0.598,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Calophyllum parviflorum": {
+  "scientific_name": "Calophyllum parviflorum",
+  "family": "Clusiaceae",
+  "density": 0.725,
+  "n": 6,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Calpocalyx brevibracteatus": {
   "scientific_name": "Calpocalyx brevibracteatus",
   "family": "Fabaceae",
@@ -1386,6 +1522,15 @@
   "n": 2,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Canarium madagascariense": {
+  "scientific_name": "Canarium madagascariense",
+  "family": "Burseraceae",
+  "density": 0.526,
+  "n": 13,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Canarium schweinfurthii": {
@@ -1691,10 +1836,11 @@
  "Chloroxylon swietenia": {
   "scientific_name": "Chloroxylon swietenia",
   "family": "Rutaceae",
-  "density": 0.812,
-  "n": 4,
+  "density": 0.813,
+  "n": 5,
   "regions": [
-   "Africa (tropical)"
+   "Africa (tropical)",
+   "Madagascar"
   ]
  },
  "Chorisia speciosa": {
@@ -1727,10 +1873,11 @@
  "Chrysophyllum boivinianum": {
   "scientific_name": "Chrysophyllum boivinianum",
   "family": "Sapotaceae",
-  "density": 0.551,
-  "n": 1,
+  "density": 0.555,
+  "n": 4,
   "regions": [
-   "Africa (tropical)"
+   "Africa (tropical)",
+   "Madagascar"
   ]
  },
  "Chrysophyllum giganteum": {
@@ -1767,6 +1914,15 @@
   "n": 1,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Chrysophyllum madagascariensis": {
+  "scientific_name": "Chrysophyllum madagascariensis",
+  "family": "Sapotaceae",
+  "density": 0.554,
+  "n": 2,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Chrysophyllum perpulchrum": {
@@ -1985,6 +2141,15 @@
    "Africa (tropical)"
   ]
  },
+ "Colubrina faralaotra": {
+  "scientific_name": "Colubrina faralaotra",
+  "family": "Rhamnaceae",
+  "density": 0.68,
+  "n": 3,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Combretum apiculatum": {
   "scientific_name": "Combretum apiculatum",
   "family": "Combretaceae",
@@ -2075,6 +2240,15 @@
    "Africa (extratropical)"
   ]
  },
+ "Commiphora barorum": {
+  "scientific_name": "Commiphora barorum",
+  "family": "Burseraceae",
+  "density": 0.346,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Commiphora caerulea": {
   "scientific_name": "Commiphora caerulea",
   "family": "Burseraceae",
@@ -2109,6 +2283,15 @@
   "n": 1,
   "regions": [
    "Africa (extratropical)"
+  ]
+ },
+ "Commiphora pterocarpa": {
+  "scientific_name": "Commiphora pterocarpa",
+  "family": "Burseraceae",
+  "density": 0.369,
+  "n": 1,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Copaifera mildbraedii": {
@@ -2211,6 +2394,15 @@
    "Africa (tropical)"
   ]
  },
+ "Cordyla madagascariensis": {
+  "scientific_name": "Cordyla madagascariensis",
+  "family": "Fabaceae",
+  "density": 0.818,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Cordyla pinnata": {
   "scientific_name": "Cordyla pinnata",
   "family": "Fabaceae",
@@ -2246,6 +2438,15 @@
   "n": 2,
   "regions": [
    "Africa (extratropical)"
+  ]
+ },
+ "Craspidospermum verticillatum": {
+  "scientific_name": "Craspidospermum verticillatum",
+  "family": "Apocynaceae",
+  "density": 0.838,
+  "n": 1,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Crassocephalum mannii": {
@@ -2327,6 +2528,24 @@
   "n": 5,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Cryptocarya louvelii": {
+  "scientific_name": "Cryptocarya louvelii",
+  "family": "Lauraceae",
+  "density": 0.738,
+  "n": 6,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Cryptocarya thouvenotii": {
+  "scientific_name": "Cryptocarya thouvenotii",
+  "family": "Lauraceae",
+  "density": 0.591,
+  "n": 4,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Cryptosepalum staudtii": {
@@ -2521,10 +2740,20 @@
  "Dalbergia baronii": {
   "scientific_name": "Dalbergia baronii",
   "family": "Fabaceae",
-  "density": 0.439,
+  "density": 0.621,
+  "n": 5,
+  "regions": [
+   "Africa (tropical)",
+   "Madagascar"
+  ]
+ },
+ "Dalbergia greveana": {
+  "scientific_name": "Dalbergia greveana",
+  "family": "Fabaceae",
+  "density": 0.984,
   "n": 1,
   "regions": [
-   "Africa (tropical)"
+   "Madagascar"
   ]
  },
  "Dalbergia latifolia": {
@@ -2771,6 +3000,15 @@
    "Africa (extratropical)"
   ]
  },
+ "Dilobeia thouarsii": {
+  "scientific_name": "Dilobeia thouarsii",
+  "family": "Proteaceae",
+  "density": 0.844,
+  "n": 5,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Diogoa zenkeri": {
   "scientific_name": "Diogoa zenkeri",
   "family": "Olacaceae",
@@ -2907,6 +3145,15 @@
    "Africa (tropical)"
   ]
  },
+ "Dombeya lucida": {
+  "scientific_name": "Dombeya lucida",
+  "family": "Malvaceae",
+  "density": 0.47,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Dovyalis caffra": {
   "scientific_name": "Dovyalis caffra",
   "family": "Salicaceae",
@@ -3024,6 +3271,15 @@
   "n": 1,
   "regions": [
    "Africa (extratropical)"
+  ]
+ },
+ "Elaeocarpus quadrilobus": {
+  "scientific_name": "Elaeocarpus quadrilobus",
+  "family": "Elaeocarpaceae",
+  "density": 0.542,
+  "n": 1,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Endodesmia calophylloides": {
@@ -3262,6 +3518,15 @@
    "Africa (extratropical)"
   ]
  },
+ "Eugenia parkeri": {
+  "scientific_name": "Eugenia parkeri",
+  "family": "Myrtaceae",
+  "density": 0.709,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Eugenia whytei": {
   "scientific_name": "Eugenia whytei",
   "family": "Myrtaceae",
@@ -3305,6 +3570,24 @@
   "n": 5,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Faucherea ambrensis": {
+  "scientific_name": "Faucherea ambrensis",
+  "family": "Sapotaceae",
+  "density": 0.893,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Faucherea parvifolia": {
+  "scientific_name": "Faucherea parvifolia",
+  "family": "Sapotaceae",
+  "density": 0.911,
+  "n": 4,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Faurea macnaughtonii": {
@@ -3444,6 +3727,15 @@
    "Africa (extratropical)"
   ]
  },
+ "Foetidia clusioides": {
+  "scientific_name": "Foetidia clusioides",
+  "family": "Lecythidaceae",
+  "density": 0.877,
+  "n": 4,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Funtumia africana": {
   "scientific_name": "Funtumia africana",
   "family": "Apocynaceae",
@@ -3523,6 +3815,15 @@
   "n": 1,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Garcinia verrucosa": {
+  "scientific_name": "Garcinia verrucosa",
+  "family": "Clusiaceae",
+  "density": 0.715,
+  "n": 4,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Gardenia jovis-tonantis": {
@@ -3645,10 +3946,11 @@
  "Gluta tourtour": {
   "scientific_name": "Gluta tourtour",
   "family": "Anacardiaceae",
-  "density": 0.775,
-  "n": 1,
+  "density": 0.791,
+  "n": 2,
   "regions": [
-   "Africa (tropical)"
+   "Africa (tropical)",
+   "Madagascar"
   ]
  },
  "Gmelina arborea": {
@@ -3685,6 +3987,15 @@
   "n": 2,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Grewia brideliaefolia": {
+  "scientific_name": "Grewia brideliaefolia",
+  "family": "Malvaceae",
+  "density": 0.52,
+  "n": 1,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Grewia coriacea": {
@@ -3912,6 +4223,15 @@
    "Africa (tropical)"
   ]
  },
+ "Hernandia voyroni": {
+  "scientific_name": "Hernandia voyroni",
+  "family": "Hernandiaceae",
+  "density": 0.354,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Heteropyxis natalensis": {
   "scientific_name": "Heteropyxis natalensis",
   "family": "Myrtaceae",
@@ -3946,6 +4266,15 @@
   "n": 1,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Hibiscus lasiococcus": {
+  "scientific_name": "Hibiscus lasiococcus",
+  "family": "Malvaceae",
+  "density": 0.36,
+  "n": 3,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Holarrhena floribunda": {
@@ -3991,6 +4320,15 @@
   "n": 4,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Humbertia madagascariensis": {
+  "scientific_name": "Humbertia madagascariensis",
+  "family": "Convolvulaceae",
+  "density": 1.148,
+  "n": 2,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Hura crepitans": {
@@ -4059,11 +4397,12 @@
  "Ilex mitis": {
   "scientific_name": "Ilex mitis",
   "family": "Aquifoliaceae",
-  "density": 0.555,
-  "n": 2,
+  "density": 0.53,
+  "n": 3,
   "regions": [
    "Africa (extratropical)",
-   "Africa (tropical)"
+   "Africa (tropical)",
+   "Madagascar"
   ]
  },
  "Ilex perado": {
@@ -4087,10 +4426,11 @@
  "Intsia bijuga": {
   "scientific_name": "Intsia bijuga",
   "family": "Fabaceae",
-  "density": 0.69,
-  "n": 2,
+  "density": 0.706,
+  "n": 5,
   "regions": [
-   "Africa (tropical)"
+   "Africa (tropical)",
+   "Madagascar"
   ]
  },
  "Irvingia gabonensis": {
@@ -4292,6 +4632,15 @@
    "Africa (tropical)"
   ]
  },
+ "Labramia louvelii": {
+  "scientific_name": "Labramia louvelii",
+  "family": "Sapotaceae",
+  "density": 0.66,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Lannea discolor": {
   "scientific_name": "Lannea discolor",
   "family": "Anacardiaceae",
@@ -4344,6 +4693,15 @@
   "n": 11,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Leptolaena multiflora": {
+  "scientific_name": "Leptolaena multiflora",
+  "family": "Sarcolaenaceae",
+  "density": 0.952,
+  "n": 1,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Letestua durissima": {
@@ -4465,6 +4823,15 @@
    "Africa (extratropical)"
   ]
  },
+ "Macarisia pyramidata": {
+  "scientific_name": "Macarisia pyramidata",
+  "family": "Rhizophoraceae",
+  "density": 0.687,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Maesa lanceolata": {
   "scientific_name": "Maesa lanceolata",
   "family": "Maesaceae",
@@ -4499,6 +4866,15 @@
   "n": 16,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Mammea bongo": {
+  "scientific_name": "Mammea bongo",
+  "family": "Clusiaceae",
+  "density": 0.825,
+  "n": 2,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Mangifera indica": {
@@ -4953,6 +5329,15 @@
    "Africa (tropical)"
   ]
  },
+ "Neonauclea foveolata": {
+  "scientific_name": "Neonauclea foveolata",
+  "family": "Rubiaceae",
+  "density": 0.694,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Nesogordonia leplaei": {
   "scientific_name": "Nesogordonia leplaei",
   "family": "Malvaceae",
@@ -5080,6 +5465,15 @@
    "Africa (extratropical)"
   ]
  },
+ "Ocotea auriculata": {
+  "scientific_name": "Ocotea auriculata",
+  "family": "Lauraceae",
+  "density": 0.56,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Ocotea bullata": {
   "scientific_name": "Ocotea bullata",
   "family": "Lauraceae",
@@ -5096,6 +5490,78 @@
   "n": 1,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Ocotea cymosa": {
+  "scientific_name": "Ocotea cymosa",
+  "family": "Lauraceae",
+  "density": 0.487,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Ocotea faucherei": {
+  "scientific_name": "Ocotea faucherei",
+  "family": "Lauraceae",
+  "density": 0.5,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Ocotea laevis": {
+  "scientific_name": "Ocotea laevis",
+  "family": "Lauraceae",
+  "density": 0.481,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Ocotea macrocarpa": {
+  "scientific_name": "Ocotea macrocarpa",
+  "family": "Lauraceae",
+  "density": 0.556,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Ocotea platydisca": {
+  "scientific_name": "Ocotea platydisca",
+  "family": "Lauraceae",
+  "density": 0.52,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Ocotea racemosa": {
+  "scientific_name": "Ocotea racemosa",
+  "family": "Lauraceae",
+  "density": 0.557,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Ocotea thouvenotii": {
+  "scientific_name": "Ocotea thouvenotii",
+  "family": "Lauraceae",
+  "density": 0.553,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Ocotea trichophlebia": {
+  "scientific_name": "Ocotea trichophlebia",
+  "family": "Lauraceae",
+  "density": 0.51,
+  "n": 2,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Ocotea usambarensis": {
@@ -5170,6 +5636,15 @@
   "regions": [
    "Africa (extratropical)",
    "Africa (tropical)"
+  ]
+ },
+ "Olea lancea": {
+  "scientific_name": "Olea lancea",
+  "family": "Oleaceae",
+  "density": 0.89,
+  "n": 1,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Olinia cymosa": {
@@ -5497,6 +5972,24 @@
    "Africa (extratropical)"
   ]
  },
+ "Phyllarthron articulatum": {
+  "scientific_name": "Phyllarthron articulatum",
+  "family": "Bignoniaceae",
+  "density": 0.945,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Phyllarthron madagascariense": {
+  "scientific_name": "Phyllarthron madagascariense",
+  "family": "Bignoniaceae",
+  "density": 0.965,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Phyllocosmus africanus": {
   "scientific_name": "Phyllocosmus africanus",
   "family": "Ixonanthaceae",
@@ -5642,22 +6135,33 @@
    "Africa (tropical)"
   ]
  },
+ "Polyscias ornifolia": {
+  "scientific_name": "Polyscias ornifolia",
+  "family": "Araliaceae",
+  "density": 0.553,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Populus deltoides": {
   "scientific_name": "Populus deltoides",
   "family": "Salicaceae",
-  "density": 0.37,
-  "n": 1,
+  "density": 0.432,
+  "n": 2,
   "regions": [
-   "Africa (tropical)"
+   "Africa (tropical)",
+   "Madagascar"
   ]
  },
  "Potameia antevaratra": {
   "scientific_name": "Potameia antevaratra",
   "family": "Lauraceae",
-  "density": 0.706,
-  "n": 1,
+  "density": 0.711,
+  "n": 4,
   "regions": [
-   "Africa (tropical)"
+   "Africa (tropical)",
+   "Madagascar"
   ]
  },
  "Pouteria adolfi-friedericii": {
@@ -5793,6 +6297,24 @@
   "n": 1,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Protorhus ditimena": {
+  "scientific_name": "Protorhus ditimena",
+  "family": "Anacardiaceae",
+  "density": 0.678,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Protorhus thouarsii": {
+  "scientific_name": "Protorhus thouarsii",
+  "family": "Anacardiaceae",
+  "density": 0.752,
+  "n": 1,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Prunus africana": {
@@ -6007,6 +6529,33 @@
    "Africa (tropical)"
   ]
  },
+ "Ravensara ovalifolia": {
+  "scientific_name": "Ravensara ovalifolia",
+  "family": "Lauraceae",
+  "density": 0.555,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Ravensara polyneura": {
+  "scientific_name": "Ravensara polyneura",
+  "family": "Lauraceae",
+  "density": 0.5,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Ravensara retusa": {
+  "scientific_name": "Ravensara retusa",
+  "family": "Lauraceae",
+  "density": 0.687,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Rawsonia lucida": {
   "scientific_name": "Rawsonia lucida",
   "family": "Achariaceae",
@@ -6050,6 +6599,15 @@
   "n": 2,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Rhodolaena bakeriana": {
+  "scientific_name": "Rhodolaena bakeriana",
+  "family": "Sarcolaenaceae",
+  "density": 0.845,
+  "n": 4,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Rhoicissus revoilii": {
@@ -6358,6 +6916,15 @@
    "Africa (tropical)"
   ]
  },
+ "Sloanea rhodantha": {
+  "scientific_name": "Sloanea rhodantha",
+  "family": "Elaeocarpaceae",
+  "density": 0.538,
+  "n": 3,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Sorindeia madagascariensis": {
   "scientific_name": "Sorindeia madagascariensis",
   "family": "Anacardiaceae",
@@ -6513,13 +7080,23 @@
    "Africa (extratropical)"
   ]
  },
+ "Stereospermum variabile": {
+  "scientific_name": "Stereospermum variabile",
+  "family": "Bignoniaceae",
+  "density": 0.68,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Streblus dimepate": {
   "scientific_name": "Streblus dimepate",
   "family": "Moraceae",
-  "density": 0.771,
-  "n": 1,
+  "density": 0.792,
+  "n": 3,
   "regions": [
-   "Africa (tropical)"
+   "Africa (tropical)",
+   "Madagascar"
   ]
  },
  "Strephonema pseudocolum": {
@@ -6666,6 +7243,24 @@
    "Africa (tropical)"
   ]
  },
+ "Symphonia acuminata": {
+  "scientific_name": "Symphonia acuminata",
+  "family": "Clusiaceae",
+  "density": 0.525,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Symphonia fasciculata": {
+  "scientific_name": "Symphonia fasciculata",
+  "family": "Clusiaceae",
+  "density": 0.672,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Symphonia globulifera": {
   "scientific_name": "Symphonia globulifera",
   "family": "Clusiaceae",
@@ -6674,6 +7269,33 @@
   "regions": [
    "Africa (extratropical)",
    "Africa (tropical)"
+  ]
+ },
+ "Symphonia louvelii": {
+  "scientific_name": "Symphonia louvelii",
+  "family": "Clusiaceae",
+  "density": 0.665,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Symphonia microphylla": {
+  "scientific_name": "Symphonia microphylla",
+  "family": "Clusiaceae",
+  "density": 0.6,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Symphonia tanalensis": {
+  "scientific_name": "Symphonia tanalensis",
+  "family": "Clusiaceae",
+  "density": 0.622,
+  "n": 3,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Synsepalum afzelii": {
@@ -6805,6 +7427,15 @@
    "Africa (tropical)"
   ]
  },
+ "Tambourissa thouvenotii": {
+  "scientific_name": "Tambourissa thouvenotii",
+  "family": "Monimiaceae",
+  "density": 0.512,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Tannodia swynnertonii": {
   "scientific_name": "Tannodia swynnertonii",
   "family": "Euphorbiaceae",
@@ -6914,6 +7545,15 @@
    "Africa (tropical)"
   ]
  },
+ "Terminalia mantaly": {
+  "scientific_name": "Terminalia mantaly",
+  "family": "Combretaceae",
+  "density": 0.569,
+  "n": 5,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Terminalia mollis": {
   "scientific_name": "Terminalia mollis",
   "family": "Combretaceae",
@@ -6968,6 +7608,15 @@
    "Africa (tropical)"
   ]
  },
+ "Terminalia tetrandra": {
+  "scientific_name": "Terminalia tetrandra",
+  "family": "Combretaceae",
+  "density": 0.548,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Terminalia tomentosa": {
   "scientific_name": "Terminalia tomentosa",
   "family": "Combretaceae",
@@ -6975,6 +7624,15 @@
   "n": 1,
   "regions": [
    "Africa (extratropical)"
+  ]
+ },
+ "Terminaliopsis tetrandus": {
+  "scientific_name": "Terminaliopsis tetrandus",
+  "family": "Combretaceae",
+  "density": 0.569,
+  "n": 1,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Tessmannia africana": {
@@ -7086,6 +7744,15 @@
    "Africa (tropical)"
   ]
  },
+ "Tinopsis apiculata": {
+  "scientific_name": "Tinopsis apiculata",
+  "family": "Sapindaceae",
+  "density": 0.708,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Trema orientalis": {
   "scientific_name": "Trema orientalis",
   "family": "Cannabaceae",
@@ -7159,6 +7826,15 @@
    "Africa (extratropical)"
   ]
  },
+ "Trilepisium madagascariense": {
+  "scientific_name": "Trilepisium madagascariense",
+  "family": "Moraceae",
+  "density": 0.499,
+  "n": 1,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Triplochiton scleroxylon": {
   "scientific_name": "Triplochiton scleroxylon",
   "family": "Malvaceae",
@@ -7193,6 +7869,15 @@
   "n": 1,
   "regions": [
    "Africa (tropical)"
+  ]
+ },
+ "Uapaca densifolia": {
+  "scientific_name": "Uapaca densifolia",
+  "family": "Phyllanthaceae",
+  "density": 0.642,
+  "n": 1,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Uapaca esculenta": {
@@ -7231,6 +7916,15 @@
    "Africa (extratropical)"
   ]
  },
+ "Uapaca louvelii": {
+  "scientific_name": "Uapaca louvelii",
+  "family": "Phyllanthaceae",
+  "density": 0.691,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Uapaca nitida": {
   "scientific_name": "Uapaca nitida",
   "family": "Phyllanthaceae",
@@ -7256,6 +7950,15 @@
   "n": 1,
   "regions": [
    "Africa (extratropical)"
+  ]
+ },
+ "Uapaca thouarsii": {
+  "scientific_name": "Uapaca thouarsii",
+  "family": "Phyllanthaceae",
+  "density": 0.65,
+  "n": 1,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Vangueria esculenta": {
@@ -7375,6 +8078,24 @@
    "Africa (extratropical)"
   ]
  },
+ "Weinmannia minutiflora": {
+  "scientific_name": "Weinmannia minutiflora",
+  "family": "Cunoniaceae",
+  "density": 0.571,
+  "n": 3,
+  "regions": [
+   "Madagascar"
+  ]
+ },
+ "Weinmannia rutenbergii": {
+  "scientific_name": "Weinmannia rutenbergii",
+  "family": "Cunoniaceae",
+  "density": 0.81,
+  "n": 2,
+  "regions": [
+   "Madagascar"
+  ]
+ },
  "Widdringtonia nodiflora": {
   "scientific_name": "Widdringtonia nodiflora",
   "family": "Cupressaceae",
@@ -7382,6 +8103,15 @@
   "n": 1,
   "regions": [
    "Africa (extratropical)"
+  ]
+ },
+ "Xanthocercis madagascariensis": {
+  "scientific_name": "Xanthocercis madagascariensis",
+  "family": "Fabaceae",
+  "density": 0.955,
+  "n": 2,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Xanthocercis zambesiaca": {
@@ -7527,6 +8257,15 @@
   "regions": [
    "Africa (extratropical)",
    "Africa (tropical)"
+  ]
+ },
+ "Zanthoxylum tsihanimposa": {
+  "scientific_name": "Zanthoxylum tsihanimposa",
+  "family": "Rutaceae",
+  "density": 0.51,
+  "n": 4,
+  "regions": [
+   "Madagascar"
   ]
  },
  "Ziziphus abyssinica": {

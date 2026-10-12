@@ -25,6 +25,11 @@ class V2ScanRequest(BaseModel):
     latitude: float = Field(..., ge=-90, le=90, examples=[0.4162])
     longitude: float = Field(..., ge=-180, le=180, examples=[9.4541])
     canopy_density_fcd: float | None = Field(None, ge=0, le=1)
+    tree_code: str | None = Field(
+        None,
+        description="Registry code linking residues to a felled tree",
+        examples=["GA-2026-000123"],
+    )
 
 
 def _carbon_avoided_kg(biomass: float) -> float:
@@ -200,6 +205,18 @@ Schéma JSON exact:
             detail=f"Génération du plan échouée: {exc}. Vérifiez GROQ_API_KEY / modèle.",
         ) from exc
 
+    # --- Optional chain link: residues of a registered felled tree ---
+    linked_code: str | None = None
+    if request.tree_code:
+        tree = await db.fetch_one(
+            "SELECT * FROM tree_registry WHERE tree_code=$1", request.tree_code.strip()
+        )
+        if tree is None:
+            raise HTTPException(status_code=404, detail="Arbre inconnu au registre")
+        if company_id is not None and tree["company_id"] != company_id:
+            raise HTTPException(status_code=403, detail="Arbre d'une autre entreprise")
+        linked_code = request.tree_code.strip()
+
     # --- Persist ---
     try:
         await db.execute(
@@ -212,10 +229,10 @@ Schéma JSON exact:
                 weight_bark_kg, weight_foliar_kg,
                 volume_stump_m3, weight_roots_kg, volume_sawdust_m3,
                 assigned_community_cooperative_id, valorization_plan,
-                user_id, logging_company_id
+                user_id, logging_company_id, tree_code
             ) VALUES (
                 ST_SetSRID(ST_MakePoint($2, $1), 4326), $3, $4, $5, $6, $7, $8, $9, $10,
-                $11, $12, $13, $14, $15, $16, $17, $18, $19
+                $11, $12, $13, $14, $15, $16, $17, $18, $19, $20
             )
             """,
             request.latitude,
@@ -237,6 +254,7 @@ Schéma JSON exact:
             plan.model_dump_json(),
             user_id,
             company_id,
+            linked_code,
         )
     except Exception as exc:
         app_logger.warning("v2 persistence failed (scan still returned): %s", exc)
@@ -244,6 +262,7 @@ Schéma JSON exact:
     return {
         "residue_engine": residues.to_dict(),
         "valorization_plan": plan.model_dump(),
+        "tree_code": linked_code,
         "matched_cooperatives": [
             {
                 "id": c["id"],

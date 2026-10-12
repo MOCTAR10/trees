@@ -6,7 +6,9 @@ from app.config import get_settings
 from app.core import security
 from app.services import db
 
-_USER_COLUMNS = "id, email, display_name, role, is_active, cooperative_id, company_id"
+_USER_COLUMNS = (
+    "id, email, display_name, role, is_active, cooperative_id, company_id, organization_id"
+)
 
 
 async def get_current_user(authorization: str | None = Header(None)) -> dict:

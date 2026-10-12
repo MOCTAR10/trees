@@ -1,4 +1,4 @@
-"""End-to-end v1 smoke: multipart 3-view scan through the Node gateway."""
+"""End-to-end v1 smoke: multi-view scan (orbit + organs) through the Node gateway."""
 
 import asyncio
 import time
@@ -13,19 +13,26 @@ async def main() -> None:
         img = (await client.get(PHOTO_URL)).content
         print(f"photo: {len(img)} bytes")
 
-        files = {
-            "trunk_image": ("trunk.jpg", img, "image/jpeg"),
-            "leaf_image": ("leaf.jpg", img, "image/jpeg"),
-            "habitat_image": ("habitat.jpg", img, "image/jpeg"),
-        }
-        data = {
-            "latitude": "0.4162",
-            "longitude": "9.4541",
-            "ar_depth_m": "1.30",
-            "focal_px": "2200",
-        }
+        files = [
+            ("images", ("whole_0.jpg", img, "image/jpeg")),
+            ("images", ("bark_1.jpg", img, "image/jpeg")),
+            ("images", ("leaf_top.jpg", img, "image/jpeg")),
+            ("images", ("leaf_under.jpg", img, "image/jpeg")),
+            ("organs", (None, "whole")),
+            ("organs", (None, "bark")),
+            ("organs", (None, "leaf")),
+            ("organs", (None, "leaf")),
+            ("azimuths", (None, "0")),
+            ("azimuths", (None, "-1")),
+            ("azimuths", (None, "-1")),
+            ("azimuths", (None, "-1")),
+            ("latitude", (None, "0.4162")),
+            ("longitude", (None, "9.4541")),
+            ("ar_depth_m", (None, "1.30")),
+            ("focal_px", (None, "2200")),
+        ]
         t0 = time.perf_counter()
-        r = await client.post("http://localhost:3000/api/v1/process-scan", files=files, data=data)
+        r = await client.post("http://localhost:3000/api/v1/process-scan", files=files)
         dt = time.perf_counter() - t0
         print(f"status={r.status_code} in {dt:.1f}s")
         if r.status_code != 200:
