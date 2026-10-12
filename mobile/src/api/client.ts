@@ -1767,3 +1767,88 @@ export async function decideEudrDiligence(
   if (!resp.ok) throw new Error(`EUDR ${resp.status}: ${await resp.text()}`);
   return resp.json();
 }
+
+// Certifications tierces (FSC / PAFC / PEFC / OLB / LS / TLV) — Slice 7
+export type CertScheme = "FSC" | "PAFC" | "PEFC" | "OLB" | "LS" | "TLV";
+export type CertType = "gestion_durable" | "legalite_plus";
+export type CertStatus = "soumis" | "actif" | "suspendu" | "expire" | "rejete";
+
+export interface Certification {
+  id: number;
+  org_id: number;
+  title_id: number | null;
+  scheme: CertScheme;
+  cert_type: CertType;
+  certificate_ref: string | null;
+  surface_ha: number | null;
+  valid_from: string | null;
+  valid_to: string | null;
+  declared_by?: number | null;
+  verified_by?: number | null;
+  verified_at?: string | null;
+  decision_motif?: string | null;
+  status: CertStatus;
+  created_at: string;
+  org_name?: string | null;
+  title_ref?: string | null;
+}
+
+export interface CertificationSummary {
+  by_status: { status: CertStatus; count: number; surface_ha: number }[];
+  by_scheme: { scheme: CertScheme; count: number }[];
+  total_count: number;
+}
+
+export async function listCertifications(
+  params: { scheme?: CertScheme; status?: CertStatus } = {},
+): Promise<Certification[]> {
+  const query = new URLSearchParams();
+  if (params.scheme) query.set("scheme", params.scheme);
+  if (params.status) query.set("status", params.status);
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  const resp = await timedFetch(`${API_BASE}/api/certifications${suffix}`, {
+    headers: headers(),
+  });
+  if (!resp.ok) throw new Error(`Certifications ${resp.status}`);
+  return resp.json();
+}
+
+export async function declareCertification(input: {
+  scheme: CertScheme;
+  cert_type: CertType;
+  certificate_ref?: string | null;
+  title_id?: number | null;
+  surface_ha?: number | null;
+  valid_from?: string | null;
+  valid_to?: string | null;
+}): Promise<Certification> {
+  const resp = await timedFetch(`${API_BASE}/api/certifications`, {
+    method: "POST",
+    headers: headers(true),
+    body: JSON.stringify(input),
+  });
+  if (!resp.ok) throw new Error(`Certification ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
+export async function decideCertification(
+  id: number,
+  decision: "actif" | "rejete" | "suspendu",
+  decisionMotif?: string | null,
+): Promise<Certification> {
+  const resp = await timedFetch(`${API_BASE}/api/certifications/${id}`, {
+    method: "PATCH",
+    headers: headers(true),
+    body: JSON.stringify({ decision, decision_motif: decisionMotif ?? null }),
+  });
+  if (!resp.ok) throw new Error(`Certification ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
+export async function certificationSummary(): Promise<CertificationSummary> {
+  const resp = await timedFetch(`${API_BASE}/api/certifications/summary`, {
+    headers: headers(),
+  });
+  if (!resp.ok) throw new Error(`Summary ${resp.status}`);
+  return resp.json();
+}

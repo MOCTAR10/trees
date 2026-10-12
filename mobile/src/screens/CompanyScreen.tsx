@@ -27,6 +27,7 @@ import { colors, spacing, type } from "../theme";
 import CompanyTitles from "../components/CompanyTitles";
 import CompanyTraceability from "../components/CompanyTraceability";
 import CompanyFiscal from "../components/CompanyFiscal";
+import CompanyCertifications from "../components/CompanyCertifications";
 import OrgDocuments from "../components/OrgDocuments";
 import OrgTaxes from "../components/OrgTaxes";
 import DeclareScreen from "./DeclareScreen";
@@ -37,7 +38,7 @@ interface Props {
   showHeader?: boolean;
 }
 
-type CompanyTab = "residues" | "abattage" | "documents" | "titres" | "taxes" | "tracabilite" | "fiscal";
+type CompanyTab = "residues" | "abattage" | "documents" | "titres" | "taxes" | "tracabilite" | "fiscal" | "cert";
 
 export default function CompanyScreen({ user, onLogout, showHeader = true }: Props) {
   const [residues, setResidues] = useState<CompanyResidue[]>([]);
@@ -132,6 +133,7 @@ export default function CompanyScreen({ user, onLogout, showHeader = true }: Pro
     { key: "taxes", label: fr.taxes.tab },
     { key: "tracabilite", label: fr.traceability.tab },
     { key: "fiscal", label: fr.fiscal.tab },
+    { key: "cert", label: fr.cert.tab },
   ];
 
   return (
@@ -165,6 +167,8 @@ export default function CompanyScreen({ user, onLogout, showHeader = true }: Pro
         <CompanyTraceability />
       ) : tab === "fiscal" ? (
         <CompanyFiscal />
+      ) : tab === "cert" ? (
+        <CompanyCertifications />
       ) : tab === "abattage" ? (
         declaring ? (
           <DeclareScreen

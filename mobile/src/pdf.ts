@@ -87,6 +87,11 @@ export async function exportAuthorizationPdf(id: number): Promise<string> {
   return getPdfToCache(`/api/titles/authorizations/${id}/pdf`, `autorisation_${id}.pdf`);
 }
 
+/** Third-party certification (FSC / PAFC / …) PDF. */
+export async function exportCertificationPdf(id: number): Promise<string> {
+  return getPdfToCache(`/api/certifications/${id}/pdf`, `certification_${id}.pdf`);
+}
+
 export async function sharePdf(uri: string): Promise<void> {
   if (await Sharing.isAvailableAsync()) {
     await Sharing.shareAsync(uri, {

@@ -26,6 +26,7 @@ import AdminDocuments from "../components/AdminDocuments";
 import AdminTitles from "../components/AdminTitles";
 import AdminTraceability from "../components/AdminTraceability";
 import AdminFiscal from "../components/AdminFiscal";
+import AdminCertifications from "../components/AdminCertifications";
 import DeclarationCompliance from "../components/DeclarationCompliance";
 import RoleHeader from "../components/RoleHeader";
 import { fr } from "../i18n/fr";
@@ -37,7 +38,7 @@ interface Props {
   showHeader?: boolean;
 }
 
-type Tab = "stats" | "users" | "declarations" | "anomalies" | "documents" | "titres" | "tracabilite" | "fiscal";
+type Tab = "stats" | "users" | "declarations" | "anomalies" | "documents" | "titres" | "tracabilite" | "fiscal" | "cert";
 
 export default function AdminScreen({ user, onLogout, showHeader = true }: Props) {
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -155,6 +156,7 @@ export default function AdminScreen({ user, onLogout, showHeader = true }: Props
     { key: "titres", label: fr.titles.tab },
     { key: "tracabilite", label: fr.traceability.tab },
     { key: "fiscal", label: fr.fiscal.tab },
+    { key: "cert", label: fr.cert.tab },
   ];
 
   return (
@@ -188,6 +190,8 @@ export default function AdminScreen({ user, onLogout, showHeader = true }: Props
         <AdminTraceability />
       ) : tab === "fiscal" ? (
         <AdminFiscal />
+      ) : tab === "cert" ? (
+        <AdminCertifications />
       ) : tab === "declarations" ? (
         declLoading ? (
           <ActivityIndicator style={styles.center} color={colors.accent} />
