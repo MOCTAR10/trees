@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from app.api import (
     admin,
     auth,
+    certifications,
     community,
     company,
     compliance,
@@ -66,6 +67,7 @@ app.include_router(transport.router, prefix="/api/transport", tags=["transport"]
 app.include_router(traceability.router, prefix="/api/traceability", tags=["traceability"])
 app.include_router(community.router, prefix="/api/community", tags=["community"])
 app.include_router(eudr.router, prefix="/api/eudr", tags=["eudr"])
+app.include_router(certifications.router, prefix="/api/certifications", tags=["certifications"])
 app.include_router(knowledge.router, prefix="/api/knowledge", tags=["knowledge"])
 app.include_router(species.router, prefix="/api/species", tags=["species"])
 app.include_router(trees.router, prefix="/api", tags=["trees"])

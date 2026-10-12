@@ -433,6 +433,17 @@ AUTHORIZATION_STATUS_LABEL = {
     "delivre": "Délivré",
     "rejete": "Rejeté",
 }
+CERT_TYPE_LABEL = {
+    "gestion_durable": "Gestion durable",
+    "legalite_plus": "Légalité plus",
+}
+CERT_STATUS_LABEL = {
+    "soumis": "Soumis",
+    "actif": "Actif",
+    "suspendu": "Suspendu",
+    "expire": "Expiré",
+    "rejete": "Rejeté",
+}
 
 
 def _fmt_date(value: Any) -> str:
@@ -800,3 +811,65 @@ def render_authorization_pdf(doc: dict, org_name: str | None = None) -> bytes:
         ),
     ]
     return _build(story, "Autorisation d'exploiter")
+
+
+def render_certification_pdf(doc: dict, org_name: str | None = None) -> bytes:
+    """Third-party certification (FSC / PAFC / PEFC / OLB / LS / TLV) -> PDF.
+
+    Materialises a company's certificate of sustainable forest management or
+    legality-plus, as declared to and verified by the administration (Timber
+    Trade Portal — tierce partie & certification).
+    """
+    doc = doc or {}
+    scheme = doc.get("scheme")
+    cert_type = doc.get("cert_type")
+    title = doc.get("title_ref") or (f"#{doc.get('title_id')}" if doc.get("title_id") else None)
+    surface = doc.get("surface_ha")
+    validity_from = _fmt_date(doc.get("valid_from"))
+    validity_to = _fmt_date(doc.get("valid_to"))
+    validity = " → ".join(p for p in (validity_from, validity_to) if p) or "—"
+
+    story: list = [
+        Paragraph("Attestation de certification", S_TITLE),
+        Paragraph(_safe(TAGLINE), S_SUB),
+        Spacer(1, 6 * mm),
+        _kv_table(
+            [
+                ("Opérateur", org_name or doc.get("org_name") or "—"),
+                ("Schéma", scheme or "—"),
+                ("Type", CERT_TYPE_LABEL.get(cert_type, cert_type)),
+                ("Référence", doc.get("certificate_ref") or "—"),
+                ("Titre", title),
+                ("Surface", f"{surface:,.0f} ha".replace(",", " ") if surface else "—"),
+                ("Validité", validity),
+                ("Statut", CERT_STATUS_LABEL.get(doc.get("status"), doc.get("status"))),
+            ]
+        ),
+    ]
+
+    if doc.get("decision_motif"):
+        story += [
+            Spacer(1, 4 * mm),
+            Paragraph("Décision de l'administration", S_H2),
+            Paragraph(_safe(doc["decision_motif"]), S_BODY),
+        ]
+
+    story += [
+        Spacer(1, 5 * mm),
+        KeepTogether(
+            [
+                Paragraph("Portée", S_H2),
+                Paragraph(
+                    _safe(
+                        "La certification tierce partie atteste la conformité de la gestion "
+                        "forestière (FSC / PAFC / PEFC) ou de la légalité renforcée (OLB / LS / TLV). "
+                        "Elle complète, sans le remplacer, le dispositif légal national (Code "
+                        "forestier gabonais, Loi 016/01) et les obligations de diligence raisonnée "
+                        "(RDUE)."
+                    ),
+                    S_SMALL,
+                ),
+            ]
+        ),
+    ]
+    return _build(story, "Certification")

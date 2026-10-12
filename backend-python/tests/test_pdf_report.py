@@ -194,6 +194,30 @@ def test_render_authorization_pdf():
     _assert_pdf(pdf_report.render_authorization_pdf({}))
 
 
+def test_render_certification_pdf():
+    doc = {
+        "id": 9,
+        "org_name": "Bois SA",
+        "scheme": "FSC",
+        "cert_type": "gestion_durable",
+        "certificate_ref": "FSC-C-001",
+        "title_id": 30,
+        "title_ref": "T-1",
+        "surface_ha": 5000.0,
+        "valid_from": "2025-01-01",
+        "valid_to": "2030-01-01",
+        "status": "actif",
+        "decision_motif": None,
+    }
+    _assert_pdf(pdf_report.render_certification_pdf(doc, org_name="Bois SA"))
+    _assert_pdf(
+        pdf_report.render_certification_pdf(
+            {**doc, "status": "rejete", "decision_motif": "Certificat non valide"}
+        )
+    )
+    _assert_pdf(pdf_report.render_certification_pdf({}))
+
+
 def test_renders_with_missing_fields():
     # None / empty values must not raise
     _assert_pdf(pdf_report.render_measurement_pdf({}))
