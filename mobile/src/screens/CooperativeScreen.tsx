@@ -23,12 +23,13 @@ import { colors, spacing, type } from "../theme";
 interface Props {
   user: AuthUser;
   onLogout: () => void;
+  showHeader?: boolean;
 }
 
 const DEFAULT_COORDS = { latitude: 0.4162, longitude: 9.4541 };
 const RADIUS_KM = 150;
 
-export default function CooperativeScreen({ user, onLogout }: Props) {
+export default function CooperativeScreen({ user, onLogout, showHeader = true }: Props) {
   const [coords, setCoords] = useState(DEFAULT_COORDS);
   const [residues, setResidues] = useState<NearbyResidue[]>([]);
   const [profileType, setProfileType] = useState<string | null>(null);
@@ -91,14 +92,7 @@ export default function CooperativeScreen({ user, onLogout }: Props) {
 
   return (
     <View style={styles.container}>
-      <RoleHeader
-        title={fr.cooperative.title}
-        subtitle={fr.cooperative.subtitle}
-        roleLabel={`${fr.roles.cooperative} · ${user.display_name}${
-          profileType ? ` · ${profileType}` : ""
-        }`}
-        onLogout={onLogout}
-      />
+      {showHeader && <RoleHeader title={fr.cooperative.title} subtitle={fr.cooperative.subtitle} />}
 
       <View style={styles.controls}>
         <TouchableOpacity onPress={locate} style={styles.locateBtn}>

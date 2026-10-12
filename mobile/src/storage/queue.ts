@@ -1,7 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system/legacy";
 
-import { CapturedImage, processScanV1, processScanV2, V1Report, V2Response } from "../api/client";
+import {
+  CapturedImage,
+  CaptureShot,
+  processScanV1,
+  processScanV2,
+  V1Report,
+  V2Response,
+} from "../api/client";
 
 export interface QueuedV1Scan {
   kind: "v1";
@@ -11,7 +18,9 @@ export interface QueuedV1Scan {
   latitude: number;
   longitude: number;
   ar_depth_m: number;
-  images: { trunk: CapturedImage; leaf: CapturedImage; habitat: CapturedImage };
+  shots?: CaptureShot[];
+  /** @deprecated legacy single-view shape, upgraded on flush. */
+  images?: { trunk: CapturedImage; leaf: CapturedImage; habitat: CapturedImage };
 }
 
 export interface QueuedV2Scan {
@@ -82,13 +91,26 @@ export function isNetworkError(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err);
   return (
     err instanceof TypeError ||
-    /network request failed|failed to fetch|fetch failed|socket|connect|ECONN/i.test(msg)
+    /network request failed|failed to fetch|fetch failed|socket|connect|ECONN|délai dépassé|timed out|timeout|abort/i.test(
+      msg,
+    )
   );
 }
 
 export interface FlushHandlers {
   onV1Success: (entry: QueuedV1Scan, report: V1Report) => Promise<void>;
   onV2Success: (entry: QueuedV2Scan, report: V2Response) => Promise<void>;
+}
+
+function toShots(item: QueuedV1Scan): CaptureShot[] {
+  if (item.shots?.length) return item.shots;
+  const legacy = item.images;
+  if (!legacy) return [];
+  return [
+    { image: legacy.trunk, organ: "bark" },
+    { image: legacy.leaf, organ: "leaf" },
+    { image: legacy.habitat, organ: "whole" },
+  ];
 }
 
 /**
@@ -105,9 +127,7 @@ export async function flushQueue(
     try {
       if (item.kind === "v1") {
         const report = await processScanV1({
-          trunk: item.images.trunk,
-          leaf: item.images.leaf,
-          habitat: item.images.habitat,
+          shots: toShots(item),
           latitude: item.latitude,
           longitude: item.longitude,
           arDepthM: item.ar_depth_m,

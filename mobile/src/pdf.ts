@@ -1,23 +1,12 @@
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 
-import { API_BASE } from "./api/client";
+import { API_BASE, requestHeaders, timedFetch, UPLOAD_TIMEOUT_MS } from "./api/client";
 
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
 const authHeaders = API_KEY ? { "X-API-Key": API_KEY } : undefined;
 
-async function postJsonToPdfCache(
-  path: string,
-  body: unknown,
-  filename: string,
-): Promise<string> {
-  const resp = await fetch(`${API_BASE}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders },
-    body: JSON.stringify(body),
-  });
-  if (!resp.ok) throw new Error(`PDF ${resp.status}: ${await resp.text()}`);
-  const blob = await resp.blob();
+async function blobToCache(blob: Blob, filename: string): Promise<string> {
   const dataUrl = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result));
@@ -31,6 +20,35 @@ async function postJsonToPdfCache(
   return dest;
 }
 
+async function postJsonToPdfCache(
+  path: string,
+  body: unknown,
+  filename: string,
+): Promise<string> {
+  const resp = await timedFetch(
+    `${API_BASE}${path}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders },
+      body: JSON.stringify(body),
+    },
+    UPLOAD_TIMEOUT_MS,
+  );
+  if (!resp.ok) throw new Error(`PDF ${resp.status}: ${await resp.text()}`);
+  return blobToCache(await resp.blob(), filename);
+}
+
+/** GET an authenticated PDF endpoint and cache it locally. */
+async function getPdfToCache(path: string, filename: string): Promise<string> {
+  const resp = await timedFetch(
+    `${API_BASE}${path}`,
+    { headers: requestHeaders() },
+    UPLOAD_TIMEOUT_MS,
+  );
+  if (!resp.ok) throw new Error(`PDF ${resp.status}: ${await resp.text()}`);
+  return blobToCache(await resp.blob(), filename);
+}
+
 export async function exportReportPdf(report: unknown): Promise<string> {
   const stamp = Date.now();
   return postJsonToPdfCache("/api/v1/report/pdf", report, `rapport_${stamp}.pdf`);
@@ -39,6 +57,29 @@ export async function exportReportPdf(report: unknown): Promise<string> {
 export async function exportPlanPdf(plan: unknown): Promise<string> {
   const stamp = Date.now();
   return postJsonToPdfCache("/api/v2/report/pdf", plan, `plan_${stamp}.pdf`);
+}
+
+/** Carnet de chantier (DF10) PDF for the caller's scope. */
+export async function exportDf10Pdf(): Promise<string> {
+  return getPdfToCache("/api/traceability/df10/pdf", `carnet_df10_${Date.now()}.pdf`);
+}
+
+/** Periodic statement (état trimestriel/annuel) PDF. */
+export async function exportStatementPdf(year: number, quarter?: number | null): Promise<string> {
+  const qs = new URLSearchParams({ year: String(year) });
+  if (quarter) qs.set("quarter", String(quarter));
+  const label = `etat_${year}${quarter ? `_T${quarter}` : ""}`;
+  return getPdfToCache(`/api/traceability/statements/pdf?${qs.toString()}`, `${label}.pdf`);
+}
+
+/** Transport document (bordereau / feuille de route / spécification) PDF. */
+export async function exportTransportPdf(id: number): Promise<string> {
+  return getPdfToCache(`/api/transport/documents/${id}/pdf`, `transport_${id}.pdf`);
+}
+
+/** EUDR due-diligence statement PDF. */
+export async function exportDiligencePdf(id: number): Promise<string> {
+  return getPdfToCache(`/api/eudr/diligence/${id}/pdf`, `diligence_eudr_${id}.pdf`);
 }
 
 export async function sharePdf(uri: string): Promise<void> {

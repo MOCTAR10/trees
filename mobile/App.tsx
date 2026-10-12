@@ -1,103 +1,236 @@
-import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { StatusBar } from 'expo-status-bar';
+import * as Location from 'expo-location';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  SafeAreaView,
+  InteractionManager,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
-} from "react-native";
+} from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-import {
-  AuthUser,
-  getMe,
-  processScanV1,
-  processScanV2,
-  V1Report,
-  V2Response,
-} from "./src/api/client";
-import { fr } from "./src/i18n/fr";
-import { sharePdf, exportPlanPdf, exportReportPdf } from "./src/pdf";
-import AdminScreen from "./src/screens/AdminScreen";
-import CaptureScreen, { CaptureResult } from "./src/screens/CaptureScreen";
-import CompanyScreen from "./src/screens/CompanyScreen";
-import CooperativeScreen from "./src/screens/CooperativeScreen";
-import HistoryScreen from "./src/screens/HistoryScreen";
-import HomeScreen from "./src/screens/HomeScreen";
-import LoginScreen from "./src/screens/LoginScreen";
-import ReportScreen from "./src/screens/ReportScreen";
-import ValorizationScreen from "./src/screens/ValorizationScreen";
-import { applySession, clearSession, loadSession, saveSession, Session } from "./src/storage/session";
-import {
-  clearScans,
-  deleteScan,
-  loadScans,
-  newScanId,
-  saveScan,
-  StoredScan,
-  updateScanValorization,
-} from "./src/storage/history";
-import {
-  copyToOutbox,
-  enqueue,
-  flushQueue,
-  isNetworkError,
-  loadQueue,
-} from "./src/storage/queue";
-import { colors, spacing, type } from "./src/theme";
+import { fr } from './src/i18n/fr';
+import { colors, spacing, type } from './src/theme';
+import { sharePdf, exportPlanPdf, exportReportPdf } from './src/pdf';
+import { AuthUser, companyProfile, cooperativeProfile, getMe, pingGateway, processScanV1, processScanV2, setUnauthorizedHandler, V1Report, V2Response } from './src/api/client';
+import type { CaptureResult } from './src/screens/CaptureScreen';
+import CompanyScreen from './src/screens/CompanyScreen';
+import CooperativeScreen from './src/screens/CooperativeScreen';
+import HistoryScreen from './src/screens/HistoryScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import LoginScreen from './src/screens/LoginScreen';
+import ReportScreen from './src/screens/ReportScreen';
+import AdminScreen from './src/screens/AdminScreen';
+import BottomNav from './src/components/BottomNav';
+import ErrorBoundary from './src/components/ErrorBoundary';
+import LoadingScreen from './src/components/LoadingScreen';
+import RouteLoader from './src/components/RouteLoader';
+import RoleHeader, { HeaderCoords } from './src/components/RoleHeader';
+import SpeciesScreen from './src/screens/SpeciesScreen';
+import SpeciesDetailScreen from './src/screens/SpeciesDetailScreen';
+
+// Heavy native modules (camera, maps) load only when first opened,
+// keeping cold start fast.
+const CaptureScreen = React.lazy(() => import('./src/screens/CaptureScreen'));
+const MapScreen = React.lazy(() => import('./src/screens/MapScreen'));
+const ValorizationScreen = React.lazy(() => import('./src/screens/ValorizationScreen'));
+const ProjectDetailScreen = React.lazy(() => import('./src/screens/ProjectDetailScreen'));
+import CreateProjectScreen from './src/screens/CreateProjectScreen';
+import ProjetsScreen from './src/screens/ProjetsScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+import { applySession, clearSession, loadSession, saveSession, Session } from './src/storage/session';
+import { clearScans, deleteScan, loadScans, newScanId, saveScan, StoredScan, updateScanValorization } from './src/storage/history';
+import { copyToOutbox, enqueue, flushQueue, isNetworkError, loadQueue } from './src/storage/queue';
+import { bindCatalogueLifecycle, ensureCatalogue } from './src/storage/catalogueStore';
 
 type Phase =
-  | "home"
-  | "capture"
-  | "analyzing"
-  | "report"
-  | "valorizing"
-  | "valorization"
-  | "error"
-  | "history";
+  | 'home'
+  | 'analyzing'
+  | 'report'
+  | 'valorizing'
+  | 'valorization'
+  | 'error'
+  | 'history'
+  | 'species'
+  | 'speciesDetail'
+  | 'map'
+  | 'profile'
+  | 'projects'
+  | 'projectDetail'
+  | 'projectCreate'
+  | 'capture';
+
+const TAB_PHASES: Phase[] = ['home', 'species', 'map', 'history'];
+
 
 export default function App() {
   const [phase, setPhase] = useState<Phase>("home");
-  const [report, setReport] = useState<V1Report | null>(null);
   const [valorization, setValorization] = useState<V2Response | null>(null);
+  const [report, setReport] = useState<V1Report | null>(null);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [activeScanId, setActiveScanId] = useState<string | null>(null);
+  const [selectedSpecies, setSelectedSpecies] = useState<string | null>(null);
+  const [selectedProject, setSelectedProject] = useState<number | null>(null);
   const [historyReturn, setHistoryReturn] = useState(false);
   const [scans, setScans] = useState<StoredScan[]>([]);
   const [queueCount, setQueueCount] = useState(0);
   const [syncing, setSyncing] = useState(false);
   const [exporting, setExporting] = useState<"report" | "plan" | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [orgName, setOrgName] = useState<string | null>(null);
+  const [headerCoords, setHeaderCoords] = useState<HeaderCoords | null>(null);
   const [bootstrapping, setBootstrapping] = useState(true);
+  const [isPending, startTransition] = React.useTransition();
+
+  const requestPhase = useCallback((next: Phase) => {
+    startTransition(() => setPhase(next));
+  }, []);
+
+  const resolveOrg = useCallback(async (u: AuthUser) => {
+    try {
+      if (u.role === "company" || u.role === "operator") {
+        const p = await companyProfile();
+        setOrgName(p.organization);
+      } else if (u.role === "cooperative") {
+        const p = await cooperativeProfile();
+        setOrgName(p.organization);
+      } else {
+        setOrgName(null);
+      }
+    } catch {
+      setOrgName(null);
+    }
+  }, []);
 
   useEffect(() => {
-    (async () => {
-      const session = await loadSession();
-      if (session) {
-        applySession(session);
-        try {
-          setUser(await getMe());
-        } catch {
-          applySession(null);
-          await clearSession();
-        }
-      }
-      setBootstrapping(false);
-    })();
+    // When any authenticated call returns 401 the stored token is no longer
+    // valid (expired/revoked). Drop the session so the user returns to login
+    // rather than seeing stale cached data while every request silently fails.
+    setUnauthorizedHandler(() => {
+      applySession(null);
+      void clearSession();
+      setUser(null);
+      setOrgName(null);
+    });
+    return () => setUnauthorizedHandler(null);
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const failsafe = setTimeout(() => {
+      if (!cancelled) setBootstrapping(false);
+    }, 10000);
+    const withTimeout = <T,>(promise: Promise<T>, ms: number, fallback: T): Promise<T> =>
+      Promise.race([
+        promise,
+        new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+      ]);
+    (async () => {
+      const [online, session] = await Promise.all([
+        withTimeout(pingGateway(), 4000, false),
+        withTimeout(loadSession(), 2500, null),
+      ]);
+      if (cancelled) return;
+      if (!session) {
+        setBootstrapping(false);
+        return;
+      }
+      applySession(session);
+      if (!online) {
+        setUser(session.user);
+        setBootstrapping(false);
+        return;
+      }
+      try {
+        const me = await Promise.race([
+          getMe(),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("session timeout")), 4000),
+          ),
+        ]);
+        if (cancelled) return;
+        setUser(me);
+        void resolveOrg(me);
+      } catch {
+        if (cancelled) return;
+        applySession(null);
+        await clearSession();
+        setUser(null);
+      } finally {
+        if (!cancelled) setBootstrapping(false);
+      }
+    })().finally(() => clearTimeout(failsafe));
+    return () => {
+      cancelled = true;
+      clearTimeout(failsafe);
+    };
+  }, [resolveOrg]);
+
+  useEffect(() => {
+    if (!user) return;
+    const unbind = bindCatalogueLifecycle();
+    void ensureCatalogue();
+    const task = InteractionManager.runAfterInteractions(() => {
+      void import('./src/screens/CaptureScreen');
+      void import('./src/screens/MapScreen');
+      void import('./src/screens/ValorizationScreen');
+      void import('./src/screens/ProjectDetailScreen');
+    });
+    return () => {
+      task.cancel();
+      unbind();
+    };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      setHeaderCoords(null);
+      return;
+    }
+    let subscription: Location.LocationSubscription | null = null;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (cancelled || status !== "granted") return;
+        try {
+          const last = await Location.getLastKnownPositionAsync();
+          if (!cancelled && last) {
+            setHeaderCoords({ latitude: last.coords.latitude, longitude: last.coords.longitude });
+          }
+        } catch {
+          // Fall through to the live watcher.
+        }
+        subscription = await Location.watchPositionAsync(
+          { accuracy: Location.Accuracy.Balanced, distanceInterval: 25 },
+          (pos) => {
+            setHeaderCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+          },
+        );
+      } catch {
+        // Row falls back to the "locating" label.
+      }
+    })();
+    return () => {
+      cancelled = true;
+      subscription?.remove();
+    };
+  }, [user]);
 
   const handleLogin = useCallback(async (session: Session) => {
     applySession(session);
     await saveSession(session);
     setUser(session.user);
-  }, []);
+    void resolveOrg(session.user);
+  }, [resolveOrg]);
 
   const handleLogout = useCallback(async () => {
     applySession(null);
     await clearSession();
     setUser(null);
+    setOrgName(null);
     setPhase("home");
   }, []);
 
@@ -112,14 +245,21 @@ export default function App() {
   const mountedRef = useRef(false);
 
   useEffect(() => {
-    refreshScans();
-    refreshQueue();
-  }, [refreshScans, refreshQueue]);
+    if (user) {
+      setPhase("home");
+    }
+  }, [user?.role]);
 
+  const syncingRef = useRef(false);
   const syncQueue = useCallback(async () => {
-    if (syncing) return;
+    if (syncingRef.current) return;
+    syncingRef.current = true;
     setSyncing(true);
     try {
+      // Fail fast offline instead of burning a timeout per queued item.
+      if (!(await pingGateway())) {
+        return;
+      }
       const { synced } = await flushQueue({
         onV1Success: async (entry, report) => {
           await saveScan({
@@ -143,9 +283,10 @@ export default function App() {
     } finally {
       await refreshScans();
       await refreshQueue();
+      syncingRef.current = false;
       setSyncing(false);
     }
-  }, [refreshScans, refreshQueue, syncing]);
+  }, [refreshScans, refreshQueue]);
 
   useEffect(() => {
     if (!mountedRef.current) {
@@ -161,12 +302,12 @@ export default function App() {
     setActiveScanId(null);
     setHistoryReturn(false);
     setExporting(null);
-    setPhase("home");
+    startTransition(() => setPhase("home"));
   }, []);
 
   const goHistory = useCallback(() => {
     refreshScans();
-    setPhase("history");
+    startTransition(() => setPhase("history"));
   }, [refreshScans]);
 
   const handleCaptured = async (capture: CaptureResult) => {
@@ -192,11 +333,12 @@ export default function App() {
       console.error("V1 failed", err);
       if (isNetworkError(err)) {
         try {
-          const [trunk, leaf, habitat] = await Promise.all([
-            copyToOutbox(capture.trunk.uri, capture.trunk.name),
-            copyToOutbox(capture.leaf.uri, capture.leaf.name),
-            copyToOutbox(capture.habitat.uri, capture.habitat.name),
-          ]);
+          const shots = await Promise.all(
+            capture.shots.map(async (shot) => ({
+              ...shot,
+              image: await copyToOutbox(shot.image.uri, shot.image.name),
+            })),
+          );
           await enqueue({
             kind: "v1",
             id: scanId,
@@ -205,7 +347,7 @@ export default function App() {
             latitude: capture.latitude,
             longitude: capture.longitude,
             ar_depth_m: capture.arDepthM,
-            images: { trunk, leaf, habitat },
+            shots,
           });
           refreshQueue();
         } catch (copyErr) {
@@ -314,97 +456,185 @@ export default function App() {
 
   const returnTarget = () => (historyReturn ? goHistory() : goHome());
 
+  const handleTabChange = useCallback((key: string) => {
+    if (key === "identify") {
+      startTransition(() => setPhase("capture"));
+      return;
+    }
+    startTransition(() => setPhase(key as Phase));
+  }, []);
+
   if (bootstrapping) {
-    return (
-      <View style={styles.boot}>
-        <ActivityIndicator color={colors.accent} />
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
   if (!user) {
     return (
-      <SafeAreaView style={styles.safe}>
-        <StatusBar style="light" />
-        <LoginScreen onLogin={handleLogin} />
-      </SafeAreaView>
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.safe}>
+          <StatusBar style="light" />
+          <ErrorBoundary>
+            <LoginScreen onLogin={handleLogin} />
+          </ErrorBoundary>
+        </SafeAreaView>
+      </SafeAreaProvider>
     );
   }
 
-  if (user.role !== "operator") {
-    return (
-      <SafeAreaView style={styles.safe}>
-        <StatusBar style="light" />
-        {user.role === "company" && <CompanyScreen user={user} onLogout={handleLogout} />}
-        {user.role === "cooperative" && (
-          <CooperativeScreen user={user} onLogout={handleLogout} />
-        )}
-        {user.role === "admin" && <AdminScreen user={user} onLogout={handleLogout} />}
-      </SafeAreaView>
-    );
-  }
+  const roleLabel = fr.roles[user.role] ?? user.role;
+  // Server-resolved company/cooperative name wins; while offline (or for
+  // admins) fall back to the display name minus any role-word repeat.
+  const headerOrg = orgName ?? (() => {
+    const name = user.display_name?.trim();
+    if (!name) return null;
+    const lower = name.toLowerCase();
+    const role = roleLabel.toLowerCase();
+    if (lower === role) return null;
+    if (lower.startsWith(role)) {
+      const next = name.slice(roleLabel.length);
+      if (/^[\s·\-–:,(]/.test(next)) {
+        return next.replace(/^[\s·\-–:,(]+/, "").trim() || null;
+      }
+    }
+    return name;
+  })();
+  const isTab = TAB_PHASES.includes(phase);
+
+  const renderHome = () => {
+    switch (user.role) {
+      case "operator":
+        return (
+          <HomeScreen
+            scanCount={scans.length}
+            pendingCount={queueCount}
+            syncing={syncing}
+            onNew={() => requestPhase("capture")}
+            onHistory={goHistory}
+            onSync={syncQueue}
+          />
+        );
+      case "company":
+        return <CompanyScreen user={user} onLogout={handleLogout} showHeader={false} />;
+      case "cooperative":
+        return <CooperativeScreen user={user} onLogout={handleLogout} showHeader={false} />;
+      default:
+        return <AdminScreen user={user} onLogout={handleLogout} showHeader={false} />;
+    }
+  };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <StatusBar style="light" />
-      <View style={styles.header}>
-        <View style={styles.headerTexts}>
-          <Text style={styles.headerTitle}>{fr.appTitle}</Text>
-          <Text style={styles.headerSubtitle}>
-            {fr.roles.operator} · {user.display_name}
-          </Text>
-        </View>
-        <TouchableOpacity onPress={handleLogout} style={styles.headerLogout}>
-          <Text style={styles.headerLogoutText}>{fr.common.logout}</Text>
-        </TouchableOpacity>
-      </View>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.safe}>
+        <StatusBar style="light" />
+        <ErrorBoundary onHome={goHome}>
+        {isTab && (
+          <RoleHeader
+            title={fr.appTitle}
+            roleLabel={roleLabel}
+            orgName={headerOrg}
+            coords={headerCoords}
+            onOpenProfile={() => requestPhase("profile")}
+            onOpenProjects={() => requestPhase("projects")}
+          />
+        )}
+        {isPending && (
+          <View style={styles.pendingBar} accessibilityRole="progressbar" accessibilityLabel={fr.common.switchingTab}>
+            <View style={styles.pendingFill} />
+          </View>
+        )}
 
-      {phase === "home" && (
-        <HomeScreen
-          scanCount={scans.length}
-          pendingCount={queueCount}
-          syncing={syncing}
-          onNew={() => setPhase("capture")}
-          onHistory={goHistory}
-          onSync={syncQueue}
+      {/* Keep main tabs mounted so catalogue / home / history stay warm in memory. */}
+      <View
+        style={[styles.tabPage, phase !== "home" && styles.tabHidden]}
+        pointerEvents={phase === "home" ? "auto" : "none"}
+      >
+        {renderHome()}
+      </View>
+      <View
+        style={[
+          styles.tabPage,
+          phase !== "species" && phase !== "speciesDetail" && styles.tabHidden,
+        ]}
+        pointerEvents={phase === "species" || phase === "speciesDetail" ? "auto" : "none"}
+      >
+        <SpeciesScreen
+          onOpenSpecies={(s) => {
+            setSelectedSpecies(s.scientific_name);
+            requestPhase("speciesDetail");
+          }}
         />
-      )}
-      {phase === "capture" && <CaptureScreen onCaptured={handleCaptured} />}
-      {phase === "history" && (
+        {phase === "speciesDetail" && selectedSpecies ? (
+          <View style={styles.overlay}>
+            <SpeciesDetailScreen name={selectedSpecies} onBack={() => requestPhase("species")} />
+          </View>
+        ) : null}
+      </View>
+      <View
+        style={[styles.tabPage, phase !== "history" && styles.tabHidden]}
+        pointerEvents={phase === "history" ? "auto" : "none"}
+      >
         <HistoryScreen
           scans={scans}
           onOpen={openScan}
           onDelete={handleDelete}
           onClear={handleClear}
+        />
+      </View>
+      {phase === "map" && (
+        <Suspense fallback={<RouteLoader message={fr.common.openingMap} />}>
+          <MapScreen />
+        </Suspense>
+      )}
+      {phase === "projects" && user && (
+        <ProjetsScreen
+          user={user}
+          onOpenProject={(p) => {
+            setSelectedProject(p.id);
+            requestPhase("projectDetail");
+          }}
+          onCreateProject={() => requestPhase("projectCreate")}
           onBack={goHome}
         />
+      )}
+      {phase === "projectDetail" && selectedProject && user && (
+        <Suspense fallback={<RouteLoader message={fr.common.openingProject} />}>
+          <ProjectDetailScreen id={selectedProject} user={user} onBack={() => requestPhase("projects")} />
+        </Suspense>
+      )}
+      {phase === "projectCreate" && (
+        <CreateProjectScreen onDone={() => requestPhase("projects")} onBack={() => requestPhase("projects")} />
+      )}
+      {phase === "profile" && (
+        <ProfileScreen user={user} onLogout={handleLogout} onBack={goHome} />
+      )}
+      {phase === "capture" && (
+        <Suspense fallback={<RouteLoader message={fr.common.openingCamera} />}>
+          <CaptureScreen onCaptured={handleCaptured} onBack={goHome} />
+        </Suspense>
       )}
       {phase === "report" && report && (
         <ReportScreen
           report={report}
           exporting={exporting === "report"}
           onValorize={historyReturn ? null : handleValorize}
-          onOpenPlan={historyReturn && valorization ? () => setPhase("valorization") : undefined}
+          onOpenPlan={historyReturn && valorization ? () => requestPhase("valorization") : undefined}
           onExportPdf={exportReport}
           onBack={historyReturn ? goHistory : undefined}
         />
       )}
       {phase === "valorization" && valorization && (
-        <ValorizationScreen
-          data={valorization}
-          origin={coords}
-          exporting={exporting === "plan"}
-          onExportPdf={exportPlan}
-          onBack={returnTarget}
-        />
+        <Suspense fallback={<RouteLoader message={fr.common.openingPlan} />}>
+          <ValorizationScreen
+            data={valorization}
+            origin={coords}
+            exporting={exporting === "plan"}
+            onExportPdf={exportPlan}
+            onBack={returnTarget}
+          />
+        </Suspense>
       )}
       {(phase === "analyzing" || phase === "valorizing") && (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.accent} />
-          <Text style={styles.loading}>
-            {phase === "analyzing" ? fr.capture.waiting : fr.common.loading}
-          </Text>
-        </View>
+        <LoadingScreen message={phase === "analyzing" ? fr.capture.waiting : fr.common.loading} />
       )}
       {phase === "error" && (
         <View style={styles.center}>
@@ -416,42 +646,35 @@ export default function App() {
       )}
       {exporting && (
         <View style={styles.exporting}>
+          <ActivityIndicator color={colors.accent} size="large" />
           <Text style={styles.exportingText}>{fr.common.exporting}</Text>
         </View>
       )}
-    </SafeAreaView>
+      {isTab && <BottomNav user={user} active={phase} onChange={handleTabChange} />}
+        </ErrorBoundary>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background, position: "relative" },
-  boot: { flex: 1, backgroundColor: colors.background, alignItems: "center", justifyContent: "center" },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.primary,
+  tabPage: { flex: 1 },
+  tabHidden: { display: "none" },
+  pendingBar: { height: 2, backgroundColor: colors.surface },
+  pendingFill: { flex: 1, backgroundColor: colors.accent },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: colors.background,
+    zIndex: 2,
   },
-  headerTexts: { flex: 1, minWidth: 0 },
-  headerTitle: { color: colors.text, fontSize: type.title, fontWeight: "800" },
-  headerSubtitle: { color: colors.textDim, fontSize: type.caption },
-  headerLogout: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  headerLogoutText: { color: colors.text, fontSize: type.caption, fontWeight: "700" },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.md },
-  loading: { color: colors.text, fontSize: type.body },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 16 },
   error: { color: colors.error, fontSize: type.body },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700", marginTop: spacing.md },
+  link: { color: colors.accent, fontSize: type.body, fontWeight: "700", marginTop: 16 },
   exporting: {
     position: "absolute",
     top: 0,
@@ -461,6 +684,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(14,21,18,0.8)",
     alignItems: "center",
     justifyContent: "center",
+    gap: 12,
   },
   exportingText: { color: colors.text, fontSize: type.body, fontWeight: "700" },
 });

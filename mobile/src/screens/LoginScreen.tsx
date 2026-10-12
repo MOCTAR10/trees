@@ -12,8 +12,9 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import { Eye, EyeOff, Fingerprint, LockKeyhole, LogIn } from "lucide-react-native";
 
-import { checkEmail, getMe, login, setAuthToken } from "../api/client";
+import { checkEmail, EmailCheckResponse, getMe, login, setAuthToken } from "../api/client";
 import { fr } from "../i18n/fr";
 import { Session } from "../storage/session";
 import { colors, spacing, type } from "../theme";
@@ -34,7 +35,7 @@ export default function LoginScreen({ onLogin }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [verified, setVerified] = useState(false);
   const [checking, setChecking] = useState(false);
-  const [identity, setIdentity] = useState<{ role: string; display_name: string } | null>(null);
+  const [identity, setIdentity] = useState<EmailCheckResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -81,7 +82,7 @@ export default function LoginScreen({ onLogin }: Props) {
   };
 
   const roleLabel = identity
-    ? fr.roles[identity.role as keyof typeof fr.roles] ?? identity.role
+    ? (fr.roles[identity.role as keyof typeof fr.roles] ?? identity.role)
     : null;
 
   return (
@@ -143,7 +144,7 @@ export default function LoginScreen({ onLogin }: Props) {
                     <Text style={styles.checkMark}>✓</Text>
                   </View>
                 ) : (
-                  <Text style={styles.verifyIcon}>🫆</Text>
+                  <Fingerprint size={34} color={colors.primary} strokeWidth={2.25} />
                 )}
               </TouchableOpacity>
             </View>
@@ -153,9 +154,16 @@ export default function LoginScreen({ onLogin }: Props) {
                 <View style={styles.checkCircle}>
                   <Text style={styles.checkMark}>✓</Text>
                 </View>
-                <Text style={styles.identityText}>
-                  {fr.auth.roleFound} · {roleLabel}
-                </Text>
+                <View style={styles.identityTexts}>
+                  <Text style={styles.identityText}>
+                    {fr.auth.roleFound} · {roleLabel}
+                  </Text>
+                  {identity.organization ? (
+                    <Text style={styles.identityOrg} testID="identity-organization">
+                      {fr.auth.linkedTo} · {identity.organization}
+                    </Text>
+                  ) : null}
+                </View>
               </View>
             ) : null}
 
@@ -182,7 +190,11 @@ export default function LoginScreen({ onLogin }: Props) {
                     accessibilityRole="button"
                     accessibilityLabel={showPassword ? fr.auth.hidePassword : fr.auth.showPassword}
                   >
-                    <Text style={styles.eyeText}>{showPassword ? fr.auth.hidePassword : fr.auth.showPassword}</Text>
+                    {showPassword ? (
+                      <EyeOff size={18} color={colors.accent} strokeWidth={2} />
+                    ) : (
+                      <Eye size={18} color={colors.accent} strokeWidth={2} />
+                    )}
                   </TouchableOpacity>
                 </View>
               </>
@@ -207,7 +219,7 @@ export default function LoginScreen({ onLogin }: Props) {
                   <ActivityIndicator color="#FFFFFF" />
                 ) : (
                   <View style={styles.buttonRow}>
-                    <Text style={styles.buttonIcon}>🌳</Text>
+                    <LogIn size={18} color="#FFFFFF" strokeWidth={2} />
                     <Text style={styles.buttonText}>{fr.auth.submit}</Text>
                   </View>
                 )}
@@ -217,7 +229,7 @@ export default function LoginScreen({ onLogin }: Props) {
         </View>
 
         <View style={styles.notice}>
-          <Text style={styles.noticeIcon}>🔒</Text>
+          <LockKeyhole size={18} color={colors.textDim} strokeWidth={2} />
           <Text style={styles.noticeText}>{fr.auth.footer}</Text>
         </View>
 
@@ -324,9 +336,6 @@ const styles = StyleSheet.create({
     height: 48,
     minWidth: 48,
   },
-  verifyIcon: { fontSize: 30, lineHeight: 34 },
-  verifyLabel: { color: colors.primary, fontSize: type.caption, fontWeight: "800", marginLeft: 4 },
-  verifyText: { color: colors.primary, fontSize: type.caption, fontWeight: "800", display: "none" },
   checkCircle: {
     width: 20,
     height: 20,
@@ -338,11 +347,13 @@ const styles = StyleSheet.create({
   checkMark: { color: "#FFFFFF", fontSize: 13, fontWeight: "900", lineHeight: 15 },
   identityRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     marginTop: 4,
     gap: 4,
   },
+  identityTexts: { flex: 1 },
   identityText: { color: colors.success, fontSize: type.caption, fontWeight: "700" },
+  identityOrg: { color: colors.textDim, fontSize: type.caption, marginTop: 2 },
   passwordRow: { flexDirection: "row", alignItems: "stretch" },
   passwordInput: {
     flex: 1,
@@ -368,18 +379,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     minWidth: 72,
   },
-  eyeText: { color: colors.accent, fontSize: type.caption, fontWeight: "800" },
-  forgot: {
-    alignSelf: "flex-end",
-    paddingVertical: spacing.sm,
-  },
-  forgotText: { color: colors.accent, fontSize: type.caption, fontWeight: "700" },
-  hint: {
-    color: colors.textDim,
-    fontSize: type.caption,
-    textAlign: "center",
-    marginTop: 2,
-  },
   error: {
     color: colors.error,
     fontSize: type.caption,
@@ -395,11 +394,11 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: { opacity: 0.6 },
   buttonRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  buttonIcon: { fontSize: type.body, lineHeight: type.body },
   buttonText: { color: "#FFFFFF", fontSize: type.body, fontWeight: "800" },
   notice: {
     flexDirection: "row",
     alignItems: "center",
+    gap: spacing.sm,
     alignSelf: "center",
     maxWidth: 340,
     marginTop: spacing.lg,
@@ -411,7 +410,6 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surfaceAlt,
   },
-  noticeIcon: { fontSize: 14, marginRight: spacing.sm },
   noticeText: {
     flex: 1,
     color: colors.textDim,

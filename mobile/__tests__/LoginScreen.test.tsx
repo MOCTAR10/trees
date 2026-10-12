@@ -19,7 +19,12 @@ describe("LoginScreen", () => {
   beforeEach(() => jest.clearAllMocks());
 
   it("signs in and returns the session after email verification", async () => {
-    mocked.checkEmail.mockResolvedValue({ role: "admin", display_name: "Administrateur" });
+    mocked.checkEmail.mockResolvedValue({
+      role: "admin",
+      display_name: "Administrateur",
+      organization: null,
+      organization_type: null,
+    });
     mocked.login.mockResolvedValue({
       access_token: "token-1",
       token_type: "bearer",
@@ -59,6 +64,25 @@ describe("LoginScreen", () => {
     });
   });
 
+  it("shows the linked company when the operator is attached to one", async () => {
+    mocked.checkEmail.mockResolvedValue({
+      role: "operator",
+      display_name: "Jean",
+      organization: "Green Leave SARL",
+      organization_type: "company",
+    });
+
+    const { getByPlaceholderText, getByTestId, getByText } = render(
+      <LoginScreen onLogin={jest.fn()} />,
+    );
+    fireEvent.changeText(getByPlaceholderText("Adresse e-mail"), "jean@x.com");
+    fireEvent.press(getByTestId("verify-button"));
+    await flush();
+
+    expect(getByText(/Opérateur/)).toBeTruthy();
+    expect(getByText(/Green Leave SARL/)).toBeTruthy();
+  });
+
   it("shows a not-found error when the email is unknown", async () => {
     mocked.checkEmail.mockRejectedValue(new Error("404"));
 
@@ -71,7 +95,12 @@ describe("LoginScreen", () => {
   });
 
   it("shows an error when credentials fail", async () => {
-    mocked.checkEmail.mockResolvedValue({ role: "admin", display_name: "Administrateur" });
+    mocked.checkEmail.mockResolvedValue({
+      role: "admin",
+      display_name: "Administrateur",
+      organization: null,
+      organization_type: null,
+    });
     mocked.login.mockRejectedValue(new Error("401"));
 
     const { getByPlaceholderText, getByTestId, getByText } = render(<LoginScreen onLogin={jest.fn()} />);

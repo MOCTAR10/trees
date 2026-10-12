@@ -5,14 +5,18 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
+    "backgroundColor": "#0E1512",
     "newArchEnabled": true,
     "splash": {
+      "image": "./assets/leaf_logo.jpg",
+      "resizeMode": "contain",
       "backgroundColor": "#0B3D2E"
     },
     "ios": {
       "supportsTablet": false,
       "infoPlist": {
-        "NSCameraUsageDescription": "La caméra est nécessaire pour photographier le tronc, les feuilles et l'habitat de l'arbre.",
+        "NSCameraUsageDescription": "La caméra est nécessaire pour photographier l'arbre sous plusieurs angles (vue d'ensemble, écorce, feuilles, fleurs, fruits) et activer la lampe pour des photos nettes.",
+        "NSPhotoLibraryUsageDescription": "L'accès à la galerie permet d'importer une photo existante pour compléter une étape de capture (la position GPS reste celle de l'appareil).",
         "NSLocationWhenInUseUsageDescription": "La position GPS est nécessaire pour valider l'espèce dans l'écosystème local et trouver les coopératives à proximité."
       }
     },
@@ -25,6 +29,7 @@
     },
     "plugins": [
       "expo-camera",
+      "expo-image-picker",
       "expo-location",
       "expo-sharing",
       "expo-status-bar"

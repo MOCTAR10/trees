@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   FlatList,
   Modal,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -15,24 +16,57 @@ import {
   CompanyResidue,
   Cooperation,
   companyResidues,
+  Declaration,
   listCooperatives,
+  listDeclarations,
   releaseResidue,
 } from "../api/client";
 import RoleHeader from "../components/RoleHeader";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
+import CompanyTitles from "../components/CompanyTitles";
+import CompanyTraceability from "../components/CompanyTraceability";
+import CompanyFiscal from "../components/CompanyFiscal";
+import OrgDocuments from "../components/OrgDocuments";
+import OrgTaxes from "../components/OrgTaxes";
+import DeclareScreen from "./DeclareScreen";
 
 interface Props {
   user: AuthUser;
   onLogout: () => void;
+  showHeader?: boolean;
 }
 
-export default function CompanyScreen({ user, onLogout }: Props) {
+type CompanyTab = "residues" | "abattage" | "documents" | "titres" | "taxes" | "tracabilite" | "fiscal";
+
+export default function CompanyScreen({ user, onLogout, showHeader = true }: Props) {
   const [residues, setResidues] = useState<CompanyResidue[]>([]);
   const [cooperatives, setCooperatives] = useState<Cooperation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [picking, setPicking] = useState<CompanyResidue | null>(null);
+  const [tab, setTab] = useState<CompanyTab>("residues");
+  const [declarations, setDeclarations] = useState<Declaration[]>([]);
+  const [declLoading, setDeclLoading] = useState(false);
+  const [declError, setDeclError] = useState<string | null>(null);
+  const [declaring, setDeclaring] = useState(false);
+
+  const loadDeclarations = useCallback(async () => {
+    setDeclLoading(true);
+    setDeclError(null);
+    try {
+      setDeclarations(await listDeclarations());
+    } catch (err) {
+      console.error("declarations load failed", err);
+      setDeclError(fr.felling.error);
+    } finally {
+      setDeclLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (tab === "abattage" && !declaring) void loadDeclarations();
+  }, [tab, declaring, loadDeclarations]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -90,16 +124,102 @@ export default function CompanyScreen({ user, onLogout }: Props) {
 
   const coopName = (id: number | null) => cooperatives.find((c) => c.id === id)?.cooperative_name;
 
+  const TABS: { key: CompanyTab; label: string }[] = [
+    { key: "residues", label: fr.felling.tabResidues },
+    { key: "abattage", label: `${fr.felling.tabFelling} (${declarations.length})` },
+    { key: "documents", label: fr.docs.tab },
+    { key: "titres", label: fr.titles.tab },
+    { key: "taxes", label: fr.taxes.tab },
+    { key: "tracabilite", label: fr.traceability.tab },
+    { key: "fiscal", label: fr.fiscal.tab },
+  ];
+
   return (
     <View style={styles.container}>
-      <RoleHeader
-        title={fr.company.title}
-        subtitle={fr.company.subtitle}
-        roleLabel={`${fr.roles.company} · ${user.display_name}`}
-        onLogout={onLogout}
-      />
+      {showHeader && <RoleHeader title={fr.company.title} subtitle={fr.company.subtitle} />}
 
-      {loading ? (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.tabs}
+        contentContainerStyle={styles.tabsContent}
+      >
+        {TABS.map(({ key, label }) => (
+          <TouchableOpacity
+            key={key}
+            style={[styles.tab, tab === key && styles.tabActive]}
+            onPress={() => setTab(key)}
+          >
+            <Text style={[styles.tabText, tab === key && styles.tabTextActive]}>{label}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      {tab === "documents" ? (
+        <OrgDocuments />
+      ) : tab === "titres" ? (
+        <CompanyTitles />
+      ) : tab === "taxes" ? (
+        <OrgTaxes />
+      ) : tab === "tracabilite" ? (
+        <CompanyTraceability />
+      ) : tab === "fiscal" ? (
+        <CompanyFiscal />
+      ) : tab === "abattage" ? (
+        declaring ? (
+          <DeclareScreen
+            onDone={() => {
+              setDeclaring(false);
+              void loadDeclarations();
+            }}
+            onBack={() => setDeclaring(false)}
+          />
+        ) : (
+          <View style={styles.flex1}>
+            <TouchableOpacity
+              style={styles.declareBtn}
+              onPress={() => setDeclaring(true)}
+              testID="new-declaration"
+            >
+              <Text style={styles.declareText}>+ {fr.felling.newDeclaration}</Text>
+            </TouchableOpacity>
+            {declLoading ? (
+              <ActivityIndicator style={styles.center} color={colors.accent} />
+            ) : declError ? (
+              <View style={styles.center}>
+                <Text style={styles.error}>{declError}</Text>
+                <TouchableOpacity onPress={loadDeclarations}>
+                  <Text style={styles.link}>{fr.common.retry}</Text>
+                </TouchableOpacity>
+              </View>
+            ) : declarations.length === 0 ? (
+              <View style={styles.center}>
+                <Text style={styles.dim}>{fr.felling.noDeclarations}</Text>
+              </View>
+            ) : (
+              <FlatList
+                data={declarations}
+                keyExtractor={(item) => String(item.id)}
+                contentContainerStyle={styles.list}
+                renderItem={({ item }) => (
+                  <View style={styles.card}>
+                    <Text style={styles.species}>
+                      {fr.felling.declarationId(item.id)} · {item.permit_type} {item.permit_number}
+                    </Text>
+                    <Text style={styles.meta}>
+                      {fr.felling.status[item.status]} · {item.line_count ?? 0} pieds
+                      {item.aac_label ? ` · ${item.aac_label}` : ""}
+                    </Text>
+                    {item.decision_motif ? (
+                      <Text style={styles.meta}>{item.decision_motif}</Text>
+                    ) : null}
+                  </View>
+                )}
+              />
+            )}
+          </View>
+        )
+      ) : loading ? (
         <ActivityIndicator style={styles.center} color={colors.accent} />
       ) : error ? (
         <View style={styles.center}>
@@ -122,6 +242,7 @@ export default function CompanyScreen({ user, onLogout }: Props) {
               <Text style={styles.species}>{item.species_scientific_name ?? "—"}</Text>
               <Text style={styles.meta}>
                 {fr.company.biomass(item.residue_biomass_kg ?? 0)} · {fr.company.status[item.status]}
+                {item.tree_code ? ` · 🌳 ${item.tree_code}` : ""}
               </Text>
               {item.assigned_community_cooperative_id ? (
                 <Text style={styles.assigned}>
@@ -197,6 +318,37 @@ export default function CompanyScreen({ user, onLogout }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  flex1: { flex: 1 },
+  tabs: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    flexGrow: 0,
+  },
+  tabsContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    paddingHorizontal: spacing.sm,
+  },
+  tab: {
+    alignItems: "center",
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: 8,
+  },
+  tabActive: { backgroundColor: colors.surface },
+  tabText: { color: colors.textDim, fontSize: type.body, fontWeight: "600" },
+  tabTextActive: { color: colors.accent, fontWeight: "800" },
+  declareBtn: {
+    margin: spacing.md,
+    marginBottom: 0,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    borderRadius: 10,
+    padding: spacing.sm,
+    alignItems: "center",
+  },
+  declareText: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.md },
   dim: { color: colors.textDim, fontSize: type.body },
   error: { color: colors.error, fontSize: type.body },
