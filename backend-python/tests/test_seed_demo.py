@@ -58,6 +58,18 @@ def test_seeded_ufa_dme_is_stricter_than_provisional_and_bites():
     assert seed_demo.TREE_PREFIX and source  # non-empty provenance
 
 
+def test_seeded_conventions_form_a_provisoire_then_definitive_chain():
+    types = [c["convention_type"] for c in seed_demo.SEEDED_CONVENTIONS]
+    assert types == ["provisoire", "definitive"]
+    provisoire, definitive = seed_demo.SEEDED_CONVENTIONS
+    # The provisoire precedes the definitive (definitive starts when provisoire ends).
+    assert provisoire["end_date"] == definitive["start_date"]
+    # Only the definitive carries the attestation de conformité; it is valid.
+    assert provisoire["attestation_ref"] is None
+    assert definitive["attestation_ref"]
+    assert definitive["end_date"] > definitive["start_date"]
+
+
 def test_reserved_stem_is_a_reserved_species():
     species, _, _ = _BY_SUFFIX["002"]
     assert is_reserved_species(species)

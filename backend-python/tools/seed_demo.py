@@ -52,6 +52,28 @@ SEEDED_UFA_DME: tuple[tuple[str, float, str], ...] = (
 
 TODAY = date.today()
 
+#: Conventions seeded for the demo CFAD (Loi 016/01): the convention
+#: provisoire that followed the CPAET, then the convention définitive (~15 ans)
+#: and the attestation de conformité issued by the Ministry. Signed_at defaults
+#: to start_date; the attestation is dated relative to today. Cascades with the
+#: title, so re-running the seed stays idempotent.
+SEEDED_CONVENTIONS: tuple[dict, ...] = (
+    {
+        "convention_type": "provisoire",
+        "reference": "DEMO-CONV-PROV-01",
+        "start_date": TODAY - timedelta(days=1080),
+        "end_date": TODAY - timedelta(days=200),
+        "attestation_ref": None,
+    },
+    {
+        "convention_type": "definitive",
+        "reference": "DEMO-CONV-DEF-01",
+        "start_date": TODAY - timedelta(days=200),
+        "end_date": TODAY + timedelta(days=365 * 15),
+        "attestation_ref": "DEMO-ATT-01",
+    },
+)
+
 #: Anomaly families this dataset is designed to trigger. Kept as an explicit
 #: contract (asserted in the test-suite) so a detector added later cannot be
 #: silently left out of the demo.
@@ -138,6 +160,7 @@ async def _reset(company_id: int, org_ids: list[int]) -> None:
         org_ids,
     )
     await db.execute("DELETE FROM aac_authorizations WHERE aac_id = ANY($1::int[])", aacs)
+    await db.execute("DELETE FROM title_conventions WHERE title_id = ANY($1::int[])", titles)
     await db.execute("DELETE FROM annual_cut_blocks WHERE ufa_id = ANY($1::int[])", ufas)
     await db.execute("DELETE FROM management_units WHERE title_id = ANY($1::int[])", titles)
     await db.execute(
@@ -348,6 +371,28 @@ async def seed() -> None:
             species,
             dme_cm,
             source,
+            admin_id,
+        )
+
+    # Conventions (Loi 016/01): the legal instruments behind the title — the
+    # convention provisoire that followed the CPAET, the convention définitive
+    # (~15 ans) and the attestation de conformité issued by the Ministry.
+    for conv in SEEDED_CONVENTIONS:
+        await db.execute(
+            "INSERT INTO title_conventions"
+            " (title_id, convention_type, reference, signed_at, start_date, end_date,"
+            "  surface_ha, status, attestation_ref, attestation_issued_at, decided_by,"
+            "  decided_at, created_by)"
+            " VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', $8, $9, $10, now(), $10)",
+            title_id,
+            conv["convention_type"],
+            conv["reference"],
+            conv["start_date"],
+            conv["start_date"],
+            conv["end_date"],
+            60_000.0,
+            conv["attestation_ref"],
+            TODAY - timedelta(days=180) if conv["attestation_ref"] else None,
             admin_id,
         )
 
