@@ -873,3 +873,160 @@ def render_certification_pdf(doc: dict, org_name: str | None = None) -> bytes:
         ),
     ]
     return _build(story, "Certification")
+
+
+SEVERITY_LABEL = {"hard": "Bloquant", "warning": "Avertissement"}
+REVIEW_LABEL = {"ouverte": "Ouverte", "traitee": "Traitée", "ecartee": "Écartée"}
+
+
+def render_anomalies_pdf(items: list[dict], summary: dict | None = None) -> bytes:
+    """Ministry anomaly register -> branded A4 PDF."""
+    items = items or []
+    summary = summary or {}
+    by_type = summary.get("by_type", []) or []
+
+    story: list = [
+        Paragraph("Registre des anomalies", S_TITLE),
+        Paragraph(_safe(TAGLINE), S_SUB),
+        Spacer(1, 6 * mm),
+        _kv_table(
+            [
+                ("Anomalies détectées", str(summary.get("total", len(items)))),
+                ("Bloquantes (illégal)", str(summary.get("hard", 0))),
+                ("Avertissements", str(summary.get("warning", 0))),
+                ("Non examinées", str(summary.get("ouvertes", 0))),
+            ]
+        ),
+    ]
+
+    if by_type:
+        story += [
+            Spacer(1, 4 * mm),
+            Paragraph("Répartition par type", S_H2),
+            _grid_table(
+                ["Anomalie", "Gravité", "Nombre", "Ouvertes"],
+                [
+                    [
+                        e.get("label") or e.get("type"),
+                        SEVERITY_LABEL.get(e.get("severity"), "—"),
+                        str(e.get("count", 0)),
+                        str(e.get("ouvertes", 0)),
+                    ]
+                    for e in by_type
+                ],
+                widths=[None, 24 * mm, 20 * mm, 20 * mm],
+            ),
+        ]
+
+    story += [Spacer(1, 4 * mm), Paragraph("Détail", S_H2)]
+    if items:
+        story.append(
+            _grid_table(
+                ["Gravité", "Sujet", "Détail", "Revue"],
+                [
+                    [
+                        SEVERITY_LABEL.get(i.get("severity"), i.get("severity") or "—"),
+                        i.get("subject") or i.get("subject_key"),
+                        i.get("detail") or "—",
+                        REVIEW_LABEL.get(i.get("review_status"), "—"),
+                    ]
+                    for i in items
+                ],
+                widths=[22 * mm, 32 * mm, None, 20 * mm],
+            )
+        )
+    else:
+        story.append(Paragraph("Aucune anomalie détectée sur le périmètre.", S_BODY))
+
+    story += [
+        Spacer(1, 5 * mm),
+        KeepTogether(
+            [
+                Paragraph("Base légale", S_H2),
+                Paragraph(
+                    _safe(
+                        "Contrôles dérivés du Code forestier gabonais (Loi 016/01) : "
+                        "autorisation préalable d'abattage (art. 14), diamètre minimum "
+                        "d'exploitation (art. 124), tenue du carnet de chantier (art. 275) et "
+                        "régime des redevances (art. 283)."
+                    ),
+                    S_SMALL,
+                ),
+            ]
+        ),
+    ]
+    return _build(story, "Registre des anomalies")
+
+
+def render_dashboard_pdf(data: dict | None = None) -> bytes:
+    """Ministry dashboard rollup -> branded A4 PDF."""
+    data = data or {}
+    harvest = data.get("harvest", {}) or {}
+    by_species = harvest.get("by_species", []) or []
+    harvest_status = harvest.get("by_status", {}) or {}
+    titles = data.get("titles", {}) or {}
+    aac = data.get("aac", {}) or {}
+    documents = data.get("documents", {}) or {}
+    taxes = data.get("taxes", {}) or {}
+    community = data.get("community", {}) or {}
+    transport = data.get("transport", {}) or {}
+    certs = data.get("certifications", {}) or {}
+
+    story: list = [
+        Paragraph("Tableau de bord — Ministère", S_TITLE),
+        Paragraph(_safe(TAGLINE), S_SUB),
+        Spacer(1, 6 * mm),
+        Paragraph("Exploitation", S_H2),
+        _kv_table(
+            [
+                ("Arbres abattus", str(harvest.get("stems_felled", 0))),
+                ("Volume estimé", _fr_num(harvest.get("estimated_volume_m3"), 3, " m³")),
+                ("Taux de transformation", _pct(harvest.get("transformation_rate"))),
+                (
+                    "Répartition par statut",
+                    " · ".join(f"{k} : {v}" for k, v in harvest_status.items()) or "—",
+                ),
+            ]
+        ),
+        Spacer(1, 4 * mm),
+        Paragraph("Volumes par essence", S_H2),
+    ]
+    if by_species:
+        story.append(
+            _grid_table(
+                ["Essence", "Arbres", "Volume estimé (m³)"],
+                [
+                    [s.get("species"), str(s.get("stems", 0)), _fr_num(s.get("volume_m3"), 3)]
+                    for s in by_species
+                ],
+                widths=[None, 25 * mm, 40 * mm],
+            )
+        )
+    else:
+        story.append(Paragraph("Aucun arbre abattu enregistré.", S_BODY))
+
+    story += [
+        Spacer(1, 4 * mm),
+        Paragraph("Gouvernance & fiscalité", S_H2),
+        _kv_table(
+            [
+                ("Titres forestiers", str(titles.get("total", 0))),
+                ("Surface titrée", _fr_num(titles.get("surface_ha"), 0, " ha")),
+                ("AAC", str(aac.get("total", 0))),
+                ("Possibilité AAC", _fr_num(aac.get("possibility_m3"), 0, " m³")),
+                ("Documents", str(documents.get("total", 0))),
+                ("Documents expirés", str(documents.get("expired", 0))),
+                ("Documents expirant sous 90 j", str(documents.get("expiring_soon", 0))),
+                ("Échéances en retard", str(taxes.get("overdue", 0))),
+                ("Montant en retard", _fr_num(taxes.get("overdue_amount_fcfa"), 0, " FCFA")),
+                ("Quittances réglées", str(taxes.get("receipts", 0))),
+                ("CCC actifs", str(community.get("active", 0))),
+                ("Contribution FDL", _fr_num(community.get("contribution_fcfa"), 0, " FCFA")),
+                ("Volume CCC annuel", _fr_num(community.get("annual_volume_m3"), 0, " m³")),
+                ("Documents de transport", str(transport.get("documents", 0))),
+                ("Volume transporté", _fr_num(transport.get("volume_m3"), 3, " m³")),
+                ("Certifications", str(certs.get("total", 0))),
+            ]
+        ),
+    ]
+    return _build(story, "Tableau de bord")
