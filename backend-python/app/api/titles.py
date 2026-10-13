@@ -109,6 +109,25 @@ class AttestationIn(BaseModel):
     issued_at: date | None = None
 
 
+class StudyIn(BaseModel):
+    study_type: Literal["ppf", "eie"]
+    reference: str = Field(..., min_length=1)
+    authority: str | None = None
+    conducted_at: date | None = None
+    valid_from: date | None = None
+    valid_to: date | None = None
+
+
+class StudyDecisionIn(BaseModel):
+    decision: Literal["valide", "rejete"]
+    motif: str | None = None
+
+
+class StudyCertificateIn(BaseModel):
+    reference: str = Field(..., min_length=1)
+    issued_at: date | None = None
+
+
 #: Rank of each title status, used to *promote* a title when a convention is
 #: signed without ever resurrecting a retired/expired/rejected one.
 _TITLE_RANK = {
@@ -121,6 +140,24 @@ _TITLE_RANK = {
     "rejete": 3,
 }
 _CONVENTION_TARGET = {"provisoire": "provisoire", "definitive": "actif"}
+
+# An environmental study whose validity has lapsed is shown as expired
+# without mutating the stored row (same read-time derivation as certifications).
+_STUDY_STATUS_EXPR = (
+    "CASE WHEN s.status = 'valide' AND s.valid_to IS NOT NULL"
+    " AND s.valid_to < CURRENT_DATE THEN 'expire' ELSE s.status END"
+)
+
+_STUDY_SELECT = (
+    "SELECT s.id, s.title_id, s.study_type, s.reference, s.authority, s.conducted_at,"
+    " s.valid_from, s.valid_to, s.certificate_ref, s.certificate_issued_at,"
+    " s.certificate_issued_by, s.decision_motif, s.submitted_by, s.decided_by, s.decided_at,"
+    f" {_STUDY_STATUS_EXPR} AS status,"
+    " t.title_type, t.reference AS title_ref, t.holder_org_id, o.name AS org_name"
+    " FROM environmental_studies s"
+    " JOIN forest_titles t ON t.id = s.title_id"
+    " LEFT JOIN organizations o ON o.id = t.holder_org_id"
+)
 
 _CONVENTION_SELECT = (
     "SELECT c.id, c.title_id, c.convention_type, c.reference, c.signed_at, c.start_date,"
@@ -788,4 +825,140 @@ async def convention_pdf(
     if user["role"] == "company" and current["holder_org_id"] != require_org(user):
         raise HTTPException(status_code=403, detail="Convention d'une autre organisation")
     pdf = pdf_report.render_convention_pdf(current, current.get("org_name"))
+    return Response(content=pdf, media_type="application/pdf")
+
+
+# ───────────────────── Études environnementales (PPF / EIE) ─────────────────
+# An environmental assessment is a precondition to producing a concession: the
+# operator deposits a PPF (Plan de Protection de la Faune, DGFAP) or an EIE
+# (Étude d'Impact Environnemental, DGE, Loi 007/2014) for a title; the Ministry
+# approves it (or rejects it, motivated) and issues the certificat de
+# conformité once the study is validated. A validated study lapses to 'expire'
+# once valid_to has passed (derived at read, like certifications and tax dues).
+
+
+async def _owner_of_study(title_id: int, study_id: int) -> dict | None:
+    row = await db.fetch_one(
+        f"{_STUDY_SELECT} WHERE s.id = $1 AND s.title_id = $2", study_id, title_id
+    )
+    if row is None:
+        return None
+    return dict(row)
+
+
+@router.get("/{title_id}/studies")
+async def list_studies(
+    title_id: int,
+    user: dict = Depends(require_roles("company", "admin")),
+):
+    title = await db.fetch_one("SELECT holder_org_id FROM forest_titles WHERE id = $1", title_id)
+    if title is None:
+        raise HTTPException(status_code=404, detail="Titre introuvable")
+    if user["role"] == "company" and title["holder_org_id"] != require_org(user):
+        raise HTTPException(status_code=403, detail="Titre d'une autre organisation")
+    rows = await db.fetch_all(
+        f"{_STUDY_SELECT} WHERE s.title_id = $1 ORDER BY s.created_at DESC",
+        title_id,
+    )
+    return [dict(r) for r in rows]
+
+
+@router.post("/{title_id}/studies", status_code=201)
+async def deposit_study(
+    title_id: int,
+    body: StudyIn,
+    user: dict = Depends(require_roles("company")),
+):
+    org_id = require_org(user)
+    title = await db.fetch_one("SELECT holder_org_id FROM forest_titles WHERE id = $1", title_id)
+    if title is None:
+        raise HTTPException(status_code=404, detail="Titre introuvable")
+    if title["holder_org_id"] != org_id:
+        raise HTTPException(status_code=403, detail="Titre d'une autre organisation")
+    row = await db.fetch_one(
+        """
+        INSERT INTO environmental_studies
+            (title_id, study_type, reference, authority, conducted_at, valid_from,
+             valid_to, status, submitted_by)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, 'soumis', $8)
+        RETURNING id, title_id, study_type, reference, authority, conducted_at,
+                  valid_from, valid_to, status, certificate_ref, decision_motif, created_at
+        """,
+        title_id,
+        body.study_type,
+        body.reference,
+        body.authority,
+        body.conducted_at,
+        body.valid_from,
+        body.valid_to,
+        user["id"],
+    )
+    return dict(row)
+
+
+@router.patch("/{title_id}/studies/{study_id}")
+async def decide_study(
+    title_id: int,
+    study_id: int,
+    body: StudyDecisionIn,
+    admin: dict = Depends(require_roles("admin")),
+):
+    if body.decision == "rejete" and not body.motif:
+        raise HTTPException(status_code=400, detail="Motif requis pour un rejet")
+    current = await _owner_of_study(title_id, study_id)
+    if current is None:
+        raise HTTPException(status_code=404, detail="Étude introuvable")
+    row = await db.fetch_one(
+        "UPDATE environmental_studies SET status = $1, decision_motif = $2,"
+        " decided_by = $3, decided_at = now() WHERE id = $4"
+        " RETURNING id, title_id, study_type, status, decision_motif, decided_at",
+        body.decision,
+        body.motif,
+        admin["id"],
+        study_id,
+    )
+    return dict(row)
+
+
+@router.post("/{title_id}/studies/{study_id}/certificate")
+async def issue_study_certificate(
+    title_id: int,
+    study_id: int,
+    body: StudyCertificateIn,
+    admin: dict = Depends(require_roles("admin")),
+):
+    current = await _owner_of_study(title_id, study_id)
+    if current is None:
+        raise HTTPException(status_code=404, detail="Étude introuvable")
+    if current["status"] != "valide":
+        raise HTTPException(
+            status_code=409,
+            detail="L'étude doit être validée pour délivrer le certificat de conformité",
+        )
+    if current["certificate_ref"]:
+        raise HTTPException(status_code=409, detail="Certificat de conformité déjà délivré")
+    row = await db.fetch_one(
+        "UPDATE environmental_studies SET certificate_ref = $1, certificate_issued_at = $2,"
+        " certificate_issued_by = $3 WHERE id = $4"
+        " RETURNING id, title_id, certificate_ref, certificate_issued_at",
+        body.reference,
+        body.issued_at or date.today(),
+        admin["id"],
+        study_id,
+    )
+    return dict(row)
+
+
+@router.get("/{title_id}/studies/{study_id}/pdf")
+async def study_pdf(
+    title_id: int,
+    study_id: int,
+    user: dict = Depends(require_roles("company", "admin")),
+):
+    current = await _owner_of_study(title_id, study_id)
+    if current is None:
+        raise HTTPException(status_code=404, detail="Étude introuvable")
+    if user["role"] == "company" and current["holder_org_id"] != require_org(user):
+        raise HTTPException(status_code=403, detail="Étude d'une autre organisation")
+    pdf = pdf_report.render_environmental_study_pdf(current, current.get("org_name"))
     return Response(content=pdf, media_type="application/pdf")

@@ -248,6 +248,38 @@ def test_render_convention_pdf():
     _assert_pdf(pdf_report.render_convention_pdf({}))
 
 
+def test_render_environmental_study_pdf():
+    doc = {
+        "id": 601,
+        "title_id": 30,
+        "title_ref": "T-1",
+        "study_type": "ppf",
+        "authority": "DGFAP",
+        "reference": "PPF-2026-01",
+        "conducted_at": "2026-02-15",
+        "valid_from": "2026-02-15",
+        "valid_to": "2031-02-15",
+        "status": "valide",
+        "certificate_ref": "CERT-CONF-01",
+        "certificate_issued_at": "2026-04-01",
+        "decision_motif": None,
+    }
+    _assert_pdf(pdf_report.render_environmental_study_pdf(doc, org_name="Bois SA"))
+    _assert_pdf(
+        pdf_report.render_environmental_study_pdf(
+            {
+                **doc,
+                "study_type": "eie",
+                "status": "rejete",
+                "certificate_ref": None,
+                "certificate_issued_at": None,
+                "decision_motif": "Inventaire faunique incomplet",
+            }
+        )
+    )
+    _assert_pdf(pdf_report.render_environmental_study_pdf({}))
+
+
 def test_renders_with_missing_fields():
     # None / empty values must not raise
     _assert_pdf(pdf_report.render_measurement_pdf({}))

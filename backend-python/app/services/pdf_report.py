@@ -442,6 +442,16 @@ CONVENTION_STATUS_LABEL = {
     "expiree": "Expirée",
     "resiliee": "Résiliée",
 }
+STUDY_TYPE_LABEL = {
+    "ppf": "Plan de Protection de la Faune (PPF)",
+    "eie": "Étude d'Impact Environnemental (EIE)",
+}
+STUDY_STATUS_LABEL = {
+    "soumis": "Soumis",
+    "valide": "Validé",
+    "rejete": "Rejeté",
+    "expire": "Expiré",
+}
 CERT_TYPE_LABEL = {
     "gestion_durable": "Gestion durable",
     "legalite_plus": "Légalité plus",
@@ -963,6 +973,81 @@ def render_convention_pdf(doc: dict, org_name: str | None = None) -> bytes:
         ),
     ]
     return _build(story, "Convention forestière")
+
+
+def render_environmental_study_pdf(doc: dict, org_name: str | None = None) -> bytes:
+    """PPF / EIE environmental study + certificat de conformité -> PDF.
+
+    Materialises the environmental assessment attached to a forest title
+    (Loi 016/01; Loi 007/2014): the Plan de Protection de la Faune (PPF,
+    DGFAP) and the Étude d'Impact Environnemental (EIE, DGE), together with
+    the certificat de conformité the administration issues on validation.
+    """
+    doc = doc or {}
+    title_ref = doc.get("title_ref") or (f"#{doc.get('title_id')}" if doc.get("title_id") else None)
+    validity = (
+        " → ".join(
+            p for p in (_fmt_date(doc.get("valid_from")), _fmt_date(doc.get("valid_to"))) if p
+        )
+        or "—"
+    )
+    if doc.get("certificate_ref"):
+        issued = _fmt_date(doc.get("certificate_issued_at"))
+        certificate = doc["certificate_ref"] + (f" — {issued}" if issued else "")
+    else:
+        certificate = "Non délivré"
+
+    story: list = [
+        Paragraph(
+            _safe(STUDY_TYPE_LABEL.get(doc.get("study_type"), "Étude environnementale")),
+            S_TITLE,
+        ),
+        Paragraph(_safe(TAGLINE), S_SUB),
+        Spacer(1, 6 * mm),
+        _kv_table(
+            [
+                ("Opérateur", org_name or doc.get("org_name") or "—"),
+                ("Titre", title_ref),
+                ("Type", STUDY_TYPE_LABEL.get(doc.get("study_type"), doc.get("study_type"))),
+                ("Autorité", doc.get("authority") or "—"),
+                ("Référence", doc.get("reference") or "—"),
+                ("Réalisée le", _fmt_date(doc.get("conducted_at")) or "—"),
+                ("Validité", validity),
+                ("Statut", STUDY_STATUS_LABEL.get(doc.get("status"), doc.get("status"))),
+                ("Certificat de conformité", certificate),
+            ]
+        ),
+    ]
+
+    if doc.get("decision_motif"):
+        story += [
+            Spacer(1, 4 * mm),
+            Paragraph("Décision de l'administration", S_H2),
+            Paragraph(_safe(doc["decision_motif"]), S_BODY),
+        ]
+
+    story += [
+        Spacer(1, 5 * mm),
+        KeepTogether(
+            [
+                Paragraph("Base légale", S_H2),
+                Paragraph(
+                    _safe(
+                        "Toute exploitation forestière est conditionnée à une évaluation "
+                        "environnementale (Code forestier gabonais, Loi 016/01; Loi 007/2014). Le "
+                        "Plan de Protection de la Faune (PPF) est une annexe du plan de gestion, "
+                        "révisée tous les 5 ans, examinée par la Direction Générale de la Faune et "
+                        "des Aires Protégées (DGFAP). L'Étude d'Impact Environnemental (EIE), d'une "
+                        "validité annuelle, est instruite par la Direction Générale de "
+                        "l'Environnement (DGE). Le certificat de conformité est délivré par "
+                        "l'administration après validation de l'étude."
+                    ),
+                    S_SMALL,
+                ),
+            ]
+        ),
+    ]
+    return _build(story, "Étude environnementale")
 
 
 SEVERITY_LABEL = {"hard": "Bloquant", "warning": "Avertissement"}
