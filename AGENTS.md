@@ -1,26 +1,150 @@
 # AGENTS.md
 
-Guidance for automated agents working in this repository. See `README.md` for
-the human-facing overview.
+Guidance for automated agents working in this repository. Read it before
+touching code — it tells you **what the project is**, **where it stands**, and
+**how to continue it**.
 
-## Golden rules
+- `README.md` — human-facing overview (quickstart, users, commands).
+- `docs/GABON_WORKFLOW_ANALYSIS.md` — **the authoritative roadmap**. Its §5 is
+  the gap analysis (legal domain → support → gap), §6 the domain model actually
+  implemented, §7 the target Ministère/Entreprise workflow, §9 the slice plan,
+  §10 the frozen decisions and open points. When in doubt, that document wins.
+- This file — the map: architecture, current position, delivery workflow,
+  conventions, gotchas, golden rules.
 
-- Keep CI green on every push. CI is the gate; do not push while a run is in
-  progress (the workflow uses `cancel-in-progress: true`). The required status
-  check is `CI · success`.
-- Do not add code comments unless explicitly asked.
-- Never commit `.env` or any secret/service-account JSON. `.env` is git-ignored
-  at every level; `mobile/.env` is ignored too.
-- Do not commit unless explicitly asked. Never force-push.
+## 1. What this project is
 
-## Commands
+**Foresterie Numérique** — a digital forestry and circular-economy valorization
+engine for the Congo Basin (Gabon), aligned with **Loi 016/01 (code forestier)**
+and **EUDR**. It covers measure → traceability → titles/authorizations → taxes →
+certifications → anomalies/dashboard → environmental studies → EUDR diligence.
 
-Backend (`backend-python/`, runs in the `forestry_fastapi` container):
+```
+Expo app (React Native + TS)
+        │  multipart images + GPS/depth, JSON APIs
+        ▼
+Node gateway (Express, :3000)      auth (bearer), API key, rate limit, proxy
+        │
+        ▼
+FastAPI core (Python 3.13, :8000)  vision, allometrics, RAG, Geo, PDF
+        │
+        ▼
+PostgreSQL 16 + PostGIS + pgvector (:5433)
+```
+
+| Service | Path | Stack |
+| --- | --- | --- |
+| Mobile app | `mobile/` | Expo SDK 57, React Native, TypeScript |
+| API gateway | `backend-node/` | Node 22, Express, http-proxy-middleware |
+| Scientific core | `backend-python/` | FastAPI, Ultralytics YOLOv11, OpenCV, RAG, Groq, Google Earth Engine |
+| Database | `db/` | PostgreSQL 16, PostGIS, pgvector |
+
+Four roles: `operator`, `company`, `cooperative`, `admin`. The UI is **French**
+only (`mobile/src/i18n/fr.ts`). There is **no navigation library**: `App.tsx`
+routes with a `phase` state machine plus role checks; screens are mounted from
+per-role containers (`CompanyScreen`, `AdminScreen`, …) that expose tabs.
+
+## 2. Where we are (as of Slice 13)
+
+The product is built as **vertical slices**: each slice ships a DB migration, the
+backend, optionally an operational CLI under `tools/`, the mobile UI, and the
+doc update — as separate logical commits. The full history lives in
+`docs/GABON_WORKFLOW_ANALYSIS.md` **§9**.
+
+**Slices 1–13 are DONE, committed on `main`, and pushed (CI green).**
+
+| # | Domaine | Migration | Backend | Mobile | Docs §9 |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Données gouvernance (organizations, profils, document_types, titres, UFA, AAC, autorisations, taxes, CCC, transport, certifications) | `009_gouvernance.sql` | — | — | pt 1 |
+| 2 | API gouvernance + porte de conformité 2 niveaux | — | `/api/organizations`, `/documents`, `/titles`, `/taxes`, `/compliance` | — | pt 2 |
+| 3 | Mobile Entreprise/Ministère (documents, titres, taxes) | — | — | `OrgDocuments`, `CompanyTitles`, `OrgTaxes`, `AdminDocuments`, `AdminTitles` | pt 3 |
+| 4 | Traçabilité (DF10, transport) | `010_traceability.sql` | `/api/traceability`, `/api/transport` | `CompanyTraceability`, `AdminTraceability` | pt 4 |
+| 5 | Fiscalité, social (CCC/FDL), EUDR parcelle | `011_slice5.sql` | `/api/taxes`, `/api/community`, `/api/eudr` | `CompanyFiscal`, `AdminFiscal` | pt 5 |
+| 6 | Autorisation d'exploiter (art. 14) | `012_slice6.sql` | `/api/titles/.../authorizations` | `AacAuthorizations` | pt 6 |
+| 7 | Certifications tierces (FSC/PAFC…) | `013_slice7.sql` | `/api/certifications` | `Company/AdminCertifications` | pt 7 |
+| 8 | Anomalies (9 familles) + dashboard Ministère | `014_slice8.sql` | `/api/anomalies`, `/api/dashboard` | `AdminAnomalies`, `AdminDashboard` | pt 8 |
+| 9 | DME/UFA (art. 124) | `015_slice9.sql` | `/api/titles/units/{id}/dme` | `UfaDme` | pt 9 |
+| 10 | Conventions provisoire/définitive + attestation | `016_slice10.sql` | `/api/titles/{id}/conventions` | `TitleConventions` | pt 10 |
+| 11 | Études environnementales PPF/EIE + certificat | `017_slice11.sql` | `/api/titles/{id}/studies` | `TitleStudies` | pt 11 |
+| 12 | EUDR — géolocalisation exacte par grume | `018_slice12.sql` | `/api/eudr/diligence/{id}/stems` | `EudrStems` | pt 12 |
+| 13 | Entité légale : rattachement des comptes legacy | `019_slice13.sql` | `/api/organizations/orphans`, `/backfill` | `OrgBackfill` | pt 13 |
+
+Latest verified suite counts (Slice 13): **`pytest` 336 passed** ·
+**`jest` 98 passed / 32 suites** · `ruff` and `tsc` clean.
+
+### What is left (next candidates)
+
+These are the §5 gap-table rows still **not** fully covered, plus the
+"à brancher" integrations. Pick the next one **with the user**; do not start a
+slice unprompted.
+
+- **Multi-autorités** (§5 row 221, §7.3, §10 pt 3) — `admin` is still a single
+  monolithic Ministère role. Target: distinguish **DGF / DGFAP / DGE / ANPN /
+  DGICBVPF / Douanes** as roles or scoped attributes (provincial/central).
+  **Frozen decision so far: keep `admin` monolithic for now** and split later.
+- **Matérialisation des limites (forêt communautaire)** (row 216): the CAE
+  authorization cycle is complete, but the FC boundary-materialization documents
+  (`legal_documents`) are not wired.
+- **“À brancher” items** (rows 208–212): QR code per log, DF10 administration
+  visa, DGI electronic tax filing, automatic DGF statement transmission, CCC
+  revenue split along the agreement.
+- **Domain values to confirm with the métier** (§10 open points): `ASC`/`ACBSL`
+  scope, authority model, offline signature/QR authenticity, APV/FLEGT,
+  convention durations (3 y / 15 y), PPF/EIE validity, EUDR out-of-parcel
+  tolerance. Where a duration/meaning is not enforced, the code **stores dates
+  without imposing them** and the doc says **“à valider par le métier”** — keep
+  that pattern.
+
+### Live environment state
+
+- Stack runs in Docker: `forestry_postgres`, `forestry_fastapi`, `forestry_gateway`.
+  The API source is bind-mounted with `--reload`, so new endpoints are live once
+  saved; the DB is at host port **5433**.
+- Demo data: `docker exec forestry_fastapi python -m tools.seed_demo` (idempotent;
+  company login `company.demo@forestry.local` / `Demo12345`; admin from `.env`,
+  `admin@forestry.local` / `Admin12345`).
+- Slice 13 was applied live: the two legacy accounts (`company@forestry.local`,
+  `coop@forestry.local`) are now linked to organizations 12 (`entreprise`,
+  `exploitant_forestier`) and 13 (`cooperative`, no profile). Re-running the
+  backfill is idempotent (`0/0`).
+
+## 3. Definition of done for a slice
+
+Follow the vertical order so history stays bisectable; one commit per layer:
+
+1. **DB** — `db/migrations/0NN_sliceNN.sql` (additive, `IF NOT EXISTS`), plus the
+   mount in `docker-compose.yml`:
+   `./db/migrations/0NN_sliceNN.sql:/docker-entrypoint-initdb.d/NN_slicename.sql:ro`.
+2. **Backend** — `app/api/*.py` + `app/services/*.py` + `tests/test_*.py`.
+3. **Tools** (if the slice needs an operator action) — `tools/*.py` CLI.
+4. **Mobile** — types + helpers in `mobile/src/api/client.ts`, a component in
+   `mobile/src/components/`, mount it in the owning screen, i18n keys in
+   `mobile/src/i18n/fr.ts`, tests in `mobile/__tests__/*.test.tsx`.
+5. **Docs** — update `docs/GABON_WORKFLOW_ANALYSIS.md`: the §5 row, §6 (new
+   table/columns), §7.2, a §9 item with the real suite counts, and §10 if a
+   decision/open point changes.
+
+Then, before committing:
+
+- Apply the migration to the **live** DB (init scripts only run on a fresh
+  volume) and mount it in compose.
+- Run the operational path against **real Postgres** (a smoke test): the fake-DB
+  unit tests do not exercise SQL/PostGIS.
+- Run the full gates: `ruff check` + `ruff format --check` + `pytest` (backend),
+  `tsc --noEmit` + `jest` (mobile).
+- After push, confirm the commit landed (`git ls-remote origin main`) and that CI
+  is green (see §6). Do not push over an in-progress run.
+
+## 4. Commands
+
+Backend (`backend-python/`) — either inside the container or with the local venv
+(`backend-python/.venv`):
 
 ```powershell
 docker exec forestry_fastapi ruff check .
 docker exec forestry_fastapi ruff format --check .
 docker exec forestry_fastapi pytest tests -q
+# or locally:  .\.venv\Scripts\python.exe -m pytest -q
 ```
 
 Gateway (`backend-node/`):
@@ -34,40 +158,82 @@ Mobile (`mobile/`):
 
 ```
 npx tsc --noEmit
-npm test
+npx jest --ci
 ```
 
-Full stack smoke (stack must be running):
+Full-stack smoke (stack must be up):
 
 ```
 python backend-python/scripts/smoke_stack.py
 ```
 
-## Conventions
+Apply a migration to a running DB:
 
-- Python: type hints, `async` handlers, `ruff` (version `0.16.10` in CI). No
-  new runtime dependencies without a strong reason; JWT/auth uses the standard
-  library.
-- Database access goes through `app/services/db.py` (`fetch_one`, `fetch_all`,
-  `execute`). Tests monkeypatch these functions in-memory (see
-  `tests/test_rbac.py`).
-- Gateway is a proxy only; it does not implement user auth. User sessions are
+```powershell
+Get-Content db/migrations/0NN_sliceNN.sql | docker exec -i forestry_postgres psql -U forestry -d forestry
+```
+
+## 5. Conventions
+
+- **Python**: type hints, `async` handlers, `ruff` (version `0.16.10` in CI). No
+  new runtime dependency without a strong reason; JWT/auth uses the stdlib.
+- **DB access** goes through `app/services/db.py` (`fetch_one`, `fetch_all`,
+  `execute`); close the pool in CLI tools (`finally: await db.close_pool()`).
+  Tests monkeypatch these functions in-memory (see `tests/test_rbac.py`).
+- **Slices are additive and idempotent** — never rewrite an existing migration;
+  add the next number. `docker-compose.yml` mounts them in order.
+- **Derived status at read time** is a recurring pattern (e.g. `du|en_retard|paye`,
+  `expire`); prefer computing from dates/links over storing mutable state.
+- **PDF** rendering lives in `services/pdf_report.py` (`render_*_pdf` + label
+  maps); every Ministère-facing record has a PDF.
+- **Gateway** is a proxy only; it does not implement user auth. Sessions are
   JWTs signed by FastAPI and validated by `app/core/deps.py`.
-- Mobile has no navigation library; `App.tsx` routes with a `phase` state
-  machine plus role checks. French UI strings live in `src/i18n/fr.ts`.
+- **Mobile** has no navigation library; French strings live in `src/i18n/fr.ts`.
+  Components are shared with a `mode="company"|"admin"` prop where the same
+  record is viewed by both sides.
 
-## CI
+## 6. CI, push, verification
 
-`.github/workflows/ci.yml` runs four jobs (backend, gateway, mobile, stack) and
-gates on `CI · success`. `concurrency.cancel-in-progress` cancels superseded
-runs, so wait for the previous run to finish before pushing.
+`.github/workflows/ci.yml` runs four jobs — **backend**, **gateway**, **mobile**,
+**stack smoke** — and gates on `CI · success`. `concurrency.cancel-in-progress`
+cancels superseded runs, so **wait for the previous run to finish before
+pushing**.
 
-## Gotchas
+Verify a push landed (PowerShell: `git push` prints a red error line even on
+success — trust `ls-remote`, not the exit code):
 
-- `db/` migrations are Docker init scripts and only apply to a fresh volume.
-  Apply to a live DB manually:
-  `Get-Content db/migrations/00X.sql | docker exec -i forestry_postgres psql -U forestry -d forestry`.
-- `.env` changes require recreating the container (`docker compose up -d api`).
-- `ruff` is installed by CI, not listed in `requirements.txt`. In a running
-  container install it ad hoc (lost on container recreation).
+```powershell
+git ls-remote origin main
+git rev-parse HEAD
+```
+
+Check CI for a commit via the public API:
+
+```
+https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
+```
+
+## 7. Gotchas
+
+- `db/` migrations are Docker init scripts and **only apply to a fresh volume**.
+  Apply to a live DB manually (see §4).
+- The `.env` is at the repo root; `DATABASE_URL` uses host port **5433**. Changing
+  `.env` requires recreating the container (`docker compose up -d api`); a plain
+  restart does not reload `env_file`.
+- `ruff` is installed by CI, not in `requirements.txt`. In a running container
+  install it ad hoc with `docker exec forestry_fastapi pip install -q "ruff==0.16.10"`
+  (lost on container recreation).
+- PostGIS/SQL is **not** covered by the fake-DB unit tests — always smoke the new
+  queries on real Postgres.
+- `mobile/__tests__/CaptureScreen.test.tsx` is known-flaky under full parallel
+  `jest`; it passes on re-run/in isolation. Unrelated to feature work.
 - IUCN enrichment is blocked until `IUCN_API_TOKEN` is provided.
+
+## 8. Golden rules
+
+- Keep CI green on every push. CI is the gate; do not push while a run is in
+  progress. The required status check is `CI · success`.
+- Do not add code comments unless explicitly asked.
+- Never commit `.env` or any secret / service-account JSON (`.env` and
+  `mobile/.env` are git-ignored).
+- Do not commit unless explicitly asked. Never force-push.
