@@ -202,6 +202,26 @@ Get-Content db/migrations/0NN_sliceNN.sql | docker exec -i forestry_postgres psq
 - **Mobile** has no navigation library; French strings live in `src/i18n/fr.ts`.
   Components are shared with a `mode="company"|"admin"` prop where the same
   record is viewed by both sides.
+- **Design system** (`mobile/src/design/`): identity of the Ministère des Eaux
+  et Forêts, taken from the uniform — olive (dominant, actions), forest green
+  (header bands), gold (seal, insignia, active marks; never large areas), white.
+  `tokens.ts` (light/dark palettes, all pairs WCAG AA), `ThemeProvider.tsx`
+  (`useTheme`, `makeStyles`), `ui.tsx` (Txt, Button, Card, Pill, Stat, KeyValue,
+  ScreenHeader, Segmented, EmptyState, RankStripes), `format.ts` (French decimal
+  comma). Fonts: Barlow Semi Condensed (titles, figures) + Atkinson Hyperlegible
+  (body), loaded by `fonts.ts`. The operator space follows the phone's
+  light/dark setting; the camera screen is always dark; company / cooperative /
+  admin spaces are still forced dark and use the legacy `src/theme.ts` until
+  they are migrated. Header rank stripes: Ministry 2, company/cooperative 1,
+  field agent 0. Reference mockup: `docs/design/maquette_design_v1.html`.
+- **Scanner** (`CaptureScreen` + `utils/scanFlow.ts`): one guided flow, no
+  full/quick modes — Arbre → Écorce → Feuilles → Diamètre → Vérifier, auto-advance
+  after each photo, optional extra views (flower, fruit…) from the review. The QR
+  scanner is always on: a plate links the tree, and a plate seen at the DBH shot
+  lets the **server** measure the distance (the phone's preview estimate is a
+  guide only and is never sent). Distance otherwise comes from the depth sensor
+  (auto at the DBH shot) or a one-tap preset; tape/caliper is a secondary option.
+  Edges are sent only after the operator taps « Valider le diamètre ».
 
 ## 6. CI, push, verification
 

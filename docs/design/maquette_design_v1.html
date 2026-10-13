@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Foresterie Numérique — Maquette v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: a design-system sheet — identity, type, components, then the key
+   screens shown in phone frames, light and dark side by side. */
+:root {
+  /* Couleurs issues de l'uniforme du Ministère des Eaux et Forêts */
+  --olive: #4F5F2A;        /* vert olive — tenue de service, couleur dominante */
+  --olive-soft: #E8ECD9;
+  --forest: #1E4429;       /* vert forêt — bandes de commandement, structure */
+  --gold: #C99A1E;         /* or — épaulettes, insignes : autorité, en touches */
+  --gold-ink: #8A6A0E;     /* or lisible en texte sur fond clair */
+  --gold-soft: #F5E9C4;
+  --bg: #F5F6F0;           /* blanc de cérémonie, légèrement teinté olive */
+  --surface: #FFFFFF;
+  --surface-2: #EEF0E6;
+  --line: #D9DECB;
+  --ink: #1B2114;
+  --muted: #5C6650;
+  --on-olive: #FFFFFF;
+  --on-forest: #FFFFFF;
+  --ok: #2F7D4A; --ok-soft: #E1F0E5;
+  --warn: #9A5F0C; --warn-soft: #F8EBD4;
+  --risk: #B3362F; --risk-soft: #F7E1DF;
+  --info: #2C64A6; --info-soft: #E0EAF6;
+  --shadow: 0 1px 2px rgba(27,33,20,.06), 0 6px 18px rgba(27,33,20,.07);
+
+  --f-display: "Barlow Semi Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", Roboto, Arial, sans-serif;
+
+  --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-pill: 999px;
+  color-scheme: light;
+}
+.dark, :root[data-theme="dark"] {
+  --olive: #A3B86A; --olive-soft: #263019;
+  --forest: #173A22;
+  --gold: #D9B44A; --gold-ink: #D9B44A; --gold-soft: #3A3114;
+  --bg: #0F130C; --surface: #182014; --surface-2: #1F2919; --line: #2E3A26;
+  --ink: #EDF0E6; --muted: #A1AB93;
+  --on-olive: #10150B; --on-forest: #EDF0E6;
+  --ok: #5DBE7E; --ok-soft: #1C3324;
+  --warn: #E0A53A; --warn-soft: #3A2C12;
+  --risk: #E8786F; --risk-soft: #3D1E1B;
+  --info: #6FA3E0; --info-soft: #172B42;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 22px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --olive: #A3B86A; --olive-soft: #263019; --forest: #173A22;
+    --gold: #D9B44A; --gold-ink: #D9B44A; --gold-soft: #3A3114;
+    --bg: #0F130C; --surface: #182014; --surface-2: #1F2919; --line: #2E3A26;
+    --ink: #EDF0E6; --muted: #A1AB93; --on-olive: #10150B; --on-forest: #EDF0E6;
+    --ok: #5DBE7E; --ok-soft: #1C3324; --warn: #E0A53A; --warn-soft: #3A2C12;
+    --risk: #E8786F; --risk-soft: #3D1E1B; --info: #6FA3E0; --info-soft: #172B42;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 22px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+/* A light frame stays light even when the page is dark. */
+.light {
+  --olive: #4F5F2A; --olive-soft: #E8ECD9; --forest: #1E4429;
+  --gold: #C99A1E; --gold-ink: #8A6A0E; --gold-soft: #F5E9C4;
+  --bg: #F5F6F0; --surface: #FFFFFF; --surface-2: #EEF0E6; --line: #D9DECB;
+  --ink: #1B2114; --muted: #5C6650; --on-olive: #FFFFFF; --on-forest: #FFFFFF;
+  --ok: #2F7D4A; --ok-soft: #E1F0E5; --warn: #9A5F0C; --warn-soft: #F8EBD4;
+  --risk: #B3362F; --risk-soft: #F7E1DF; --info: #2C64A6; --info-soft: #E0EAF6;
+  --shadow: 0 1px 2px rgba(27,33,20,.06), 0 6px 18px rgba(27,33,20,.07);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 16px/1.5 var(--f-body);
+  padding-block: 0 64px; padding-inline: max(16px, 4vw);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; letter-spacing: .01em; }
+h1 { font-size: clamp(2rem, 4.4vw, 3.1rem); font-weight: 700; line-height: 1.05; }
+h2 { font-size: 1.6rem; font-weight: 700; }
+h3 { font-size: 1.15rem; font-weight: 600; }
+p { margin: 0; max-width: 66ch; }
+.eyebrow { font: 600 .78rem/1 var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: var(--gold-ink); }
+.muted { color: var(--muted); }
+.num { font-family: var(--f-display); font-variant-numeric: tabular-nums; }
+
+/* ---- Page header: the forest command band ---- */
+.masthead {
+  margin-inline: calc(-1 * max(16px, 4vw));
+  padding: 40px max(16px, 4vw) 32px;
+  background: var(--forest); color: var(--on-forest);
+  position: relative;
+}
+.masthead::after {           /* deux bandes latérales : officier supérieur */
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 6px;
+  background: linear-gradient(var(--gold) 0 2px, transparent 2px 4px, var(--gold) 4px 6px);
+  opacity: .9;
+}
+.masthead .eyebrow { color: var(--gold); }
+.masthead-row { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+.emblem {
+  width: 64px; height: 64px; border-radius: 50%; flex: none;
+  border: 2px dashed color-mix(in srgb, var(--on-forest) 55%, transparent);
+  display: grid; place-items: center; text-align: center;
+  font: 600 .6rem/1.1 var(--f-display); letter-spacing: .06em; text-transform: uppercase;
+}
+.masthead p { color: color-mix(in srgb, var(--on-forest) 82%, transparent); margin-top: 10px; }
+
+main { display: grid; gap: 56px; margin-top: 40px; }
+section { display: grid; gap: 20px; }
+.section-head { display: grid; gap: 6px; }
+
+/* ---- Identity ---- */
+.swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+.swatch { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+.swatch .chip { height: 92px; display: flex; align-items: flex-end; padding: 10px 12px; font: 600 .82rem var(--f-display); letter-spacing: .04em; }
+.swatch .body { padding: 12px; display: grid; gap: 4px; font-size: .9rem; }
+.swatch strong { font-family: var(--f-display); font-size: 1.05rem; }
+.semantic { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* ---- Type ---- */
+.type-scale { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 8px 20px; }
+.type-row { display: grid; grid-template-columns: 150px 1fr; gap: 16px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.type-row:last-child { border-bottom: 0; }
+.type-row .meta { font-size: .78rem; color: var(--muted); }
+@media (max-width: 560px) { .type-row { grid-template-columns: 1fr; gap: 4px; } }
+
+/* ---- Components ---- */
+.comp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px; display: grid; gap: 14px; align-content: start; }
+.panel h3 { font-size: .95rem; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+.btn { font: 700 .95rem var(--f-body); border-radius: var(--r-md); padding: 12px 18px; border: 1.5px solid transparent; cursor: pointer; min-height: 48px; }
+.btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.btn-primary { background: var(--olive); color: var(--on-olive); }
+.btn-secondary { background: transparent; color: var(--olive); border-color: var(--olive); }
+.btn-ghost { background: transparent; color: var(--ink); }
+.btn-danger { background: var(--risk); color: #fff; }
+.btn-block { width: 100%; }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; font: 600 .8rem var(--f-display); letter-spacing: .03em; padding: 5px 10px; border-radius: var(--r-pill); }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill-ok { background: var(--ok-soft); color: var(--ok); }
+.pill-warn { background: var(--warn-soft); color: var(--warn); }
+.pill-risk { background: var(--risk-soft); color: var(--risk); }
+.pill-info { background: var(--info-soft); color: var(--info); }
+.pill-gold { background: var(--gold-soft); color: var(--gold-ink); }
+
+.chip-f { font: 600 .85rem var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 7px 12px; border-radius: var(--r-pill); }
+.chip-f.on { background: var(--olive); border-color: var(--olive); color: var(--on-olive); }
+
+.field { display: grid; gap: 6px; }
+.field label { font-size: .85rem; color: var(--muted); }
+.input { font: 400 1rem var(--f-body); background: var(--surface-2); color: var(--ink); border: 1.5px solid var(--line); border-radius: var(--r-md); padding: 12px 14px; }
+.input:focus { outline: none; border-color: var(--olive); }
+.input-suffix { display: flex; align-items: center; gap: 8px; }
+
+.seg { display: flex; background: var(--surface-2); border-radius: var(--r-md); padding: 4px; gap: 4px; }
+.seg span { flex: 1; text-align: center; padding: 8px; border-radius: 7px; font: 600 .9rem var(--f-body); color: var(--muted); }
+.seg span.on { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+
+.kv { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: .95rem; }
+.kv:last-child { border-bottom: 0; }
+.kv span:first-child { color: var(--muted); }
+.kv span:last-child { font-weight: 700; text-align: right; }
+
+/* Rank stripes: role is told by stripes, like the uniform. */
+.rank { display: grid; gap: 10px; }
+.rank-item { display: flex; align-items: center; gap: 12px; font-size: .92rem; }
+.stripes { display: flex; gap: 3px; width: 28px; height: 28px; align-items: stretch; justify-content: center; background: var(--surface-2); border-radius: 6px; padding: 5px 0; }
+.stripes i { width: 4px; background: var(--forest); border-radius: 2px; }
+.dark .stripes i { background: var(--olive); }
+
+/* ---- Phone frames ---- */
+.screens { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 28px 20px; justify-items: center; }
+.screen-cap { display: grid; gap: 10px; justify-items: center; width: 100%; max-width: 320px; }
+.screen-cap figcaption { font-size: .85rem; color: var(--muted); text-align: center; }
+.phone {
+  width: 100%; max-width: 300px; aspect-ratio: 9 / 19.2;
+  background: var(--bg); color: var(--ink);
+  border-radius: 34px; border: 9px solid #121610;
+  box-shadow: 0 18px 40px rgba(20,25,15,.28);
+  overflow: hidden; display: flex; flex-direction: column; position: relative;
+  font-size: 13px;
+}
+.status { display: flex; justify-content: space-between; padding: 8px 18px 4px; font: 600 11px var(--f-display); color: var(--on-forest); background: var(--forest); }
+.appbar { background: var(--forest); color: var(--on-forest); padding: 6px 16px 14px; position: relative; }
+.appbar.band::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: linear-gradient(var(--gold) 0 1.5px, transparent 1.5px 2.5px, var(--gold) 2.5px 4px); }
+.appbar small { display: block; font: 600 10px var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+.appbar b { font: 700 18px var(--f-display); letter-spacing: .01em; }
+.p-body { flex: 1; padding: 12px; display: grid; gap: 10px; align-content: start; overflow: hidden; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 8px; }
+.card.raised { box-shadow: var(--shadow); border-color: transparent; }
+.card h4 { margin: 0; font: 700 14px var(--f-display); letter-spacing: .02em; }
+.big { font: 700 30px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.big small { font-size: 14px; font-weight: 600; color: var(--muted); }
+.tabbar { display: flex; justify-content: space-around; border-top: 1px solid var(--line); background: var(--surface); padding: 8px 4px 12px; }
+.tab { display: grid; justify-items: center; gap: 3px; font: 600 9.5px var(--f-body); color: var(--muted); }
+.tab i { width: 18px; height: 18px; border-radius: 5px; border: 2px solid currentColor; }
+.tab.on { color: var(--olive); }
+.tab.scan i { width: 40px; height: 40px; border-radius: 50%; background: var(--olive); border: 3px solid var(--gold); margin-top: -22px; }
+.mini-kv { display: flex; justify-content: space-between; font-size: 12px; }
+.mini-kv span:first-child { color: var(--muted); }
+.mini-kv span:last-child { font-weight: 700; }
+.list-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.list-row:last-child { border-bottom: 0; }
+.thumb { width: 34px; height: 34px; border-radius: 9px; background: var(--olive-soft); flex: none; display: grid; place-items: center; font: 700 11px var(--f-display); color: var(--olive); }
+.grow { flex: 1; min-width: 0; }
+.grow b { display: block; font-size: 12.5px; }
+.grow span { font-size: 11px; color: var(--muted); }
+
+/* capture screen */
+.viewfinder { flex: 1; position: relative; background:
+  radial-gradient(120% 70% at 50% 0%, #3d4a2a 0%, #1d2416 55%, #121610 100%); overflow: hidden; }
+.trunk { position: absolute; top: 0; bottom: 0; left: 38%; width: 26%;
+  background: linear-gradient(90deg, #3a2e22, #6b5641 30%, #7a634b 52%, #5a4735 78%, #33281e);
+}
+.trunk::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(0,0,0,.18) 9px 11px); }
+.plate { position: absolute; left: 47%; top: 46%; width: 9%; aspect-ratio: 1; background:
+  conic-gradient(#000 25%, #fff 0 50%, #000 0 75%, #fff 0) 0 0 / 40% 40%, #fff; border: 2px solid #fff; border-radius: 2px; }
+.edge { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--gold); }
+.edge::after { content: "◀▶"; position: absolute; top: 44%; left: -15px; width: 32px; height: 32px; border-radius: 50%; background: var(--gold); color: #1B2114; font: 700 9px/32px var(--f-display); text-align: center; border: 2px solid #fff; }
+.edge.l { left: 38%; } .edge.r { left: 64%; }
+.shade { position: absolute; top: 0; bottom: 0; left: 38%; width: 26%; background: rgba(201,154,30,.14); }
+.hline { position: absolute; left: 0; right: 0; top: 56%; height: 0; border-top: 1.5px dashed rgba(255,255,255,.75); }
+.readout { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); background: rgba(10,13,8,.78); color: #fff; padding: 6px 12px; border-radius: 10px; text-align: center; white-space: nowrap; }
+.readout b { display: block; font: 700 20px var(--f-display); font-variant-numeric: tabular-nums; }
+.readout span { font-size: 10px; color: #d8dccf; }
+.level { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); background: var(--ok); color: #fff; font: 700 11px var(--f-body); padding: 4px 10px; border-radius: 999px; }
+.sheet { background: var(--surface); border-top: 1px solid var(--line); padding: 10px 12px 12px; display: grid; gap: 8px; border-radius: 16px 16px 0 0; margin-top: -14px; position: relative; }
+.p-seg { display: flex; background: var(--surface-2); border-radius: 9px; padding: 3px; gap: 3px; }
+.p-seg span { flex: 1; text-align: center; padding: 5px; border-radius: 6px; font: 700 11px var(--f-body); color: var(--muted); }
+.p-seg span.on { background: var(--olive); color: var(--on-olive); }
+.p-field { display: flex; justify-content: space-between; align-items: center; background: var(--surface-2); border-radius: 9px; padding: 8px 10px; font-size: 12px; }
+.p-field b { font-family: var(--f-display); font-size: 15px; font-variant-numeric: tabular-nums; }
+.p-btn { background: var(--olive); color: var(--on-olive); text-align: center; font: 700 13px var(--f-body); border-radius: 10px; padding: 11px; }
+.ai-note { font-size: 10.5px; color: var(--ok); font-weight: 700; }
+
+/* map screen */
+.map { flex: 1; position: relative; overflow: hidden; background: #d9e3c6; }
+.dark .map { background: #1b2416; }
+.map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map-search { position: absolute; top: 10px; left: 10px; right: 10px; background: var(--surface); border-radius: 12px; padding: 9px 12px; font-size: 12px; color: var(--muted); box-shadow: var(--shadow); }
+.map-fabs { position: absolute; right: 10px; top: 56px; display: grid; gap: 8px; }
+.map-fabs i { width: 34px; height: 34px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); display: block; border: 2px solid var(--olive); }
+.map-card { position: absolute; left: 10px; right: 10px; bottom: 10px; background: var(--surface); border-radius: 14px; padding: 12px; box-shadow: var(--shadow); display: grid; gap: 6px; }
+.legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 10.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend span::before { content: ""; width: 9px; height: 9px; border-radius: 2px; background: var(--c); }
+
+.notes { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px 20px; display: grid; gap: 10px; }
+.notes ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 80ch; }
+footer { margin-top: 56px; color: var(--muted); font-size: .85rem; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-row">
+    <div class="emblem" aria-label="Emplacement du logo officiel">Logo<br>officiel<br>à fournir</div>
+    <div>
+      <div class="eyebrow">République Gabonaise · Ministère des Eaux et Forêts</div>
+      <h1>Foresterie Numérique<br>Système de design</h1>
+    </div>
+  </div>
+  <p>Maquette v1 pour validation. Couleurs tirées de l'uniforme du Ministère : vert olive de la tenue de service, vert forêt des bandes de commandement, or des épaulettes et insignes, blanc de cérémonie. Thème clair par défaut (lisible au soleil), thème sombre automatique.</p>
+</header>
+
+<main>
+
+<section aria-labelledby="ident">
+  <div class="section-head">
+    <div class="eyebrow">1 · Identité</div>
+    <h2 id="ident">L'uniforme comme code couleur</h2>
+    <p class="muted">Chaque couleur garde dans l'application le rôle qu'elle a sur la tenue. L'or reste rare, comme sur l'épaulette : il marque l'autorité de l'État, jamais une grande surface.</p>
+  </div>
+  <div class="swatches">
+    <div class="swatch"><div class="chip" style="background:var(--olive);color:var(--on-olive)">Vert olive</div>
+      <div class="body"><strong>Tenue de service</strong><span class="muted">Couleur dominante : boutons principaux, onglet actif, éléments de marque.</span><span class="num">#4F5F2A · contraste 7,0:1</span></div></div>
+    <div class="swatch"><div class="chip" style="background:var(--forest);color:var(--on-forest)">Vert forêt</div>
+      <div class="body"><strong>Bandes de commandement</strong><span class="muted">Structure : en-têtes, navigation, bandeaux officiels.</span><span class="num">#1E4429 · contraste 11,0:1</span></div></div>
+    <div class="swatch"><div class="chip" style="background:var(--gold);color:#1B2114">Or</div>
+      <div class="body"><strong>Épaulettes et insignes</strong><span class="muted">Accent rare : sceaux officiels, repères de mesure, état actif.</span><span class="num">#C99A1E · texte #8A6A0E 5,1:1</span></div></div>
+    <div class="swatch"><div class="chip" style="background:var(--surface);color:var(--ink);border-bottom:1px solid var(--line)">Blanc</div>
+      <div class="body"><strong>Tenue de cérémonie</strong><span class="muted">Surfaces du thème clair, fond légèrement teinté olive.</span><span class="num">#FFFFFF / #F5F6F0</span></div></div>
+  </div>
+  <div class="semantic" aria-label="Couleurs d'état">
+    <span class="pill pill-ok">Conforme</span>
+    <span class="pill pill-warn">À vérifier</span>
+    <span class="pill pill-risk">Risque de déforestation</span>
+    <span class="pill pill-info">Information</span>
+    <span class="pill pill-gold">Document officiel</span>
+  </div>
+  <p class="muted">Les couleurs d'état (vert, ambre, rouge, bleu) restent distinctes de l'olive de marque, pour qu'une alerte ne se confonde jamais avec un bouton. Toutes les paires texte/fond passent le niveau WCAG AA, en clair comme en sombre.</p>
+</section>
+
+<section aria-labelledby="typo">
+  <div class="section-head">
+    <div class="eyebrow">2 · Typographie</div>
+    <h2 id="typo">Lisible en forêt, sobre comme un document d'État</h2>
+    <p class="muted">Titres en Barlow Semi Condensed, dense et net comme une signalétique officielle. Texte en Atkinson Hyperlegible, conçue pour la lisibilité maximale (soleil, écran sale, lecture rapide). Chiffres de mesure alignés (tabulaires).</p>
+  </div>
+  <div class="type-scale">
+    <div class="type-row"><span class="meta">Titre écran · 28/30</span><span style="font:700 28px/1.05 var(--f-display)">Déclaration d'abattage</span></div>
+    <div class="type-row"><span class="meta">Mesure · 34 tabulaire</span><span class="num" style="font-size:34px;font-weight:700">54,8 <span style="font-size:16px;color:var(--muted)">cm</span></span></div>
+    <div class="type-row"><span class="meta">Section · 18</span><span style="font:600 18px var(--f-display)">Contrôle forestier (Global Forest Watch)</span></div>
+    <div class="type-row"><span class="meta">Corps · 16/24</span><span>Glissez les deux lignes sur les bords du tronc, à 1,30 m du sol. Le diamètre s'affiche en direct, même sans réseau.</span></div>
+    <div class="type-row"><span class="meta">Étiquette · 12 capitales</span><span class="eyebrow">AAC · DEMO-AAC-2026-01</span></div>
+  </div>
+</section>
+
+<section aria-labelledby="comp">
+  <div class="section-head">
+    <div class="eyebrow">3 · Composants</div>
+    <h2 id="comp">Une seule bibliothèque pour les 52 écrans</h2>
+    <p class="muted">Aujourd'hui chaque écran dessine ses propres cartes et boutons. Demain, tous utilisent les mêmes composants : une modification se fait une fois.</p>
+  </div>
+  <div class="comp-grid">
+    <div class="panel">
+      <h3>Boutons</h3>
+      <div class="row"><button class="btn btn-primary" type="button">Analyser l'arbre</button><button class="btn btn-secondary" type="button">Importer</button></div>
+      <div class="row"><button class="btn btn-ghost" type="button">Annuler</button><button class="btn btn-danger" type="button">Rejeter la déclaration</button></div>
+      <p class="muted" style="font-size:.85rem">Hauteur minimale 48 px : utilisable avec des gants ou en mouvement.</p>
+    </div>
+    <div class="panel">
+      <h3>Filtres et sélecteurs</h3>
+      <div class="row"><span class="chip-f on">Aires protégées · 61</span><span class="chip-f">Concessions · 70</span><span class="chip-f on">AAC</span></div>
+      <div class="seg" role="tablist" aria-label="Mode de mesure"><span class="on">Photo</span><span>Ruban</span><span>Compas</span></div>
+    </div>
+    <div class="panel">
+      <h3>Champ de saisie</h3>
+      <div class="field"><label for="dist">Distance tronc–téléphone</label>
+        <div class="input-suffix"><input class="input" id="dist" value="2,00" inputmode="decimal" style="flex:1"><span class="muted">m</span></div></div>
+      <div class="field"><label for="circ">Circonférence au ruban (1,30 m)</label>
+        <div class="input-suffix"><input class="input" id="circ" value="172" inputmode="decimal" style="flex:1"><span class="muted">cm</span></div></div>
+    </div>
+    <div class="panel">
+      <h3>Fiche de mesure</h3>
+      <div>
+        <div class="kv"><span>Diamètre (DBH)</span><span class="num">54,8 cm</span></div>
+        <div class="kv"><span>Méthode</span><span>Bords confirmés par l'opérateur</span></div>
+        <div class="kv"><span>Distance</span><span>2,01 m · plaque QR</span></div>
+        <div class="kv"><span>Stock de carbone</span><span class="num">5,54 t CO₂e</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Grades : le rôle se lit aux bandes</h3>
+      <div class="rank">
+        <div class="rank-item"><span class="stripes"><i></i><i></i></span><span><b>Ministère</b> — deux bandes, comme l'officier supérieur</span></div>
+        <div class="rank-item"><span class="stripes"><i></i></span><span><b>Entreprise / coopérative</b> — une bande</span></div>
+        <div class="rank-item"><span class="stripes"></span><span><b>Agent de terrain</b> — sans bande</span></div>
+      </div>
+      <p class="muted" style="font-size:.85rem">Repère discret dans l'en-tête de chaque espace : on sait toujours dans quel rôle on travaille.</p>
+    </div>
+    <div class="panel">
+      <h3>États</h3>
+      <div class="row"><span class="pill pill-ok">Autorisée</span><span class="pill pill-warn">Soumise</span><span class="pill pill-risk">Rejetée</span></div>
+      <div class="row"><span class="pill pill-info">Hors-ligne · 2 en attente</span><span class="pill pill-gold">Attestation délivrée</span></div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="ecrans">
+  <div class="section-head">
+    <div class="eyebrow">4 · Écrans clés</div>
+    <h2 id="ecrans">Accueil, mesure, rapport, carte</h2>
+    <p class="muted">Chaque écran est montré en clair (défaut, terrain) et en sombre (suit le réglage du téléphone).</p>
+  </div>
+
+  <div class="screens">
+    <!-- 1. Accueil agent -->
+    <figure class="screen-cap"><div class="phone light">
+      <div class="status"><span>9:41</span><span>4G · 82 %</span></div>
+      <div class="appbar"><small>Agent de terrain</small><b>Bonjour, Nzé</b></div>
+      <div class="p-body">
+        <div class="card raised">
+          <h4>Mesurer un arbre</h4>
+          <span class="muted" style="font-size:12px">Espèce, diamètre, carbone et contrôle RDUE en une seule capture.</span>
+          <div class="p-btn">Nouvelle analyse</div>
+          <span class="ai-note">● 2 analyses en attente de synchronisation</span>
+        </div>
+        <div class="card">
+          <h4>Aujourd'hui</h4>
+          <div style="display:flex;gap:10px">
+            <div style="flex:1"><div class="big">14</div><span class="muted" style="font-size:11px">arbres mesurés</span></div>
+            <div style="flex:1"><div class="big">61<small> t</small></div><span class="muted" style="font-size:11px">CO₂e mesurés</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>Derniers scans</h4>
+          <div class="list-row"><span class="thumb">OK</span><span class="grow"><b>Aucoumea klaineana</b><span>Okoumé · 62,4 cm · GA-2026-000123</span></span><span class="pill pill-ok">Conforme</span></div>
+          <div class="list-row"><span class="thumb">PA</span><span class="grow"><b>Pterocarpus soyauxii</b><span>Padouk · 88,0 cm</span></span><span class="pill pill-warn">À vérifier</span></div>
+        </div>
+      </div>
+      <div class="tabbar"><span class="tab on"><i></i>Accueil</span><span class="tab"><i></i>Espèces</span><span class="tab scan"><i></i>Scan</span><span class="tab"><i></i>Activités</span><span class="tab"><i></i>Carte</span></div>
+    </div><figcaption>Accueil agent — clair</figcaption></figure>
+
+    <!-- 2. Capture DBH -->
+    <figure class="screen-cap"><div class="phone light">
+      <div class="status"><span>9:42</span><span>Hors-ligne</span></div>
+      <div class="appbar"><small>Vue 4 sur 4 · Mesure DBH</small><b>Tronc entier à 1,30 m</b></div>
+      <div class="viewfinder">
+        <div class="trunk"></div><div class="shade"></div><div class="plate"></div>
+        <div class="edge l"></div><div class="edge r"></div><div class="hline"></div>
+        <div class="readout"><b>DBH ≈ 54,8 cm</b><span>calculé sur le téléphone, sans réseau</span></div>
+        <div class="level">Téléphone droit ✓</div>
+      </div>
+      <div class="sheet">
+        <div class="p-seg"><span class="on">Photo</span><span>Ruban</span><span>Compas</span></div>
+        <div class="p-field"><span class="muted">Distance (plaque QR détectée)</span><b>2,01 m</b></div>
+        <div class="p-btn">Analyser l'arbre</div>
+      </div>
+    </div><figcaption>Mesure DBH avec bords à glisser — clair</figcaption></figure>
+
+    <!-- 3. Rapport (sombre) -->
+    <figure class="screen-cap"><div class="phone dark">
+      <div class="status"><span>9:43</span><span>4G · 81 %</span></div>
+      <div class="appbar band"><small>Rapport forestier</small><b>Okoumé</b></div>
+      <div class="p-body">
+        <div class="card raised">
+          <span class="muted" style="font-size:11px;font-style:italic">Aucoumea klaineana · confiance 72 %</span>
+          <div style="display:flex;gap:12px;align-items:flex-end">
+            <div><div class="big">54,8<small> cm</small></div><span class="muted" style="font-size:11px">Diamètre (DBH)</span></div>
+            <div><div class="big">28<small> m</small></div><span class="muted" style="font-size:11px">Hauteur · clinomètre</span></div>
+          </div>
+          <div class="mini-kv"><span>Méthode</span><span>Bords confirmés</span></div>
+          <div class="mini-kv"><span>Écart avec le ruban</span><span>−0,3 %</span></div>
+        </div>
+        <div class="card">
+          <h4>Contrôle forestier</h4>
+          <span class="pill pill-ok" style="justify-self:start">Conforme · aucun signal</span>
+          <div class="mini-kv"><span>Perte de couvert après 2020</span><span>Aucune</span></div>
+          <div class="mini-kv"><span>Concession</span><span>GSEZ — Sud Ngounié</span></div>
+        </div>
+        <div class="card">
+          <h4>Carbone vivant</h4>
+          <div class="big" style="color:var(--ok)">5,54<small> t CO₂e</small></div>
+        </div>
+      </div>
+      <div class="tabbar"><span class="tab"><i></i>Accueil</span><span class="tab"><i></i>Espèces</span><span class="tab scan"><i></i>Scan</span><span class="tab on"><i></i>Activités</span><span class="tab"><i></i>Carte</span></div>
+    </div><figcaption>Rapport d'un arbre — sombre</figcaption></figure>
+
+    <!-- 4. Carte -->
+    <figure class="screen-cap"><div class="phone light">
+      <div class="status"><span>9:44</span><span>4G · 80 %</span></div>
+      <div class="map">
+        <svg viewBox="0 0 300 560" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <path d="M20 120 L150 90 L210 160 L170 260 L60 250 Z" fill="rgba(46,125,74,.22)" stroke="#2F7D4A" stroke-width="2"/>
+          <path d="M140 270 L260 240 L280 380 L170 400 Z" fill="rgba(181,101,29,.16)" stroke="#B5651D" stroke-width="1.5"/>
+          <path d="M175 300 L235 292 L240 345 L182 352 Z" fill="rgba(201,154,30,.30)" stroke="#C99A1E" stroke-width="3"/>
+          <circle cx="200" cy="320" r="7" fill="#2F7D4A" stroke="#fff" stroke-width="2"/>
+          <circle cx="218" cy="330" r="7" fill="#9A5F0C" stroke="#fff" stroke-width="2"/>
+          <circle cx="120" cy="190" r="11" fill="#C99A1E" stroke="#fff" stroke-width="2"/>
+          <text x="120" y="194" text-anchor="middle" font-family="Barlow Semi Condensed, sans-serif" font-weight="700" font-size="11" fill="#1B2114">12</text>
+        </svg>
+        <div class="map-search">Rechercher un parc, une concession, une AAC…</div>
+        <div class="map-fabs"><i></i><i></i><i></i></div>
+        <div class="map-card">
+          <b style="font:700 14px var(--f-display)">Parc national de la Lopé</b>
+          <span class="muted" style="font-size:11px">Aire protégée · UICN II · 491 291 ha</span>
+          <div class="legend"><span style="--c:#2F7D4A">Aires protégées</span><span style="--c:#B5651D">Concessions</span><span style="--c:#C99A1E">AAC</span></div>
+          <div class="p-btn" style="padding:8px">Contrôle GFW ici</div>
+        </div>
+      </div>
+    </div><figcaption>Carte : couches, recherche, fiche — clair</figcaption></figure>
+
+    <!-- 5. Ministère (sombre) -->
+    <figure class="screen-cap"><div class="phone dark">
+      <div class="status"><span>9:45</span><span>Wi-Fi · 64 %</span></div>
+      <div class="appbar band"><small>Ministère · deux bandes</small><b>Tableau de bord</b></div>
+      <div class="p-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="card"><div class="big">3</div><span class="muted" style="font-size:11px">échéances en retard</span></div>
+          <div class="card"><div class="big">70,4<small> t</small></div><span class="muted" style="font-size:11px">CO₂e mesurés</span></div>
+        </div>
+        <div class="card">
+          <h4>Anomalies à traiter</h4>
+          <div class="list-row"><span class="grow"><b>Abattage en aire protégée</b><span>GA-DEMO-003 · Lopé</span></span><span class="pill pill-risk">Dur</span></div>
+          <div class="list-row"><span class="grow"><b>Échéance fiscale impayée</b><span>Abattage 2026 · 3,5 M FCFA</span></span><span class="pill pill-warn">Avert.</span></div>
+          <div class="list-row"><span class="grow"><b>Transport sans bordereau</b><span>GA-DEMO-009</span></span><span class="pill pill-warn">Avert.</span></div>
+        </div>
+      </div>
+      <div class="tabbar"><span class="tab on"><i></i>Tableau</span><span class="tab"><i></i>Titres</span><span class="tab"><i></i>Anomalies</span><span class="tab"><i></i>Carte</span></div>
+    </div><figcaption>Espace Ministère — sombre</figcaption></figure>
+  </div>
+</section>
+
+<section aria-labelledby="next">
+  <div class="section-head">
+    <div class="eyebrow">5 · À valider</div>
+    <h2 id="next">Questions pour la validation</h2>
+  </div>
+  <div class="notes">
+    <ul>
+      <li><b>Logo officiel</b> du Ministère (fichier PNG ou SVG) : l'emplacement est prévu dans l'en-tête et sur l'écran de connexion.</li>
+      <li><b>Teintes exactes</b> : l'olive et le vert forêt sont tirés de la description de l'uniforme ; un échantillon de tissu ou la charte officielle permettrait de les ajuster.</li>
+      <li><b>Repère des grades</b> (bandes dans l'en-tête selon le rôle) : à garder ou à retirer.</li>
+      <li><b>Mention « République Gabonaise »</b> : sur toutes les pages, ou seulement sur les documents officiels (PDF, plaques, espace Ministère).</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+<footer>Maquette locale non publiée · Foresterie Numérique · thème clair par défaut, sombre automatique.</footer>
+</body>
+</html>
