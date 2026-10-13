@@ -28,6 +28,7 @@ from app.core import security
 from app.core.dme import dme_for
 from app.core.log_volume import merchantable_volume_m3
 from app.services import compliance, db
+from app.services.biomass_engine import living_carbon
 
 # --------------------------------------------------------------------------
 # Markers -- everything the tool owns is derivable from these.
@@ -134,6 +135,17 @@ SEEDED_DILIGENCE: dict = {
     "declared_volume_m3": 120.0,
 }
 
+#: Tape-measured field scans (Slice 15) that light up the Ministry's carbon
+#: rollup: two linked to registry trees by QR, one attributed to the open AAC
+#: by its GPS point alone. ``age_model_used`` marks them for the reset.
+#: (tree_code suffix or None, lon, lat, species, tape DBH cm, height m)
+SEEDED_SCANS: tuple[tuple[str | None, float, float, str, float, float], ...] = (
+    ("005", 11.5500, -0.1800, "Aucoumea klaineana", 110.0, 38.0),
+    ("002", 11.4700, -0.2000, "Baillonella toxisperma", 110.0, 42.0),
+    (None, 11.4800, -0.2200, "Aucoumea klaineana", 72.0, 31.0),
+)
+SCAN_MARKER = "DEMO-SCAN"
+
 #: Anomaly families this dataset is designed to trigger. Kept as an explicit
 #: contract (asserted in the test-suite) so a detector added later cannot be
 #: silently left out of the demo.
@@ -207,6 +219,7 @@ async def _reset(company_id: int, org_ids: list[int]) -> None:
         titles,
     )
     await db.execute("DELETE FROM custody_events WHERE tree_code LIKE $1", f"{TREE_PREFIX}%")
+    await db.execute("DELETE FROM tree_scans WHERE age_model_used = $1", SCAN_MARKER)
     await db.execute("DELETE FROM tree_registry WHERE tree_code LIKE $1", f"{TREE_PREFIX}%")
     await db.execute("DELETE FROM transport_documents WHERE org_id = ANY($1::int[])", org_ids)
     await db.execute("DELETE FROM tax_dues WHERE org_id = ANY($1::int[])", org_ids)
@@ -629,6 +642,31 @@ async def seed() -> None:
         SEEDED_DILIGENCE["declared_volume_m3"],
         company_id,
     )
+
+    # --- Field scans (tape reference) -> Ministry carbon rollup -------------
+    for suffix, lon, lat, species, dbh, height in SEEDED_SCANS:
+        agb, carbon, co2e = living_carbon(dbh, species, height)
+        await db.execute(
+            "INSERT INTO tree_scans"
+            " (species_scientific_name, species_confidence, geom, measured_dbh_cm, dbh_method,"
+            "  dbh_confidence, estimated_height_m, height_method, age_model_used,"
+            "  aboveground_biomass_kg, carbon_stock_kg, co2e_kg, tree_code, user_id,"
+            "  measurement_notes)"
+            " VALUES ($1, 0.9, ST_SetSRID(ST_MakePoint($2, $3), 4326), $4,"
+            "  'tape_circumference', 0.98, $5, 'clinometer', $6, $7, $8, $9, $10, $11,"
+            "  '[\"reference_tape\"]'::jsonb)",
+            species,
+            lon,
+            lat,
+            dbh,
+            height,
+            SCAN_MARKER,
+            agb,
+            carbon,
+            co2e,
+            _code(suffix) if suffix else None,
+            company_id,
+        )
 
     # --- Custody ledger (incl. one felling without any declaration) ---------
     for suffix in ("001", "002", "003", "004", "005", "006", "099"):

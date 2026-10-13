@@ -120,6 +120,17 @@ def test_aac_polygons_make_exactly_one_stem_fall_outside():
     assert _inside(seed_demo.AAC_CLOSED_WKT, *geo["006"])
 
 
+def test_seeded_scans_all_fall_in_the_open_aac():
+    # Linked scans point at seeded stems; every scan lies inside the open AAC
+    # polygon, so the carbon rollup attributes all of them to it.
+    suffixes = {suffix for suffix, *_ in seed_demo.STEMS}
+    for suffix, lon, lat, _species, dbh, height in seed_demo.SEEDED_SCANS:
+        assert suffix is None or suffix in suffixes
+        assert _inside(seed_demo.AAC_OPEN_WKT, lon, lat)
+        assert dbh > 0 and height > 1.3
+    assert any(s[0] is None for s in seed_demo.SEEDED_SCANS)  # GPS-only attribution
+
+
 def test_reserved_stem_is_a_reserved_species():
     species, _, _ = _BY_SUFFIX["002"]
     assert is_reserved_species(species)
