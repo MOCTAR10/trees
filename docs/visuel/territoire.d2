@@ -1,0 +1,39 @@
+direction: down
+vars: { d2-config: { layout-engine: elk } }
+style.fill: transparent
+
+TITRE: "① TITRE FORESTIER — le cadre (décidé par le Ministère)" {
+  style: { fill: "#f0f8f3"; stroke: "#1f7a4d"; stroke-width: 2; border-radius: 10 }
+
+  UFA: "② UFA — le TERRITOIRE (unité forestière d'aménagement : un périmètre délimité)" {
+    style: { fill: "#ffffff"; stroke: "#2e8b57"; stroke-width: 2; border-radius: 10 }
+
+    PA: "Le PA — le DOCUMENT qui régit ce territoire\nrotation ≥ 20 ans · DME · possibilité annuelle — approuvé par le Ministre (art. 20–26)" {
+      style: { fill: "#eaf1f8"; stroke: "#1f4e79"; stroke-width: 2; border-radius: 8; font-color: "#12283d"; bold: true }
+    }
+
+    GRID: "③ Découpage en 30 assiettes annuelles de coupe (AAC)\n6 unités quinquennales × 5 ans" {
+      style: { fill: "#eef7f1"; stroke: "#c3e2d1"; stroke-dash: 3; border-radius: 10 }
+      grid-columns: 4
+      grid-gap: 8
+
+      a1: "AAC 1" { style: { fill: "#dff0e7"; stroke: "#8fc7a9" } }
+      a2: "AAC 2" { style: { fill: "#dff0e7"; stroke: "#8fc7a9" } }
+      a3: "AAC 3" { style: { fill: "#dff0e7"; stroke: "#8fc7a9" } }
+      a4: "AAC 4 — en cours" { style: { fill: "#f6c96b"; stroke: "#b97708"; font-color: "#5a3d00" } }
+      a5: "AAC 5" { style: { fill: "#dff0e7"; stroke: "#8fc7a9" } }
+      a6: "AAC 6" { style: { fill: "#dff0e7"; stroke: "#8fc7a9" } }
+      a7: "AAC 7" { style: { fill: "#dff0e7"; stroke: "#8fc7a9" } }
+      a8: "AAC 8" { style: { fill: "#dff0e7"; stroke: "#8fc7a9" } }
+      a9: "AAC 9" { style: { fill: "#dff0e7"; stroke: "#8fc7a9" } }
+      a10: "AAC 10" { style: { fill: "#dff0e7"; stroke: "#8fc7a9" } }
+      a11: "…" { style: { fill: "#dff0e7"; stroke: "#8fc7a9" } }
+      a30: "30" { style: { fill: "#dff0e7"; stroke: "#8fc7a9" } }
+    }
+  }
+}
+
+# Le PA (document) produit la grille des AAC : le contenant (UFA) n'est pas le contenu (PA).
+TITRE.UFA.PA -> TITRE.UFA.GRID: "produit la grille des AAC" {
+  style: { stroke: "#1f4e79"; stroke-width: 2; stroke-dash: 3 }
+}

@@ -1,0 +1,79 @@
+direction: right
+vars: { d2-config: { layout-engine: elk } }
+style.fill: transparent
+
+title: "Workflow forestier — Gabon (Code forestier, Loi 016/01)" {
+  near: top-center
+  shape: text
+  style: { font-size: 26; bold: true }
+}
+
+classes: {
+  step: {
+    style: { fill: "#ffffff"; stroke: "#b9cdc2"; stroke-width: 2; border-radius: 10; font-color: "#0b3d27" }
+  }
+  ent: {
+    style: { fill: "#eef7f1"; stroke: "#8fc7a9"; border-radius: 8; font-color: "#0b3d27" }
+  }
+  aut: {
+    style: { fill: "#0e5a3a"; stroke: "#08351f"; border-radius: 8; font-color: "#eafff3"; bold: true }
+  }
+}
+
+S1: "① Agrément professionnel" {
+  class: step
+  e: "Entreprise — dépose la demande" { class: ent }
+  a: "Autorité — DGF + DGICBVPF\nart. 102" { class: aut }
+}
+S2: "② Exploration" {
+  class: step
+  e: "Entreprise — demande + inventaire" { class: ent }
+  a: "Autorité — DGF / Direction Provinciale\n≤ 12 mois" { class: aut }
+}
+S3: "③ CPAET" {
+  class: step
+  e: "Entreprise — dépose le projet" { class: ent }
+  a: "Autorité — MEFME / DGF\nart. 106–109 (≤ 3 ans)" { class: aut }
+}
+S4: "④ Plan d'aménagement + industrialisation" {
+  class: step
+  e: "Entreprise — PA + plan d'industrialisation" { class: ent }
+  a: "Autorité — Ministre / DGF\nart. 20–26 → décret" { class: aut }
+}
+S5: "⑤ Inventaire · PAO · CCC" {
+  class: step
+  e: "Entreprise — soumet inventaire, PAO, CCC" { class: ent }
+  a: "Autorité — Direction Provinciale\nart. 45 / 121 → autorise l'exploiter" { class: aut }
+}
+S6: "⑥ Marquage" {
+  class: step
+  e: "Entreprise — marque les arbres (marteau + code)" { class: ent }
+  a: "Autorité — Direction Provinciale / Cantonnement\nart. 130–133 (contrôle)" { class: aut }
+}
+S7: "⑦ Déclaration d'abattage" {
+  class: step
+  e: "Entreprise — déclare l'abattage (≥ DME, GPS)" { class: ent }
+  a: "Autorité — Direction Provinciale\napprouve / rejette" { class: aut }
+}
+S8: "⑧ Carnet de chantier (DF10)" {
+  class: step
+  e: "Entreprise — carnet alimenté automatiquement" { class: ent }
+  a: "Autorité — Direction Provinciale / Cantonnement\nart. 49 (vise le carnet)" { class: aut }
+}
+S9: "⑨ Transport" {
+  class: step
+  e: "Entreprise — bordereau / feuille de route" { class: ent }
+  a: "Autorité — Autorité forestière provinciale\nart. 135 (contrôle)" { class: aut }
+}
+S10: "⑩ Transformation" {
+  class: step
+  e: "Entreprise — registre entrées / sorties" { class: ent }
+  a: "Autorité — DGICBVPF (contrôle)" { class: aut }
+}
+S11: "⑪ États annuels + taxes" {
+  class: step
+  e: "Entreprise — états au 31 mars + paiement" { class: ent }
+  a: "Autorité — DGF · DGI · Douanes\nart. 244" { class: aut }
+}
+
+S1 -> S2 -> S3 -> S4 -> S5 -> S6 -> S7 -> S8 -> S9 -> S10 -> S11

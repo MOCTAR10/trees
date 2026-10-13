@@ -1,0 +1,25 @@
+direction: right
+vars: { d2-config: { layout-engine: elk } }
+style.fill: transparent
+
+classes: {
+  ent: { style: { fill: "#eef7f1"; stroke: "#1f7a4d"; stroke-width: 2; border-radius: 10; font-color: "#0b3d27" } }
+  adm: { style: { fill: "#0e5a3a"; stroke: "#08351f"; stroke-width: 2; border-radius: 10; font-color: "#eafff3" } }
+  usine: { style: { fill: "#eaf1f8"; stroke: "#1f4e79"; stroke-width: 2; border-radius: 10; font-color: "#12283d" } }
+}
+
+MARQUAGE: "Marquage\nmarteau + code" { class: ent }
+ABATTAGE: "Abattage déclaré\n≥ DME · espèce autorisée" { class: ent }
+DF10: "Carnet de chantier (DF10)\nn° DF10 · codes d'abandon" { class: adm }
+TRANSPORT: "Transport\nbordereau" { class: ent }
+RECEPTION: "Réception en usine\nQR par grume" { class: ent }
+TRANSFO: "Transformation\nregistre entrées / sorties" { class: usine }
+
+MARQUAGE -> ABATTAGE
+ABATTAGE -> DF10
+DF10 -> TRANSPORT
+TRANSPORT -> RECEPTION
+RECEPTION -> TRANSFO
+
+DOC: "Autorisation délivrée\n(art. 14) + codes d'arbres" { style: { fill: "#fdf4e3"; stroke: "#e9a63a"; border-radius: 8 } }
+DOC -> ABATTAGE: "prérequis légal"

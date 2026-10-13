@@ -1,0 +1,57 @@
+direction: right
+vars: { d2-config: { layout-engine: elk } }
+
+classes: {
+  min: { style: { fill: "#0e5a3a"; stroke: "#08351f"; font-color: "#eafff3"; border-radius: 9; stroke-width: 2; font-size: 17 } }
+  fin: { style: { fill: "#4a3218"; stroke: "#2f1e0d"; font-color: "#f7efe6"; border-radius: 9; stroke-width: 2; font-size: 17 } }
+  env: { style: { fill: "#1f4e79"; stroke: "#12283d"; font-color: "#eaf1f8"; border-radius: 9; stroke-width: 2; font-size: 17 } }
+  g1: { style: { fill: "#fdf4e3"; stroke: "#d9a94a"; border-radius: 7; font-size: 18; font-color: "#6b4500"; bold: true } }
+  g3: { style: { fill: "#eaf1f8"; stroke: "#a9c4dd"; border-radius: 7; font-size: 18; font-color: "#12283d"; bold: true } }
+  e1: { style: { stroke: "#b97708"; stroke-width: 4 } }
+  e3: { style: { stroke: "#1f4e79"; stroke-width: 4 } }
+}
+
+G1: "① Entreprise" {
+  style: { fill: "#fdf9f0"; stroke: "#b97708"; stroke-width: 2; border-radius: 10; font-color: "#8a5a00"; bold: true; font-size: 18 }
+  agrement:   "Agrément professionnel" { class: g1 }
+  superficie: "Taxe de superficie" { class: g1 }
+  pi:         "PI / PDI" { class: g1 }
+}
+
+G3: "③ Produit" {
+  style: { fill: "#f2f7fc"; stroke: "#1f4e79"; stroke-width: 2; border-radius: 10; font-color: "#12283d"; bold: true; font-size: 18 }
+  df10:      "DF10 (carnet)" { class: g3 }
+  bordereau: "Bordereau de roulage" { class: g3 }
+  spec:      "Spécification" { class: g3 }
+  cites:     "CITES" { class: g3 }
+}
+
+MEF: "M. Eaux & Forêts" {
+  style: { fill: transparent; stroke: "#cfded6"; font-color: "#0b3d27"; bold: true; font-size: 17 }
+  DGF: "DGF" { class: min }
+  DP:  "Direction Provinciale" { class: min }
+}
+MIB: "M. Industrie / Bois" {
+  style: { fill: transparent; stroke: "#cfded6"; font-color: "#0b3d27"; bold: true; font-size: 17 }
+  DGICBVPF: "DGICBVPF" { class: min }
+}
+MFIN: "M. Finances" {
+  style: { fill: transparent; stroke: "#cfded6"; font-color: "#0b3d27"; bold: true; font-size: 17 }
+  DGI: "DGI" { class: fin }
+}
+MENV: "M. Environnement" {
+  style: { fill: transparent; stroke: "#cfded6"; font-color: "#0b3d27"; bold: true; font-size: 17 }
+  ANPN: "ANPN" { class: env }
+}
+
+# ① Entreprise — orange
+G1.agrement -> MEF.DGF: "art. 102" { class: e1 }
+G1.pi -> MIB.DGICBVPF { class: e1 }
+G1.superficie -> MFIN.DGI: "art. 244" { class: e1 }
+
+# ③ Produit — bleu
+G3.df10 -> MEF.DP: "art. 130-133" { class: e3 }
+G3.bordereau -> MEF.DP: "art. 135" { class: e3 }
+G3.spec -> MEF.DP: "art. 138-140" { class: e3 }
+G3.cites -> MENV.ANPN: "avis" { class: e3 }
+G3.cites -> MIB.DGICBVPF { class: e3 }

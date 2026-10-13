@@ -1,0 +1,44 @@
+direction: right
+vars: { d2-config: { layout-engine: elk } }
+
+classes: {
+  min: { style: { fill: "#0e5a3a"; stroke: "#08351f"; font-color: "#eafff3"; border-radius: 9; stroke-width: 2; font-size: 17 } }
+  fin: { style: { fill: "#4a3218"; stroke: "#2f1e0d"; font-color: "#f7efe6"; border-radius: 9; stroke-width: 2; font-size: 17 } }
+  env: { style: { fill: "#1f4e79"; stroke: "#12283d"; font-color: "#eaf1f8"; border-radius: 9; stroke-width: 2; font-size: 17 } }
+  g2:  { style: { fill: "#eef7f1"; stroke: "#8fc7a9"; border-radius: 7; font-size: 18; font-color: "#0b3d27"; bold: true } }
+  e2:  { style: { stroke: "#1f7a4d"; stroke-width: 4 } }
+}
+
+G2: "② Aménagement — UFA / AAC" {
+  style: { fill: "#f4faf6"; stroke: "#1f7a4d"; stroke-width: 2; border-radius: 10; font-color: "#0b3d27"; bold: true; font-size: 18 }
+  aac:   "AAC (mise en exploitation)" { class: g2 }
+  pao:   "PAO" { class: g2 }
+  pa:    "PA / PG" { class: g2 }
+  cpaet: "CPAET" { class: g2 }
+  ppf:   "PPF" { class: g2 }
+  eie:   "EIE" { class: g2 }
+  redev: "Redevance de surveillance" { class: g2 }
+}
+
+MEF: "M. Eaux & Forêts" {
+  style: { fill: transparent; stroke: "#cfded6"; font-color: "#0b3d27"; bold: true; font-size: 17 }
+  DGF:   "DGF" { class: min }
+  DP:    "Direction Provinciale" { class: min }
+  DGFAP: "DGFAP" { class: min }
+}
+MENV: "M. Environnement" {
+  style: { fill: transparent; stroke: "#cfded6"; font-color: "#0b3d27"; bold: true; font-size: 17 }
+  DGE: "DGE" { class: env }
+}
+MFIN: "M. Finances" {
+  style: { fill: transparent; stroke: "#cfded6"; font-color: "#0b3d27"; bold: true; font-size: 17 }
+  TRESOR: "Trésor / AGEOS" { class: fin }
+}
+
+G2.aac -> MEF.DP: "art. 121" { class: e2 }
+G2.pao -> MEF.DP: "art. 45" { class: e2 }
+G2.pa -> MEF.DGF: "art. 20-26" { class: e2 }
+G2.cpaet -> MEF.DGF: "art. 106-109" { class: e2 }
+G2.ppf -> MEF.DGFAP { class: e2 }
+G2.eie -> MENV.DGE: "Loi 007/2014" { class: e2 }
+G2.redev -> MFIN.TRESOR { class: e2 }
