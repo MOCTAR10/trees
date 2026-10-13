@@ -1,5 +1,7 @@
 """Governance slice tests: organizations wizard, documents, taxes, compliance gate."""
 
+from datetime import date, timedelta
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -383,6 +385,16 @@ def _setup(monkeypatch):
             ]
         if "from tax_receipts where org_id" in s:
             return [dict(r) for r in state["tax_receipts"].values() if r["org_id"] == args[0]]
+        if "from tax_dues where org_id" in s and "receipt_id is null" in s:
+            today = date.today()
+            return [
+                dict(r)
+                for r in state.get("tax_dues", {}).values()
+                if r["org_id"] == args[0]
+                and r["receipt_id"] is None
+                and r["due_at"] is not None
+                and r["due_at"] < today
+            ]
         if "from forest_titles where holder_org_id" in s:
             return [
                 dict(t) for t in state["forest_titles"].values() if t["holder_org_id"] == args[0]
@@ -597,6 +609,49 @@ def test_unpaid_tax_adds_compliance_warning(client, monkeypatch):
         "/api/compliance/felling/50", headers={"Authorization": f"Bearer {co}"}
     ).json()
     assert any(w.get("kind") == "tax" for w in body["warnings"])
+
+
+def test_overdue_tax_due_adds_compliance_warning(client, monkeypatch):
+    users, state, _ = _setup(monkeypatch)
+    today = date.today()
+    state["tax_dues"] = {
+        1: {
+            "id": 1,
+            "org_id": 10,
+            "tax_type": "abattage",
+            "period_year": today.year,
+            "due_at": today - timedelta(days=5),
+            "amount_fcfa": 3_500_000.0,
+            "receipt_id": None,
+        },
+        2: {
+            "id": 2,
+            "org_id": 10,
+            "tax_type": "surveillance",
+            "period_year": today.year,
+            "due_at": today + timedelta(days=30),
+            "amount_fcfa": 800_000.0,
+            "receipt_id": None,
+        },
+        3: {
+            "id": 3,
+            "org_id": 10,
+            "tax_type": "superficie",
+            "period_year": today.year,
+            "due_at": today - timedelta(days=60),
+            "amount_fcfa": 12_000_000.0,
+            "receipt_id": 99,
+        },
+    }
+    co = _token(users[2])
+    body = client.get(
+        "/api/compliance/felling/50", headers={"Authorization": f"Bearer {co}"}
+    ).json()
+    tax_warnings = [w for w in body["warnings"] if w.get("kind") == "tax"]
+    assert [(w["tax_type"], w["status"], w["due_id"]) for w in tax_warnings] == [
+        ("abattage", "en_retard", 1)
+    ]
+    assert body["compliant"] is True
 
 
 def test_company_requests_title_and_admin_advances(client, monkeypatch):

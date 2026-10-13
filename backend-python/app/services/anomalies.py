@@ -51,12 +51,14 @@ _LINES_WITH = """
 SELECT l.tree_code, l.species_scientific_name, l.measured_dbh_cm, l.dme_cm,
        l.dme_source,
        d.id AS declaration_id, d.permit_number, d.title_id, d.aac_id,
-       d.company_id AS org_id, d.created_at,
+       o.id AS org_id, o.name AS org_name, d.created_at,
        ft.reference AS title_ref, a.label AS aac_label
 FROM declaration_lines l
 JOIN felling_declarations d ON d.id = l.declaration_id
 LEFT JOIN forest_titles ft ON ft.id = d.title_id
 LEFT JOIN annual_cut_blocks a ON a.id = d.aac_id
+LEFT JOIN users u ON u.id = d.company_id
+LEFT JOIN organizations o ON o.id = COALESCE(u.organization_id, ft.holder_org_id)
 WHERE d.status = 'autorisee' AND l.violations @> $1::jsonb
 ORDER BY l.id LIMIT 200
 """
@@ -123,6 +125,7 @@ async def _violation_lines(code: str, anomaly_type: str) -> list[dict]:
                 r["tree_code"],
                 detail,
                 org_id=r.get("org_id"),
+                org_name=r.get("org_name"),
                 title_id=r.get("title_id"),
                 title_ref=r.get("title_ref"),
                 aac_id=r.get("aac_id"),
@@ -148,8 +151,12 @@ async def _espece_reservee() -> list[dict]:
 async def _felled_without_authorization() -> list[dict]:
     rows = await db.fetch_all(
         """
-        SELECT c.tree_code, c.created_at, c.actor_id
+        SELECT c.tree_code, c.created_at, c.actor_id,
+               o.id AS org_id, o.name AS org_name
         FROM custody_events c
+        LEFT JOIN tree_registry tr ON tr.tree_code = c.tree_code
+        LEFT JOIN users u ON u.id = tr.company_id
+        LEFT JOIN organizations o ON o.id = u.organization_id
         WHERE c.event = 'abattu'
           AND NOT EXISTS (
               SELECT 1 FROM declaration_lines l
@@ -165,6 +172,8 @@ async def _felled_without_authorization() -> list[dict]:
             r["tree_code"],
             r["tree_code"],
             "Abattage enregistré sans déclaration autorisée",
+            org_id=r.get("org_id"),
+            org_name=r.get("org_name"),
             detected_at=r.get("created_at"),
         )
         for r in rows
@@ -176,10 +185,12 @@ async def _aac_fermee() -> list[dict]:
         """
         SELECT d.id AS declaration_id, d.permit_number, d.title_id, d.aac_id,
                d.created_at, ft.reference AS title_ref, a.label AS aac_label,
-               a.status AS aac_status
+               a.status AS aac_status, o.id AS org_id, o.name AS org_name
         FROM felling_declarations d
         JOIN annual_cut_blocks a ON a.id = d.aac_id
         LEFT JOIN forest_titles ft ON ft.id = d.title_id
+        LEFT JOIN users u ON u.id = d.company_id
+        LEFT JOIN organizations o ON o.id = COALESCE(u.organization_id, ft.holder_org_id)
         WHERE d.status = 'autorisee' AND a.status NOT IN ('autorise', 'ouvert')
         ORDER BY d.created_at DESC LIMIT 200
         """
@@ -190,6 +201,8 @@ async def _aac_fermee() -> list[dict]:
             f"declaration:{r['declaration_id']}",
             r.get("aac_label") or f"AAC #{r.get('aac_id')}",
             f"Statut de l'AAC : {r.get('aac_status')}",
+            org_id=r.get("org_id"),
+            org_name=r.get("org_name"),
             title_id=r.get("title_id"),
             title_ref=r.get("title_ref"),
             aac_id=r.get("aac_id"),
@@ -204,9 +217,16 @@ async def _documents_expires() -> list[dict]:
     rows = await db.fetch_all(
         """
         SELECT ld.id, ld.doc_type, ld.status, ld.expires_at, ld.scope_type,
-               dt.label AS doc_label, dt.authority
+               dt.label AS doc_label, dt.authority, o.id AS org_id, o.name AS org_name
         FROM legal_documents ld
         LEFT JOIN document_types dt ON dt.code = ld.doc_type
+        LEFT JOIN annual_cut_blocks ac ON ld.scope_type = 'aac' AND ac.id = ld.scope_id
+        LEFT JOIN management_units mu
+            ON mu.id = CASE WHEN ld.scope_type = 'ufa' THEN ld.scope_id ELSE ac.ufa_id END
+        LEFT JOIN forest_titles ft
+            ON ft.id = CASE WHEN ld.scope_type = 'title' THEN ld.scope_id ELSE mu.title_id END
+        LEFT JOIN organizations o
+            ON o.id = CASE WHEN ld.scope_type = 'company' THEN ld.scope_id ELSE ft.holder_org_id END
         WHERE ld.status = 'expire'
            OR (ld.status <> 'rejete' AND ld.expires_at IS NOT NULL
                AND ld.expires_at < CURRENT_DATE)
@@ -224,6 +244,8 @@ async def _documents_expires() -> list[dict]:
             f"document:{r['id']}",
             label,
             detail,
+            org_id=r.get("org_id"),
+            org_name=r.get("org_name"),
             detected_at=r.get("expires_at"),
         )
         item["document"] = {
@@ -268,10 +290,11 @@ async def _cites_sans_permis() -> list[dict]:
     rows = await db.fetch_all(
         """
         SELECT l.tree_code, l.species_scientific_name, d.id AS declaration_id,
-               d.created_at, u.organization_id AS org_id
+               d.created_at, u.organization_id AS org_id, o.name AS org_name
         FROM declaration_lines l
         JOIN felling_declarations d ON d.id = l.declaration_id
         LEFT JOIN users u ON u.id = d.company_id
+        LEFT JOIN organizations o ON o.id = u.organization_id
         WHERE d.status = 'autorisee' AND l.violations @> '["cites_listed"]'::jsonb
           AND NOT EXISTS (
               SELECT 1 FROM legal_documents ld
@@ -291,6 +314,7 @@ async def _cites_sans_permis() -> list[dict]:
             f"{r.get('species_scientific_name') or 'Essence'} CITES "
             "sans permis d'exportation valide",
             org_id=r.get("org_id"),
+            org_name=r.get("org_name"),
             detected_at=r.get("created_at"),
         )
         for r in rows
@@ -300,8 +324,10 @@ async def _cites_sans_permis() -> list[dict]:
 async def _transport_sans_bordereau() -> list[dict]:
     rows = await db.fetch_all(
         """
-        SELECT tr.tree_code, tr.status, tr.felled_at, tr.company_id AS org_id
+        SELECT tr.tree_code, tr.status, tr.felled_at, o.id AS org_id, o.name AS org_name
         FROM tree_registry tr
+        LEFT JOIN users u ON u.id = tr.company_id
+        LEFT JOIN organizations o ON o.id = u.organization_id
         WHERE tr.status IN ('transporte', 'receptionne', 'transforme')
           AND NOT EXISTS (
               SELECT 1 FROM transport_documents t
@@ -317,6 +343,7 @@ async def _transport_sans_bordereau() -> list[dict]:
             r["tree_code"],
             f"Statut « {r.get('status')} » sans document de transport associé",
             org_id=r.get("org_id"),
+            org_name=r.get("org_name"),
             detected_at=r.get("felled_at"),
         )
         for r in rows

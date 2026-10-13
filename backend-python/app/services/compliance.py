@@ -66,6 +66,24 @@ async def assess_org_warnings(org_id: int | None) -> list[dict]:
     warnings.extend(
         {"kind": "tax", "tax_type": r["tax_type"], "period_year": r["period_year"]} for r in overdue
     )
+    overdue_dues = await db.fetch_all(
+        "SELECT id, tax_type, period_year, due_at, amount_fcfa FROM tax_dues"
+        " WHERE org_id = $1 AND receipt_id IS NULL"
+        " AND due_at IS NOT NULL AND due_at < CURRENT_DATE",
+        org_id,
+    )
+    warnings.extend(
+        {
+            "kind": "tax",
+            "tax_type": r["tax_type"],
+            "period_year": r["period_year"],
+            "status": "en_retard",
+            "due_id": r["id"],
+            "due_at": r["due_at"].isoformat() if r.get("due_at") else None,
+            "amount_fcfa": r["amount_fcfa"],
+        }
+        for r in overdue_dues
+    )
     return warnings
 
 
