@@ -99,6 +99,27 @@ def test_seeded_eudr_geolocation_and_diligence_are_consistent():
     assert d["declared_volume_m3"] > 0
 
 
+def _rect_bounds(wkt: str) -> tuple[float, float, float, float]:
+    coords = wkt.removeprefix("POLYGON((").removesuffix("))").split(",")
+    pts = [tuple(map(float, c.split())) for c in coords]
+    lons, lats = [p[0] for p in pts], [p[1] for p in pts]
+    return min(lons), min(lats), max(lons), max(lats)
+
+
+def _inside(wkt: str, lon: float, lat: float) -> bool:
+    x0, y0, x1, y1 = _rect_bounds(wkt)
+    return x0 <= lon <= x1 and y0 <= lat <= y1
+
+
+def test_aac_polygons_make_exactly_one_stem_fall_outside():
+    geo = {suffix: (lon, lat) for suffix, lon, lat in seed_demo.SEEDED_GEOLOCATION}
+    open_stems = ["001", "002", "003", "004", "005"]
+    outside = [s for s in open_stems if not _inside(seed_demo.AAC_OPEN_WKT, *geo[s])]
+    assert outside == [seed_demo.OUTSIDE_AAC_STEM]
+    # The closed-AAC stem lies inside its own block (its anomaly is the closure).
+    assert _inside(seed_demo.AAC_CLOSED_WKT, *geo["006"])
+
+
 def test_reserved_stem_is_a_reserved_species():
     species, _, _ = _BY_SUFFIX["002"]
     assert is_reserved_species(species)

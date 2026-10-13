@@ -27,7 +27,7 @@ from datetime import UTC, date, datetime, timedelta
 from app.core import security
 from app.core.dme import dme_for
 from app.core.log_volume import merchantable_volume_m3
-from app.services import db
+from app.services import compliance, db
 
 # --------------------------------------------------------------------------
 # Markers -- everything the tool owns is derivable from these.
@@ -115,6 +115,15 @@ SEEDED_GEOLOCATION: tuple[tuple[str, float, float], ...] = (
     ("005", 11.5500, -0.1800),
     ("006", 11.7000, -0.0500),  # outside the parcel polygon
 )
+
+#: Cut-block boundaries (WGS84). The open AAC holds the geolocated stems of
+#: DEMO-DECL-001 except 003, which the real PostGIS check (``ST_Covers``)
+#: flags ``outside_aac``; the closed AAC holds stem 006.
+AAC_OPEN_WKT = "POLYGON((11.43 -0.27, 11.57 -0.27, 11.57 -0.17, 11.43 -0.17, 11.43 -0.27))"
+AAC_CLOSED_WKT = "POLYGON((11.65 -0.10, 11.75 -0.10, 11.75 0.00, 11.65 0.00, 11.65 -0.10))"
+
+#: Stem expected outside its declared AAC (asserted against the seeded points).
+OUTSIDE_AAC_STEM = "003"
 
 #: One EUDR diligence statement for the demo CFAD, with the parcel polygon that
 #: contains the geolocated stems above. Counters are computed from
@@ -296,13 +305,14 @@ async def _insert_title(
 
 
 async def _insert_aac(
-    ufa_id: int, label: str, surface: float, possibility: float, status: str
+    ufa_id: int, label: str, surface: float, possibility: float, status: str, wkt: str
 ) -> int:
     row = await _one(
         "INSERT INTO annual_cut_blocks"
         " (ufa_id, label, campaign_year, surface_ha, possibility_m3, origin, status,"
-        "  pao_reference, pao_submitted_at)"
-        " VALUES ($1, $2, $3, $4, $5, 'plan_amenagement', $6, $7, now()) RETURNING id",
+        "  pao_reference, pao_submitted_at, geom)"
+        " VALUES ($1, $2, $3, $4, $5, 'plan_amenagement', $6, $7, now(),"
+        "  ST_GeomFromText($8, 4326)) RETURNING id",
         ufa_id,
         label,
         TODAY.year,
@@ -310,6 +320,7 @@ async def _insert_aac(
         possibility,
         status,
         f"{label}-PAO",
+        wkt,
     )
     return row["id"]
 
@@ -362,8 +373,16 @@ async def _insert_declaration(
         aac_id,
         admin_id,
     )
-    for raw, species, dbh, violations in lines:
+    # The spatial violation is computed by the production check against the
+    # AAC polygon, never hard-coded, so the demo proves the PostGIS gate.
+    positions = {suffix: (lon, lat) for suffix, lon, lat in SEEDED_GEOLOCATION}
+    outside = await compliance.lines_outside_aac(
+        aac_id,
+        [(_code(raw), *positions[raw]) for raw, *_ in lines if raw in positions],
+    )
+    for raw, species, dbh, static_violations in lines:
         code = _code(raw)
+        violations = static_violations + (["outside_aac"] if code in outside else [])
         dme = dme_for(species)[0]
         await db.execute(
             "INSERT INTO declaration_lines"
@@ -408,8 +427,12 @@ async def seed() -> None:
         TODAY - timedelta(days=200),
         TODAY + timedelta(days=365 * 5),
     )
-    aac_open = await _insert_aac(ufa["id"], AAC_OPEN_LABEL, 5_000.0, 15_000.0, "ouvert")
-    aac_closed = await _insert_aac(ufa["id"], AAC_CLOSED_LABEL, 4_500.0, 12_000.0, "ferme")
+    aac_open = await _insert_aac(
+        ufa["id"], AAC_OPEN_LABEL, 5_000.0, 15_000.0, "ouvert", AAC_OPEN_WKT
+    )
+    aac_closed = await _insert_aac(
+        ufa["id"], AAC_CLOSED_LABEL, 4_500.0, 12_000.0, "ferme", AAC_CLOSED_WKT
+    )
 
     # Official DME/UFA (Loi 016/01 art. 124): overrides the provisional default
     # so the admin UI shows an "Arrêté UFA" row and declarations are judged
@@ -539,7 +562,7 @@ async def seed() -> None:
         [
             ("001", "Aucoumea klaineana", 55.0, ["below_dme"]),
             ("002", "Baillonella toxisperma", 110.0, ["reserved_species"]),
-            ("003", "Pterocarpus soyauxii", 90.0, ["outside_aac"]),
+            ("003", "Pterocarpus soyauxii", 90.0, []),  # outside_aac via PostGIS
             ("004", "Entandrophragma cylindricum", 95.0, ["cites_listed"]),
             ("005", "Aucoumea klaineana", 110.0, []),
         ],
