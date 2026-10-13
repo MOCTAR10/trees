@@ -16,13 +16,13 @@ respx==0.23.1
 numpy==2.5.3
 opencv-python-headless==5.0.0.93
 pillow==12.3.0
-ultralytics==8.4.174   # YOLOv11-seg (optional at runtime: guarded import, needs weights/trunk-seg.pt)
 earthengine-api==1.7.47 # optional: guarded import, GEE_ENABLED=false uses mock
 
 # Reporting (PDF export)
 reportlab==5.0.1
 
-# RAG embeddings (multilingual-e5-small, 384-dim) — CPU build of torch
+# RAG embeddings (multilingual-e5-small, 384-dim) + scanner AI (SAM 2.1, Depth
+# Anything V2 via transformers, Apache-2.0) — CPU build of torch
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch==2.14.1+cpu
 sentence-transformers==6.1.0
@@ -30,7 +30,3 @@ sentence-transformers==6.1.0
 # Tests
 pytest==9.1.1
 pytest-asyncio==1.4.0
-
-# NOTE: ultralytics declares a dependency on the GUI `opencv-python`; the
-# server only needs the headless build. After installing, run:
-#   pip uninstall -y opencv-python
