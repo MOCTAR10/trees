@@ -24,7 +24,7 @@ PostgreSQL + PostGIS + pgvector (port 5433)
 | --- | --- | --- |
 | Mobile app | `mobile/` | Expo SDK 57, React Native, TypeScript |
 | API gateway | `backend-node/` | Node 22, Express, http-proxy-middleware |
-| Scientific core | `backend-python/` | FastAPI, Ultralytics YOLOv11, OpenCV, LlamaIndex-style RAG, Groq, Google Earth Engine |
+| Scientific core | `backend-python/` | FastAPI, OpenCV, SAM 2.1 + Depth Anything V2 (open models), LlamaIndex-style RAG, Groq, Google Earth Engine |
 | Database | `db/` | PostgreSQL 16, PostGIS, pgvector |
 
 ## Prerequisites
@@ -56,6 +56,15 @@ Health checks: `GET http://localhost:3000/health` (gateway + upstream) and
   and `GEE_SERVICE_ACCOUNT_FILE` (or inline `GEE_SERVICE_ACCOUNT_JSON`).
   With `GEE_ENABLED=false` a mock is used.
 - Corpus ingestion (RAG): `docker compose --profile tools run --rm ingest`.
+- Scanner AI: set `AI_MODELS_ENABLED=true` to let the server cut the trunk out
+  of the DBH photo (SAM 2.1, Apache-2.0) and estimate the bark distance when
+  none is typed (Depth Anything V2 metric). Needs **≥ 3 GB** of RAM for the API
+  container (raise Docker Desktop → Settings → Resources); ~250 MB of weights
+  are downloaded once into the `forestry_hf_cache` volume. Below the memory
+  threshold the AI turns itself off and scans use the classical pipeline.
+- Training data: scans measured with a tape/caliper keep their DBH photo and
+  trunk mask (`SCAN_MEDIA_DIR`); export them with
+  `docker exec forestry_fastapi python -m tools.export_trunk_dataset --out /media/scans/_dataset`.
 
 ## Users and roles
 

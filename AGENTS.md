@@ -36,7 +36,7 @@ PostgreSQL 16 + PostGIS + pgvector (:5433)
 | --- | --- | --- |
 | Mobile app | `mobile/` | Expo SDK 57, React Native, TypeScript |
 | API gateway | `backend-node/` | Node 22, Express, http-proxy-middleware |
-| Scientific core | `backend-python/` | FastAPI, Ultralytics YOLOv11, OpenCV, RAG, Groq, Google Earth Engine |
+| Scientific core | `backend-python/` | FastAPI, OpenCV, SAM 2.1 + Depth Anything V2 (transformers, Apache-2.0), RAG, Groq, Google Earth Engine |
 | Database | `db/` | PostgreSQL 16, PostGIS, pgvector |
 
 Four roles: `operator`, `company`, `cooperative`, `admin`. The UI is **French**
@@ -44,14 +44,14 @@ only (`mobile/src/i18n/fr.ts`). There is **no navigation library**: `App.tsx`
 routes with a `phase` state machine plus role checks; screens are mounted from
 per-role containers (`CompanyScreen`, `AdminScreen`, …) that expose tabs.
 
-## 2. Where we are (as of Slice 14)
+## 2. Where we are (as of Slice 15)
 
 The product is built as **vertical slices**: each slice ships a DB migration, the
 backend, optionally an operational CLI under `tools/`, the mobile UI, and the
 doc update — as separate logical commits. The full history lives in
 `docs/GABON_WORKFLOW_ANALYSIS.md` **§9**.
 
-**Slices 1–13 are DONE, committed on `main`, and pushed (CI green). Slice 14 is implemented and verified locally, not yet committed.**
+**Slices 1–14 are DONE, committed on `main`, and pushed (CI green). Slice 15 is implemented and verified locally.**
 
 | # | Domaine | Migration | Backend | Mobile | Docs §9 |
 | --- | --- | --- | --- | --- | --- |
@@ -69,9 +69,10 @@ doc update — as separate logical commits. The full history lives in
 | 12 | EUDR — géolocalisation exacte par grume | `018_slice12.sql` | `/api/eudr/diligence/{id}/stems` | `EudrStems` | pt 12 |
 | 13 | Entité légale : rattachement des comptes legacy | `019_slice13.sql` | `/api/organizations/orphans`, `/backfill` | `OrgBackfill` | pt 13 |
 | 14 | Mesure de l'arbre : DBH fiabilisé (ruban/compas + photo), hauteur mesurée, carbone | `020_slice14.sql` | `/api/v1/process-scan` (champs mesure) | `CaptureScreen` (étape DBH, ruban/compas, hauteur), `ReportScreen` | pt 14 |
+| 15 | Scanner IA (SAM 2.1, distance IA), grume liée par QR, clinomètre/niveau, carbone par AAC | `021_slice15.sql` | `/api/v1/capabilities`, `/api/dashboard` (carbone), `tools.export_trunk_dataset` | `Clinometer`, `CaptureScreen` (QR, niveau, auto), `AdminDashboard` | pt 15 |
 
-Latest verified suite counts (Slice 14): **`pytest` 370 passed** ·
-**`jest` 105 passed / 33 suites** · `ruff` and `tsc` clean.
+Latest verified suite counts (Slice 15): **`pytest` 394 passed** ·
+**`jest` 115 passed / 35 suites** · `ruff` and `tsc` clean.
 
 ### What is left (next candidates)
 
@@ -89,6 +90,12 @@ slice unprompted.
 - **“À brancher” items** (rows 208–212): QR code per log, DF10 administration
   visa, DGI electronic tax filing, automatic DGF statement transmission, CCC
   revenue split along the agreement.
+- **Native depth (LiDAR / ARCore)** — deferred, Expo Go kept. Plan in
+  `docs/GABON_WORKFLOW_ANALYSIS.md` §10 open point 13 (Expo Dev Build + a local
+  `DepthProvider` module feeding the existing `opencv_depth` path).
+- **Gabon trunk model** — export the tape-verified photos with
+  `python -m tools.export_trunk_dataset` and train on an Apache/MIT stack
+  (never re-add Ultralytics: AGPL-3.0).
 - **Domain values to confirm with the métier** (§10 open points): `ASC`/`ACBSL`
   scope, authority model, offline signature/QR authenticity, APV/FLEGT,
   convention durations (3 y / 15 y), PPF/EIE validity, EUDR out-of-parcel
@@ -234,6 +241,13 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
 - `tree_scans.dbh_method` has a CHECK constraint: a new DBH method value must be
   added there (migration) or the scan insert fails — and v1 only **logs** that
   failure (the report is still returned), so watch the API logs.
+- Scanner AI (`AI_MODELS_ENABLED=true`) needs **≥ 3 GB** for the API container
+  (`AI_MIN_MEMORY_MB`); below that it disables itself and logs why. Docker
+  Desktop defaults can be lower (1.8 GB here): raise it in Docker Desktop →
+  Settings → Resources. First load downloads ~250 MB into `forestry_hf_cache`
+  and warms up in the background (~2–3 min on CPU).
+- Tests force `AI_MODELS_ENABLED=false` and reset the soil/GEE caches
+  (`tests/conftest.py`); never let a test load real models.
 - Never let an upstream error message reach the logs verbatim when the request
   URL carries a key (Pl@ntNet passes `api-key` as a query parameter).
 - IUCN enrichment is blocked until `IUCN_API_TOKEN` is provided.
