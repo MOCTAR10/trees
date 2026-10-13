@@ -1,6 +1,4 @@
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from "expo-camera";
-import * as FileSystem from "expo-file-system/legacy";
-import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import {
   Check,
@@ -8,7 +6,6 @@ import {
   ClipboardCheck,
   Flashlight,
   FlashlightOff,
-  ImagePlus,
   Pencil,
   Plus,
   QrCode,
@@ -51,7 +48,6 @@ import { Button, Pill, Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
 import { isDepthSensorAvailable, measureCenterDistance } from "../../modules/depth-sensor";
 import { dbhFromEdges, isPlausibleDbh } from "../utils/dbh";
-import { distanceM, exifGps, exifTakenAt, IMPORT_MAX_AGE_H, IMPORT_MAX_DISTANCE_M } from "../utils/exif";
 import {
   ALL_STEPS,
   codeSidePx,
@@ -70,7 +66,6 @@ import { useDeviceTilt } from "../utils/useDeviceTilt";
 
 const t = fr.capture;
 
-const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const GPS_TIMEOUT_MS = 20000;
 const PLATE_FRESH_MS = 1500;
 const TOAST_MS = 1800;
@@ -91,11 +86,7 @@ export function exifFocal35mm(exif: Record<string, unknown> | null | undefined):
 
 interface StepShot {
   image: CapturedImage;
-  imported: boolean;
   focal35mm?: number;
-  /** Imported photos only: where and when the camera says it was taken. */
-  gps?: { lat: number; lon: number } | null;
-  takenAt?: string | null;
 }
 
 const ZOOM_LEVELS = [0, 0.25, 0.5];
@@ -105,39 +96,6 @@ function zoomAllowed(step: ScanStep | undefined): boolean {
   return !!step && (step.organ === "leaf" || step.organ === "flower" || step.organ === "fruit");
 }
 
-/** What the operator should know about an imported photo before trusting it. */
-export function importInfo(
-  shot: Pick<StepShot, "gps" | "takenAt">,
-  position: { lat: number; lon: number } | null,
-  now: Date = new Date(),
-): { text: string; warn: boolean } {
-  const parts: string[] = [];
-  let warn = false;
-  if (shot.takenAt) {
-    const when = new Date(shot.takenAt);
-    parts.push(
-      t.importTaken(
-        when.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }),
-      ),
-    );
-    if ((now.getTime() - when.getTime()) / 3600000 > IMPORT_MAX_AGE_H) {
-      parts.push(t.importOld);
-      warn = true;
-    }
-  } else {
-    parts.push(t.importNoDate);
-    warn = true;
-  }
-  if (!shot.gps) {
-    parts.push(t.importNoGps);
-    warn = true;
-  } else if (position) {
-    const d = distanceM(shot.gps, position);
-    parts.push(d <= IMPORT_MAX_DISTANCE_M ? t.importHere : t.importFar(d));
-    if (d > IMPORT_MAX_DISTANCE_M) warn = true;
-  }
-  return { text: parts.join(" · "), warn };
-}
 
 export interface CaptureResult extends TreeMeasurements {
   shots: CaptureShot[];
@@ -199,7 +157,6 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
   const [dbhPhotoSize, setDbhPhotoSize] = useState<{ width: number; height: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [taking, setTaking] = useState(false);
-  const [importing, setImporting] = useState(false);
   const [torchOn, setTorchOn] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
   const [view, setView] = useState({ w: 0, h: 0 });
@@ -377,7 +334,6 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
       if (!photo) return;
       storeShot(step.key, {
         image: { uri: photo.uri, name: `${step.key}.jpg`, type: "image/jpeg" },
-        imported: false,
         focal35mm: exifFocal35mm(photo.exif as Record<string, unknown> | undefined),
       });
     } finally {
@@ -385,44 +341,6 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
     }
   }, [taking, step, storeShot]);
 
-  const importPhoto = useCallback(async () => {
-    if (importing || !step) return;
-    setImporting(true);
-    try {
-      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!perm.granted) {
-        Alert.alert(t.importPhoto, t.galleryDenied);
-        return;
-      }
-      const res = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false,
-        quality: 0.8,
-        exif: true,
-      });
-      if (res.canceled || !res.assets?.length) return;
-      const asset = res.assets[0];
-      try {
-        const info = await FileSystem.getInfoAsync(asset.uri);
-        if (info.exists && "size" in info && info.size > MAX_IMAGE_BYTES) {
-          Alert.alert(t.importPhoto, t.tooLarge);
-          return;
-        }
-      } catch {
-        // Size check is best-effort; the server enforces the cap.
-      }
-      const exif = asset.exif as Record<string, unknown> | null | undefined;
-      storeShot(step.key, {
-        image: { uri: asset.uri, name: asset.fileName ?? `${step.key}.jpg`, type: asset.mimeType ?? "image/jpeg" },
-        imported: true,
-        focal35mm: exifFocal35mm(exif),
-        gps: exifGps(exif),
-        takenAt: exifTakenAt(exif)?.toISOString() ?? null,
-      });
-    } finally {
-      setImporting(false);
-    }
-  }, [importing, step, storeShot]);
 
   const retake = useCallback(() => {
     if (!step) return;
@@ -733,20 +651,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
                     {step.hint}
                   </Text>
                   <View style={s.controlRow}>
-                    <Pressable
-                      testID="import-button"
-                      style={s.sideBtn}
-                      onPress={() => void importPhoto()}
-                      disabled={importing}
-                      accessibilityRole="button"
-                      accessibilityLabel={t.importPhoto}
-                    >
-                      {importing ? (
-                        <ActivityIndicator color="#FFFFFF" />
-                      ) : (
-                        <ImagePlus size={22} color="#FFFFFF" strokeWidth={2} />
-                      )}
-                    </Pressable>
+                    <View style={s.sideSpacer} />
                     <Pressable
                       testID="capture-button"
                       onPress={() => void takePicture()}
@@ -803,7 +708,6 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
               ) : (
                 <Image source={{ uri: shot.image.uri }} style={s.fill} resizeMode="contain" />
               )}
-              {shot.imported ? <ImportBadge shot={shot} position={position} /> : null}
             </View>
             <View style={s.sheet} testID="dbh-panel">
               {measureMode === "photo" ? (
@@ -936,7 +840,6 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
           <>
             <View style={s.adjustWrap}>
               <Image source={{ uri: shot.image.uri }} style={s.fill} resizeMode="contain" />
-              {shot.imported ? <ImportBadge shot={shot} position={position} /> : null}
             </View>
             <View style={[s.sheet, s.actionRow]}>
               <Button
@@ -1043,19 +946,6 @@ function FramingGuide({ frame, left, right }: { frame: ScanStep["frame"]; left: 
         <View style={[s.corner, s.cBL]} />
         <View style={[s.corner, s.cBR]} />
       </View>
-    </View>
-  );
-}
-
-function ImportBadge({ shot, position }: { shot: StepShot; position: { lat: number; lon: number } | null }) {
-  const s = useStyles();
-  const info = importInfo(shot, position);
-  return (
-    <View style={s.importBadge} testID="import-badge">
-      <Pill tone={info.warn ? "warn" : "info"} label={info.warn ? t.importCheck : t.imported} />
-      <Text style={[s.importInfo, info.warn && s.importInfoWarn]} testID="import-info">
-        {info.text}
-      </Text>
     </View>
   );
 }
@@ -1203,14 +1093,7 @@ function Review(props: {
                 accessibilityLabel={st.title}
               >
                 {sh ? (
-                  <>
-                    <Image source={{ uri: sh.image.uri }} style={s.tileImg} />
-                    {sh.imported && importInfo(sh, props.position).warn ? (
-                      <View style={s.tileWarn} testID={`tile-warn-${st.key}`}>
-                        <Text style={s.tileWarnText}>!</Text>
-                      </View>
-                    ) : null}
-                  </>
+                  <Image source={{ uri: sh.image.uri }} style={s.tileImg} />
                 ) : (
                   <Plus size={22} color={required ? th.c.warn : th.c.muted} />
                 )}
@@ -1593,31 +1476,6 @@ const useStyles = makeStyles((th) => ({
   qrOverlay: { ...{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }, alignItems: "center", justifyContent: "center", gap: th.space.lg },
   qrFrame: { width: 230, height: 230, borderWidth: 3, borderColor: th.c.gold, borderRadius: 18 },
   adjustWrap: { flex: 1, backgroundColor: "#000" },
-  importBadge: { position: "absolute", left: th.space.md, right: th.space.md, top: th.space.md, gap: 6 },
-  importInfo: {
-    alignSelf: "flex-start",
-    color: "#FFFFFF",
-    backgroundColor: "rgba(0,0,0,0.6)",
-    fontFamily: th.fonts.body,
-    fontSize: 12.5,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: th.radius.sm,
-    overflow: "hidden",
-  },
-  importInfoWarn: { color: th.c.warn },
-  tileWarn: {
-    position: "absolute",
-    top: 6,
-    right: 6,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: th.c.warn,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  tileWarnText: { color: "#0F130C", fontFamily: th.fonts.display, fontSize: 13 },
   sideBtnOn: { backgroundColor: th.c.gold },
   zoomText: { color: "#FFFFFF", fontFamily: th.fonts.bodyBold, fontSize: 10 },
   zoomTextOn: { color: "#1B2114" },

@@ -70,19 +70,6 @@ jest.mock("expo-location", () => ({
   })),
 }));
 
-jest.mock("expo-image-picker", () => ({
-  MediaTypeOptions: { Images: "Images" },
-  requestMediaLibraryPermissionsAsync: jest.fn(async () => ({ granted: true })),
-  launchImageLibraryAsync: jest.fn(async () => ({
-    canceled: false,
-    assets: [{ uri: "file:///lib.jpg", fileName: "lib.jpg", mimeType: "image/jpeg" }],
-  })),
-}));
-
-jest.mock("expo-file-system/legacy", () => ({
-  getInfoAsync: jest.fn(async () => ({ exists: true, uri: "file:///lib.jpg", size: 100 })),
-}));
-
 import CaptureScreen from "../src/screens/CaptureScreen";
 
 const flush = () =>
@@ -117,9 +104,9 @@ async function ready(view: View) {
 }
 
 /** Whole tree, bark, leaf: each capture moves on to the next photo by itself. */
-async function captureCore(view: View, button = "capture-button") {
+async function captureCore(view: View) {
   for (let i = 0; i < 3; i += 1) {
-    fireEvent.press(view.getByTestId(button));
+    fireEvent.press(view.getByTestId("capture-button"));
     await flush();
   }
 }
@@ -242,24 +229,6 @@ describe("CaptureScreen guided flow", () => {
     expect(submitted(onCaptured)).toMatchObject({ edgeLeft: 0.4, edgeRight: 0.6, arDepthM: 2 });
   });
 
-  it("imports gallery photos into the steps and marks them", async () => {
-    const onCaptured = jest.fn();
-    const view = render(<CaptureScreen onCaptured={onCaptured} onBack={jest.fn()} />);
-    await ready(view);
-    await captureCore(view, "import-button");
-    fireEvent.press(view.getByTestId("rail-bark"));
-    expect(view.getByText("Photo importée à vérifier")).toBeTruthy();
-    expect(view.getByTestId("import-info").props.children).toMatch(/Date de prise inconnue · sans position GPS/);
-    fireEvent.press(view.getByTestId("continue-button"));
-    await flush();
-    await captureDbh(view);
-    fireEvent.press(view.getByTestId("distance-3"));
-    fireEvent.press(view.getByTestId("dbh-confirm"));
-    fireEvent.press(view.getByTestId("analyze-button"));
-    await flush();
-    expect(submitted(onCaptured).shots).toHaveLength(4);
-  });
-
   it("adds optional identification views from the review", async () => {
     const onCaptured = jest.fn();
     const view = render(<CaptureScreen onCaptured={onCaptured} onBack={jest.fn()} />);
@@ -303,43 +272,10 @@ describe("CaptureScreen guided flow", () => {
 });
 
 describe("CaptureScreen field helpers", () => {
-  it("trusts an imported photo taken here today and flags one taken elsewhere", async () => {
-    const picker = jest.requireMock("expo-image-picker") as { launchImageLibraryAsync: jest.Mock };
-    const stamp = (d: Date) =>
-      `${d.getFullYear()}:${String(d.getMonth() + 1).padStart(2, "0")}:${String(d.getDate()).padStart(2, "0")} ` +
-      `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:00`;
-    const asset = (lat: number, lon: number, when: Date) => ({
-      canceled: false,
-      assets: [
-        {
-          uri: "file:///lib.jpg",
-          fileName: "lib.jpg",
-          mimeType: "image/jpeg",
-          exif: { GPSLatitude: lat, GPSLongitude: lon, DateTimeOriginal: stamp(when) },
-        },
-      ],
-    });
-    picker.launchImageLibraryAsync
-      .mockResolvedValueOnce(asset(0.4163, 9.4541, new Date()))
-      .mockResolvedValueOnce(asset(0.5, 9.6, new Date()));
+  it("offers live capture only, no gallery import", async () => {
     const view = render(<CaptureScreen onCaptured={jest.fn()} onBack={jest.fn()} />);
     await ready(view);
-    fireEvent.press(view.getByTestId("import-button"));
-    await flush();
-    fireEvent.press(view.getByTestId("import-button"));
-    await flush();
-
-    fireEvent.press(view.getByTestId("rail-whole"));
-    expect(view.getByText("Importée")).toBeTruthy();
-    expect(view.getByTestId("import-info").props.children).toMatch(/à votre position/);
-
-    fireEvent.press(view.getByTestId("rail-bark"));
-    expect(view.getByText("Photo importée à vérifier")).toBeTruthy();
-    expect(view.getByTestId("import-info").props.children).toMatch(/km de votre position/);
-
-    fireEvent.press(view.getByTestId("rail-review"));
-    expect(view.queryByTestId("tile-warn-whole")).toBeNull();
-    expect(view.getByTestId("tile-warn-bark")).toBeTruthy();
+    expect(view.queryByTestId("import-button")).toBeNull();
   });
 
   it("explains why the diameter is taken at 1.30 m", async () => {
