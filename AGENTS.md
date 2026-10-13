@@ -44,14 +44,14 @@ only (`mobile/src/i18n/fr.ts`). There is **no navigation library**: `App.tsx`
 routes with a `phase` state machine plus role checks; screens are mounted from
 per-role containers (`CompanyScreen`, `AdminScreen`, …) that expose tabs.
 
-## 2. Where we are (as of Slice 13)
+## 2. Where we are (as of Slice 14)
 
 The product is built as **vertical slices**: each slice ships a DB migration, the
 backend, optionally an operational CLI under `tools/`, the mobile UI, and the
 doc update — as separate logical commits. The full history lives in
 `docs/GABON_WORKFLOW_ANALYSIS.md` **§9**.
 
-**Slices 1–13 are DONE, committed on `main`, and pushed (CI green).**
+**Slices 1–13 are DONE, committed on `main`, and pushed (CI green). Slice 14 is implemented and verified locally, not yet committed.**
 
 | # | Domaine | Migration | Backend | Mobile | Docs §9 |
 | --- | --- | --- | --- | --- | --- |
@@ -68,9 +68,10 @@ doc update — as separate logical commits. The full history lives in
 | 11 | Études environnementales PPF/EIE + certificat | `017_slice11.sql` | `/api/titles/{id}/studies` | `TitleStudies` | pt 11 |
 | 12 | EUDR — géolocalisation exacte par grume | `018_slice12.sql` | `/api/eudr/diligence/{id}/stems` | `EudrStems` | pt 12 |
 | 13 | Entité légale : rattachement des comptes legacy | `019_slice13.sql` | `/api/organizations/orphans`, `/backfill` | `OrgBackfill` | pt 13 |
+| 14 | Mesure de l'arbre : DBH fiabilisé (ruban/compas + photo), hauteur mesurée, carbone | `020_slice14.sql` | `/api/v1/process-scan` (champs mesure) | `CaptureScreen` (étape DBH, ruban/compas, hauteur), `ReportScreen` | pt 14 |
 
-Latest verified suite counts (Slice 13): **`pytest` 336 passed** ·
-**`jest` 98 passed / 32 suites** · `ruff` and `tsc` clean.
+Latest verified suite counts (Slice 14): **`pytest` 370 passed** ·
+**`jest` 105 passed / 33 suites** · `ruff` and `tsc` clean.
 
 ### What is left (next candidates)
 
@@ -227,6 +228,14 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
   queries on real Postgres.
 - `mobile/__tests__/CaptureScreen.test.tsx` is known-flaky under full parallel
   `jest`; it passes on re-run/in isolation. Unrelated to feature work.
+- On Windows/Docker Desktop the API's `--reload` can lag or miss a save on the
+  bind mount. If a live check still shows old behaviour, run
+  `docker restart forestry_fastapi` before concluding the fix failed.
+- `tree_scans.dbh_method` has a CHECK constraint: a new DBH method value must be
+  added there (migration) or the scan insert fails — and v1 only **logs** that
+  failure (the report is still returned), so watch the API logs.
+- Never let an upstream error message reach the logs verbatim when the request
+  URL carries a key (Pl@ntNet passes `api-key` as a query parameter).
 - IUCN enrichment is blocked until `IUCN_API_TOKEN` is provided.
 
 ## 8. Golden rules
