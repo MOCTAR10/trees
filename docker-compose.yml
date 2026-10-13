@@ -30,6 +30,7 @@ services:
       - ./db/migrations/018_slice12.sql:/docker-entrypoint-initdb.d/18_slice12.sql:ro
       - ./db/migrations/019_slice13.sql:/docker-entrypoint-initdb.d/19_slice13.sql:ro
       - ./db/migrations/020_slice14.sql:/docker-entrypoint-initdb.d/20_slice14.sql:ro
+      - ./db/migrations/021_slice15.sql:/docker-entrypoint-initdb.d/21_slice15.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-forestry} -d ${POSTGRES_DB:-forestry}"]
       interval: 5s
@@ -45,10 +46,14 @@ services:
     env_file: .env
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-forestry}:${POSTGRES_PASSWORD:-forestry_secret}@db:5432/${POSTGRES_DB:-forestry}
+      HF_HOME: /models/huggingface
+      SCAN_MEDIA_DIR: /media/scans
     ports:
       - "8000:8000"
     volumes:
       - ./backend-python:/app
+      - forestry_hf_cache:/models/huggingface
+      - forestry_scan_media:/media/scans
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).status==200 else 1)\""]
@@ -104,3 +109,4 @@ services:
 volumes:
   forestry_pgdata:
   forestry_hf_cache:
+  forestry_scan_media:
