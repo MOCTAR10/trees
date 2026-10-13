@@ -44,14 +44,14 @@ only (`mobile/src/i18n/fr.ts`). There is **no navigation library**: `App.tsx`
 routes with a `phase` state machine plus role checks; screens are mounted from
 per-role containers (`CompanyScreen`, `AdminScreen`, …) that expose tabs.
 
-## 2. Where we are (as of Slice 15)
+## 2. Where we are (as of Slice 16)
 
 The product is built as **vertical slices**: each slice ships a DB migration, the
 backend, optionally an operational CLI under `tools/`, the mobile UI, and the
 doc update — as separate logical commits. The full history lives in
 `docs/GABON_WORKFLOW_ANALYSIS.md` **§9**.
 
-**Slices 1–14 are DONE, committed on `main`, and pushed (CI green). Slice 15 is implemented and verified locally.**
+**Slices 1–16 are DONE, committed on `main`, and pushed (CI green).** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
 
 | # | Domaine | Migration | Backend | Mobile | Docs §9 |
 | --- | --- | --- | --- | --- | --- |
@@ -70,9 +70,10 @@ doc update — as separate logical commits. The full history lives in
 | 13 | Entité légale : rattachement des comptes legacy | `019_slice13.sql` | `/api/organizations/orphans`, `/backfill` | `OrgBackfill` | pt 13 |
 | 14 | Mesure de l'arbre : DBH fiabilisé (ruban/compas + photo), hauteur mesurée, carbone | `020_slice14.sql` | `/api/v1/process-scan` (champs mesure) | `CaptureScreen` (étape DBH, ruban/compas, hauteur), `ReportScreen` | pt 14 |
 | 15 | Scanner IA (SAM 2.1, distance IA), grume liée par QR, clinomètre/niveau, carbone par AAC | `021_slice15.sql` | `/api/v1/capabilities`, `/api/dashboard` (carbone), `tools.export_trunk_dataset` | `Clinometer`, `CaptureScreen` (QR, niveau, auto), `AdminDashboard` | pt 15 |
+| 16 | Espèce (flore régionale + re-classement Gabon), plaque QR « règle », contrôles GFW, Carte 2.0 | `022_slice16.sql` | `/api/map/*`, `tools.gfw_api_key`, `tools.import_gfw_layers`, `tools.import_gabon_context`, `tools.print_qr_plates` | `MapScreen`, `ForestChecksCard`, `ReportScreen` | pt 16 |
 
-Latest verified suite counts (Slice 15): **`pytest` 394 passed** ·
-**`jest` 115 passed / 35 suites** · `ruff` and `tsc` clean.
+Latest verified suite counts (Slice 16): **`pytest` 423 passed** ·
+**`jest` 122 passed / 37 suites** · `ruff` and `tsc` clean.
 
 ### What is left (next candidates)
 
@@ -246,8 +247,13 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
   Desktop defaults can be lower (1.8 GB here): raise it in Docker Desktop →
   Settings → Resources. First load downloads ~250 MB into `forestry_hf_cache`
   and warms up in the background (~2–3 min on CPU).
-- Tests force `AI_MODELS_ENABLED=false` and reset the soil/GEE caches
+- Tests force `AI_MODELS_ENABLED=false`, empty `GFW_API_KEY`, and reset the soil/GEE/GFW caches
   (`tests/conftest.py`); never let a test load real models.
+- GFW: create the key with `python -m tools.gfw_api_key` in **your own
+  terminal** (masked password; it writes `.env`), never through a chat.
+  Public GFW raster tiles need no key; queries and vector downloads do.
+- QR plates complement — never replace — the legal marking (hammer, paint,
+  DF10 number). The printed QR square must match `QR_TAG_SIZE_CM` (8 cm).
 - Never let an upstream error message reach the logs verbatim when the request
   URL carries a key (Pl@ntNet passes `api-key` as a query parameter).
 - IUCN enrichment is blocked until `IUCN_API_TOKEN` is provided.

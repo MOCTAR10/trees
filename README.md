@@ -62,6 +62,14 @@ Health checks: `GET http://localhost:3000/health` (gateway + upstream) and
   container (raise Docker Desktop → Settings → Resources); ~250 MB of weights
   are downloaded once into the `forestry_hf_cache` volume. Below the memory
   threshold the AI turns itself off and scans use the classical pipeline.
+- Global Forest Watch (forest checks at each scan, map layers): create a key
+  in your own terminal with
+  `cd backend-python; .\.venv\Scripts\python.exe -m tools.gfw_api_key --email <you> --organization MEF --alias trees`
+  (masked password, writes `GFW_API_KEY` to `.env`), then `docker compose up -d api`
+  and import the Gabon layers: `docker exec forestry_fastapi python -m tools.import_gfw_layers`.
+- QR plates (traceability + measuring ruler): print/engrave in-house with
+  `docker exec forestry_fastapi python -m tools.print_qr_plates --registry-prefix GA- --out /media/scans/plaques`
+  (A4 PDF at 100 % + 1:1 SVG for laser engravers).
 - Training data: scans measured with a tape/caliper keep their DBH photo and
   trunk mask (`SCAN_MEDIA_DIR`); export them with
   `docker exec forestry_fastapi python -m tools.export_trunk_dataset --out /media/scans/_dataset`.
