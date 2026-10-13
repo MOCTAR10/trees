@@ -29,6 +29,7 @@ import { exportDiligencePdf, sharePdf } from "../pdf";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
 import Badge, { taxTone, Tone } from "./Badge";
+import EudrStems from "./EudrStems";
 
 function agreementTone(status: string): Tone {
   if (status === "actif") return "success";
@@ -292,6 +293,9 @@ export default function CompanyFiscal() {
                 <Text style={styles.meta}>
                   {`${fr.fiscal.felled} : ${d.felled_stem_count} · ${fr.fiscal.geolocated} : ${d.geolocated_stem_count}`}
                 </Text>
+                <Text style={styles.meta}>
+                  {`${fr.fiscal.insideParcel} : ${d.inside_parcel_stem_count} · ${fr.fiscal.outsideParcel} : ${d.outside_parcel_stem_count}`}
+                </Text>
                 {d.declared_volume_m3 != null ? (
                   <Text style={styles.meta}>{`${fr.fiscal.declaredVolume} : ${d.declared_volume_m3}`}</Text>
                 ) : null}
@@ -304,6 +308,7 @@ export default function CompanyFiscal() {
                 >
                   <Text style={styles.smallBtnText}>{fr.traceability.pdf}</Text>
                 </TouchableOpacity>
+                <EudrStems diligenceId={d.id} />
               </View>
             ))
           )}

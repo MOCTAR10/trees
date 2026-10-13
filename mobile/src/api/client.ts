@@ -1941,12 +1941,32 @@ export interface EudrDiligence {
   consultation_document_id: number | null;
   geolocated_stem_count: number;
   felled_stem_count: number;
+  inside_parcel_stem_count: number;
+  outside_parcel_stem_count: number;
   declared_volume_m3: number | null;
   notes: string | null;
   status: EudrStatus;
   decision_motif: string | null;
   decided_at: string | null;
   created_at: string;
+}
+
+/** One harvested stem geolocated against a diligence's declared parcel. */
+export interface DiligenceStem {
+  tree_code: string;
+  species_scientific_name: string | null;
+  status: string;
+  latitude: number | null;
+  longitude: number | null;
+  inside: boolean | null;
+}
+
+export async function listDiligenceStems(id: number): Promise<DiligenceStem[]> {
+  const resp = await timedFetch(`${API_BASE}/api/eudr/diligence/${id}/stems`, {
+    headers: headers(),
+  });
+  if (!resp.ok) throw new Error(`EUDR stems ${resp.status}`);
+  return resp.json();
 }
 
 export async function listEudrDiligence(status?: EudrStatus): Promise<EudrDiligence[]> {

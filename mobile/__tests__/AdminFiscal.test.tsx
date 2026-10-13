@@ -74,6 +74,8 @@ const DILIGENCE: client.EudrDiligence[] = [
     consultation_document_id: null,
     geolocated_stem_count: 2,
     felled_stem_count: 3,
+    inside_parcel_stem_count: 2,
+    outside_parcel_stem_count: 0,
     declared_volume_m3: 42,
     notes: null,
     status: "soumis",

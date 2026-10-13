@@ -31,6 +31,7 @@ import { exportDiligencePdf, sharePdf } from "../pdf";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
 import Badge, { taxTone, Tone } from "./Badge";
+import EudrStems from "./EudrStems";
 
 const TAX_TYPES: TaxType[] = [
   "superficie",
@@ -295,6 +296,9 @@ export default function AdminFiscal() {
                 <Text style={styles.meta}>
                   {`${fr.fiscal.felled} : ${d.felled_stem_count} · ${fr.fiscal.geolocated} : ${d.geolocated_stem_count}`}
                 </Text>
+                <Text style={styles.meta}>
+                  {`${fr.fiscal.insideParcel} : ${d.inside_parcel_stem_count} · ${fr.fiscal.outsideParcel} : ${d.outside_parcel_stem_count}`}
+                </Text>
                 {d.decision_motif ? <Text style={styles.warn}>{d.decision_motif}</Text> : null}
                 <View style={styles.actionsRow}>
                   <TouchableOpacity
@@ -316,6 +320,7 @@ export default function AdminFiscal() {
                     <Text style={styles.smallBtnText}>{fr.traceability.pdf}</Text>
                   </TouchableOpacity>
                 </View>
+                <EudrStems diligenceId={d.id} />
               </View>
             ))
           )}
