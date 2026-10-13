@@ -233,6 +233,7 @@ MEASUREMENT_NOTE_LABELS = {
     "depth_missing": "Distance au tronc non renseignée — vision non exécutée",
     "depth_ai_estimated": "Distance au tronc estimée par IA (Depth Anything V2)",
     "ai_segmentation": "Tronc découpé par IA (SAM 2.1)",
+    "depth_sensor": "Distance mesurée par le capteur de profondeur (LiDAR / ARCore)",
     "depth_qr_plate": "Distance mesurée grâce à la plaque QR de l'arbre (règle de taille connue)",
     "qr_plate_unreadable": "Plaque QR vue mais trop petite ou trop oblique pour mesurer",
     "qr_tree_unknown": "Plaque QR lue, mais code absent du registre ou d'une autre entreprise",

@@ -216,5 +216,17 @@ def warmup() -> None:
 
 
 def capabilities() -> dict:
+    """What the scanner AI can do now, and why not when it is off."""
+    configured = get_settings().ai_models_enabled
     on = enabled()
-    return {"ai_segmentation": on, "ai_distance": on}
+    reason = None
+    if not configured:
+        reason = "disabled"
+    elif not on:
+        reason = "memory"
+    return {
+        "ai_segmentation": on,
+        "ai_distance": on,
+        "ai_configured": configured,
+        "ai_off_reason": reason,
+    }

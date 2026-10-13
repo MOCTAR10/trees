@@ -102,6 +102,8 @@ def _seed():
 def _install_fake_db(monkeypatch, users, state):
     async def fetch_one(sql, *args):
         s = " ".join(sql.split()).lower()
+        if "from gfw_features where layer = 'logging_concessions'" in s:
+            return {"n": state.get("concessions_loaded", 0)}
         if "from users where id" in s:
             user = users.get(args[0])
             if user is None or not user["is_active"]:
@@ -162,6 +164,18 @@ def _install_fake_db(monkeypatch, users, state):
         s = " ".join(sql.split()).lower()
         if "from ufa_dme" in s:
             return [dict(r) for r in state["ufa_dme"] if r["ufa_id"] == args[0]]
+        if "lateral" in s and "protected_areas" in s:
+            ctx = state.get("spatial", {})
+            return [
+                {
+                    "tree_code": code,
+                    "protected_area": ctx.get(code, {}).get("protected_area"),
+                    "in_concession": ctx.get(code, {}).get("in_concession", True),
+                    "in_title": False,
+                    "in_aac": False,
+                }
+                for code in args[0]
+            ]
         if "from annual_cut_blocks" in s and "unnest" in s:
             return [{"tree_code": code} for code in state.get("outside_aac", [])]
         if "from felling_declarations d" in s:
@@ -480,6 +494,44 @@ def test_no_aac_id_skips_spatial_check(client, monkeypatch):
     assert resp.json()["compliance"]["compliant"] is True
 
 
+def test_park_and_out_of_concession_stems_warn_but_do_not_block(client, monkeypatch):
+    users, state = _setup(monkeypatch)
+    state["concessions_loaded"] = 70
+    state["spatial"] = {
+        "GA-2026-0001": {"protected_area": "Parc national de la Lopé", "in_concession": True},
+        "GA-2026-0002": {"protected_area": None, "in_concession": False},
+    }
+    token = _token(users[2])
+    resp = client.post(
+        "/api/felling/declarations",
+        json=_declare_payload(),
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 200, resp.text
+    lines = {line["tree_code"]: line["violations"] for line in resp.json()["lines_checked"]}
+    assert "in_protected_area" in lines["GA-2026-0001"]
+    assert "outside_concession" not in lines["GA-2026-0001"]
+    assert "outside_concession" in lines["GA-2026-0002"]
+    warnings = {w.get("code") for w in resp.json()["compliance"]["warnings"]}
+    assert {"in_protected_area", "outside_concession"} <= warnings
+    assert resp.json()["compliance"]["compliant"] is True
+
+
+def test_concession_check_silent_without_imported_layers(client, monkeypatch):
+    users, state = _setup(monkeypatch)
+    state["spatial"] = {"GA-2026-0002": {"protected_area": None, "in_concession": False}}
+    token = _token(users[2])
+    resp = client.post(
+        "/api/felling/declarations",
+        json=_declare_payload(),
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 200
+    assert all(
+        "outside_concession" not in line["violations"] for line in resp.json()["lines_checked"]
+    )
+
+
 def test_duplicate_code_flagged_on_redeclare(client, monkeypatch):
     users, _ = _setup(monkeypatch)
     token = _token(users[2])
@@ -685,3 +737,20 @@ def test_declaration_without_ufa_override_uses_provisional(client, monkeypatch):
     assert resp.status_code == 200
     checked = {c["tree_code"]: c for c in resp.json()["lines_checked"]}
     assert checked["GA-2026-0001"]["dme_cm"] == 70.0
+
+
+def test_declaration_plates_pdf(client, monkeypatch):
+    users, _ = _setup(monkeypatch)
+    token = _token(users[2])
+    headers = {"Authorization": f"Bearer {token}"}
+    created = client.post("/api/felling/declarations", json=_declare_payload(), headers=headers)
+    assert created.status_code == 200
+    resp = client.get(
+        f"/api/felling/declarations/{created.json()['id']}/plates.pdf", headers=headers
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.headers["content-type"] == "application/pdf"
+    assert resp.content.startswith(b"%PDF")
+    assert (
+        client.get("/api/felling/declarations/9999/plates.pdf", headers=headers).status_code == 404
+    )

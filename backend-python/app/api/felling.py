@@ -11,13 +11,15 @@ import json
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
+from app.config import get_settings
 from app.core.deps import require_roles
 from app.core.dme import dme_for
 from app.core.reserved_species import reserved_species_for
 from app.core.species_data import resolve_species
-from app.services import compliance, db, dme
+from app.services import compliance, db, dme, plate_print
 
 router = APIRouter()
 
@@ -86,6 +88,7 @@ async def _check_line(
     *,
     outside_aac: bool = False,
     ufa_dme: dict[str, dict] | None = None,
+    spatial: dict | None = None,
 ) -> tuple[float | None, str | None, list[str]]:
     """Auto-compliance checks for one declared stem (Loi 016/01 Art. 124).
 
@@ -112,6 +115,10 @@ async def _check_line(
         violations.append("outside_aac")
     if profile is not None and profile.cites_appendix:
         violations.append("cites_listed")
+    if spatial and spatial.get("protected_area"):
+        violations.append("in_protected_area")
+    if spatial and spatial.get("outside_concession"):
+        violations.append("outside_concession")
     existing = await db.fetch_one(
         "SELECT tree_code FROM tree_registry WHERE tree_code=$1", line.tree_code
     )
@@ -132,12 +139,16 @@ async def declare(
         if line.longitude is not None and line.latitude is not None
     ]
     outside_codes = await compliance.lines_outside_aac(body.aac_id, points)
+    spatial = await compliance.lines_spatial_context(points)
     ufa_dme = await dme.map_for_ufa(await dme.ufa_of_aac(body.aac_id))
     checked: list[dict] = []
     blockers: list[dict] = []
     for line in body.lines:
         dme_cm, dme_source, violations = await _check_line(
-            line, outside_aac=line.tree_code.strip() in outside_codes, ufa_dme=ufa_dme
+            line,
+            outside_aac=line.tree_code.strip() in outside_codes,
+            ufa_dme=ufa_dme,
+            spatial=spatial.get(line.tree_code.strip()),
         )
         checked.append(
             {
@@ -269,6 +280,34 @@ async def get_declaration(
         "SELECT * FROM declaration_lines WHERE declaration_id=$1 ORDER BY id", declaration_id
     )
     return {"declaration": dict(header), "lines": [dict(r) for r in lines]}
+
+
+@router.get("/declarations/{declaration_id}/plates.pdf")
+async def declaration_plates(
+    declaration_id: int,
+    user: dict = Depends(require_roles("company", "admin")),
+):
+    """QR plates of a declaration's stems, ready to print or engrave in-house."""
+    header = await db.fetch_one("SELECT * FROM felling_declarations WHERE id=$1", declaration_id)
+    if header is None:
+        raise HTTPException(status_code=404, detail="Déclaration introuvable")
+    if user["role"] == "company" and header["company_id"] != _company_id(user):
+        raise HTTPException(status_code=403, detail="Déclaration d'une autre entreprise")
+    rows = await db.fetch_all(
+        "SELECT tree_code FROM declaration_lines WHERE declaration_id=$1 ORDER BY id",
+        declaration_id,
+    )
+    codes = [r["tree_code"] for r in rows]
+    if not codes:
+        raise HTTPException(status_code=404, detail="Aucun arbre dans cette déclaration")
+    pdf = plate_print.plates_pdf_bytes(codes, get_settings().qr_tag_size_cm)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="plaques_declaration_{declaration_id}.pdf"'
+        },
+    )
 
 
 @router.patch("/declarations/{declaration_id}")

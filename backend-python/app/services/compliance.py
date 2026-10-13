@@ -13,7 +13,11 @@ from app.services import db
 HARD_LINE_VIOLATIONS = frozenset(
     {"duplicate_code", "no_measurement", "below_dme", "outside_aac", "reserved_species"}
 )
-WARNING_LINE_VIOLATIONS = frozenset({"cites_listed"})
+#: ``in_protected_area`` / ``outside_concession`` come from the GFW layers
+#: imported for Gabon (parks, logging concessions): warnings — the Ministry
+#: decides (frozen decision 6); whether felling inside a park must become a
+#: hard block is an open point for the métier.
+WARNING_LINE_VIOLATIONS = frozenset({"cites_listed", "in_protected_area", "outside_concession"})
 
 _AAC_OPEN_STATUSES = ("autorise", "ouvert")
 
@@ -137,6 +141,49 @@ async def lines_outside_aac(aac_id: int | None, points: list[tuple[str, float, f
         lats,
     )
     return {r["tree_code"] for r in rows}
+
+
+async def lines_spatial_context(points: list[tuple[str, float, float]]) -> dict[str, dict]:
+    """Protected-area / concession context of each declared stem.
+
+    ``points`` are ``(tree_code, longitude, latitude)``. A stem is
+    ``outside_concession`` only when concession layers are loaded and the point
+    lies in no logging concession, no forest title and no annual cut block —
+    a missing layer is never mistaken for a violation.
+    """
+    if not points:
+        return {}
+    loaded = await db.fetch_one(
+        "SELECT count(*) AS n FROM gfw_features WHERE layer = 'logging_concessions'"
+    )
+    concessions_loaded = bool(loaded and loaded["n"])
+    rows = await db.fetch_all(
+        """
+        SELECT pts.tree_code,
+               (SELECT g.name FROM gfw_features g
+                 WHERE g.layer = 'protected_areas' AND ST_Covers(g.geom, pt.p)
+                 ORDER BY ST_Area(g.geom) LIMIT 1) AS protected_area,
+               EXISTS (SELECT 1 FROM gfw_features g
+                 WHERE g.layer = 'logging_concessions' AND ST_Covers(g.geom, pt.p)) AS in_concession,
+               EXISTS (SELECT 1 FROM forest_titles ft
+                 WHERE ft.geom IS NOT NULL AND ST_Covers(ft.geom, pt.p)) AS in_title,
+               EXISTS (SELECT 1 FROM annual_cut_blocks a
+                 WHERE a.geom IS NOT NULL AND ST_Covers(a.geom, pt.p)) AS in_aac
+        FROM unnest($1::text[], $2::float8[], $3::float8[]) AS pts(tree_code, lon, lat),
+             LATERAL (SELECT ST_SetSRID(ST_MakePoint(pts.lon, pts.lat), 4326) AS p) AS pt
+        """,
+        [p[0] for p in points],
+        [p[1] for p in points],
+        [p[2] for p in points],
+    )
+    out: dict[str, dict] = {}
+    for r in rows:
+        allocated = r["in_concession"] or r["in_title"] or r["in_aac"]
+        out[r["tree_code"]] = {
+            "protected_area": r["protected_area"],
+            "outside_concession": concessions_loaded and not allocated,
+        }
+    return out
 
 
 async def evaluate(declaration_id: int) -> dict | None:

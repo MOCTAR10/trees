@@ -62,6 +62,9 @@ SPECIES_CANDIDATES = 3
 #: Confidence factor of a photo DBH whose bark distance was estimated by AI.
 AI_DISTANCE_CONFIDENCE = 0.6
 
+#: Native depth sensors whose reading beats the QR plate and the typed value.
+SENSOR_SOURCES = frozenset({"lidar", "arcore"})
+
 #: DBH methods that are field ground truth (tape / caliper).
 REFERENCE_METHODS = frozenset({"tape_circumference", "caliper"})
 
@@ -498,6 +501,9 @@ async def process_scan(
     ),
     height_source: str | None = Form(None, description="clinometer | manual"),
     tree_code: str | None = Form(None, description="Code registre de l'arbre (QR scanné)"),
+    depth_source: str | None = Form(
+        None, description="Origine de ar_depth_m : lidar | arcore (capteur) ou saisie"
+    ),
     user: dict | None = Depends(get_optional_user),
 ):
     linked_code = await _linked_tree_code(tree_code, user)
@@ -533,7 +539,9 @@ async def process_scan(
     fcd = fcd_data["fcd"]
 
     # --- STEP 3: DBH — tape/caliper reference, SAM 2.1 + OpenCV vision check ---
-    if plate_distance:
+    if ar_depth_m and depth_source in SENSOR_SOURCES:
+        distance, distance_source = ar_depth_m, depth_source
+    elif plate_distance:
         distance, distance_source = plate_distance, "qr"
     elif ar_depth_m:
         distance, distance_source = ar_depth_m, "typed"
@@ -542,7 +550,9 @@ async def process_scan(
     else:
         distance, distance_source = None, None
     dbh = _resolve_dbh(views, distance, focal_px, focal_35mm, circumference_cm, caliper_dbh_cm)
-    if distance_source == "qr":
+    if distance_source in SENSOR_SOURCES:
+        dbh.notes.insert(0, "depth_sensor")
+    elif distance_source == "qr":
         dbh.notes.insert(0, "depth_qr_plate")
     elif plate is not None and plate_distance is None:
         dbh.notes.append("qr_plate_unreadable")

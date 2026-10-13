@@ -26,13 +26,41 @@ USER = {
 SQUARE = json.dumps({"type": "Polygon", "coordinates": [[[11, -1], [12, -1], [12, 0], [11, -1]]]})
 
 
+calls: list = []
+
+
 @pytest.fixture
 def client(monkeypatch):
+    calls.clear()
+    map_api._cache.clear()
+
     async def fetch_one(sql, *args):
-        return USER if "from users where id" in " ".join(sql.split()).lower() else None
+        s = " ".join(sql.split()).lower()
+        if "from users where id" in s:
+            return USER
+        if "from gfw_features where id" in s:
+            return {
+                "id": args[0],
+                "layer": args[1],
+                "name": "Lopé",
+                "attrs": '{"iucn_cat": "II"}',
+                "area_ha": 491291.44,
+                "lat": -0.5,
+                "lon": 11.5,
+            }
+        return None
 
     async def fetch_all(sql, *args):
         s = " ".join(sql.split()).lower()
+        if "union all" in s:
+            return [
+                {
+                    "kind": "gfw",
+                    "layer": "protected_areas",
+                    "id": 5,
+                    "name": "Parc national de la Lopé",
+                }
+            ]
         if "from annual_cut_blocks a" in s:
             return [
                 {
@@ -47,15 +75,13 @@ def client(monkeypatch):
             ]
         if "from gfw_features where st_covers" in s:
             return [{"layer": "protected_areas", "name": "Lopé"}]
-        if "from gfw_features" in s:
-            return [
-                {
-                    "layer": "protected_areas",
-                    "name": "Lopé",
-                    "attrs": '{"iucn_cat": "II"}',
-                    "geojson": SQUARE,
-                }
-            ]
+        if "count(*) as n from gfw_features" in s:
+            return [{"layer": "protected_areas", "n": 61}]
+        if "from gfw_features where layer = $1" in s:
+            calls.append(args)
+            if args[0] != "protected_areas":
+                return []
+            return [{"id": 5, "name": "Lopé", "subtitle": "Parc national", "geojson": SQUARE}]
         return []
 
     monkeypatch.setattr(db, "fetch_one", fetch_one)
@@ -94,8 +120,38 @@ def test_layers_return_geojson(client):
     assert aac["geometry"]["type"] == "Polygon"
     assert aac["properties"]["holder"] == "Société Forestière Démo"
     park = body["layers"]["protected_areas"]["features"][0]
-    assert park["properties"]["attrs"] == {"iucn_cat": "II"}
+    assert park["properties"] == {
+        "id": 5,
+        "name": "Lopé",
+        "subtitle": "Parc national",
+        "layer": "protected_areas",
+    }
+    assert body["counts"] == {"protected_areas": 61}
     assert body["labels"]["protected_areas"].startswith("Aires protégées")
+
+
+def test_layers_follow_viewport_and_zoom(client):
+    body = client.get(
+        "/api/map/layers?zoom=12&bbox=11.4,-0.3,11.6,-0.1&layers=protected_areas", headers=_auth()
+    ).json()
+    assert list(body["layers"]) == ["protected_areas"]
+    assert body["tolerance"] == map_api.tolerance_for(12)
+    assert calls[-1] == ("protected_areas", 11.4, -0.3, 11.6, -0.1)
+
+
+def test_zoom_bands_and_bbox_validation(client):
+    assert map_api.tolerance_for(5) > map_api.tolerance_for(9) > map_api.tolerance_for(14)
+    assert client.get("/api/map/layers?bbox=1,2,3", headers=_auth()).status_code == 422
+    assert client.get("/api/map/layers?bbox=12,0,11,1", headers=_auth()).status_code == 422
+
+
+def test_feature_detail_and_search(client):
+    detail = client.get("/api/map/feature/protected_areas/5", headers=_auth()).json()
+    assert detail["attrs"] == {"iucn_cat": "II"} and detail["area_ha"] == 491291.4
+    assert client.get("/api/map/feature/nope/5", headers=_auth()).status_code == 404
+    found = client.get("/api/map/search?q=lop", headers=_auth()).json()
+    assert found[0]["name"] == "Parc national de la Lopé"
+    assert client.get("/api/map/search?q=l", headers=_auth()).status_code == 422
 
 
 def test_point_check_without_key_is_503(client):

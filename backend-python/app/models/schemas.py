@@ -47,7 +47,7 @@ class V1Report(BaseModel):
     carbon_stock_kg: float | None = Field(None, description="Carbone vivant AGB+BGB (kg C)")
     co2e_kg: float | None = Field(None, description="Équivalent CO2 du stock (kg)")
     distance_m: float | None = Field(None, description="Distance écorce-téléphone retenue (m)")
-    distance_source: str | None = Field(None, description="qr | typed | ai")
+    distance_source: str | None = Field(None, description="lidar | arcore | qr | typed | ai")
     tree_code: str | None = Field(None, description="Arbre du registre lié au scan (QR)")
     species_candidates: list[dict] = Field(
         default_factory=list,

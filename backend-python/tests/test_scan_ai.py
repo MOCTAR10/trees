@@ -77,13 +77,21 @@ def test_memory_guard_keeps_api_alive(monkeypatch, available, expected):
     monkeypatch.setattr(ai_models, "_memory_ok", None)
     monkeypatch.setattr(ai_models, "_available_memory_mb", lambda: available)
     assert ai_models.enabled() is expected
+    caps = ai_models.capabilities()
+    assert caps["ai_configured"] is True
+    assert caps["ai_off_reason"] == (None if expected else "memory")
 
 
 def test_models_disabled_return_none(monkeypatch):
     frame = np.zeros((32, 32, 3), dtype=np.uint8)
     assert ai_models.segment_trunk(frame) is None
     assert ai_models.depth_map(frame) is None
-    assert ai_models.capabilities() == {"ai_segmentation": False, "ai_distance": False}
+    assert ai_models.capabilities() == {
+        "ai_segmentation": False,
+        "ai_distance": False,
+        "ai_configured": False,
+        "ai_off_reason": "disabled",
+    }
 
 
 # ── orchestration ───────────────────────────────────────────────────────
@@ -255,3 +263,13 @@ def test_vision_only_scan_keeps_no_media(tmp_path, monkeypatch):
     dbh = v1.DbhResolution(55.0, "opencv_edge_profile", 0.8, vision_dbh_cm=55.0)
     assert v1._save_labelled_media([_view("dbh")], dbh) is None
     assert list(tmp_path.iterdir()) == []
+
+
+def test_sensor_distance_wins_over_typed_and_is_noted(client, monkeypatch):
+    install_v1_fakes(monkeypatch)
+    body = _post(client, focal_px="2200", ar_depth_m="2.05", depth_source="lidar").json()
+    assert body["distance_source"] == "lidar"
+    assert body["distance_m"] == pytest.approx(2.05)
+    assert body["measurement_notes"][0] == "depth_sensor"
+    typed = _post(client, focal_px="2200", ar_depth_m="2.05", depth_source="bogus").json()
+    assert typed["distance_source"] == "typed"
