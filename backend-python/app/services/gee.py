@@ -21,6 +21,15 @@ log = logging.getLogger(__name__)
 
 _initialized = False
 
+#: Hansen tree cover 2000 is a fixed layer: a live reading is cached per
+#: ~500 m cell for the process lifetime (it averages a 500 m buffer anyway).
+CELL_DEG = 0.005
+_cache: dict[tuple[int, int], dict] = {}
+
+
+def clear_cache() -> None:
+    _cache.clear()
+
 
 def _mock_fcd(latitude: float, longitude: float) -> float:
     """Deterministic pseudo-FCD in [0.25, 0.95] from coordinates."""
@@ -70,6 +79,10 @@ async def canopy_density(latitude: float, longitude: float) -> dict:
     if not settings.gee_enabled:
         return {"fcd": _mock_fcd(latitude, longitude), "source": "mock", "competition_level": None}
 
+    cell = (round(latitude / CELL_DEG), round(longitude / CELL_DEG))
+    cached = _cache.get(cell)
+    if cached is not None:
+        return dict(cached)
     try:
         key = _load_key()
         if key is None:
@@ -90,7 +103,9 @@ async def canopy_density(latitude: float, longitude: float) -> dict:
             "source": "mock_no_coverage",
             "competition_level": None,
         }
-    return {"fcd": fcd, "source": "gee_hansen_treecover2000", "competition_level": None}
+    result = {"fcd": fcd, "source": "gee_hansen_treecover2000", "competition_level": None}
+    _cache[cell] = result
+    return dict(result)
 
 
 def competition_level(fcd: float | None) -> str:

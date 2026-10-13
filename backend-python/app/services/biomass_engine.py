@@ -31,6 +31,10 @@ FORM_FACTOR = 0.45  # tropical bole form factor
 CHAINSAW_KERF_MM = 5.0
 SLAB_THICKNESS_MM = 30.0
 
+#: IPCC default carbon fraction of tropical dry biomass, and the CO2/C mass ratio.
+CARBON_FRACTION = 0.47
+CO2_PER_C = 44.0 / 12.0
+
 
 @dataclass
 class ResidueBreakdown:
@@ -61,6 +65,20 @@ class ResidueBreakdown:
 
     def to_dict(self) -> dict:
         return asdict(self)
+
+
+def living_carbon(
+    dbh_cm: float | None, species: str | None = None, height_m: float | None = None
+) -> tuple[float | None, float | None, float | None]:
+    """Standing-tree stock: AGB (Chave 2014), carbon (AGB+BGB) and CO2e, in kg."""
+    if not dbh_cm:
+        return None, None, None
+    try:
+        residues = compute_residues(dbh_cm=dbh_cm, species=species, height_m=height_m)
+    except ValueError:
+        return None, None, None
+    carbon = residues.total_biomass_kg * CARBON_FRACTION
+    return round(residues.total_agb_kg, 1), round(carbon, 1), round(carbon * CO2_PER_C, 1)
 
 
 def compute_residues(

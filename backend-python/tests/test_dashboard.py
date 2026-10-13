@@ -97,10 +97,22 @@ def _setup(monkeypatch):
             }
         if "from transport_documents" in s:
             return {"documents": 3, "volume_m3": 250.5}
+        if "from tree_scans where co2e_kg is not null" in s:
+            return {"scans": 4, "co2e_kg": 21000.5, "reference_scans": 2, "linked_scans": 1}
         return None
 
     async def fetch_all(sql, *args):
         s = " ".join(sql.split()).lower()
+        if "join tree_scans s" in s:
+            return [
+                {
+                    "aac_id": 21,
+                    "aac_label": "AAC-1",
+                    "title_ref": "T-1",
+                    "scans": 3,
+                    "co2e_kg": 16000.04,
+                }
+            ]
         if "from tree_registry" in s:
             return registry
         if "from forest_titles group by status" in s:
@@ -168,6 +180,13 @@ def test_overview_rollups(client, monkeypatch):
     assert body["transport"]["volume_m3"] == 250.5
     assert body["certifications"]["total"] == 2
     assert [s["scheme"] for s in body["certifications"]["by_scheme"]] == ["FSC", "PAFC"]
+    carbon = body["carbon"]
+    assert carbon["scans"] == 4
+    assert carbon["co2e_kg"] == 21000.5
+    assert carbon["reference_scans"] == 2
+    assert carbon["by_aac"] == [
+        {"aac_id": 21, "aac_label": "AAC-1", "title_ref": "T-1", "scans": 3, "co2e_kg": 16000.0}
+    ]
 
 
 def test_dashboard_requires_admin(client, monkeypatch):

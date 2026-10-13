@@ -72,9 +72,56 @@ async def _harvest() -> dict:
     }
 
 
+#: A scan counts toward an AAC when it is linked to one of its registry trees
+#: (QR) or when its GPS point lies inside the AAC polygon.
+_CARBON_BY_AAC = """
+SELECT a.id AS aac_id, a.label AS aac_label, ft.reference AS title_ref,
+       count(s.id) AS scans, coalesce(sum(s.co2e_kg), 0) AS co2e_kg
+FROM annual_cut_blocks a
+JOIN management_units mu ON mu.id = a.ufa_id
+JOIN forest_titles ft ON ft.id = mu.title_id
+JOIN tree_scans s ON s.co2e_kg IS NOT NULL AND (
+        s.tree_code IN (SELECT tr.tree_code FROM tree_registry tr WHERE tr.aac_id = a.id)
+        OR (a.geom IS NOT NULL AND s.geom IS NOT NULL AND ST_Covers(a.geom, s.geom))
+     )
+GROUP BY a.id, a.label, ft.reference
+ORDER BY co2e_kg DESC
+LIMIT 20
+"""
+
+
+async def _carbon() -> dict:
+    """Living carbon measured by scans (Slice 14/15), total and per AAC."""
+    totals = await db.fetch_one(
+        "SELECT count(*) AS scans, coalesce(sum(co2e_kg), 0) AS co2e_kg,"
+        " count(*) FILTER (WHERE dbh_method IN ('tape_circumference', 'caliper'))"
+        "   AS reference_scans,"
+        " count(*) FILTER (WHERE tree_code IS NOT NULL) AS linked_scans"
+        " FROM tree_scans WHERE co2e_kg IS NOT NULL"
+    )
+    by_aac = _rows(await db.fetch_all(_CARBON_BY_AAC))
+    return {
+        "scans": int((totals or {}).get("scans") or 0),
+        "co2e_kg": _as_float((totals or {}).get("co2e_kg")),
+        "reference_scans": int((totals or {}).get("reference_scans") or 0),
+        "linked_scans": int((totals or {}).get("linked_scans") or 0),
+        "by_aac": [
+            {
+                "aac_id": r.get("aac_id"),
+                "aac_label": r.get("aac_label"),
+                "title_ref": r.get("title_ref"),
+                "scans": int(r.get("scans") or 0),
+                "co2e_kg": round(_as_float(r.get("co2e_kg")), 1),
+            }
+            for r in by_aac
+        ],
+    }
+
+
 async def overview() -> dict:
     """Full dashboard payload (single read, admin scope)."""
     harvest = await _harvest()
+    carbon = await _carbon()
 
     titles = _by_status(
         _rows(
@@ -152,6 +199,7 @@ async def overview() -> dict:
     return {
         "generated_at": datetime.now(UTC).isoformat(),
         "harvest": harvest,
+        "carbon": carbon,
         "titles": {
             "total": sum(e["count"] for e in titles.values()),
             "by_status": titles,

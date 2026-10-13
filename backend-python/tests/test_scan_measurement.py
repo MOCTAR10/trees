@@ -12,6 +12,7 @@ from PIL import Image
 from app.api import v1
 from app.core.geometry import focal_px_from_35mm
 from app.main import app
+from app.services.biomass_engine import CARBON_FRACTION, living_carbon
 from tests.test_golden_regression import _png, install_v1_fakes
 
 
@@ -145,11 +146,11 @@ def test_leaf_only_scan_never_measures(monkeypatch):
 
 
 def test_carbon_stock_uses_ipcc_fractions():
-    agb, carbon, co2e = v1._carbon_stock(62.5, "Aucoumea klaineana", None)
+    agb, carbon, co2e = living_carbon(62.5, "Aucoumea klaineana", None)
     assert agb > 0
-    assert carbon > agb * v1.CARBON_FRACTION  # includes below-ground biomass
+    assert carbon > agb * CARBON_FRACTION  # includes below-ground biomass
     assert math.isclose(co2e, carbon * 44.0 / 12.0, rel_tol=1e-3)
-    assert v1._carbon_stock(None, "Aucoumea klaineana", None) == (None, None, None)
+    assert living_carbon(None, "Aucoumea klaineana", None) == (None, None, None)
 
 
 # ── endpoint ────────────────────────────────────────────────────────────

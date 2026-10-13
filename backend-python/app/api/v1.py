@@ -1,11 +1,14 @@
 """Phase 1 endpoint: full measurement pipeline -> structured forestry report."""
 
+import asyncio
 import io
 import json
 import logging
 import math
 import statistics
+import uuid
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -21,8 +24,8 @@ from app.core.growth_models import estimate_age_by_integration
 from app.core.height_diameter import estimate_height_m
 from app.core.species_data import resolve_species
 from app.models.schemas import V1Report
-from app.services import db, gbif, gee, groq_llm, pdf_report, plantnet, rag, soilgrids
-from app.services.biomass_engine import compute_residues
+from app.services import ai_models, db, gbif, gee, groq_llm, pdf_report, plantnet, rag, soilgrids
+from app.services.biomass_engine import living_carbon
 from app.services.vision import PLAUSIBLE_DBH_CM, measure_dbh
 
 router = APIRouter()
@@ -31,12 +34,20 @@ logger = logging.getLogger(__name__)
 _EXIF_IFD = 0x8769
 _EXIF_FOCAL_35MM = 0xA405
 
-#: IPCC default carbon fraction of tropical dry biomass, and the CO2/C mass ratio.
-CARBON_FRACTION = 0.47
-CO2_PER_C = 44.0 / 12.0
-
 #: Height (m) a clinometer / manual reading must fall in to replace the H-D curve.
 PLAUSIBLE_HEIGHT_M = (1.3, 80.0)
+
+#: Measurement views sent through SAM 2.1 (each costs a few CPU seconds).
+AI_MAX_VIEWS = 2
+
+#: Pl@ntNet score below which the top match is a guess, not an identification.
+MIN_SPECIES_SCORE = 0.15
+
+#: Confidence factor of a photo DBH whose bark distance was estimated by AI.
+AI_DISTANCE_CONFIDENCE = 0.6
+
+#: DBH methods that are field ground truth (tape / caliper).
+REFERENCE_METHODS = frozenset({"tape_circumference", "caliper"})
 
 
 def _decode(data: bytes) -> np.ndarray:
@@ -225,8 +236,9 @@ def _vision_dbh(
         focal, source = _resolve_focal(view, focal_px, focal_35mm)
         if source not in notes:
             notes.append(source)
+        extra = {"mask": view["ai_mask"]} if view.get("ai_mask") is not None else {}
         try:
-            measurement = measure_dbh(view["bgr"], depth_m=ar_depth_m, focal_px=focal)
+            measurement = measure_dbh(view["bgr"], depth_m=ar_depth_m, focal_px=focal, **extra)
         except (RuntimeError, ValueError) as exc:
             logger.warning("DBH measurement skipped: %s", exc)
             continue
@@ -301,22 +313,111 @@ def _resolve_dbh(
     )
 
 
-def _carbon_stock(
-    dbh_cm: float | None, species: str | None, height_m: float | None
-) -> tuple[float | None, float | None, float | None]:
-    """Living-tree stock: AGB (Chave 2014), carbon (AGB+BGB) and CO2e, in kg."""
-    if not dbh_cm:
-        return None, None, None
+async def _identify_species(
+    views: list[dict], latitude: float, longitude: float
+) -> tuple[str | None, float | None]:
+    """Pl@ntNet multi-organ fusion, then the GBIF geographic cross-check."""
+    species_name, species_score = None, None
     try:
-        residues = compute_residues(dbh_cm=dbh_cm, species=species, height_m=height_m)
-    except ValueError:
-        return None, None, None
-    carbon = residues.total_biomass_kg * CARBON_FRACTION
-    return (
-        round(residues.total_agb_kg, 1),
-        round(carbon, 1),
-        round(carbon * CO2_PER_C, 1),
+        selected = _select_views(views)
+        pn = await plantnet.identify(
+            images=[v["bytes"] for v in selected],
+            organs=[_PLANTNET_ORGAN.get(v["organ"], v["organ"]) for v in selected],
+            lang="fr",
+        )
+        species_name, species_score = pn.scientific_name, pn.score
+    except Exception as exc:
+        logger.warning("Pl@ntNet identification skipped: %s", exc)
+    if species_name and (species_score or 0) < MIN_SPECIES_SCORE:
+        species_name = None  # a guess, not an identification
+    if species_name:
+        try:
+            check = await gbif.validate_species_for_location(species_name, latitude, longitude)
+            if not check["valid"] and (species_score or 0) < 0.5:
+                species_name = None  # low confidence + no local occurrences
+        except Exception as exc:
+            logger.warning("GBIF location cross-check skipped: %s", exc)
+    return species_name, species_score
+
+
+async def _soil_class(latitude: float, longitude: float) -> str | None:
+    try:
+        soil_data = await soilgrids.fetch_soil(latitude, longitude)
+    except Exception as exc:
+        logger.warning("SoilGrids lookup skipped: %s", exc)
+        return None
+    return soil_data["soil_class"] if soil_data else None
+
+
+async def _prepare_ai(views: list[dict], ar_depth_m: float | None) -> float | None:
+    """SAM 2.1 trunk cut-out on the measurement views (worker thread).
+
+    When the operator typed no distance, Depth Anything V2 estimates it on the
+    first measurement view; returns that estimate (m) or ``None``.
+    """
+    if not ai_models.enabled():
+        return None
+    targets = _measurement_views(views)[:AI_MAX_VIEWS]
+    for view in targets:
+        view["ai_mask"] = await asyncio.to_thread(ai_models.segment_trunk, view["bgr"])
+    if (ar_depth_m and ar_depth_m > 0) or not targets:
+        return None
+    first = targets[0]
+    depth = await asyncio.to_thread(ai_models.depth_map, first["bgr"])
+    return ai_models.trunk_distance_m(depth, first.get("ai_mask"))
+
+
+async def _linked_tree_code(tree_code: str | None, user: dict | None) -> str | None:
+    """Validate the registry tree a scan is attached to (QR / typed code)."""
+    if not tree_code or not tree_code.strip():
+        return None
+    code = tree_code.strip()
+    if user is None:
+        raise HTTPException(status_code=401, detail="Connexion requise pour lier un arbre")
+    tree = await db.fetch_one(
+        "SELECT tree_code, company_id FROM tree_registry WHERE tree_code=$1", code
     )
+    if tree is None:
+        raise HTTPException(status_code=404, detail="Arbre inconnu au registre")
+    if user["role"] != "admin":
+        owner = user["id"] if user["role"] == "company" else user.get("company_id")
+        if tree["company_id"] != owner:
+            raise HTTPException(status_code=403, detail="Arbre d'une autre entreprise")
+    return code
+
+
+def _save_labelled_media(views: list[dict], dbh: "DbhResolution") -> str | None:
+    """Keep the DBH photo + trunk mask of a reference-measured scan.
+
+    A tape/caliper reading is ground truth: these files form the training set
+    for a Gabon-specific trunk model (``tools.export_trunk_dataset``).
+    """
+    media_root = get_settings().scan_media_dir
+    if not media_root or dbh.method not in REFERENCE_METHODS:
+        return None
+    measured = _measurement_views(views)
+    if not measured:
+        return None
+    key = uuid.uuid4().hex
+    folder = Path(media_root) / key
+    try:
+        folder.mkdir(parents=True, exist_ok=True)
+        view = measured[0]
+        (folder / "dbh.jpg").write_bytes(view["bytes"])
+        if view.get("ai_mask") is not None:
+            cv2.imwrite(str(folder / "mask.png"), view["ai_mask"].astype(np.uint8) * 255)
+        label = {
+            "dbh_cm": dbh.dbh_cm,
+            "method": dbh.method,
+            "vision_dbh_cm": dbh.vision_dbh_cm,
+            "discrepancy_pct": dbh.discrepancy_pct,
+            "organ": view["organ"],
+        }
+        (folder / "label.json").write_text(json.dumps(label), encoding="utf-8")
+    except OSError as exc:
+        logger.warning("Labelled scan media not saved: %s", exc)
+        return None
+    return key
 
 
 def _aggregate_health(views: list[dict]) -> str:
@@ -360,8 +461,10 @@ async def process_scan(
         None, gt=0, le=100, description="Hauteur totale mesurée (clinomètre ou saisie)"
     ),
     height_source: str | None = Form(None, description="clinometer | manual"),
+    tree_code: str | None = Form(None, description="Code registre de l'arbre (QR scanné)"),
     user: dict | None = Depends(get_optional_user),
 ):
+    linked_code = await _linked_tree_code(tree_code, user)
     limit = get_settings().max_image_bytes
     views = await _collect_views(
         limit,
@@ -373,44 +476,30 @@ async def process_scan(
     if not views:
         raise HTTPException(status_code=400, detail="Au moins une image est requise")
 
-    # --- STEP 2: species identification (Pl@ntNet multi-organ fusion) ---
-    species_name = None
-    species_score = None
-    try:
-        selected = _select_views(views)
-        pn = await plantnet.identify(
-            images=[v["bytes"] for v in selected],
-            organs=[_PLANTNET_ORGAN.get(v["organ"], v["organ"]) for v in selected],
-            lang="fr",
-        )
-        species_name = pn.scientific_name
-        species_score = pn.score
-    except Exception as exc:
-        logger.warning("Pl@ntNet identification skipped: %s", exc)
-
-    # --- GBIF geographic ecosystem cross-check ---
-    if species_name:
-        try:
-            check = await gbif.validate_species_for_location(species_name, latitude, longitude)
-            if not check["valid"] and (species_score or 0) < 0.5:
-                species_name = None  # low confidence + no local occurrences
-        except Exception as exc:
-            logger.warning("GBIF location cross-check skipped: %s", exc)
-
-    # --- STEP 3: DBH — tape/caliper reference, YOLO+OpenCV vision cross-check ---
-    dbh = _resolve_dbh(views, ar_depth_m, focal_px, focal_35mm, circumference_cm, caliper_dbh_cm)
-    dbh_cm, dbh_method, dbh_conf = dbh.dbh_cm, dbh.method, dbh.confidence
-
-    # --- STEP 4: geospatial context ---
-    soil = None
-    try:
-        soil_data = await soilgrids.fetch_soil(latitude, longitude)
-        soil = soil_data["soil_class"] if soil_data else None
-    except Exception as exc:
-        logger.warning("SoilGrids lookup skipped: %s", exc)
-
-    fcd_data = await gee.canopy_density(latitude, longitude)
+    # --- STEPS 2-4 run concurrently: species ID, AI trunk/distance, context ---
+    (species_name, species_score), ai_distance, soil, fcd_data = await asyncio.gather(
+        _identify_species(views, latitude, longitude),
+        _prepare_ai(views, ar_depth_m),
+        _soil_class(latitude, longitude),
+        gee.canopy_density(latitude, longitude),
+    )
     fcd = fcd_data["fcd"]
+
+    # --- STEP 3: DBH — tape/caliper reference, SAM 2.1 + OpenCV vision check ---
+    distance, distance_source = ar_depth_m, ("typed" if ar_depth_m else None)
+    if not distance and ai_distance:
+        distance, distance_source = ai_distance, "ai"
+    dbh = _resolve_dbh(views, distance, focal_px, focal_35mm, circumference_cm, caliper_dbh_cm)
+    if distance_source == "ai":
+        dbh.notes.insert(0, "depth_ai_estimated")
+        if dbh.method not in REFERENCE_METHODS and dbh.confidence is not None:
+            dbh.confidence = round(dbh.confidence * AI_DISTANCE_CONFIDENCE, 3)
+    if any(v.get("ai_mask") is not None for v in views):
+        dbh.notes.append("ai_segmentation")
+    if species_name is None and species_score is not None:
+        dbh.notes.append("species_low_confidence")
+    dbh_cm, dbh_method, dbh_conf = dbh.dbh_cm, dbh.method, dbh.confidence
+    media_key = _save_labelled_media(views, dbh)
 
     # --- STEP 5: height (measured beats the H-D curve) + age estimation ---
     height, height_method = None, None
@@ -435,7 +524,7 @@ async def process_scan(
     health = _aggregate_health(views)
 
     # --- Living carbon stock (Chave 2014 AGB + root:shoot BGB, IPCC fractions) ---
-    agb_kg, carbon_kg, co2e_kg = _carbon_stock(dbh_cm, species_name, height)
+    agb_kg, carbon_kg, co2e_kg = living_carbon(dbh_cm, species_name, height)
 
     # --- STEP 6: grounded retrieval (Phase-1 RAG) + French narrative via Groq ---
     profile = resolve_species(species_name)
@@ -496,8 +585,9 @@ async def process_scan(
                 image_habitat_url, ar_depth_m, camera_focal_px, user_id,
                 dbh_vision_cm, dbh_uncertainty_cm, measurement_notes, height_method,
                 aboveground_biomass_kg, carbon_stock_kg, co2e_kg,
+                tree_code, depth_source, media_key,
                 image_urls, view_meta
-            ) VALUES ($1, $2, ST_SetSRID(ST_MakePoint($4, $3), 4326), $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22::jsonb, $23, $24, $25, $26, $27::jsonb, $28::jsonb)
+            ) VALUES ($1, $2, ST_SetSRID(ST_MakePoint($4, $3), 4326), $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22::jsonb, $23, $24, $25, $26, $27, $28, $29, $30::jsonb, $31::jsonb)
             RETURNING id
             """,
             species_name,
@@ -516,7 +606,7 @@ async def process_scan(
             "stored://trunk",
             "stored://leaf",
             "stored://habitat",
-            ar_depth_m,
+            distance,
             focal_px,
             user["id"] if user else None,
             dbh.vision_dbh_cm,
@@ -526,6 +616,9 @@ async def process_scan(
             agb_kg,
             carbon_kg,
             co2e_kg,
+            linked_code,
+            distance_source,
+            media_key,
             json.dumps(image_urls),
             json.dumps(view_meta),
         )
@@ -555,7 +648,16 @@ async def process_scan(
         aboveground_biomass_kg=agb_kg,
         carbon_stock_kg=carbon_kg,
         co2e_kg=co2e_kg,
+        distance_m=distance,
+        distance_source=distance_source,
+        tree_code=linked_code,
     )
+
+
+@router.get("/capabilities")
+async def capabilities():
+    """What the scanner can do server-side (lets the app offer auto modes)."""
+    return {**ai_models.capabilities(), "max_image_bytes": get_settings().max_image_bytes}
 
 
 @router.post("/report/pdf")

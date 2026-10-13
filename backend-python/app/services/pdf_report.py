@@ -211,6 +211,9 @@ def _references_block(items: Any) -> list:
 DBH_METHOD_LABELS = {
     "tape_circumference": "Ruban (circonférence ÷ π)",
     "caliper": "Compas forestier",
+    "sam2_opencv": "Vision IA (SAM 2.1 + OpenCV)",
+    "opencv_depth": "Vision (profondeur)",
+    "opencv_edge_profile": "Vision (profil des bords)",
     "yolo_opencv_hybrid": "Vision (YOLO + OpenCV)",
     "opencv_fallback": "Vision (OpenCV)",
     "multi_view_median": "Vision (médiane multi-vues)",
@@ -228,6 +231,9 @@ MEASUREMENT_NOTE_LABELS = {
     "focal_exif": "Focale lue dans l'EXIF de la photo",
     "focal_estimated": "Focale estimée (26 mm éq.) — précision réduite",
     "depth_missing": "Distance au tronc non renseignée — vision non exécutée",
+    "depth_ai_estimated": "Distance au tronc estimée par IA (Depth Anything V2)",
+    "ai_segmentation": "Tronc découpé par IA (SAM 2.1)",
+    "species_low_confidence": "Espèce non retenue : confiance d'identification < 15 %",
     "trunk_exceeds_frame": "Tronc plus large que le cadre — reculez",
     "vision_implausible": "Mesure vision hors plage plausible — écartée",
     "vision_failed": "Tronc non détecté par la vision",
@@ -1203,6 +1209,13 @@ def render_anomalies_pdf(items: list[dict], summary: dict | None = None) -> byte
     return _build(story, "Registre des anomalies")
 
 
+def _as_tonnes(kg: Any) -> float | None:
+    try:
+        return float(kg) / 1000.0
+    except (TypeError, ValueError):
+        return None
+
+
 def render_dashboard_pdf(data: dict | None = None) -> bytes:
     """Ministry dashboard rollup -> branded A4 PDF."""
     data = data or {}
@@ -1274,4 +1287,34 @@ def render_dashboard_pdf(data: dict | None = None) -> bytes:
             ]
         ),
     ]
+
+    carbon = data.get("carbon", {}) or {}
+    story += [
+        Spacer(1, 4 * mm),
+        Paragraph("Carbone vivant mesuré (scans)", S_H2),
+        _kv_table(
+            [
+                ("Arbres mesurés", str(carbon.get("scans", 0))),
+                ("dont référence ruban / compas", str(carbon.get("reference_scans", 0))),
+                ("dont liés au registre (QR)", str(carbon.get("linked_scans", 0))),
+                ("Stock mesuré", _fr_num(_as_tonnes(carbon.get("co2e_kg")), 2, " t CO2e")),
+            ]
+        ),
+    ]
+    if carbon.get("by_aac"):
+        story.append(
+            _grid_table(
+                ["AAC", "Titre", "Scans", "t CO2e"],
+                [
+                    [
+                        a.get("aac_label"),
+                        a.get("title_ref"),
+                        str(a.get("scans", 0)),
+                        _fr_num(_as_tonnes(a.get("co2e_kg")), 2),
+                    ]
+                    for a in carbon["by_aac"]
+                ],
+                widths=[None, 40 * mm, 20 * mm, 30 * mm],
+            )
+        )
     return _build(story, "Tableau de bord")

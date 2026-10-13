@@ -1,19 +1,19 @@
 """Tree-trunk segmentation & DBH measurement (Phase 1, Step 3).
 
-Hybrid pipeline (research-validated):
+Hybrid pipeline:
 
-1. **YOLO path** — if custom trunk-seg weights exist at
-   ``weights/trunk-seg.pt``, Ultralytics YOLOv11-seg produces the trunk
-   mask directly (drop-in slot for a forestry-trained model).
-2. **OpenCV depth-guided fallback** (Holcomb et al. 2023 style):
-   depth-histogram mode in the central image third -> keep pixels within
-   +/-10% depth -> connected components -> densest oblong cluster ->
-   PCA orientation -> rotate upright -> two-pass vertical scanline
-   boundary detection at the breast-height band -> chord width. Without a
-   depth map (the usual smartphone case) the trunk edges come from
-   vertical-edge persistence across the breast-height band.
-3. **Geometry** — exact tangent-silhouette model using the bark distance
-   and the focal length in pixels (see ``app.core.geometry``).
+1. **AI mask** — when the caller provides one (SAM 2.1 cut-out, see
+   ``app.services.ai_models``), it is used directly.
+2. **OpenCV depth-guided** (Holcomb et al. 2023 style) when a depth map is
+   available: depth-histogram mode in the central image third -> keep pixels
+   within +/-10% depth -> connected components -> densest oblong cluster.
+3. **Edge profile** (the usual smartphone case, no depth map): trunk edges
+   from vertical-edge persistence across the breast-height band; the legacy
+   colour mask is the last resort.
+
+Then: orientation normalisation -> two-pass scanline at breast height ->
+exact tangent-silhouette geometry with the bark distance and the focal length
+in pixels (see ``app.core.geometry``).
 """
 
 from dataclasses import dataclass
@@ -21,7 +21,6 @@ from dataclasses import dataclass
 import cv2
 import numpy as np
 
-from app.config import get_settings
 from app.core.geometry import tangent_diameter_cm
 
 MIN_COMPONENT_PX = 300
@@ -36,6 +35,10 @@ EDGE_MIN_GRADIENT = 2.0
 EDGE_CANDIDATES = 25
 EDGE_MIN_WIDTH_PX = 8
 
+#: Guided capture keeps the trunk near vertical: a larger PCA angle means the
+#: mask is not trunk-shaped (wide close-up, canopy) and is not trusted.
+MAX_TILT_DEG = 30.0
+
 #: Silhouette wider than this share of the frame: geometry is ill-conditioned
 #: (a 1 % edge error becomes a >5 % DBH error) — treat as "step back".
 MAX_FRAME_FILL = 0.8
@@ -48,56 +51,12 @@ PLAUSIBLE_DBH_CM = (5.0, 400.0)
 @dataclass
 class TrunkMeasurement:
     dbh_cm: float
-    method: str  # yolo_opencv_hybrid | opencv_edge_profile | opencv_fallback
+    method: str  # sam2_opencv | opencv_depth | opencv_edge_profile | opencv_fallback
     confidence: float  # 0..1
     mask_width_px: float
     depth_m: float
     trunk_mask: np.ndarray | None = None
     touches_frame: bool = False
-
-
-_yolo_model = None
-
-
-def _get_yolo():
-    global _yolo_model
-    settings = get_settings()
-    if not settings.yolo_enabled:
-        return None
-    if _yolo_model is not None:
-        return _yolo_model
-    import os
-
-    path = settings.yolo_weights_path
-    if os.path.isfile(path):
-        from ultralytics import YOLO
-
-        _yolo_model = YOLO(path)
-        return _yolo_model
-    return None
-
-
-def segment_trunk_yolo(image_bgr: np.ndarray) -> np.ndarray | None:
-    """Return a binary trunk mask from YOLOv11-seg, or None on failure."""
-    model = _get_yolo()
-    if model is None:
-        return None
-    try:
-        results = model.predict(image_bgr, verbose=False, imgsz=640, conf=0.25)
-    except Exception:
-        return None
-    if not results:
-        return None
-    r = results[0]
-    if r.masks is None or len(r.masks.data) == 0:
-        return None
-    # Pick the largest mask (trunk dominates the frame in guided capture)
-    areas = [int(m.sum()) for m in r.masks.data]
-    best = int(np.argmax(areas))
-    mask = r.masks.data[best].cpu().numpy().astype(np.uint8)
-    if mask.shape[:2] != image_bgr.shape[:2]:
-        mask = cv2.resize(mask, (image_bgr.shape[1], image_bgr.shape[0]))
-    return (mask > 0).astype(np.uint8)
 
 
 def _depth_guided_mask(image_bgr: np.ndarray, depth_map: np.ndarray) -> np.ndarray:
@@ -225,7 +184,10 @@ def _densest_component(mask: np.ndarray) -> tuple[int, np.ndarray]:
 
 
 def _pca_angle(mask: np.ndarray) -> float:
-    """Principal-axis orientation of the trunk mask (degrees from vertical)."""
+    """Signed principal-axis tilt of the trunk mask (degrees from vertical).
+
+    Positive when the trunk leans right going down the image (x grows with y).
+    """
     ys, xs = np.nonzero(mask)
     if xs.size < 10:
         return 0.0
@@ -234,7 +196,9 @@ def _pca_angle(mask: np.ndarray) -> float:
     cov = np.cov((data - mean).T)
     eigvals, eigvecs = np.linalg.eigh(cov)
     major = eigvecs[:, np.argmax(eigvals)]
-    angle = np.degrees(np.arctan2(abs(major[0]), abs(major[1])))
+    if major[1] < 0:
+        major = -major
+    angle = np.degrees(np.arctan2(major[0], major[1]))
     return float(angle)
 
 
@@ -301,21 +265,28 @@ def measure_dbh(
     depth_m: float,
     focal_px: float,
     depth_map: np.ndarray | None = None,
+    mask: np.ndarray | None = None,
 ) -> TrunkMeasurement:
-    """Full hybrid pipeline: image + AR scalar depth -> DBH in cm."""
+    """Full hybrid pipeline: image + bark distance -> DBH in cm.
+
+    ``mask`` is an optional trunk cut-out from an AI segmenter (SAM 2.1); the
+    classical masks are used when it is absent or too small.
+    """
     if image_bgr is None or image_bgr.size == 0:
         raise ValueError("image_bgr is empty")
     if depth_m <= 0 or focal_px <= 0:
         raise ValueError("depth_m and focal_px must be positive")
 
-    mask = segment_trunk_yolo(image_bgr)
-    method = "yolo_opencv_hybrid"
-
+    method = "sam2_opencv"
+    if mask is not None:
+        mask = (mask > 0).astype(np.uint8)
+        _, mask = _densest_component(mask)
     if mask is None or mask.sum() < MIN_COMPONENT_PX:
         method = "opencv_fallback"
         if depth_map is not None and depth_map.shape[:2] == image_bgr.shape[:2]:
             mask = _depth_guided_mask(image_bgr, depth_map)
             _, mask = _densest_component(mask)
+            method = "opencv_depth"
         else:
             mask = _edge_profile_mask(image_bgr)
             method = "opencv_edge_profile"
@@ -333,6 +304,8 @@ def measure_dbh(
     # profile already assumes an upright trunk (and a wide-trunk mask would
     # fool PCA into a 90 degree turn).
     angle = 0.0 if method == "opencv_edge_profile" else _pca_angle(mask)
+    if abs(angle) > MAX_TILT_DEG:
+        angle = 0.0
     upright = _rotate_mask_upright(mask, -angle)
     left, right = _scanline_bounds(upright)
     chord_px = float(right - left)

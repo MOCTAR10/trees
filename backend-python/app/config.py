@@ -23,8 +23,18 @@ class Settings(BaseSettings):
     # Max size per uploaded image (bytes); guards memory before Pl@ntNet upload.
     max_image_bytes: int = 10 * 1024 * 1024
 
-    yolo_weights_path: str = "weights/trunk-seg.pt"
-    yolo_enabled: bool = True
+    # Scanner AI (server-side, CPU). Off by default so tests/CI never download
+    # weights; enable in .env. SAM 2.1 (Apache-2.0) cuts the trunk out, Depth
+    # Anything V2 metric (outdoor) estimates the bark distance when not typed.
+    ai_models_enabled: bool = False
+    sam_model_id: str = "facebook/sam2.1-hiera-tiny"
+    depth_model_id: str = "depth-anything/Depth-Anything-V2-Metric-Outdoor-Small-hf"
+    # Below this much RAM for the API (cgroup limit) the models stay off: the
+    # models + torch + the RAG embedder would otherwise get the API OOM-killed.
+    ai_min_memory_mb: int = 3000
+
+    # Reference-labelled DBH photos (tape/caliper) kept as training data.
+    scan_media_dir: str = ""
 
     embedding_model: str = "intfloat/multilingual-e5-small"
 

@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 
@@ -31,7 +32,7 @@ from app.api import (
     v2,
 )
 from app.core import bootstrap
-from app.services import db, http
+from app.services import ai_models, db, http
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,13 @@ async def lifespan(app: FastAPI):
         await bootstrap.ensure_admin()
     except Exception as exc:  # DB may not be reachable at boot; do not block startup
         logger.warning("Admin bootstrap skipped: %s", exc)
+    warmup = None
+    if ai_models.enabled():
+        # Load the scanner models off the event loop so the first scan is fast.
+        warmup = asyncio.create_task(asyncio.to_thread(ai_models.warmup))
     yield
+    if warmup is not None and not warmup.done():
+        warmup.cancel()
     await http.close_client()
     await db.close_pool()
 

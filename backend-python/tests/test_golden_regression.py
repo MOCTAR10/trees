@@ -128,7 +128,11 @@ def install_v1_fakes(monkeypatch=None) -> list:
     _install(monkeypatch, v1.rag, "query_forestry", fake_forestry_rag, restores)
     _install(monkeypatch, v1.db, "execute", fake_execute, restores)
     _install(
-        monkeypatch, v1, "measure_dbh", lambda img, depth_m, focal_px: _FakeMeasure(), restores
+        monkeypatch,
+        v1,
+        "measure_dbh",
+        lambda img, depth_m, focal_px, **kw: _FakeMeasure(),
+        restores,
     )
     return restores
 

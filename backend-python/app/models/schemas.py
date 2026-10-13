@@ -46,6 +46,9 @@ class V1Report(BaseModel):
     aboveground_biomass_kg: float | None = None
     carbon_stock_kg: float | None = Field(None, description="Carbone vivant AGB+BGB (kg C)")
     co2e_kg: float | None = Field(None, description="Équivalent CO2 du stock (kg)")
+    distance_m: float | None = Field(None, description="Distance écorce-téléphone retenue (m)")
+    distance_source: str | None = Field(None, description="typed | ai")
+    tree_code: str | None = Field(None, description="Arbre du registre lié au scan (QR)")
 
 
 class ResidueChannel(BaseModel):

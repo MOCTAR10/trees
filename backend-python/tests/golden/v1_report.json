@@ -22,5 +22,8 @@
   "height_method": "hd_curve",
   "aboveground_biomass_kg": 2663.4,
   "carbon_stock_kg": 1477.1,
-  "co2e_kg": 5416.1
+  "co2e_kg": 5416.1,
+  "distance_m": 1.3,
+  "distance_source": "typed",
+  "tree_code": null
 }

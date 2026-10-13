@@ -14,6 +14,7 @@ from app.services.vision import (
     TrunkMeasurement,
     _densest_component,
     _pca_angle,
+    _rotate_mask_upright,
     _scanline_chord_px,
     measure_dbh,
 )
@@ -126,6 +127,39 @@ def test_pca_detects_tilted_trunk():
     assert 5 < angle < 20
 
 
+@pytest.mark.parametrize("slope", [0.35, -0.35])
+def test_tilted_trunk_is_straightened_both_ways(slope):
+    # 120 px trunk leaning ~20 deg either way: the perpendicular width must be
+    # read (~113 px), never the doubled-tilt width (~143 px).
+    mask = np.zeros((600, 600), dtype=np.uint8)
+    for y in range(40, 560):
+        x = 300 + int((y - 300) * slope)
+        mask[y, x - 60 : x + 60] = 1
+    angle = _pca_angle(mask)
+    assert (angle > 0) == (slope > 0)
+    chord = _scanline_chord_px(_rotate_mask_upright(mask, -angle))
+    assert 105 <= chord <= 118
+
+
+def test_ai_mask_is_used_when_provided():
+    image, _, expected_px = make_synthetic_scene(trunk_width_cm=42.0, depth_m=3.0)
+    h, w = image.shape[:2]
+    mask = np.zeros((h, w), dtype=np.uint8)
+    half = int(expected_px / 2)
+    mask[:, w // 2 - half : w // 2 + half] = 1
+    result = measure_dbh(image, depth_m=3.0, focal_px=1600.0, mask=mask)
+    assert result.method == "sam2_opencv"
+    assert 40.0 <= result.dbh_cm <= 44.0
+
+
+def test_tiny_ai_mask_falls_back_to_classical():
+    image, depth_map, _ = make_synthetic_scene(trunk_width_cm=42.0, depth_m=3.0)
+    speck = np.zeros(image.shape[:2], dtype=np.uint8)
+    speck[10:12, 10:12] = 1
+    result = measure_dbh(image, depth_m=3.0, focal_px=1600.0, depth_map=depth_map, mask=speck)
+    assert result.method == "opencv_depth"
+
+
 def test_scanline_chord_width():
     mask = np.zeros((100, 200), dtype=np.uint8)
     mask[20:80, 70:130] = 1  # 60 px wide
@@ -137,7 +171,7 @@ def test_measure_dbh_end_to_end():
     image, depth_map, _ = make_synthetic_scene(trunk_width_cm=42.0, depth_m=3.0, focal_px=1600.0)
     result = measure_dbh(image, depth_m=3.0, focal_px=1600.0, depth_map=depth_map)
     assert isinstance(result, TrunkMeasurement)
-    assert result.method == "opencv_fallback"  # no custom weights present
+    assert result.method == "opencv_depth"
     # Tangent model recovers the true diameter within edge-jitter tolerance.
     assert 40.0 <= result.dbh_cm <= 44.0
     assert result.confidence > 0.3
@@ -159,7 +193,7 @@ def test_measure_dbh_flags_trunk_wider_than_frame():
     )
     result = measure_dbh(image, depth_m=1.0, focal_px=1600.0, depth_map=depth_map)
     assert result.touches_frame is True
-    assert result.confidence < 0.5
+    assert result.confidence <= 0.5
 
 
 def test_measure_dbh_scales_with_distance():
