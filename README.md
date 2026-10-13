@@ -74,6 +74,19 @@ Four roles: `operator`, `company`, `cooperative`, `admin`.
 - The admin can also create, deactivate, rename, and reassign users from the
   mobile app (Administration screen).
 
+## Demo dataset
+
+Populate a coherent end-to-end scenario (one `CFAD` → `UFA` -> `AAC`, a
+community forest with a `CCC`, harvest/transport/fiscal activity and a
+certification) so the Ministère dashboard and the anomaly register show real
+data. The tool is idempotent (it re-creates only its own `DEMO` / `GA-DEMO-`
+rows):
+
+```powershell
+docker exec -it forestry_fastapi python -m tools.seed_demo
+# company login: company.demo@forestry.local / Demo12345
+```
+
 Sign in through `POST /api/auth/login` to receive a JWT; send it as
 `Authorization: Bearer <token>` for role-scoped endpoints.
 
