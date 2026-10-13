@@ -30,6 +30,7 @@ import {
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
 import AacAuthorizations from "./AacAuthorizations";
+import TitleConventions from "./TitleConventions";
 import UfaDme from "./UfaDme";
 import Badge, { aacTone, titleTone } from "./Badge";
 
@@ -247,6 +248,7 @@ export default function AdminTitles() {
 
               {expandedTitle === title.id ? (
                 <View style={styles.detail}>
+                  <TitleConventions titleId={title.id} mode="admin" />
                   <View style={styles.sectionRow}>
                     <Text style={styles.section}>{fr.titles.units}</Text>
                     <TouchableOpacity

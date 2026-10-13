@@ -1346,6 +1346,95 @@ export async function notifyStartup(
   return resp.json();
 }
 
+export type ConventionType = "provisoire" | "definitive";
+export type ConventionStatus = "active" | "expiree" | "resiliee";
+
+export interface TitleConvention {
+  id: number;
+  title_id: number;
+  convention_type: ConventionType;
+  reference: string;
+  signed_at: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  surface_ha: number | null;
+  status: ConventionStatus;
+  attestation_ref: string | null;
+  attestation_issued_at: string | null;
+  attestation_issued_by?: number | null;
+  decision_motif?: string | null;
+  created_at: string;
+  title_ref?: string | null;
+  org_name?: string | null;
+}
+
+export async function listConventions(titleId: number): Promise<TitleConvention[]> {
+  const resp = await timedFetch(`${API_BASE}/api/titles/${titleId}/conventions`, {
+    headers: headers(),
+  });
+  if (!resp.ok) throw new Error(`Conventions ${resp.status}`);
+  return resp.json();
+}
+
+export async function createConvention(
+  titleId: number,
+  input: {
+    convention_type: ConventionType;
+    reference: string;
+    signed_at?: string | null;
+    start_date?: string | null;
+    end_date?: string | null;
+    surface_ha?: number | null;
+    motif?: string | null;
+  },
+): Promise<TitleConvention> {
+  const resp = await timedFetch(`${API_BASE}/api/titles/${titleId}/conventions`, {
+    method: "POST",
+    headers: headers(true),
+    body: JSON.stringify(input),
+  });
+  if (!resp.ok) throw new Error(`Convention ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
+export async function decideConvention(
+  titleId: number,
+  conventionId: number,
+  status: ConventionStatus,
+  motif?: string | null,
+): Promise<{
+  id: number;
+  title_id: number;
+  status: ConventionStatus;
+  title_status?: TitleStatus;
+}> {
+  const resp = await timedFetch(`${API_BASE}/api/titles/${titleId}/conventions/${conventionId}`, {
+    method: "PATCH",
+    headers: headers(true),
+    body: JSON.stringify({ status, motif: motif ?? null }),
+  });
+  if (!resp.ok) throw new Error(`Convention ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
+export async function issueAttestation(
+  titleId: number,
+  conventionId: number,
+  reference: string,
+): Promise<{
+  id: number;
+  title_id: number;
+  attestation_ref: string | null;
+  attestation_issued_at: string | null;
+}> {
+  const resp = await timedFetch(
+    `${API_BASE}/api/titles/${titleId}/conventions/${conventionId}/attestation`,
+    { method: "POST", headers: headers(true), body: JSON.stringify({ reference }) },
+  );
+  if (!resp.ok) throw new Error(`Attestation ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
 export type TaxType =
   | "superficie"
   | "abattage"

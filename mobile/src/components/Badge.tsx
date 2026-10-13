@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import type { AacStatus, AuthorizationStatus, CertStatus, DocStatus, TaxStatus, TitleStatus } from "../api/client";
+import type { AacStatus, AuthorizationStatus, CertStatus, ConventionStatus, DocStatus, TaxStatus, TitleStatus } from "../api/client";
 import { colors, spacing, type } from "../theme";
 
 export type Tone = "neutral" | "success" | "warning" | "danger" | "accent";
@@ -66,6 +66,12 @@ export function certTone(status: CertStatus): Tone {
   if (status === "rejete" || status === "expire") return "danger";
   if (status === "suspendu") return "warning";
   return "accent";
+}
+
+export function conventionTone(status: ConventionStatus): Tone {
+  if (status === "active") return "success";
+  if (status === "resiliee") return "danger";
+  return "warning";
 }
 
 const styles = StyleSheet.create({
