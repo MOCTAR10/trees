@@ -38,7 +38,10 @@ const organizations = [
 ];
 
 describe("AdminTitles", () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mocked.listOrphanAccounts.mockResolvedValue([]);
+  });
 
   it("records a title decision", async () => {
     mocked.listTitles.mockResolvedValue([title]);

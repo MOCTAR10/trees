@@ -251,6 +251,17 @@ export const fr = {
     checklistTitle: "Documents requis",
     complete: (ok: number, total: number) => `${ok}/${total} validés`,
     allGood: "Tous les documents requis sont validés.",
+    legacyTitle: "Comptes legacy sans organisation",
+    legacyRole: {
+      company: "Entreprise",
+      cooperative: "Coopérative",
+    } as Record<string, string>,
+    legacyAction: "Rattacher les comptes",
+    legacyRunning: "Rattachement…",
+    legacyDone: (created: number, linked: number) =>
+      `${created} organisation(s) créée(s), ${linked} compte(s) rattaché(s).`,
+    legacyNone: "Tous les comptes sont rattachés à une organisation.",
+    legacyError: "Rattachement impossible.",
   },
 
   docs: {

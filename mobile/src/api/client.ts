@@ -1000,6 +1000,52 @@ export async function listOrganizations(): Promise<Organization[]> {
   return resp.json();
 }
 
+/** A login still acting as its own legal entity (no ``organization_id``). */
+export interface OrphanAccount {
+  id: number;
+  email: string | null;
+  display_name: string;
+  role: "company" | "cooperative";
+  created_at: string;
+}
+
+export interface LegacyOrganization {
+  id: number;
+  org_type: "entreprise" | "cooperative";
+  name: string;
+  legacy_user_id: number;
+}
+
+export interface LinkedAccount {
+  id: number;
+  email: string | null;
+  organization_id: number;
+}
+
+export interface OrgBackfillResult {
+  created: LegacyOrganization[];
+  linked: LinkedAccount[];
+  created_count: number;
+  linked_count: number;
+}
+
+/** Legacy accounts (Slice 13): company/cooperative without an organization. */
+export async function listOrphanAccounts(): Promise<OrphanAccount[]> {
+  const resp = await timedFetch(`${API_BASE}/api/organizations/orphans`, { headers: headers() });
+  if (!resp.ok) throw new Error(`Orphans ${resp.status}`);
+  return resp.json();
+}
+
+/** Create+link one organization per legacy account (idempotent, Ministry). */
+export async function backfillAccounts(): Promise<OrgBackfillResult> {
+  const resp = await timedFetch(`${API_BASE}/api/organizations/backfill`, {
+    method: "POST",
+    headers: headers(),
+  });
+  if (!resp.ok) throw new Error(`Backfill ${resp.status}`);
+  return resp.json();
+}
+
 /** Own organization + required-document checklist (company/operator). */
 export async function myOrganization(): Promise<OrganizationDetail> {
   const resp = await timedFetch(`${API_BASE}/api/organizations/me`, { headers: headers() });
