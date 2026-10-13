@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from app.core.deps import require_roles
-from app.services import db
+from app.services import db, org_backfill
 
 router = APIRouter()
 
@@ -116,6 +116,26 @@ async def create_organization(body: OrganizationIn, admin: dict = Depends(requir
         "checklist": checklist,
         "linked_user": dict(linked) if linked else None,
     }
+
+
+@router.get("/orphans")
+async def orphan_accounts(_admin: dict = Depends(require_roles("admin"))):
+    """Comptes ``company`` / ``cooperative`` actifs encore sans entité légale.
+
+    Legs du temps où le compte *était* l'entité légale (``company_id``
+    auto-référencé) : ils n'ont pas d'``organization_id``.
+    """
+    return await org_backfill.list_orphans()
+
+
+@router.post("/backfill")
+async def backfill_accounts(_admin: dict = Depends(require_roles("admin"))):
+    """Crée une organisation par compte legacy non rattaché, puis le lie.
+
+    Idempotent : rejouable, chaque organisation porte le compte d'origine
+    (``legacy_user_id``). Renvoie les organisations créées et les comptes liés.
+    """
+    return await org_backfill.backfill()
 
 
 async def _insert_checklist(org_id: int, doc_required: list[str]) -> list[dict]:
