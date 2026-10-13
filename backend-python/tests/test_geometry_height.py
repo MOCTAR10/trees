@@ -1,11 +1,46 @@
 import math
 
+import pytest
+
 from app.core.geometry import (
     chord_corrected_diameter_cm,
+    focal_px_from_35mm,
     focal_px_from_hfov,
+    silhouette_px_for_trunk,
+    tangent_diameter_cm,
     width_cm_from_mask,
 )
 from app.core.height_diameter import bole_height_m, estimate_height_m
+
+
+@pytest.mark.parametrize(
+    ("diameter_cm", "depth_m", "focal_px"),
+    [(50.0, 2.0, 1600.0), (120.0, 1.5, 3000.0), (15.0, 4.0, 900.0), (250.0, 3.0, 2800.0)],
+)
+def test_tangent_model_round_trips(diameter_cm, depth_m, focal_px):
+    px = silhouette_px_for_trunk(diameter_cm, depth_m, focal_px)
+    assert math.isclose(tangent_diameter_cm(px, depth_m, focal_px), diameter_cm, rel_tol=1e-9)
+
+
+def test_pinhole_underestimates_where_tangent_is_exact():
+    # 50 cm trunk, bark 2 m away: the flat-chord reading is ~10 % low.
+    px = silhouette_px_for_trunk(50.0, 2.0, 1600.0)
+    chord = chord_corrected_diameter_cm(0.0, 2.0, 1600.0, mask_width_px=px)
+    assert chord < 46.0
+    assert math.isclose(tangent_diameter_cm(px, 2.0, 1600.0), 50.0, rel_tol=1e-9)
+
+
+def test_tangent_rejects_bad_inputs():
+    with pytest.raises(ValueError):
+        tangent_diameter_cm(0, 2.0, 1600.0)
+
+
+def test_focal_from_35mm_equivalent():
+    # 26 mm-eq main camera, 4032x3024 sensor output -> ~3030 px
+    fx = focal_px_from_35mm(26.0, 4032, 3024)
+    assert 2950 < fx < 3100
+    # Orientation-invariant (diagonal-based)
+    assert math.isclose(fx, focal_px_from_35mm(26.0, 3024, 4032))
 
 
 def test_pinhole_width():

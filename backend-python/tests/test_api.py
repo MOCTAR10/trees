@@ -490,8 +490,8 @@ def test_v1_multi_view_uses_best_five(client, monkeypatch):
     assert captured["count"] == 5
     assert "flower" in captured["organs"]
     assert "bark" in captured["organs"]
-    # Multiple bark views are averaged for DBH.
-    assert resp.json()["dbh_method"] == "multi_view_avg"
+    # Multiple bark views are combined (median) for DBH.
+    assert resp.json()["dbh_method"] == "multi_view_median"
     # Per-organ image refs + view metadata persisted as JSON payloads.
     assert '"bark"' in persisted["args"][-2]
     assert '"azimuth"' in persisted["args"][-1]

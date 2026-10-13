@@ -12,5 +12,15 @@
   "soil_type": "clay",
   "canopy_density_fcd": 0.62,
   "narrative_fr": "Cet arbre témoigne de la forêt dense humide du Gabon...",
-  "rag_sources": null
+  "rag_sources": null,
+  "dbh_vision_cm": 62.5,
+  "dbh_uncertainty_cm": null,
+  "dbh_discrepancy_pct": null,
+  "measurement_notes": [
+    "focal_client"
+  ],
+  "height_method": "hd_curve",
+  "aboveground_biomass_kg": 2663.4,
+  "carbon_stock_kg": 1477.1,
+  "co2e_kg": 5416.1
 }

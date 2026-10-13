@@ -32,6 +32,20 @@ class V1Report(BaseModel):
     rag_sources: list[str] | None = Field(
         None, description="Sources du corpus Phase 1 (RAG) ayant appuyé le récit"
     )
+    dbh_vision_cm: float | None = Field(None, description="DBH mesuré par vision (contrôle)")
+    dbh_uncertainty_cm: float | None = Field(
+        None, description="Demi-écart entre vues (cm), si plusieurs vues mesurées"
+    )
+    dbh_discrepancy_pct: float | None = Field(
+        None, description="Écart vision vs référence ruban/compas (%)"
+    )
+    measurement_notes: list[str] = Field(
+        default_factory=list, description="Codes qualité de la mesure (focale, cadrage, …)"
+    )
+    height_method: str | None = Field(None, description="hd_curve | clinometer | manual")
+    aboveground_biomass_kg: float | None = None
+    carbon_stock_kg: float | None = Field(None, description="Carbone vivant AGB+BGB (kg C)")
+    co2e_kg: float | None = Field(None, description="Équivalent CO2 du stock (kg)")
 
 
 class ResidueChannel(BaseModel):

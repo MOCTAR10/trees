@@ -9,9 +9,11 @@ Hybrid pipeline (research-validated):
    depth-histogram mode in the central image third -> keep pixels within
    +/-10% depth -> connected components -> densest oblong cluster ->
    PCA orientation -> rotate upright -> two-pass vertical scanline
-   boundary detection at the breast-height band -> chord width.
-3. **Geometry** — pinhole conversion + circle-chord correction using AR
-   depth and focal length (see ``app.core.geometry``).
+   boundary detection at the breast-height band -> chord width. Without a
+   depth map (the usual smartphone case) the trunk edges come from
+   vertical-edge persistence across the breast-height band.
+3. **Geometry** — exact tangent-silhouette model using the bark distance
+   and the focal length in pixels (see ``app.core.geometry``).
 """
 
 from dataclasses import dataclass
@@ -20,23 +22,38 @@ import cv2
 import numpy as np
 
 from app.config import get_settings
-from app.core.geometry import chord_corrected_diameter_cm
+from app.core.geometry import tangent_diameter_cm
 
 MIN_COMPONENT_PX = 300
 DEPTH_BUCKET_M = 0.03
 DEPTH_WINDOW = 0.10
 SCANLINE_HIGH = 0.6
 SCANLINE_LOW = 0.5
+FRAME_MARGIN_PX = 2
+EDGE_SMOOTH_PX = 5
+EDGE_SNR = 6.0
+EDGE_MIN_GRADIENT = 2.0
+EDGE_CANDIDATES = 25
+EDGE_MIN_WIDTH_PX = 8
+
+#: Silhouette wider than this share of the frame: geometry is ill-conditioned
+#: (a 1 % edge error becomes a >5 % DBH error) — treat as "step back".
+MAX_FRAME_FILL = 0.8
+
+#: DBH range (cm) a vision measurement must fall in to be trusted. Below 5 cm
+#: is a sapling (or a segmentation artefact); Gabonese giants stay < 400 cm.
+PLAUSIBLE_DBH_CM = (5.0, 400.0)
 
 
 @dataclass
 class TrunkMeasurement:
     dbh_cm: float
-    method: str  # yolo_opencv_hybrid | opencv_fallback
+    method: str  # yolo_opencv_hybrid | opencv_edge_profile | opencv_fallback
     confidence: float  # 0..1
     mask_width_px: float
     depth_m: float
     trunk_mask: np.ndarray | None = None
+    touches_frame: bool = False
 
 
 _yolo_model = None
@@ -99,6 +116,54 @@ def _depth_guided_mask(image_bgr: np.ndarray, depth_map: np.ndarray) -> np.ndarr
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    return mask
+
+
+def _edge_profile_mask(image_bgr: np.ndarray) -> np.ndarray:
+    """No depth map: trunk edges from vertical-edge persistence.
+
+    The signed horizontal gradient is averaged over the breast-height band:
+    a trunk edge keeps the same sign row after row (background -> bark on one
+    side, bark -> background on the other), while bark and foliage texture
+    averages out. The two strongest opposite-sign peaks around the image
+    centre (where the capture guide places the trunk) bound the trunk. A side
+    without a credible edge means the trunk runs past the frame there.
+    """
+    h, w = image_bgr.shape[:2]
+    mask = np.zeros((h, w), dtype=np.uint8)
+    gray = cv2.cvtColor(cv2.GaussianBlur(image_bgr, (5, 5), 0), cv2.COLOR_BGR2GRAY)
+    band = gray[int(h * 0.35) : int(h * 0.65)].astype(np.float32)
+    if band.size == 0 or w < 8:
+        return mask
+    profile = cv2.Sobel(band, cv2.CV_32F, 1, 0, ksize=3).mean(axis=0)
+    profile = np.convolve(profile, np.ones(EDGE_SMOOTH_PX) / EDGE_SMOOTH_PX, mode="same")
+    profile[:EDGE_SMOOTH_PX] = 0.0
+    profile[-EDGE_SMOOTH_PX:] = 0.0
+    strength = np.abs(profile)
+    threshold = max(float(np.median(strength)) * EDGE_SNR, EDGE_MIN_GRADIENT)
+    candidates = sorted(
+        int(i) for i in np.argsort(-strength)[: EDGE_CANDIDATES * 2] if strength[i] >= threshold
+    )
+    if not candidates:
+        return mask
+
+    center = w / 2.0
+    best: tuple[float, int, int] | None = None
+    for a, li in enumerate(candidates):
+        for ri in candidates[a + 1 :]:
+            if ri - li < EDGE_MIN_WIDTH_PX or profile[li] * profile[ri] >= 0:
+                continue
+            off_center = abs((li + ri) / 2.0 - center) / center
+            score = float(strength[li] + strength[ri]) * (1.0 - 0.5 * off_center)
+            if best is None or score > best[0]:
+                best = (score, li, ri)
+    if best is not None:
+        left, right = best[1], best[2]
+    else:
+        # A single credible edge: the trunk runs past the frame on its far side.
+        edge = max(candidates, key=lambda i: strength[i])
+        left, right = (edge, w - 1) if edge < center else (0, edge)
+    mask[:, left : right + 1] = 1
     return mask
 
 
@@ -181,11 +246,27 @@ def _rotate_mask_upright(mask: np.ndarray, angle_deg: float) -> np.ndarray:
     return cv2.warpAffine(mask, matrix, (w, h), flags=cv2.INTER_NEAREST)
 
 
+def _touches_side_borders(mask: np.ndarray) -> bool:
+    """True when the trunk reaches a side edge in the breast-height band."""
+    h, _w = mask.shape
+    band = mask[int(h * 0.35) : int(h * 0.65)]
+    if band.size == 0:
+        return False
+    margin = FRAME_MARGIN_PX + 1
+    return bool(band[:, :margin].any() or band[:, -margin:].any())
+
+
 def _scanline_chord_px(mask: np.ndarray) -> float:
     """Two-pass vertical scanline at the mask's vertical midpoint."""
+    left, right = _scanline_bounds(mask)
+    return float(right - left)
+
+
+def _scanline_bounds(mask: np.ndarray) -> tuple[int, int]:
+    """Left/right trunk edges (px) on the breast-height scanline."""
     ys, _ = np.nonzero(mask)
     if ys.size == 0:
-        return 0.0
+        return 0, 0
     y0 = int((ys.min() + ys.max()) / 2)
     row = mask[y0].astype(float)
     if row.sum() == 0:
@@ -197,7 +278,7 @@ def _scanline_chord_px(mask: np.ndarray) -> float:
     if row[center] == 0:
         nonzero = np.nonzero(row)[0]
         if nonzero.size == 0:
-            return 0.0
+            return 0, 0
         center = int(nonzero[np.argmin(np.abs(nonzero - center))])
     # Walk outward: high threshold to enter the trunk, low to stay inside
     left = center
@@ -212,7 +293,7 @@ def _scanline_chord_px(mask: np.ndarray) -> float:
         if window.size and (window.sum() / window.size) < SCANLINE_LOW:
             break
         right += 1
-    return float(right - left)
+    return left, right
 
 
 def measure_dbh(
@@ -234,20 +315,38 @@ def measure_dbh(
         method = "opencv_fallback"
         if depth_map is not None and depth_map.shape[:2] == image_bgr.shape[:2]:
             mask = _depth_guided_mask(image_bgr, depth_map)
+            _, mask = _densest_component(mask)
         else:
-            mask = _color_guided_mask(image_bgr)
-        _, mask = _densest_component(mask)
+            mask = _edge_profile_mask(image_bgr)
+            method = "opencv_edge_profile"
+            if mask.sum() < MIN_COMPONENT_PX:
+                _, mask = _densest_component(_color_guided_mask(image_bgr))
+                method = "opencv_fallback"
         if mask.sum() < MIN_COMPONENT_PX:
             raise RuntimeError("Trunk segmentation failed: no viable component")
 
-    # Orientation normalization, then breast-height band chord
-    angle = _pca_angle(mask)
+    # A trunk clipped by the frame edges has no measurable silhouette; check
+    # before rotation, which would move the clipped edges off the border.
+    clipped = _touches_side_borders(mask)
+
+    # Orientation normalization, then breast-height band chord. The edge
+    # profile already assumes an upright trunk (and a wide-trunk mask would
+    # fool PCA into a 90 degree turn).
+    angle = 0.0 if method == "opencv_edge_profile" else _pca_angle(mask)
     upright = _rotate_mask_upright(mask, -angle)
-    chord_px = _scanline_chord_px(upright)
+    left, right = _scanline_bounds(upright)
+    chord_px = float(right - left)
     if chord_px <= 1:
         raise RuntimeError("Trunk segmentation failed: no scanline chord")
+    width = upright.shape[1]
+    touches_frame = (
+        clipped
+        or left <= FRAME_MARGIN_PX
+        or right >= width - 1 - FRAME_MARGIN_PX
+        or chord_px > MAX_FRAME_FILL * width
+    )
 
-    dbh = chord_corrected_diameter_cm(0.0, depth_m, focal_px, mask_width_px=chord_px)
+    dbh = tangent_diameter_cm(chord_px, depth_m, focal_px)
 
     # Confidence: solidity of the component + small-angle bonus + plausible DBH
     contours, _ = cv2.findContours(upright, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -258,8 +357,10 @@ def measure_dbh(
         if hull_area > 0:
             solidity = float(cv2.contourArea(c) / hull_area)
     angle_factor = max(0.0, 1.0 - abs(angle) / 30.0)
-    size_factor = 1.0 if 2.0 <= dbh <= 300.0 else 0.3
+    size_factor = 1.0 if PLAUSIBLE_DBH_CM[0] <= dbh <= PLAUSIBLE_DBH_CM[1] else 0.3
     confidence = float(min(1.0, 0.45 * solidity + 0.3 * angle_factor + 0.25 * size_factor))
+    if touches_frame:
+        confidence *= 0.5
 
     return TrunkMeasurement(
         dbh_cm=round(dbh, 2),
@@ -268,4 +369,5 @@ def measure_dbh(
         mask_width_px=chord_px,
         depth_m=depth_m,
         trunk_mask=upright,
+        touches_frame=touches_frame,
     )

@@ -208,6 +208,34 @@ def _references_block(items: Any) -> list:
     return flowables
 
 
+DBH_METHOD_LABELS = {
+    "tape_circumference": "Ruban (circonférence ÷ π)",
+    "caliper": "Compas forestier",
+    "yolo_opencv_hybrid": "Vision (YOLO + OpenCV)",
+    "opencv_fallback": "Vision (OpenCV)",
+    "multi_view_median": "Vision (médiane multi-vues)",
+    "unavailable": "Non mesuré",
+}
+
+HEIGHT_METHOD_LABELS = {
+    "clinometer": "Clinomètre (mesurée)",
+    "manual": "Saisie terrain",
+    "hd_curve": "Courbe hauteur-diamètre (estimée)",
+}
+
+MEASUREMENT_NOTE_LABELS = {
+    "focal_client": "Focale fournie par l'appareil",
+    "focal_exif": "Focale lue dans l'EXIF de la photo",
+    "focal_estimated": "Focale estimée (26 mm éq.) — précision réduite",
+    "depth_missing": "Distance au tronc non renseignée — vision non exécutée",
+    "trunk_exceeds_frame": "Tronc plus large que le cadre — reculez",
+    "vision_implausible": "Mesure vision hors plage plausible — écartée",
+    "vision_failed": "Tronc non détecté par la vision",
+    "reference_tape": "Référence ruban à 1,30 m",
+    "reference_caliper": "Référence compas forestier",
+}
+
+
 def render_measurement_pdf(report: dict) -> bytes:
     """Phase 1 report -> branded A4 PDF."""
     species = report.get("species_scientific_name")
@@ -231,11 +259,35 @@ def render_measurement_pdf(report: dict) -> bytes:
         _kv_table(
             [
                 ("Diamètre (DBH)", _fr_num(report.get("measured_dbh_cm"), 1, " cm")),
-                ("Méthode", report.get("dbh_method")),
+                (
+                    "Méthode",
+                    DBH_METHOD_LABELS.get(report.get("dbh_method"), report.get("dbh_method")),
+                ),
                 ("Confiance DBH", _pct(report.get("dbh_confidence"))),
-                ("Hauteur estimée", _fr_num(report.get("estimated_height_m"), 1, " m")),
+                ("DBH vision (contrôle)", _fr_num(report.get("dbh_vision_cm"), 1, " cm")),
+                ("Écart vision / référence", _fr_num(report.get("dbh_discrepancy_pct"), 1, " %")),
+                ("Incertitude multi-vues", _fr_num(report.get("dbh_uncertainty_cm"), 1, " cm")),
+                ("Hauteur", _fr_num(report.get("estimated_height_m"), 1, " m")),
+                (
+                    "Méthode hauteur",
+                    HEIGHT_METHOD_LABELS.get(
+                        report.get("height_method"), report.get("height_method")
+                    ),
+                ),
                 ("Âge estimé", _fr_num(report.get("estimated_age_years"), 1, " ans")),
                 ("Modèle d'âge", report.get("age_model_used")),
+            ]
+        ),
+        Spacer(1, 4 * mm),
+        Paragraph("Stock de carbone vivant", S_H2),
+        _kv_table(
+            [
+                (
+                    "Biomasse aérienne (AGB)",
+                    _fr_num(report.get("aboveground_biomass_kg"), 0, " kg"),
+                ),
+                ("Carbone (AGB + racines)", _fr_num(report.get("carbon_stock_kg"), 0, " kg C")),
+                ("Équivalent CO2", _fr_num(report.get("co2e_kg"), 0, " kg CO2e")),
             ]
         ),
         Spacer(1, 4 * mm),
@@ -254,6 +306,14 @@ def render_measurement_pdf(report: dict) -> bytes:
             Spacer(1, 4 * mm),
             Paragraph("Récit historique et climatique", S_H2),
             Paragraph(_safe(report["narrative_fr"]), S_BODY),
+        ]
+
+    notes = report.get("measurement_notes") or []
+    if notes:
+        story += [Spacer(1, 4 * mm), Paragraph("Qualité de la mesure", S_H2)]
+        story += [
+            Paragraph(_safe(f"• {MEASUREMENT_NOTE_LABELS.get(code, code)}"), S_SMALL)
+            for code in notes
         ]
 
     story += _references_block(report.get("rag_sources"))
@@ -306,7 +366,7 @@ def render_valorization_pdf(payload: dict) -> bytes:
                 ),
                 (
                     "Émissions méthane évitées",
-                    _fr_num(carbon.get("avoided_methane_emissions_co2eq_kg"), 1, " kg CO₂éq"),
+                    _fr_num(carbon.get("avoided_methane_emissions_co2eq_kg"), 1, " kg CO2éq"),
                 ),
             ]
         ),

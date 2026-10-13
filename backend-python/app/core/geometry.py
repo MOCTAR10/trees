@@ -23,9 +23,29 @@ the chord lies in front of the trunk axis. With perpendicular distance
     ≈ l * (1 + l^2 / (16 p^2))                                 [paraxial]
 
 We implement the paraxial approximation with an exactness guard on l < 2p.
+
+Tangent-silhouette model (used for DBH)
+---------------------------------------
+The two trunk edges seen by the camera are *tangent* lines to the circular
+cross-section, not the ends of a flat chord. With ``z`` the distance from
+the camera to the nearest bark surface and ``a`` the angular half-width of
+the silhouette (``tan a = w_px / (2 f_x)``), the centre lies at
+``L = z + r`` and ``r = L sin a``, hence:
+
+    d = 2 r = 2 z sin a / (1 - sin a)
+
+The pinhole/chord estimate is ~10 % low for a 50 cm trunk at 2 m and ~20 %
+low for an 80 cm trunk at 1.5 m; the tangent model is exact for a circular
+section.
 """
 
 import math
+
+#: Diagonal of a 36x24 mm full frame, the reference of 35 mm-equivalent focals.
+FULL_FRAME_DIAGONAL_MM = math.hypot(36.0, 24.0)
+
+#: Typical smartphone main camera (26 mm equivalent) when nothing better is known.
+DEFAULT_FOCAL_35MM = 26.0
 
 
 def width_cm_from_mask(
@@ -62,6 +82,31 @@ def chord_corrected_diameter_cm(
         return chord_cm
     # Paraxial correction
     return chord_cm * (1.0 + chord_cm**2 / (16.0 * p**2))
+
+
+def tangent_diameter_cm(silhouette_px: float, depth_m: float, focal_px: float) -> float:
+    """Exact diameter of a circular trunk from its silhouette width (cm)."""
+    if silhouette_px <= 0 or depth_m <= 0 or focal_px <= 0:
+        raise ValueError("silhouette_px, depth_m and focal_px must be positive")
+    sin_a = math.sin(math.atan(silhouette_px / (2.0 * focal_px)))
+    if sin_a >= 1.0:
+        raise ValueError("degenerate silhouette")
+    return 2.0 * depth_m * 100.0 * sin_a / (1.0 - sin_a)
+
+
+def silhouette_px_for_trunk(diameter_cm: float, depth_m: float, focal_px: float) -> float:
+    """Inverse of :func:`tangent_diameter_cm`: projected width of a trunk (px)."""
+    r = diameter_cm / 200.0
+    sin_a = r / (depth_m + r)
+    return 2.0 * focal_px * math.tan(math.asin(sin_a))
+
+
+def focal_px_from_35mm(focal_35mm: float, image_width_px: float, image_height_px: float) -> float:
+    """Focal length in pixels from a 35 mm-equivalent focal (diagonal-based)."""
+    if focal_35mm <= 0 or image_width_px <= 0 or image_height_px <= 0:
+        raise ValueError("focal_35mm and image size must be positive")
+    diagonal_px = math.hypot(image_width_px, image_height_px)
+    return focal_35mm * diagonal_px / FULL_FRAME_DIAGONAL_MM
 
 
 def focal_px_from_hfov(image_width_px: float, hfov_deg: float) -> float:
