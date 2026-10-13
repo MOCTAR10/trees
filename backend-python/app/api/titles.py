@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 
 from app.api.organizations import require_org
 from app.core.deps import require_roles
-from app.services import db, pdf_report
+from app.services import db, dme, pdf_report
 
 router = APIRouter()
 
@@ -79,6 +79,16 @@ class AuthorizationDecisionIn(BaseModel):
     motif: str | None = None
 
 
+class DmeEntryIn(BaseModel):
+    species_scientific_name: str = Field(..., min_length=1)
+    dme_cm: float = Field(..., gt=0, le=400)
+    source: str | None = None
+
+
+class UfaDmeIn(BaseModel):
+    entries: list[DmeEntryIn] = Field(..., min_length=1, max_length=500)
+
+
 _AUTH_SELECT = (
     "SELECT aa.id, aa.aac_id, aa.authorization_type, aa.reference, aa.issued_by,"
     " aa.issued_at, aa.valid_from, aa.valid_to, aa.startup_notified_at,"
@@ -101,6 +111,19 @@ async def _owner_of_aac(aac_id: int) -> tuple[int, dict] | None:
         " JOIN forest_titles t ON t.id = u.title_id"
         " WHERE a.id = $1",
         aac_id,
+    )
+    if row is None:
+        return None
+    return row["holder_org_id"], dict(row)
+
+
+async def _owner_of_ufa(ufa_id: int) -> tuple[int, dict] | None:
+    row = await db.fetch_one(
+        "SELECT u.id, u.title_id, u.label, u.surface_ha, t.holder_org_id"
+        " FROM management_units u"
+        " JOIN forest_titles t ON t.id = u.title_id"
+        " WHERE u.id = $1",
+        ufa_id,
     )
     if row is None:
         return None
@@ -282,6 +305,57 @@ async def list_aacs(
         if owned is None or owned["holder_org_id"] != org_id:
             raise HTTPException(status_code=403, detail="UFA d'une autre organisation")
     return out
+
+
+def _dme_payload(ufa: dict, entries: list[dict]) -> dict:
+    return {
+        "ufa_id": ufa["id"],
+        "title_id": ufa["title_id"],
+        "label": ufa["label"],
+        "entries": entries,
+    }
+
+
+@router.get("/units/{ufa_id}/dme")
+async def list_ufa_dme(
+    ufa_id: int,
+    user: dict = Depends(require_roles("company", "admin")),
+):
+    """Effective DME matrix for a UFA: official entries + provisional defaults."""
+    owner = await _owner_of_ufa(ufa_id)
+    if owner is None:
+        raise HTTPException(status_code=404, detail="UFA introuvable")
+    if user["role"] == "company" and owner[0] != require_org(user):
+        raise HTTPException(status_code=403, detail="UFA d'une autre organisation")
+    return _dme_payload(owner[1], await dme.effective_for_ufa(ufa_id))
+
+
+@router.put("/units/{ufa_id}/dme")
+async def set_ufa_dme(
+    ufa_id: int,
+    body: UfaDmeIn,
+    admin: dict = Depends(require_roles("admin")),
+):
+    """Fix the official DME for one or several species of a UFA (art. 124)."""
+    owner = await _owner_of_ufa(ufa_id)
+    if owner is None:
+        raise HTTPException(status_code=404, detail="UFA introuvable")
+    await dme.upsert(ufa_id, [entry.model_dump() for entry in body.entries], admin["id"])
+    return _dme_payload(owner[1], await dme.effective_for_ufa(ufa_id))
+
+
+@router.delete("/units/{ufa_id}/dme/{species}")
+async def clear_ufa_dme(
+    ufa_id: int,
+    species: str,
+    admin: dict = Depends(require_roles("admin")),
+):
+    """Drop a UFA-specific DME so the provisional default applies again."""
+    owner = await _owner_of_ufa(ufa_id)
+    if owner is None:
+        raise HTTPException(status_code=404, detail="UFA introuvable")
+    await dme.remove_override(ufa_id, species)
+    return _dme_payload(owner[1], await dme.effective_for_ufa(ufa_id))
 
 
 @router.patch("/aacs/{aac_id}")

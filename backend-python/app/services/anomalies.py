@@ -49,6 +49,7 @@ REVIEW_STATUSES = ("ouverte", "traitee", "ecartee")
 
 _LINES_WITH = """
 SELECT l.tree_code, l.species_scientific_name, l.measured_dbh_cm, l.dme_cm,
+       l.dme_source,
        d.id AS declaration_id, d.permit_number, d.title_id, d.aac_id,
        d.company_id AS org_id, d.created_at,
        ft.reference AS title_ref, a.label AS aac_label
@@ -111,6 +112,8 @@ async def _violation_lines(code: str, anomaly_type: str) -> list[dict]:
     for r in rows:
         if anomaly_type == "below_dme":
             detail = f"DBH {r['measured_dbh_cm']} cm < DME {r['dme_cm']} cm"
+            if r.get("dme_source"):
+                detail += f" ({r['dme_source']})"
         else:
             detail = "Position déclarée hors de l'assiette de coupe"
         items.append(

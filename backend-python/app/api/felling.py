@@ -17,7 +17,7 @@ from app.core.deps import require_roles
 from app.core.dme import dme_for
 from app.core.reserved_species import reserved_species_for
 from app.core.species_data import resolve_species
-from app.services import compliance, db
+from app.services import compliance, db, dme
 
 router = APIRouter()
 
@@ -82,24 +82,34 @@ def _company_id(user: dict) -> int | None:
 
 
 async def _check_line(
-    line: DeclarationLineIn, *, outside_aac: bool = False
-) -> tuple[float | None, list[str]]:
+    line: DeclarationLineIn,
+    *,
+    outside_aac: bool = False,
+    ufa_dme: dict[str, dict] | None = None,
+) -> tuple[float | None, str | None, list[str]]:
     """Auto-compliance checks for one declared stem (Loi 016/01 Art. 124).
 
-    ``outside_aac`` is resolved by the caller against the declaration's AAC
-    geometry (spatial check needs DB access batched once per request).
+    The DME floor is resolved against the declaration's UFA when one is known
+    (``ufa_dme`` maps scientific names to ``{dme_cm, source}``); otherwise the
+    provisional default applies. ``outside_aac`` is resolved by the caller
+    against the declaration's AAC geometry (spatial check batched per request).
     """
     violations: list[str] = []
-    dme, _source = dme_for(line.species_scientific_name)
+    dme_cm, source = dme_for(line.species_scientific_name)
+    profile = resolve_species(line.species_scientific_name)
+    if ufa_dme is not None and profile is not None:
+        override = ufa_dme.get(profile.scientific_name)
+        if override is not None:
+            dme_cm = float(override["dme_cm"])
+            source = override.get("source") or source
     if line.species_scientific_name and line.measured_dbh_cm is None:
         violations.append("no_measurement")
-    if dme is not None and line.measured_dbh_cm is not None and line.measured_dbh_cm < dme:
+    if dme_cm is not None and line.measured_dbh_cm is not None and line.measured_dbh_cm < dme_cm:
         violations.append("below_dme")
     if reserved_species_for(line.species_scientific_name) is not None:
         violations.append("reserved_species")
     if outside_aac:
         violations.append("outside_aac")
-    profile = resolve_species(line.species_scientific_name)
     if profile is not None and profile.cites_appendix:
         violations.append("cites_listed")
     existing = await db.fetch_one(
@@ -107,7 +117,7 @@ async def _check_line(
     )
     if existing is not None:
         violations.append("duplicate_code")
-    return dme, violations
+    return dme_cm, source, violations
 
 
 @router.post("/declarations")
@@ -122,14 +132,20 @@ async def declare(
         if line.longitude is not None and line.latitude is not None
     ]
     outside_codes = await compliance.lines_outside_aac(body.aac_id, points)
+    ufa_dme = await dme.map_for_ufa(await dme.ufa_of_aac(body.aac_id))
     checked: list[dict] = []
     blockers: list[dict] = []
     for line in body.lines:
-        dme, violations = await _check_line(
-            line, outside_aac=line.tree_code.strip() in outside_codes
+        dme_cm, dme_source, violations = await _check_line(
+            line, outside_aac=line.tree_code.strip() in outside_codes, ufa_dme=ufa_dme
         )
         checked.append(
-            {"tree_code": line.tree_code.strip(), "dme_cm": dme, "violations": violations}
+            {
+                "tree_code": line.tree_code.strip(),
+                "dme_cm": dme_cm,
+                "dme_source": dme_source,
+                "violations": violations,
+            }
         )
         hard = [v for v in violations if v in compliance.HARD_LINE_VIOLATIONS]
         blockers.extend({"tree_code": line.tree_code.strip(), "code": code} for code in hard)
@@ -164,8 +180,8 @@ async def declare(
             """
             INSERT INTO declaration_lines
                 (declaration_id, tree_code, marking_type, species_scientific_name,
-                 measured_dbh_cm, latitude, longitude, dme_cm, violations)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb)
+                 measured_dbh_cm, latitude, longitude, dme_cm, violations, dme_source)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10)
             """,
             row["id"],
             line.tree_code.strip(),
@@ -176,6 +192,7 @@ async def declare(
             line.longitude,
             item["dme_cm"],
             json.dumps(item["violations"]),
+            item["dme_source"],
         )
         await db.execute(
             """

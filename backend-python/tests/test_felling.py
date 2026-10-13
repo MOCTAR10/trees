@@ -92,6 +92,9 @@ def _seed():
         },
         "events": [],
         "outside_aac": [],
+        "aac_ufa": {},
+        "aac_status": {},
+        "ufa_dme": [],
     }
     return users, state
 
@@ -148,10 +151,17 @@ def _install_fake_db(monkeypatch, users, state):
             }
             state["events"].append(event)
             return dict(event)
+        if "select ufa_id from annual_cut_blocks" in s:
+            ufa_id = state["aac_ufa"].get(args[0])
+            return {"ufa_id": ufa_id} if ufa_id is not None else None
+        if "select status from annual_cut_blocks" in s:
+            return {"status": state["aac_status"].get(args[0])}
         return None
 
     async def fetch_all(sql, *args):
         s = " ".join(sql.split()).lower()
+        if "from ufa_dme" in s:
+            return [dict(r) for r in state["ufa_dme"] if r["ufa_id"] == args[0]]
         if "from annual_cut_blocks" in s and "unnest" in s:
             return [{"tree_code": code} for code in state.get("outside_aac", [])]
         if "from felling_declarations d" in s:
@@ -226,6 +236,7 @@ def _install_fake_db(monkeypatch, users, state):
                     "longitude": args[6],
                     "dme_cm": args[7],
                     "violations": json.loads(args[8]),
+                    "dme_source": args[9] if len(args) > 9 else None,
                 }
             )
             return "INSERT 1"
@@ -611,3 +622,66 @@ def test_company_scoping_and_anomalies(client, monkeypatch):
     ).json()
     assert [r["tree_code"] for r in anomalies["below_dme_authorized"]] == ["GA-DME-OLD"]
     assert [r["tree_code"] for r in anomalies["felled_without_authorization"]] == ["GA-WILD"]
+
+
+def test_declaration_uses_ufa_dme(client, monkeypatch):
+    """The DME floor follows the AAC's UFA arrêté, not the provisional default."""
+    users, state = _setup(monkeypatch)
+    token = _token(users[2])
+    state["aac_ufa"][7] = 60
+    state["aac_status"][7] = "ouvert"
+    state["ufa_dme"].append(
+        {
+            "ufa_id": 60,
+            "species_scientific_name": "Aucoumea klaineana",
+            "dme_cm": 90.0,
+            "source": "Arrêté 0001/MEF — UFA-3",
+        }
+    )
+    payload = _declare_payload()
+    payload["aac_id"] = 7
+    payload["lines"] = [
+        {
+            "tree_code": "GA-2026-UFA",
+            "marking_type": "qr",
+            "species_scientific_name": "Aucoumea klaineana",
+            "measured_dbh_cm": 80.0,  # ≥ provisional 70 but < UFA 90
+            "latitude": 0.4162,
+            "longitude": 9.4541,
+        }
+    ]
+    blocked = client.post(
+        "/api/felling/declarations",
+        json=payload,
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert blocked.status_code == 422
+    assert any(b["code"] == "below_dme" for b in blocked.json()["detail"]["blockers"])
+
+    payload["lines"][0]["measured_dbh_cm"] = 95.0
+    ok = client.post(
+        "/api/felling/declarations",
+        json=payload,
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert ok.status_code == 200
+    checked = ok.json()["lines_checked"][0]
+    assert checked["dme_cm"] == 90.0
+    line = state["lines"][-1]
+    assert line["dme_cm"] == 90.0
+    assert line["dme_source"] == "Arrêté 0001/MEF — UFA-3"
+
+
+def test_declaration_without_ufa_override_uses_provisional(client, monkeypatch):
+    users, _state = _setup(monkeypatch)
+    token = _token(users[2])
+    payload = _declare_payload()
+    payload["aac_id"] = 7
+    resp = client.post(
+        "/api/felling/declarations",
+        json=payload,
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 200
+    checked = {c["tree_code"]: c for c in resp.json()["lines_checked"]}
+    assert checked["GA-2026-0001"]["dme_cm"] == 70.0
