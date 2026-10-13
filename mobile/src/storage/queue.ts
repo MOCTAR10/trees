@@ -6,6 +6,7 @@ import {
   CaptureShot,
   processScanV1,
   processScanV2,
+  TreeMeasurements,
   V1Report,
   V2Response,
 } from "../api/client";
@@ -17,7 +18,9 @@ export interface QueuedV1Scan {
   created_at: string;
   latitude: number;
   longitude: number;
-  ar_depth_m: number;
+  ar_depth_m?: number;
+  /** Field measurements (tape, caliper, height…) captured with the scan. */
+  measurements?: TreeMeasurements;
   shots?: CaptureShot[];
   /** @deprecated legacy single-view shape, upgraded on flush. */
   images?: { trunk: CapturedImage; leaf: CapturedImage; habitat: CapturedImage };
@@ -127,10 +130,11 @@ export async function flushQueue(
     try {
       if (item.kind === "v1") {
         const report = await processScanV1({
+          arDepthM: item.ar_depth_m,
+          ...item.measurements,
           shots: toShots(item),
           latitude: item.latitude,
           longitude: item.longitude,
-          arDepthM: item.ar_depth_m,
         });
         await handlers.onV1Success(item, report);
       } else {

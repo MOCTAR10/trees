@@ -347,6 +347,12 @@ export default function App() {
             latitude: capture.latitude,
             longitude: capture.longitude,
             ar_depth_m: capture.arDepthM,
+            measurements: {
+              circumferenceCm: capture.circumferenceCm,
+              caliperDbhCm: capture.caliperDbhCm,
+              measuredHeightM: capture.measuredHeightM,
+              heightSource: capture.heightSource,
+            },
             shots,
           });
           refreshQueue();

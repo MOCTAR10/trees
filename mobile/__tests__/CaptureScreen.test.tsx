@@ -9,7 +9,10 @@ jest.mock("expo-camera", () => {
     CameraView: ReactLib.forwardRef((props: any, ref: any) => {
       const [ready, setReady] = ReactLib.useState(false);
       ReactLib.useImperativeHandle(ref, () => ({
-        takePictureAsync: async () => ({ uri: "file:///photo.jpg" }),
+        takePictureAsync: async () => ({
+          uri: "file:///photo.jpg",
+          exif: { FocalLenIn35mmFilm: 26 },
+        }),
       }));
       ReactLib.useEffect(() => {
         setReady(true);
@@ -76,18 +79,79 @@ describe("CaptureScreen", () => {
       }
     }
 
+    // Photo mode needs the bark distance before the analysis can start.
+    fireEvent.press(getByTestId("analyze-button"));
+    await flush();
+    expect(onCaptured).not.toHaveBeenCalled();
+    expect(getByText("Distance tronc-téléphone requise")).toBeTruthy();
+
+    fireEvent.changeText(getByTestId("depth-input"), "2,1");
     fireEvent.press(getByTestId("analyze-button"));
     await flush();
 
     expect(onCaptured).toHaveBeenCalledTimes(1);
     const result = onCaptured.mock.calls[0][0];
     expect(result.latitude).toBeCloseTo(0.4162);
-    expect(result.arDepthM).toBeCloseTo(1.3);
+    expect(result.arDepthM).toBeCloseTo(2.1);
+    expect(result.circumferenceCm).toBeUndefined();
     expect(result.shots.map((s: { organ: string }) => s.organ)).toEqual([
       "bark",
       "leaf",
       "whole",
     ]);
+    expect(result.shots[0].focal35mm).toBe(26);
+  });
+
+  it("submits a tape circumference and a measured height without a distance", async () => {
+    const onCaptured = jest.fn();
+    const { getByTestId, getByText } = render(
+      <CaptureScreen onCaptured={onCaptured} onBack={jest.fn()} />,
+    );
+    await waitFor(() => expect(getByText(/Position capturée/)).toBeTruthy());
+    fireEvent.press(getByTestId("mode-quick"));
+    await flush();
+    for (let i = 0; i < 3; i += 1) {
+      fireEvent.press(getByTestId("capture-button"));
+      await flush();
+      if (i < 2) {
+        fireEvent.press(getByTestId("next-button"));
+        await flush();
+      }
+    }
+
+    fireEvent.press(getByTestId("measure-tape"));
+    fireEvent.press(getByTestId("analyze-button"));
+    await flush();
+    expect(onCaptured).not.toHaveBeenCalled();
+
+    fireEvent.changeText(getByTestId("reference-input"), "196");
+    fireEvent.changeText(getByTestId("height-input"), "31.5");
+    fireEvent.press(getByTestId("analyze-button"));
+    await flush();
+
+    const result = onCaptured.mock.calls[0][0];
+    expect(result.circumferenceCm).toBe(196);
+    expect(result.caliperDbhCm).toBeUndefined();
+    expect(result.arDepthM).toBeUndefined();
+    expect(result.measuredHeightM).toBeCloseTo(31.5);
+    expect(result.heightSource).toBe("manual");
+  });
+
+  it("shows the breast-height guide on the DBH step", async () => {
+    const { getByTestId, queryByTestId, getByText } = render(
+      <CaptureScreen onCaptured={jest.fn()} onBack={jest.fn()} />,
+    );
+    await waitFor(() => expect(getByText(/Position capturée/)).toBeTruthy());
+    fireEvent.press(getByTestId("mode-quick"));
+    await flush();
+    expect(queryByTestId("dbh-guide")).toBeNull();
+    for (let i = 0; i < 3; i += 1) {
+      fireEvent.press(getByTestId("capture-button"));
+      await flush();
+      fireEvent.press(getByTestId("next-button"));
+      await flush();
+    }
+    expect(getByTestId("dbh-guide")).toBeTruthy();
   });
 
   it("keeps the torch off by default and toggles on press", async () => {
@@ -148,6 +212,7 @@ describe("CaptureScreen", () => {
     }
 
     expect(getByText("Importée")).toBeTruthy();
+    fireEvent.changeText(getByTestId("depth-input"), "2");
     fireEvent.press(getByTestId("analyze-button"));
     await flush();
 

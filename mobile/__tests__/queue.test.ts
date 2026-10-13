@@ -97,6 +97,32 @@ describe("queue flush", () => {
     expect(arg.shots).toHaveLength(2);
     expect(arg.shots[1]).toMatchObject({ organ: "bark", azimuth: 90 });
   });
+
+  it("replays the field measurements captured offline", async () => {
+    await enqueue({
+      kind: "v1",
+      id: "c",
+      scan_id: "c",
+      created_at: "t",
+      latitude: 1,
+      longitude: 2,
+      measurements: { circumferenceCm: 196, measuredHeightM: 30, heightSource: "manual" },
+      shots: [{ image: { uri: "d", name: "d.jpg", type: "image/jpeg" }, organ: "dbh" }],
+    });
+    (client.processScanV1 as jest.Mock).mockResolvedValue({});
+
+    await flushQueue(handlers);
+
+    const arg = (client.processScanV1 as jest.Mock).mock.calls[0][0];
+    expect(arg).toMatchObject({
+      circumferenceCm: 196,
+      measuredHeightM: 30,
+      heightSource: "manual",
+      latitude: 1,
+      longitude: 2,
+    });
+    expect(arg.arDepthM).toBeUndefined();
+  });
 });
 
 describe("isNetworkError", () => {

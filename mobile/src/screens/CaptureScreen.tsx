@@ -25,7 +25,7 @@ import {
   View,
 } from "react-native";
 
-import { CapturedImage, CaptureShot, Organ } from "../api/client";
+import { CapturedImage, CaptureShot, Organ, TreeMeasurements } from "../api/client";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
 
@@ -35,6 +35,24 @@ const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const GPS_TIMEOUT_MS = 20000;
 
 type Mode = "full" | "quick";
+type MeasureMode = "photo" | "tape" | "caliper";
+
+const MEASURE_MODES: { key: MeasureMode; label: string }[] = [
+  { key: "photo", label: t.modePhoto },
+  { key: "tape", label: t.modeTape },
+  { key: "caliper", label: t.modeCaliper },
+];
+
+function parseNum(text: string): number {
+  return parseFloat(text.replace(",", "."));
+}
+
+/** 35 mm-equivalent focal from EXIF (iOS and Android spell it the same). */
+export function exifFocal35mm(exif: Record<string, unknown> | null | undefined): number | undefined {
+  const raw = exif?.FocalLenIn35mmFilm ?? exif?.FocalLengthIn35mmFilm;
+  const value = typeof raw === "string" ? parseFloat(raw) : (raw as number | undefined);
+  return typeof value === "number" && value > 0 ? value : undefined;
+}
 
 interface CaptureStep {
   key: string;
@@ -48,6 +66,7 @@ interface CaptureStep {
 interface StepShot {
   image: CapturedImage;
   imported: boolean;
+  focal35mm?: number;
 }
 
 const FULL_STEPS: CaptureStep[] = [
@@ -55,6 +74,7 @@ const FULL_STEPS: CaptureStep[] = [
   { key: "whole-90", organ: "whole", azimuth: 90, title: t.orbitRight, hint: t.orbitHint, required: false },
   { key: "whole-180", organ: "whole", azimuth: 180, title: t.orbitBack, hint: t.orbitHint, required: false },
   { key: "whole-270", organ: "whole", azimuth: 270, title: t.orbitLeft, hint: t.orbitHint, required: false },
+  { key: "dbh", organ: "dbh", title: t.dbhShot, hint: t.dbhShotHint, required: false },
   { key: "bark", organ: "bark", title: t.trunk, hint: t.trunkHint, required: true },
   { key: "bark-2", organ: "bark", title: t.barkAngle2, hint: t.trunkHint, required: false },
   { key: "leaf-top", organ: "leaf", title: t.leafTop, hint: t.leafHint, required: true },
@@ -67,13 +87,13 @@ const QUICK_STEPS: CaptureStep[] = [
   { key: "trunk", organ: "bark", title: t.trunk, hint: t.trunkHint, required: true },
   { key: "leaf", organ: "leaf", title: t.leaf, hint: t.leafHint, required: true },
   { key: "habitat", organ: "whole", title: t.habitat, hint: t.habitatHint, required: true },
+  { key: "dbh", organ: "dbh", title: t.dbhShot, hint: t.dbhShotHint, required: false },
 ];
 
-export interface CaptureResult {
+export interface CaptureResult extends TreeMeasurements {
   shots: CaptureShot[];
   latitude: number;
   longitude: number;
-  arDepthM: number;
 }
 
 interface Props {
@@ -96,7 +116,10 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
   const [previews, setPreviews] = useState<Record<string, StepShot>>({});
   const [position, setPosition] = useState<{ lat: number; lon: number } | null>(null);
   const [gpsStatus, setGpsStatus] = useState<"waiting" | "ok" | "error">("waiting");
-  const [depthText, setDepthText] = useState("1.30");
+  const [depthText, setDepthText] = useState("");
+  const [measureMode, setMeasureMode] = useState<MeasureMode>("photo");
+  const [refText, setRefText] = useState("");
+  const [heightText, setHeightText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [taking, setTaking] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -157,13 +180,18 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
   const requiredDone = steps.filter((s) => s.required && previews[s.key]).length;
   const allRequired = requiredDone === requiredTotal;
   const shotsTaken = Object.keys(previews).length > 0;
-  const depth = parseFloat(depthText.replace(",", "."));
+  const depth = parseNum(depthText);
+  const reference = parseNum(refText);
+  const height = parseNum(heightText);
+  const measureReady = measureMode === "photo" ? depth > 0 : reference > 0;
   const blockReason = !allRequired
     ? t.requiredMissing
     : !position
       ? t.needGps
-      : !(depth > 0)
-        ? t.needDepth
+      : !measureReady
+        ? measureMode === "photo"
+          ? t.needDepth
+          : t.needMeasure
         : null;
 
   const goBack = useCallback(() => {
@@ -201,7 +229,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
     if (!cameraRef.current || taking) return;
     setTaking(true);
     try {
-      const photo = await cameraRef.current.takePictureAsync({ quality: 0.8 });
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.8, exif: true });
       if (!photo) return;
       const key = step.key;
       setPreviews((prev) => ({
@@ -209,6 +237,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
         [key]: {
           image: { uri: photo.uri, name: `${key}.jpg`, type: "image/jpeg" },
           imported: false,
+          focal35mm: exifFocal35mm(photo.exif as Record<string, unknown> | undefined),
         },
       }));
     } finally {
@@ -229,7 +258,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: false,
         quality: 0.8,
-        exif: false,
+        exif: true,
       });
       if (res.canceled || !res.assets?.length) return;
       const asset = res.assets[0];
@@ -252,6 +281,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
             type: asset.mimeType ?? "image/jpeg",
           },
           imported: true,
+          focal35mm: exifFocal35mm(asset.exif as Record<string, unknown> | null | undefined),
         },
       }));
     } finally {
@@ -276,15 +306,31 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
         image: previews[s.key].image,
         organ: s.organ,
         azimuth: s.azimuth,
+        focal35mm: previews[s.key].focal35mm,
       }));
     setSubmitting(true);
     onCaptured({
       shots,
       latitude: position.lat,
       longitude: position.lon,
-      arDepthM: depth,
+      arDepthM: depth > 0 ? depth : undefined,
+      circumferenceCm: measureMode === "tape" ? reference : undefined,
+      caliperDbhCm: measureMode === "caliper" ? reference : undefined,
+      measuredHeightM: height > 0 ? height : undefined,
+      heightSource: height > 0 ? "manual" : undefined,
     });
-  }, [blockReason, position, submitting, steps, previews, depth, onCaptured]);
+  }, [
+    blockReason,
+    position,
+    submitting,
+    steps,
+    previews,
+    depth,
+    measureMode,
+    reference,
+    height,
+    onCaptured,
+  ]);
 
   if (!permission) {
     return (
@@ -367,6 +413,13 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
             />
           )}
 
+          {step.organ === "dbh" && !shot ? (
+            <View style={styles.guide} pointerEvents="none" testID="dbh-guide">
+              <View style={styles.guideLine} />
+              <Text style={styles.guideText}>{t.dbhGuide}</Text>
+            </View>
+          ) : null}
+
           <View style={styles.modeFloat}>
             <TouchableOpacity
               testID="mode-full"
@@ -445,16 +498,67 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
             ) : null}
           </View>
 
+          <View style={styles.depthRow} accessibilityLabel={t.measureMode}>
+            {MEASURE_MODES.map((m) => (
+              <TouchableOpacity
+                key={m.key}
+                testID={`measure-${m.key}`}
+                style={[styles.measurePill, measureMode === m.key && styles.measurePillOn]}
+                onPress={() => setMeasureMode(m.key)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: measureMode === m.key }}
+              >
+                <Text
+                  style={[styles.measurePillText, measureMode === m.key && styles.measurePillTextOn]}
+                >
+                  {m.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
           <View style={styles.depthRow}>
             <Text style={styles.depthLabel} numberOfLines={1}>
-              {t.depthLabel}
+              {measureMode === "photo"
+                ? t.depthLabel
+                : measureMode === "tape"
+                  ? t.tapeLabel
+                  : t.caliperLabel}
+            </Text>
+            {measureMode === "photo" ? (
+              <TextInput
+                testID="depth-input"
+                style={styles.input}
+                value={depthText}
+                onChangeText={setDepthText}
+                keyboardType="numeric"
+                placeholder="2.0"
+                placeholderTextColor={colors.textDim}
+              />
+            ) : (
+              <TextInput
+                testID="reference-input"
+                style={styles.input}
+                value={refText}
+                onChangeText={setRefText}
+                keyboardType="numeric"
+                placeholder={measureMode === "tape" ? "190" : "60"}
+                placeholderTextColor={colors.textDim}
+              />
+            )}
+          </View>
+
+          <View style={styles.depthRow}>
+            <Text style={styles.depthLabel} numberOfLines={1}>
+              {t.heightLabel}
             </Text>
             <TextInput
+              testID="height-input"
               style={styles.input}
-              value={depthText}
-              onChangeText={setDepthText}
+              value={heightText}
+              onChangeText={setHeightText}
               keyboardType="numeric"
-              placeholder="1.30"
+              placeholder="—"
               placeholderTextColor={colors.textDim}
             />
           </View>
@@ -654,6 +758,41 @@ const styles = StyleSheet.create({
   },
   retryText: { color: colors.accent, fontSize: type.caption, fontWeight: "700" },
   depthRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  measurePill: {
+    flex: 1,
+    paddingVertical: spacing.xs,
+    borderRadius: 8,
+    alignItems: "center",
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  measurePillOn: { backgroundColor: colors.accent, borderColor: colors.accent },
+  measurePillText: { color: colors.text, fontSize: type.caption, fontWeight: "700" },
+  measurePillTextOn: { color: colors.primary },
+  guide: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: "50%",
+    alignItems: "center",
+  },
+  guideLine: {
+    alignSelf: "stretch",
+    height: 2,
+    backgroundColor: colors.accent,
+    opacity: 0.9,
+  },
+  guideText: {
+    marginTop: spacing.xs,
+    color: "#FFFFFF",
+    fontSize: type.caption,
+    fontWeight: "700",
+    backgroundColor: "rgba(0,0,0,0.55)",
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
   depthLabel: { color: colors.textDim, fontSize: type.caption, flex: 1 },
   input: {
     width: 110,

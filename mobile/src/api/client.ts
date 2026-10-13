@@ -127,6 +127,14 @@ export interface V1Report {
   canopy_density_fcd: number | null;
   narrative_fr: string | null;
   rag_sources?: string[] | null;
+  dbh_vision_cm?: number | null;
+  dbh_uncertainty_cm?: number | null;
+  dbh_discrepancy_pct?: number | null;
+  measurement_notes?: string[];
+  height_method?: string | null;
+  aboveground_biomass_kg?: number | null;
+  carbon_stock_kg?: number | null;
+  co2e_kg?: number | null;
 }
 
 export interface ResidueChannel {
@@ -195,13 +203,15 @@ export interface CapturedImage {
   type: string;
 }
 
-export type Organ = "bark" | "leaf" | "flower" | "fruit" | "whole";
+export type Organ = "bark" | "leaf" | "flower" | "fruit" | "whole" | "dbh";
 
 export interface CaptureShot {
   image: CapturedImage;
   organ: Organ;
   /** Orbit azimuth in degrees (0/90/180/270); omitted for organ close-ups. */
   azimuth?: number;
+  /** 35 mm-equivalent focal length read from the photo EXIF. */
+  focal35mm?: number;
 }
 
 const ORGAN_WIRE: Record<Organ, string> = {
@@ -210,15 +220,37 @@ const ORGAN_WIRE: Record<Organ, string> = {
   flower: "flower",
   fruit: "fruit",
   whole: "whole",
+  dbh: "dbh",
 };
 
-export async function processScanV1(params: {
-  shots: CaptureShot[];
-  latitude: number;
-  longitude: number;
-  arDepthM: number;
+export type HeightSource = "clinometer" | "manual";
+
+export interface TreeMeasurements {
+  /** Distance from the phone to the bark at 1.30 m (m) — enables photo DBH. */
+  arDepthM?: number;
   focalPx?: number;
-}): Promise<V1Report> {
+  focal35mm?: number;
+  /** Tape circumference at 1.30 m (cm) — the field reference. */
+  circumferenceCm?: number;
+  /** Forest caliper diameter at 1.30 m (cm). */
+  caliperDbhCm?: number;
+  measuredHeightM?: number;
+  heightSource?: HeightSource;
+}
+
+/** Focal length shared by the scan: the DBH shot first, else any shot. */
+export function scanFocal35mm(shots: CaptureShot[]): number | undefined {
+  const dbh = shots.find((s) => s.organ === "dbh" && s.focal35mm);
+  return (dbh ?? shots.find((s) => s.focal35mm))?.focal35mm;
+}
+
+export async function processScanV1(
+  params: {
+    shots: CaptureShot[];
+    latitude: number;
+    longitude: number;
+  } & TreeMeasurements,
+): Promise<V1Report> {
   const form = new FormData();
   params.shots.forEach((shot) => {
     // Expo SDK 54+ installs its WinterCG fetch as the global `fetch`, and its
@@ -231,8 +263,20 @@ export async function processScanV1(params: {
   });
   form.append("latitude", String(params.latitude));
   form.append("longitude", String(params.longitude));
-  form.append("ar_depth_m", String(params.arDepthM));
-  if (params.focalPx) form.append("focal_px", String(params.focalPx));
+  const optional: Array<[string, number | string | undefined]> = [
+    ["ar_depth_m", params.arDepthM],
+    ["focal_px", params.focalPx],
+    ["focal_35mm", params.focal35mm ?? scanFocal35mm(params.shots)],
+    ["circumference_cm", params.circumferenceCm],
+    ["caliper_dbh_cm", params.caliperDbhCm],
+    ["measured_height_m", params.measuredHeightM],
+    ["height_source", params.measuredHeightM ? params.heightSource : undefined],
+  ];
+  optional.forEach(([key, value]) => {
+    if (value !== undefined && value !== "" && !(typeof value === "number" && !(value > 0))) {
+      form.append(key, String(value));
+    }
+  });
 
   const resp = await timedFetch(
     `${API_BASE}/api/v1/process-scan`,
