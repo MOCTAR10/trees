@@ -70,6 +70,19 @@ def test_seeded_conventions_form_a_provisoire_then_definitive_chain():
     assert definitive["end_date"] > definitive["start_date"]
 
 
+def test_seeded_studies_cover_ppf_and_eie():
+    types = [s["study_type"] for s in seed_demo.SEEDED_STUDIES]
+    assert types == ["ppf", "eie"]
+    ppf, eie = seed_demo.SEEDED_STUDIES
+    # The PPF is validated and carries its certificat de conformité.
+    assert ppf["status"] == "valide"
+    assert ppf["certificate_ref"]
+    assert ppf["valid_to"] > ppf["valid_from"]
+    # The EIE is still before the Ministry (no certificate yet).
+    assert eie["status"] == "soumis"
+    assert eie["certificate_ref"] is None
+
+
 def test_reserved_stem_is_a_reserved_species():
     species, _, _ = _BY_SUFFIX["002"]
     assert is_reserved_species(species)

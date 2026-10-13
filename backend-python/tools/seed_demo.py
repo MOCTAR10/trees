@@ -2,8 +2,9 @@
 
 Creates one integrated logging company (``CFAD`` -> ``UFA`` -> ``AAC``), a
 community forest with a ``CCC``, harvest activity (felled / transported /
-transformed stems), a transport document, fiscal receipts and dues, and a
-certification -- enough to light up every panel of
+transformed stems), a transport document, fiscal receipts and dues, a
+certification and environmental studies (PPF/EIE) -- enough to light up every
+panel of
 ``/api/dashboard`` and to trigger **all nine** anomaly families of
 ``app.services.anomalies``.
 
@@ -71,6 +72,34 @@ SEEDED_CONVENTIONS: tuple[dict, ...] = (
         "start_date": TODAY - timedelta(days=200),
         "end_date": TODAY + timedelta(days=365 * 15),
         "attestation_ref": "DEMO-ATT-01",
+    },
+)
+
+#: Environmental studies seeded for the demo CFAD (Loi 016/01; Loi 007/2014):
+#: a validated Plan de Protection de la Faune (PPF, DGFAP) carrying its
+#: certificat de conformité, and an Étude d'Impact Environnemental (EIE, DGE)
+#: still awaiting the Ministry's decision. Cascades with the title, so re-running
+#: the seed stays idempotent.
+SEEDED_STUDIES: tuple[dict, ...] = (
+    {
+        "study_type": "ppf",
+        "reference": "DEMO-PPF-01",
+        "authority": "DGFAP",
+        "conducted_at": TODAY - timedelta(days=400),
+        "valid_from": TODAY - timedelta(days=390),
+        "valid_to": TODAY + timedelta(days=365 * 5 - 390),
+        "status": "valide",
+        "certificate_ref": "DEMO-CERT-CONF-01",
+    },
+    {
+        "study_type": "eie",
+        "reference": "DEMO-EIE-01",
+        "authority": "DGE",
+        "conducted_at": TODAY - timedelta(days=30),
+        "valid_from": TODAY - timedelta(days=20),
+        "valid_to": TODAY + timedelta(days=345),
+        "status": "soumis",
+        "certificate_ref": None,
     },
 )
 
@@ -161,6 +190,7 @@ async def _reset(company_id: int, org_ids: list[int]) -> None:
     )
     await db.execute("DELETE FROM aac_authorizations WHERE aac_id = ANY($1::int[])", aacs)
     await db.execute("DELETE FROM title_conventions WHERE title_id = ANY($1::int[])", titles)
+    await db.execute("DELETE FROM environmental_studies WHERE title_id = ANY($1::int[])", titles)
     await db.execute("DELETE FROM annual_cut_blocks WHERE ufa_id = ANY($1::int[])", ufas)
     await db.execute("DELETE FROM management_units WHERE title_id = ANY($1::int[])", titles)
     await db.execute(
@@ -394,6 +424,32 @@ async def seed() -> None:
             conv["attestation_ref"],
             TODAY - timedelta(days=180) if conv["attestation_ref"] else None,
             admin_id,
+        )
+
+    # Environmental studies (Loi 016/01; Loi 007/2014): a validated PPF carrying
+    # its certificat de conformité, plus an EIE awaiting the Ministry's decision.
+    for study in SEEDED_STUDIES:
+        validated = study["status"] == "valide"
+        await db.execute(
+            "INSERT INTO environmental_studies"
+            " (title_id, study_type, reference, authority, conducted_at, valid_from,"
+            "  valid_to, status, certificate_ref, certificate_issued_at,"
+            "  certificate_issued_by, submitted_by, decided_by, decided_at)"
+            " VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)",
+            title_id,
+            study["study_type"],
+            study["reference"],
+            study["authority"],
+            study["conducted_at"],
+            study["valid_from"],
+            study["valid_to"],
+            study["status"],
+            study["certificate_ref"],
+            TODAY - timedelta(days=30) if validated else None,
+            admin_id if validated else None,
+            company_id,
+            admin_id if validated else None,
+            datetime.now(UTC) if validated else None,
         )
 
     for auth_type, ref in (
@@ -647,6 +703,7 @@ async def seed() -> None:
     print(f"  title/UFA/AAC : {TITLE_REF} -> {UFA_LABEL} -> {AAC_OPEN_LABEL}, {AAC_CLOSED_LABEL}")
     print(f"  community FC  : {FC_REF} (CCC DEMO-CCC-01)")
     print(f"  stems         : {len(STEMS)} registered, all 9 anomaly families covered")
+    print(f"  studies       : {len(SEEDED_STUDIES)} (PPF validée + certificat, EIE en attente)")
 
 
 async def run() -> None:
