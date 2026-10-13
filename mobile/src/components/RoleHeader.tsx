@@ -6,6 +6,7 @@ import { Role } from "../api/client";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { RankStripes } from "../design/ui";
 import { fr } from "../i18n/fr";
+import { ServerStatus } from "../utils/useServerStatus";
 
 const SEAL = require("../../assets/leaf_logo.jpg");
 
@@ -28,6 +29,10 @@ interface Props {
   role?: Role | null;
   orgName?: string | null;
   coords?: HeaderCoords | null;
+  /** Server reachability, shown as a badge on the location row. */
+  connection?: ServerStatus;
+  /** Scans waiting to sync (shown while offline). */
+  pending?: number;
   onOpenProfile?: () => void;
   onOpenProjects?: () => void;
 }
@@ -39,6 +44,8 @@ export default function RoleHeader({
   role,
   orgName,
   coords,
+  connection,
+  pending = 0,
   onOpenProfile,
   onOpenProjects,
 }: Props) {
@@ -92,18 +99,49 @@ export default function RoleHeader({
           ) : null}
         </View>
       </View>
-      {coords !== undefined ? (
+      {coords !== undefined || connection ? (
         <View style={s.locRow}>
-          <MapPin size={13} color={t.c.gold} strokeWidth={2.5} />
-          <Text style={s.locText} numberOfLines={1}>
-            {coords ? `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}` : fr.header.locating}
-          </Text>
+          {coords !== undefined ? (
+            <>
+              <MapPin size={13} color={t.c.gold} strokeWidth={2.5} />
+              <Text style={s.locText} numberOfLines={1}>
+                {coords ? `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}` : fr.header.locating}
+              </Text>
+            </>
+          ) : null}
+          {connection ? <ConnectionBadge status={connection} pending={pending} /> : null}
         </View>
       ) : null}
       <View style={s.rule}>
         <View style={s.ruleLine} />
         <View style={s.ruleLine} />
       </View>
+    </View>
+  );
+}
+
+function ConnectionBadge({ status, pending }: { status: ServerStatus; pending: number }) {
+  const s = useStyles();
+  const color = status === "online" ? "#5DBE7E" : status === "offline" ? "#E0A53A" : "rgba(255,255,255,0.6)";
+  const label =
+    status === "online"
+      ? fr.header.online
+      : status === "offline"
+        ? pending > 0
+          ? fr.header.offlinePending(pending)
+          : fr.header.offline
+        : fr.header.checking;
+  return (
+    <View
+      style={[s.badge, status === "offline" && s.badgeOffline]}
+      testID="connection-badge"
+      accessibilityRole="text"
+      accessibilityLabel={label}
+    >
+      <View style={[s.badgeDot, { backgroundColor: color }]} />
+      <Text style={s.badgeText} numberOfLines={1}>
+        {label}
+      </Text>
     </View>
   );
 }
@@ -171,7 +209,22 @@ const useStyles = makeStyles((t) => ({
   },
   actionPressed: { backgroundColor: "rgba(255,255,255,0.08)" },
   actionLabel: { color: t.c.onForest, fontFamily: t.fonts.displaySemi, fontSize: 10.5 },
-  locRow: { flexDirection: "row", alignItems: "center", gap: 4, paddingLeft: 68 },
+  locRow: { flexDirection: "row", alignItems: "center", gap: 4, paddingLeft: 68, minHeight: 24 },
+  badge: {
+    marginLeft: "auto",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: t.radius.pill,
+    backgroundColor: "rgba(255,255,255,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
+  },
+  badgeOffline: { backgroundColor: "rgba(224,165,58,0.18)", borderColor: "rgba(224,165,58,0.55)" },
+  badgeDot: { width: 7, height: 7, borderRadius: 4 },
+  badgeText: { color: t.c.onForest, fontFamily: t.fonts.bodyBold, fontSize: 11.5 },
   locText: { color: t.c.onForest, opacity: 0.85, fontFamily: t.fonts.body, fontSize: 12, fontVariant: ["tabular-nums"] },
   rule: { position: "absolute", left: 0, right: 0, bottom: 0, height: 4, justifyContent: "space-between" },
   ruleLine: { height: 1.5, backgroundColor: t.c.gold },

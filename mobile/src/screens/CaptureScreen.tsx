@@ -37,6 +37,7 @@ import {
   CaptureShot,
   getScanCapabilities,
   HeightSource,
+  HomeProject,
   ScanCapabilities,
   TreeMeasurements,
 } from "../api/client";
@@ -106,6 +107,8 @@ export interface CaptureResult extends TreeMeasurements {
 interface Props {
   onCaptured: (result: CaptureResult) => void;
   onBack: () => void;
+  /** Scan made for a chantier / project (null for a free scan). */
+  project?: Pick<HomeProject, "id" | "title" | "kind"> | null;
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -126,7 +129,7 @@ function nextAfter(shots: Record<string, StepShot>, key: string): string {
   return CORE_STEPS.find((s) => !shots[s.key])?.key ?? REVIEW;
 }
 
-export default function CaptureScreen({ onCaptured, onBack }: Props) {
+export default function CaptureScreen({ onCaptured, onBack, project }: Props) {
   const th = useTheme();
   const s = useStyles();
   const [permission, requestPermission] = useCameraPermissions();
@@ -421,6 +424,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
       depthSource: depth > 0 ? depthSource : undefined,
       edgeLeft: edgesConfirmed && dbhUri ? edges.left : undefined,
       edgeRight: edgesConfirmed && dbhUri ? edges.right : undefined,
+      projectId: project?.id,
     });
   }, [
     blockReason,
@@ -438,6 +442,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
     edgesConfirmed,
     dbhUri,
     onCaptured,
+    project,
   ]);
 
   const liveDbh = useMemo(() => {
@@ -534,6 +539,13 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
             <View style={s.roundSpacer} />
           )}
         </View>
+        {project ? (
+          <View style={s.projectBanner} testID="scan-project-banner">
+            <Text style={s.projectBannerText} numberOfLines={1}>
+              {t.forProject(project.kind, project.title)}
+            </Text>
+          </View>
+        ) : null}
         <View style={s.rail}>
           {CORE_STEPS.map((st, i) => {
             const done = !!shots[st.key];
@@ -1290,6 +1302,16 @@ const useStyles = makeStyles((th) => ({
   },
   roundBtnOn: { backgroundColor: th.c.gold, borderColor: th.c.gold },
   roundSpacer: { width: 40 },
+  projectBanner: {
+    alignSelf: "center",
+    marginTop: th.space.sm,
+    backgroundColor: th.c.gold,
+    borderRadius: th.radius.pill,
+    paddingHorizontal: th.space.md,
+    paddingVertical: 4,
+    maxWidth: "90%",
+  },
+  projectBannerText: { color: "#1B2114", fontFamily: th.fonts.bodyBold, fontSize: 13 },
   titles: { flex: 1, minWidth: 0, alignItems: "center" },
   eyebrow: {
     color: th.c.gold,

@@ -85,6 +85,7 @@ export default function AdminUsers() {
               <View style={styles.cardTop}>
                 <View style={styles.cardTexts}>
                   <Text style={styles.name}>{item.display_name}</Text>
+                  {item.matricule ? <Text style={styles.email}>{item.matricule}</Text> : null}
                   <Text style={styles.email}>{item.email}</Text>
                   <Text style={styles.role}>{roleLabel(item.role)}</Text>
                 </View>
@@ -130,6 +131,9 @@ function CreateUserModal({
 }) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [matricule, setMatricule] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<Role>("operator");
   const [coopId, setCoopId] = useState<number | null>(null);
@@ -139,6 +143,9 @@ function CreateUserModal({
   const reset = () => {
     setEmail("");
     setName("");
+    setFirstName("");
+    setLastName("");
+    setMatricule("");
     setPassword("");
     setRole("operator");
     setCoopId(null);
@@ -147,7 +154,12 @@ function CreateUserModal({
 
   const submit = async () => {
     if (busy) return;
-    if (!email.trim() || !name.trim() || !password) return;
+    const person = role === "operator";
+    if (!email.trim() || !password) return;
+    if (person ? !firstName.trim() || !lastName.trim() : !name.trim()) {
+      setError(person ? fr.admin.personNameRequired : fr.admin.nameField);
+      return;
+    }
     if (role === "cooperative" && coopId == null) {
       setError(fr.admin.cooperativeField);
       return;
@@ -157,7 +169,9 @@ function CreateUserModal({
     try {
       await createUser({
         email: email.trim(),
-        display_name: name.trim(),
+        ...(person
+          ? { first_name: firstName.trim(), last_name: lastName.trim(), matricule: matricule.trim() || undefined }
+          : { display_name: name.trim() }),
         password,
         role,
         cooperative_id: role === "cooperative" ? coopId : null,
@@ -178,13 +192,45 @@ function CreateUserModal({
         <View style={styles.modal}>
           <Text style={styles.modalTitle}>{fr.admin.newUser}</Text>
           <ScrollView contentContainerStyle={styles.form}>
-            <TextInput
-              style={styles.input}
-              placeholder={fr.admin.nameField}
-              placeholderTextColor={colors.textDim}
-              value={name}
-              onChangeText={setName}
-            />
+            {role === "operator" ? (
+              <>
+                <TextInput
+                  testID="admin-first-name"
+                  style={styles.input}
+                  placeholder={fr.profile.firstName}
+                  placeholderTextColor={colors.textDim}
+                  autoCapitalize="words"
+                  value={firstName}
+                  onChangeText={setFirstName}
+                />
+                <TextInput
+                  testID="admin-last-name"
+                  style={styles.input}
+                  placeholder={fr.profile.lastName}
+                  placeholderTextColor={colors.textDim}
+                  autoCapitalize="words"
+                  value={lastName}
+                  onChangeText={setLastName}
+                />
+                <TextInput
+                  testID="admin-matricule"
+                  style={styles.input}
+                  placeholder={fr.admin.matriculeField}
+                  placeholderTextColor={colors.textDim}
+                  autoCapitalize="characters"
+                  value={matricule}
+                  onChangeText={setMatricule}
+                />
+              </>
+            ) : (
+              <TextInput
+                style={styles.input}
+                placeholder={fr.admin.nameField}
+                placeholderTextColor={colors.textDim}
+                value={name}
+                onChangeText={setName}
+              />
+            )}
             <TextInput
               style={styles.input}
               placeholder={fr.admin.emailField}

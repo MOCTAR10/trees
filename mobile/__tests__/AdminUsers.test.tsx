@@ -50,4 +50,37 @@ describe("AdminUsers", () => {
 
     expect(mocked.setUserActive).toHaveBeenCalledWith(4, false);
   });
+
+  it("creates a field agent with first name, last name and matricule", async () => {
+    mocked.listUsers.mockResolvedValue([]);
+    mocked.adminCooperatives.mockResolvedValue([]);
+    mocked.createUser.mockResolvedValue({
+      id: 20,
+      email: "agent@x",
+      display_name: "Nzé Obiang",
+      role: "operator",
+      is_active: true,
+      cooperative_id: null,
+      company_id: null,
+    });
+    const view = render(<AdminUsers />);
+    await flush();
+    fireEvent.press(view.getByText("+ Nouveau compte"));
+    fireEvent.changeText(view.getByTestId("admin-first-name"), "Nzé");
+    fireEvent.changeText(view.getByTestId("admin-last-name"), "Obiang");
+    fireEvent.changeText(view.getByTestId("admin-matricule"), "AGT-0009");
+    fireEvent.changeText(view.getByPlaceholderText("Email"), "agent@x");
+    fireEvent.changeText(view.getByPlaceholderText("Mot de passe"), "Secret123");
+    fireEvent.press(view.getByText("Créer le compte"));
+    await flush();
+    expect(mocked.createUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: "agent@x",
+        first_name: "Nzé",
+        last_name: "Obiang",
+        matricule: "AGT-0009",
+        role: "operator",
+      }),
+    );
+  });
 });

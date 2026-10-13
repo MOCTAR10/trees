@@ -12,12 +12,13 @@ import {
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAppFonts } from './src/design/fonts';
+import { useServerStatus } from './src/utils/useServerStatus';
 import { ThemeProvider, useTheme } from './src/design/ThemeProvider';
 import { EmptyState } from './src/design/ui';
 import { fr } from './src/i18n/fr';
 import { colors, spacing, type } from './src/theme';
 import { sharePdf, exportPlanPdf, exportReportPdf } from './src/pdf';
-import { AuthUser, companyProfile, cooperativeProfile, getMe, pingGateway, processScanV1, processScanV2, setUnauthorizedHandler, V1Report, V2Response } from './src/api/client';
+import { acceptProjectInvitation, AuthUser, companyProfile, cooperativeProfile, declineProjectInvitation, getHomeSummary, getMe, HomeProject, HomeSummary, joinProject, pingGateway, processScanV1, processScanV2, setUnauthorizedHandler, V1Report, V2Response } from './src/api/client';
 import type { CaptureResult } from './src/screens/CaptureScreen';
 import CompanyScreen from './src/screens/CompanyScreen';
 import CooperativeScreen from './src/screens/CooperativeScreen';
@@ -40,6 +41,7 @@ const CaptureScreen = React.lazy(() => import('./src/screens/CaptureScreen'));
 const MapScreen = React.lazy(() => import('./src/screens/MapScreen'));
 const ValorizationScreen = React.lazy(() => import('./src/screens/ValorizationScreen'));
 const ProjectDetailScreen = React.lazy(() => import('./src/screens/ProjectDetailScreen'));
+const ChantierScreen = React.lazy(() => import('./src/screens/ChantierScreen'));
 import CreateProjectScreen from './src/screens/CreateProjectScreen';
 import ProjetsScreen from './src/screens/ProjetsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
@@ -63,10 +65,11 @@ type Phase =
   | 'projects'
   | 'projectDetail'
   | 'projectCreate'
-  | 'capture';
+  | 'capture'
+  | 'chantier';
 
 const TAB_PHASES: Phase[] = ['home', 'species', 'map', 'history'];
-const DESIGNED_PHASES: Phase[] = ['report', 'profile', 'valorization', 'analyzing', 'valorizing', 'error', 'capture'];
+const DESIGNED_PHASES: Phase[] = ['report', 'profile', 'valorization', 'analyzing', 'valorizing', 'error', 'capture', 'chantier'];
 
 
 function Shell({ band, children }: { band: boolean; children: React.ReactNode }) {
@@ -98,6 +101,10 @@ export default function App() {
   const [activeScanId, setActiveScanId] = useState<string | null>(null);
   const [selectedSpecies, setSelectedSpecies] = useState<string | null>(null);
   const [selectedProject, setSelectedProject] = useState<number | null>(null);
+  const [summary, setSummary] = useState<HomeSummary | null>(null);
+  const [busyProjectId, setBusyProjectId] = useState<number | null>(null);
+  const [scanProject, setScanProject] = useState<Pick<HomeProject, "id" | "title" | "kind"> | null>(null);
+  const [chantierReturn, setChantierReturn] = useState<Phase>("home");
   const [historyReturn, setHistoryReturn] = useState(false);
   const [scans, setScans] = useState<StoredScan[]>([]);
   const [queueCount, setQueueCount] = useState(0);
@@ -202,6 +209,7 @@ export default function App() {
       void import('./src/screens/MapScreen');
       void import('./src/screens/ValorizationScreen');
       void import('./src/screens/ProjectDetailScreen');
+      void import('./src/screens/ChantierScreen');
     });
     return () => {
       task.cancel();
@@ -256,7 +264,42 @@ export default function App() {
     await clearSession();
     setUser(null);
     setOrgName(null);
+    setSummary(null);
     setPhase("home");
+  }, []);
+
+  const refreshSummary = useCallback(async () => {
+    try {
+      setSummary(await getHomeSummary());
+    } catch {
+      // Offline: the Accueil falls back to what the phone knows.
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user?.role === "operator" && phase === "home") void refreshSummary();
+  }, [user?.role, phase, refreshSummary]);
+
+  const projectAction = useCallback(
+    async (id: number, action: (projectId: number) => Promise<unknown>) => {
+      setBusyProjectId(id);
+      try {
+        await action(id);
+        await refreshSummary();
+      } catch (err) {
+        console.error("project action failed", err);
+        Alert.alert(fr.appTitle, fr.home.joinError);
+      } finally {
+        setBusyProjectId(null);
+      }
+    },
+    [refreshSummary],
+  );
+
+  const handleUserUpdate = useCallback(async (next: AuthUser) => {
+    setUser(next);
+    const session = await loadSession();
+    if (session) await saveSession({ ...session, user: next });
   }, []);
 
   const refreshScans = useCallback(async () => {
@@ -320,7 +363,13 @@ export default function App() {
     }
   }, [syncQueue]);
 
+  const { status: serverStatus } = useServerStatus(!!user, () => {
+    void syncQueue();
+    void refreshSummary();
+  });
+
   const goHome = useCallback(() => {
+    setScanProject(null);
     setReport(null);
     setValorization(null);
     setCoords(null);
@@ -381,6 +430,7 @@ export default function App() {
               depthSource: capture.depthSource,
               edgeLeft: capture.edgeLeft,
               edgeRight: capture.edgeRight,
+              projectId: capture.projectId,
             },
             shots,
           });
@@ -546,12 +596,32 @@ export default function App() {
             scanCount={scans.length}
             pendingCount={queueCount}
             syncing={syncing}
-            onNew={() => requestPhase("capture")}
+            onNew={() => {
+              setScanProject(null);
+              requestPhase("capture");
+            }}
             onHistory={goHistory}
             onSync={syncQueue}
             scans={scans}
-            userName={user.display_name}
+            firstName={user.first_name}
+            matricule={user.matricule}
             onOpenScan={openScan}
+            summary={summary}
+            busyProjectId={busyProjectId}
+            onScanForProject={(p) => {
+              setScanProject(p);
+              requestPhase("capture");
+            }}
+            onJoinProject={(id) => void projectAction(id, joinProject)}
+            onAcceptInvitation={(id) => void projectAction(id, acceptProjectInvitation)}
+            onDeclineInvitation={(id) => void projectAction(id, declineProjectInvitation)}
+            onOpenProjects={() => requestPhase("projects")}
+            onOpenProfile={() => requestPhase("profile")}
+            onOpenProject={(p) => {
+              setSelectedProject(p.id);
+              if (p.kind === "chantier") setChantierReturn("home");
+              requestPhase(p.kind === "chantier" ? "chantier" : "projectDetail");
+            }}
           />
         );
       case "company":
@@ -575,6 +645,8 @@ export default function App() {
             role={user.role}
             orgName={headerOrg}
             coords={headerCoords}
+            connection={serverStatus}
+            pending={queueCount}
             onOpenProfile={() => requestPhase("profile")}
             onOpenProjects={() => requestPhase("projects")}
           />
@@ -632,7 +704,8 @@ export default function App() {
           user={user}
           onOpenProject={(p) => {
             setSelectedProject(p.id);
-            requestPhase("projectDetail");
+            if (p.kind === "chantier") setChantierReturn("projects");
+            requestPhase(p.kind === "chantier" ? "chantier" : "projectDetail");
           }}
           onCreateProject={() => requestPhase("projectCreate")}
           onBack={goHome}
@@ -643,16 +716,31 @@ export default function App() {
           <ProjectDetailScreen id={selectedProject} user={user} onBack={() => requestPhase("projects")} />
         </Suspense>
       )}
+      {phase === "chantier" && selectedProject && (
+        <Suspense fallback={<RouteLoader message={fr.common.openingProject} />}>
+          <ChantierScreen
+            id={selectedProject}
+            onBack={() => {
+              if (chantierReturn === "home") void refreshSummary();
+              requestPhase(chantierReturn);
+            }}
+            onScan={(project) => {
+              setScanProject(project);
+              requestPhase("capture");
+            }}
+          />
+        </Suspense>
+      )}
       {phase === "projectCreate" && (
         <CreateProjectScreen onDone={() => requestPhase("projects")} onBack={() => requestPhase("projects")} />
       )}
       {phase === "profile" && (
-        <ProfileScreen user={user} onLogout={handleLogout} onBack={goHome} />
+        <ProfileScreen user={user} onLogout={handleLogout} onBack={goHome} onUserUpdate={handleUserUpdate} />
       )}
       {phase === "capture" && (
         <Suspense fallback={<RouteLoader message={fr.common.openingCamera} />}>
           <ThemeProvider force="dark">
-            <CaptureScreen onCaptured={handleCaptured} onBack={goHome} />
+            <CaptureScreen onCaptured={handleCaptured} onBack={goHome} project={scanProject} />
           </ThemeProvider>
         </Suspense>
       )}

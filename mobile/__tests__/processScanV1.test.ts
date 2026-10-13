@@ -90,6 +90,7 @@ describe("processScanV1", () => {
       treeCode: " GA-DEMO-005 ",
       edgeLeft: 0.4,
       edgeRight: 0.6,
+      projectId: 7,
     });
 
     const value = (name: string) => appended.find((part) => part.name === name)?.value;
@@ -106,6 +107,7 @@ describe("processScanV1", () => {
     expect(value("edge_left")).toBe("0.4000");
     expect(value("edge_right")).toBe("0.6000");
     expect(value("ar_depth_m")).toBeUndefined();
+    expect(value("project_id")).toBe("7");
 
     spy.mockRestore();
   });

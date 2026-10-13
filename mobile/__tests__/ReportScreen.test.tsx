@@ -83,6 +83,22 @@ describe("ReportScreen measurement & carbon", () => {
     expect(queryByTestId("carbon-card")).toBeNull();
   });
 
+  it("says whether the scan was attached to the requested project, and why not", () => {
+    const attached = render(
+      <ReportScreen report={{ ...base, project_id: 7, project_title: "Chantier Démo" }} onValorize={null} />,
+    );
+    expect(attached.getByText("Rattaché à : Chantier Démo")).toBeTruthy();
+    attached.unmount();
+    const refused = render(
+      <ReportScreen
+        report={{ ...base, project_id: null, project_title: "Chantier Démo", project_note: "project_out_of_zone" }}
+        onValorize={null}
+      />,
+    );
+    expect(refused.getByText("Non rattaché à : Chantier Démo")).toBeTruthy();
+    expect(refused.getByText(/hors de la zone du projet/)).toBeTruthy();
+  });
+
   it("labels the Groq narrative as AI-written and indicative", () => {
     const { getByTestId } = render(
       <ReportScreen report={{ ...base, narrative_fr: "Cet Okoumé…" }} onValorize={null} />,

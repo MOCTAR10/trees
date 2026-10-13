@@ -4,6 +4,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -13,6 +14,9 @@ import {
   attributeScan,
   AuthUser,
   getProject,
+  acceptProjectInvitation,
+  declineProjectInvitation,
+  inviteToProject,
   joinProject,
   leaveProject,
   listMyTrees,
@@ -75,6 +79,38 @@ export default function ProjectDetailScreen({ id, user, onBack }: Props) {
       await load();
     } catch (err) {
       console.error("join failed", err);
+    } finally {
+      setActionBusy(false);
+    }
+  };
+
+  const [inviteEmail, setInviteEmail] = React.useState("");
+  const [inviteNote, setInviteNote] = React.useState<string | null>(null);
+
+  const runAction = async (action: () => Promise<unknown>) => {
+    setActionBusy(true);
+    try {
+      await action();
+      await load();
+    } catch (err) {
+      console.error("project action failed", err);
+    } finally {
+      setActionBusy(false);
+    }
+  };
+
+  const handleInvite = async () => {
+    const email = inviteEmail.trim();
+    if (!email) return;
+    setActionBusy(true);
+    setInviteNote(null);
+    try {
+      await inviteToProject(id, [email]);
+      setInviteEmail("");
+      setInviteNote(`Invitation envoyée à ${email}`);
+      await load();
+    } catch {
+      setInviteNote("Compte introuvable ou invitation impossible.");
     } finally {
       setActionBusy(false);
     }
@@ -170,8 +206,37 @@ export default function ProjectDetailScreen({ id, user, onBack }: Props) {
             <Stat value={project.participant_count} label="participants" />
           </View>
 
-          {(user.role === "company" || user.role === "admin") && project.status === "open" && (
+          <Text style={styles.contributionMeta}>
+            {project.kind === "chantier"
+              ? `Chantier${project.aac_label ? ` · ${project.aac_label}` : ""}${
+                  project.registry_trees ? ` · ${project.registry_scanned ?? 0}/${project.registry_trees} tiges mesurées` : ""
+                }`
+              : "Projet ouvert (participatif)"}
+            {project.participation === "invitation" ? " · sur invitation" : " · ouvert à tous"}
+          </Text>
+
+          {project.status === "open" && project.my_status === "invited" ? (
+            <View style={styles.statsRow}>
+              <TouchableOpacity
+                testID="project-decline"
+                style={styles.actionBtn}
+                onPress={() => runAction(() => declineProjectInvitation(id))}
+                disabled={actionBusy}
+              >
+                <Text style={styles.actionText}>Refuser</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                testID="project-accept"
+                style={styles.actionBtnPrimary}
+                onPress={() => runAction(() => acceptProjectInvitation(id))}
+                disabled={actionBusy}
+              >
+                <Text style={styles.actionTextPrimary}>Accepter l'invitation</Text>
+              </TouchableOpacity>
+            </View>
+          ) : project.status === "open" && (project.is_participant || project.participation !== "invitation") ? (
             <TouchableOpacity
+              testID="project-join-toggle"
               style={project.is_participant ? styles.actionBtn : styles.actionBtnPrimary}
               onPress={project.is_participant ? handleLeave : handleJoin}
               disabled={actionBusy}
@@ -180,9 +245,36 @@ export default function ProjectDetailScreen({ id, user, onBack }: Props) {
                 {project.is_participant ? "Quitter le projet" : "Participer"}
               </Text>
             </TouchableOpacity>
-          )}
+          ) : null}
 
-          {user.role === "operator" && project.status === "open" && (
+          {project.participants ? (
+            <View style={styles.contribution}>
+              <Text style={styles.contributionTitle}>Inviter un participant (e-mail)</Text>
+              <TextInput
+                testID="project-invite-email"
+                value={inviteEmail}
+                onChangeText={setInviteEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                placeholder="agent@exemple.ga"
+                placeholderTextColor={colors.textDim}
+                style={styles.inviteInput}
+              />
+              <TouchableOpacity testID="project-invite" style={styles.attributeBtn} onPress={handleInvite} disabled={actionBusy}>
+                <Text style={styles.attributeText}>Inviter</Text>
+              </TouchableOpacity>
+              {inviteNote ? <Text style={styles.contributionMeta}>{inviteNote}</Text> : null}
+              {project.participants.map((pp) => (
+                <Text key={pp.user_id} style={styles.contributionMeta}>
+                  {`${[pp.first_name, pp.last_name].filter(Boolean).join(" ") || pp.display_name} · ${
+                    pp.status === "active" ? "participe" : pp.status === "invited" ? "invité" : "a refusé"
+                  }`}
+                </Text>
+              ))}
+            </View>
+          ) : null}
+
+          {user.role === "operator" && project.status === "open" && project.is_participant && (
             <>
               <TouchableOpacity style={styles.actionBtnPrimary} onPress={toggleContribute}>
                 <Text style={styles.actionTextPrimary}>
@@ -307,6 +399,16 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   attributeText: { color: colors.accent, fontSize: type.caption, fontWeight: "800" },
+  inviteInput: {
+    backgroundColor: colors.background,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    color: colors.text,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    marginTop: spacing.xs,
+  },
   map: { height: 200, borderRadius: 12 },
   sectionTitle: { color: colors.accent, fontSize: type.caption, fontWeight: "800", textTransform: "uppercase" },
   empty: { color: colors.textDim, fontSize: type.body },

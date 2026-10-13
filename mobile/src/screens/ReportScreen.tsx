@@ -6,7 +6,7 @@ import { V1Report } from "../api/client";
 import ForestChecksCard from "../components/ForestChecksCard";
 import { dec, signed } from "../design/format";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
-import { Bullet, Button, Card, KeyValue, ScreenHeader, Stat, Txt } from "../design/ui";
+import { Bullet, Button, Card, KeyValue, Pill, ScreenHeader, Stat, Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
 
 const t = fr.report;
@@ -83,6 +83,20 @@ export default function ReportScreen({ report, exporting, onValorize, onOpenPlan
             </Txt>
           ) : null}
         </Card>
+
+        {report.project_title ? (
+          <Card testID="report-project">
+            <Pill
+              tone={report.project_id ? "ok" : "warn"}
+              label={report.project_id ? t.projectAttached(report.project_title) : t.projectNotAttached(report.project_title)}
+            />
+            {!report.project_id && report.project_note ? (
+              <Txt variant="small" tone="muted">
+                {t.projectNotes[report.project_note] ?? report.project_note}
+              </Txt>
+            ) : null}
+          </Card>
+        ) : null}
 
         <Card testID="measurement-card">
           <Txt variant="heading">{t.measurement}</Txt>

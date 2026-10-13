@@ -321,6 +321,42 @@ describe("CaptureScreen field helpers", () => {
   });
 });
 
+describe("CaptureScreen for a project", () => {
+  it("shows the chantier and sends its id with the scan", async () => {
+    const onCaptured = jest.fn();
+    const view = render(
+      <CaptureScreen
+        onCaptured={onCaptured}
+        onBack={jest.fn()}
+        project={{ id: 7, title: "Chantier Démo", kind: "chantier" }}
+      />,
+    );
+    await ready(view);
+    expect(view.getByTestId("scan-project-banner")).toHaveTextContent("Chantier · Chantier Démo");
+    await captureCore(view);
+    await captureDbh(view);
+    fireEvent.press(view.getByTestId("distance-2"));
+    fireEvent.press(view.getByTestId("dbh-confirm"));
+    fireEvent.press(view.getByTestId("analyze-button"));
+    await flush();
+    expect(submitted(onCaptured).projectId).toBe(7);
+  });
+
+  it("sends no project for a free scan", async () => {
+    const onCaptured = jest.fn();
+    const view = render(<CaptureScreen onCaptured={onCaptured} onBack={jest.fn()} />);
+    await ready(view);
+    expect(view.queryByTestId("scan-project-banner")).toBeNull();
+    await captureCore(view);
+    await captureDbh(view);
+    fireEvent.press(view.getByTestId("distance-2"));
+    fireEvent.press(view.getByTestId("dbh-confirm"));
+    fireEvent.press(view.getByTestId("analyze-button"));
+    await flush();
+    expect(submitted(onCaptured).projectId).toBeUndefined();
+  });
+});
+
 describe("CaptureScreen controls", () => {
   it("keeps the torch off by default and toggles on press", async () => {
     const view = render(<CaptureScreen onCaptured={jest.fn()} onBack={jest.fn()} />);

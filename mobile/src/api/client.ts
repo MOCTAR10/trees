@@ -148,7 +148,17 @@ export interface V1Report {
   }[];
   species_flora?: string | null;
   forest_checks?: ForestChecks | null;
+  project_id?: number | null;
+  project_title?: string | null;
+  project_note?: ProjectNote | null;
 }
+
+export type ProjectNote =
+  | "project_closed"
+  | "project_not_member"
+  | "project_out_of_zone"
+  | "project_unknown"
+  | "project_login_required";
 
 export interface ResidueChannel {
   mass_kg?: number;
@@ -278,6 +288,8 @@ export interface TreeMeasurements {
   /** Trunk edges confirmed by the operator on the DBH photo (fractions 0..1). */
   edgeLeft?: number;
   edgeRight?: number;
+  /** Scan made for a chantier / project (attached server-side if allowed). */
+  projectId?: number;
 }
 
 /** Focal length shared by the scan: the DBH shot first, else any shot. */
@@ -317,6 +329,7 @@ export async function processScanV1(
     ["depth_source", params.arDepthM ? params.depthSource : undefined],
     ["edge_left", params.edgeRight != null ? params.edgeLeft?.toFixed(4) : undefined],
     ["edge_right", params.edgeLeft != null ? params.edgeRight?.toFixed(4) : undefined],
+    ["project_id", params.projectId],
   ];
   optional.forEach(([key, value]) => {
     if (value !== undefined && value !== "" && !(typeof value === "number" && !(value > 0))) {
@@ -372,6 +385,9 @@ export interface AuthUser {
   cooperative_id: number | null;
   company_id: number | null;
   organization_id?: number | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  matricule?: string | null;
 }
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
@@ -722,6 +738,9 @@ export interface AdminUser {
   cooperative_id: number | null;
   company_id: number | null;
   created_at?: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  matricule?: string | null;
 }
 
 export async function listUsers(): Promise<AdminUser[]> {
@@ -732,7 +751,10 @@ export async function listUsers(): Promise<AdminUser[]> {
 
 export interface CreateUserPayload {
   email: string;
-  display_name: string;
+  display_name?: string;
+  first_name?: string;
+  last_name?: string;
+  matricule?: string;
   password: string;
   role: Role;
   cooperative_id?: number | null;
@@ -1000,6 +1022,9 @@ export async function getDiagnostics(): Promise<DiagnosticsResponse> {
 export type ProjectObjective = "cartographie" | "inventaire" | "sante" | "restauration" | "autre";
 export type ProjectTargetType = "species" | "family" | "genus" | "all";
 export type ProjectStatus = "draft" | "open" | "closed";
+export type ProjectKind = "chantier" | "participatif";
+export type ProjectParticipation = "open" | "invitation";
+export type ParticipantStatus = "invited" | "active" | "declined";
 
 export interface Project {
   id: number;
@@ -1016,6 +1041,13 @@ export interface Project {
   created_at: string;
   participant_count: number;
   scan_count: number;
+  kind?: ProjectKind;
+  participation?: ProjectParticipation;
+  aac_id?: number | null;
+  aac_label?: string | null;
+  registry_trees?: number;
+  registry_scanned?: number;
+  my_status?: ParticipantStatus | null;
 }
 
 export interface ProjectContribution {
@@ -1029,11 +1061,22 @@ export interface ProjectContribution {
   owner_name: string;
 }
 
+export interface ProjectParticipant {
+  user_id: number;
+  status: ParticipantStatus;
+  display_name: string;
+  first_name: string | null;
+  last_name: string | null;
+  matricule: string | null;
+}
+
 export interface ProjectDetail extends Project {
   species_count: number;
   contributor_count: number;
   is_participant: boolean;
+  my_scan_count?: number;
   contributions: ProjectContribution[];
+  participants?: ProjectParticipant[];
 }
 
 export interface CreateProjectPayload {
@@ -1045,6 +1088,9 @@ export interface CreateProjectPayload {
   latitude?: number | null;
   longitude?: number | null;
   radius_km?: number | null;
+  kind?: ProjectKind;
+  participation?: ProjectParticipation;
+  aac_id?: number | null;
 }
 
 export async function listProjects(): Promise<Project[]> {
@@ -1097,6 +1143,184 @@ export async function setProjectStatus(
     body: JSON.stringify({ status }),
   });
   if (!resp.ok) throw new Error(`Project status ${resp.status}`);
+  return resp.json();
+}
+
+async function projectAction(id: number, action: "accept" | "decline"): Promise<{ id: number; status: ParticipantStatus }> {
+  const resp = await timedFetch(`${API_BASE}/api/projects/${id}/${action}`, {
+    method: "POST",
+    headers: headers(),
+  });
+  if (!resp.ok) throw new Error(`Project ${action} ${resp.status}`);
+  return resp.json();
+}
+
+export const acceptProjectInvitation = (id: number) => projectAction(id, "accept");
+export const declineProjectInvitation = (id: number) => projectAction(id, "decline");
+
+export async function inviteToProject(id: number, emails: string[]): Promise<{ id: number; invited: number[] }> {
+  const resp = await timedFetch(`${API_BASE}/api/projects/${id}/invite`, {
+    method: "POST",
+    headers: headers(true),
+    body: JSON.stringify({ emails }),
+  });
+  if (!resp.ok) throw new Error(`Invite ${resp.status}`);
+  return resp.json();
+}
+
+export interface AacOption {
+  id: number;
+  label: string;
+  status: string;
+  campaign_year: number | null;
+  ufa_label: string;
+  title_reference: string | null;
+  registry_trees: number;
+}
+
+export async function listAacOptions(): Promise<AacOption[]> {
+  const resp = await timedFetch(`${API_BASE}/api/projects/aac-options`, { headers: headers() });
+  if (!resp.ok) throw new Error(`AAC options ${resp.status}`);
+  return resp.json();
+}
+
+/** A project as listed on the Accueil (joined, invited or open to join). */
+export interface HomeProject {
+  id: number;
+  title: string;
+  kind: ProjectKind;
+  participation: ProjectParticipation;
+  objective: ProjectObjective;
+  status: ProjectStatus;
+  target_type: ProjectTargetType;
+  target_value: string;
+  my_status?: ParticipantStatus;
+  my_scans?: number;
+  scans: number;
+  participants: number;
+  aac_id?: number | null;
+  aac_label?: string | null;
+  registry_trees?: number;
+  registry_scanned?: number;
+}
+
+/** Accueil filter periods (Africa/Libreville day for "today"). */
+export type HomePeriod = "today" | "week" | "month" | "all";
+
+export interface HomeSummary {
+  person: {
+    first_name: string | null;
+    last_name: string | null;
+    full_name: string | null;
+    matricule: string | null;
+    display_name: string;
+    role: Role;
+  };
+  scans: {
+    total: number;
+    today: number;
+    week: number;
+    species: number;
+    co2e_kg: number;
+    for_projects: number;
+    last_at: string | null;
+    periods?: Record<HomePeriod, { count: number; species: number; co2e_kg: number; for_projects: number }>;
+  };
+  group: {
+    type: "company" | "cooperative";
+    name: string | null;
+    members: number;
+    trees: number;
+    trees_week: number;
+    trees_by_period?: Record<HomePeriod, number>;
+  } | null;
+  projects: {
+    invitations: HomeProject[];
+    joined: HomeProject[];
+    available: HomeProject[];
+    /** Open projects the person could join (the list shows at most 5). */
+    available_count?: number;
+  };
+}
+
+export async function getHomeSummary(): Promise<HomeSummary> {
+  const resp = await timedFetch(`${API_BASE}/api/home/summary`, { headers: headers() });
+  if (!resp.ok) throw new Error(`Home summary ${resp.status}`);
+  return resp.json();
+}
+
+export async function updateMyNames(firstName: string, lastName: string): Promise<{
+  id: number;
+  first_name: string;
+  last_name: string;
+  matricule: string | null;
+  display_name: string;
+}> {
+  const resp = await timedFetch(`${API_BASE}/api/home/me`, {
+    method: "PATCH",
+    headers: headers(true),
+    body: JSON.stringify({ first_name: firstName, last_name: lastName }),
+  });
+  if (!resp.ok) throw new Error(`Names ${resp.status}`);
+  return resp.json();
+}
+
+export interface ChantierTree {
+  id: number;
+  tree_code: string;
+  species_scientific_name: string | null;
+  status: string;
+  measured_dbh_cm: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  measured: boolean;
+  measured_by_me: boolean;
+}
+
+export interface ChantierView {
+  id: number;
+  title: string;
+  description: string;
+  status: ProjectStatus;
+  kind: "chantier";
+  participation: ProjectParticipation;
+  aac_id: number | null;
+  created_by: number;
+  created_by_name: string | null;
+  created_at: string;
+  my_status: ParticipantStatus | null;
+  aac: {
+    id: number;
+    label: string;
+    status: string;
+    campaign_year: number | null;
+    surface_ha: number | null;
+    ufa_label: string;
+    title_reference: string | null;
+    geometry: { type: string; coordinates: unknown } | null;
+  } | null;
+  trees: ChantierTree[];
+  progress: { measured: number; total: number };
+  team: {
+    user_id: number;
+    status: ParticipantStatus;
+    display_name: string;
+    first_name: string | null;
+    last_name: string | null;
+    scans: number;
+  }[];
+  my_scans: {
+    id: number;
+    species_scientific_name: string | null;
+    measured_dbh_cm: number | null;
+    tree_code: string | null;
+    created_at: string;
+  }[];
+}
+
+export async function getChantier(id: number): Promise<ChantierView> {
+  const resp = await timedFetch(`${API_BASE}/api/projects/${id}/chantier`, { headers: headers() });
+  if (!resp.ok) throw new Error(`Chantier ${resp.status}`);
   return resp.json();
 }
 

@@ -69,6 +69,19 @@ describe("RoleHeader", () => {
     expect(queryByTestId("rank-stripes")).toBeNull();
   });
 
+  it("shows the server connection badge, with the waiting scans when offline", () => {
+    const { getByTestId, rerender } = render(
+      <RoleHeader title="T" coords={null} connection="online" pending={2} />,
+    );
+    expect(getByTestId("connection-badge")).toHaveTextContent("En ligne");
+    rerender(<RoleHeader title="T" coords={null} connection="offline" pending={2} />);
+    expect(getByTestId("connection-badge")).toHaveTextContent("Hors-ligne · 2 en attente");
+    rerender(<RoleHeader title="T" coords={null} connection="offline" />);
+    expect(getByTestId("connection-badge")).toHaveTextContent("Hors-ligne");
+    rerender(<RoleHeader title="T" coords={null} connection="checking" />);
+    expect(getByTestId("connection-badge")).toHaveTextContent("Connexion…");
+  });
+
   it("hides the GPS row when coords are not provided", () => {
     const { queryByText } = render(<RoleHeader title="Titre" />);
     expect(queryByText("Localisation…")).toBeNull();
