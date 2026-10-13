@@ -151,6 +151,9 @@ export default function ReportScreen({ report, exporting, onValorize, onOpenPlan
         {report.narrative_fr ? (
           <Card>
             <Txt variant="heading">{t.narrative}</Txt>
+            <Txt variant="caption" tone="muted" testID="narrative-ai">
+              {t.narrativeAi}
+            </Txt>
             <Txt>{report.narrative_fr}</Txt>
           </Card>
         ) : null}

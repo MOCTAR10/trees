@@ -145,7 +145,7 @@ describe("CaptureScreen guided flow", () => {
     expect(view.getByText("Arbre entier")).toBeTruthy();
 
     await captureCore(view);
-    expect(view.getByText("Diamètre à 1,30 m")).toBeTruthy();
+    expect(view.getByText("Diamètre à hauteur de poitrine")).toBeTruthy();
     await captureDbh(view);
     await waitFor(() => expect(view.getByTestId("edge-adjuster")).toBeTruthy());
 
@@ -248,7 +248,8 @@ describe("CaptureScreen guided flow", () => {
     await ready(view);
     await captureCore(view, "import-button");
     fireEvent.press(view.getByTestId("rail-bark"));
-    expect(view.getByText("Importée")).toBeTruthy();
+    expect(view.getByText("Photo importée à vérifier")).toBeTruthy();
+    expect(view.getByTestId("import-info").props.children).toMatch(/Date de prise inconnue · sans position GPS/);
     fireEvent.press(view.getByTestId("continue-button"));
     await flush();
     await captureDbh(view);
@@ -298,6 +299,89 @@ describe("CaptureScreen guided flow", () => {
     fireEvent.press(view.getByTestId("analyze-button"));
     await flush();
     expect(submitted(onCaptured).arDepthM).toBeUndefined();
+  });
+});
+
+describe("CaptureScreen field helpers", () => {
+  it("trusts an imported photo taken here today and flags one taken elsewhere", async () => {
+    const picker = jest.requireMock("expo-image-picker") as { launchImageLibraryAsync: jest.Mock };
+    const stamp = (d: Date) =>
+      `${d.getFullYear()}:${String(d.getMonth() + 1).padStart(2, "0")}:${String(d.getDate()).padStart(2, "0")} ` +
+      `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:00`;
+    const asset = (lat: number, lon: number, when: Date) => ({
+      canceled: false,
+      assets: [
+        {
+          uri: "file:///lib.jpg",
+          fileName: "lib.jpg",
+          mimeType: "image/jpeg",
+          exif: { GPSLatitude: lat, GPSLongitude: lon, DateTimeOriginal: stamp(when) },
+        },
+      ],
+    });
+    picker.launchImageLibraryAsync
+      .mockResolvedValueOnce(asset(0.4163, 9.4541, new Date()))
+      .mockResolvedValueOnce(asset(0.5, 9.6, new Date()));
+    const view = render(<CaptureScreen onCaptured={jest.fn()} onBack={jest.fn()} />);
+    await ready(view);
+    fireEvent.press(view.getByTestId("import-button"));
+    await flush();
+    fireEvent.press(view.getByTestId("import-button"));
+    await flush();
+
+    fireEvent.press(view.getByTestId("rail-whole"));
+    expect(view.getByText("Importée")).toBeTruthy();
+    expect(view.getByTestId("import-info").props.children).toMatch(/à votre position/);
+
+    fireEvent.press(view.getByTestId("rail-bark"));
+    expect(view.getByText("Photo importée à vérifier")).toBeTruthy();
+    expect(view.getByTestId("import-info").props.children).toMatch(/km de votre position/);
+
+    fireEvent.press(view.getByTestId("rail-review"));
+    expect(view.queryByTestId("tile-warn-whole")).toBeNull();
+    expect(view.getByTestId("tile-warn-bark")).toBeTruthy();
+  });
+
+  it("explains why the diameter is taken at 1.30 m", async () => {
+    const view = render(<CaptureScreen onCaptured={jest.fn()} onBack={jest.fn()} />);
+    await ready(view);
+    await captureCore(view);
+    expect(view.getByText("1,30 m du sol")).toBeTruthy();
+    fireEvent.press(view.getByTestId("dbh-why"));
+    expect(view.getByText("Pourquoi mesurer à 1,30 m ?")).toBeTruthy();
+    fireEvent.press(view.getByTestId("dbh-why-ok"));
+    expect(view.queryByTestId("dbh-why-card")).toBeNull();
+  });
+
+  it("zooms only on leaves, flowers and fruit", async () => {
+    const view = render(<CaptureScreen onCaptured={jest.fn()} onBack={jest.fn()} />);
+    await ready(view);
+    expect(view.queryByTestId("zoom-button")).toBeNull();
+    fireEvent.press(view.getByTestId("rail-leaf"));
+    fireEvent.press(view.getByTestId("zoom-button"));
+    expect(cameraProps.current.zoom).toBeGreaterThan(0);
+    fireEvent.press(view.getByTestId("rail-dbh"));
+    expect(cameraProps.current.zoom).toBe(0);
+    expect(view.queryByTestId("zoom-button")).toBeNull();
+  });
+
+  it("handles the Android back button inside the scanner", async () => {
+    const { BackHandler } = require("react-native");
+    const handlers: Array<() => boolean> = [];
+    const spy = jest.spyOn(BackHandler, "addEventListener").mockImplementation((...args: unknown[]) => {
+      handlers.push(args[1] as () => boolean);
+      return { remove: jest.fn() };
+    });
+    const onBack = jest.fn();
+    render(<CaptureScreen onCaptured={jest.fn()} onBack={onBack} />);
+    await flush();
+    let handled = false;
+    act(() => {
+      handled = handlers[handlers.length - 1]();
+    });
+    expect(handled).toBe(true);
+    expect(onBack).toHaveBeenCalledTimes(1);
+    spy.mockRestore();
   });
 });
 

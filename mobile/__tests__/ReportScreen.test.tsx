@@ -83,6 +83,13 @@ describe("ReportScreen measurement & carbon", () => {
     expect(queryByTestId("carbon-card")).toBeNull();
   });
 
+  it("labels the Groq narrative as AI-written and indicative", () => {
+    const { getByTestId } = render(
+      <ReportScreen report={{ ...base, narrative_fr: "Cet Okoumé…" }} onValorize={null} />,
+    );
+    expect(getByTestId("narrative-ai").props.children).toMatch(/IA \(Groq\)/);
+  });
+
   it("renders legacy reports saved before the measurement fields existed", () => {
     const legacy = {
       species_scientific_name: null,

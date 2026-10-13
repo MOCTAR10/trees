@@ -4,6 +4,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import {
   Check,
+  CircleHelp,
   ClipboardCheck,
   Flashlight,
   FlashlightOff,
@@ -14,12 +15,14 @@ import {
   RotateCcw,
   Ruler,
   X,
+  ZoomIn,
 } from "lucide-react-native";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   Animated,
+  BackHandler,
   Image,
   KeyboardAvoidingView,
   LayoutChangeEvent,
@@ -48,6 +51,7 @@ import { Button, Pill, Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
 import { isDepthSensorAvailable, measureCenterDistance } from "../../modules/depth-sensor";
 import { dbhFromEdges, isPlausibleDbh } from "../utils/dbh";
+import { distanceM, exifGps, exifTakenAt, IMPORT_MAX_AGE_H, IMPORT_MAX_DISTANCE_M } from "../utils/exif";
 import {
   ALL_STEPS,
   codeSidePx,
@@ -89,6 +93,50 @@ interface StepShot {
   image: CapturedImage;
   imported: boolean;
   focal35mm?: number;
+  /** Imported photos only: where and when the camera says it was taken. */
+  gps?: { lat: number; lon: number } | null;
+  takenAt?: string | null;
+}
+
+const ZOOM_LEVELS = [0, 0.25, 0.5];
+
+/** The DBH is computed from whole, bark and DBH photos: no zoom on those. */
+function zoomAllowed(step: ScanStep | undefined): boolean {
+  return !!step && (step.organ === "leaf" || step.organ === "flower" || step.organ === "fruit");
+}
+
+/** What the operator should know about an imported photo before trusting it. */
+export function importInfo(
+  shot: Pick<StepShot, "gps" | "takenAt">,
+  position: { lat: number; lon: number } | null,
+  now: Date = new Date(),
+): { text: string; warn: boolean } {
+  const parts: string[] = [];
+  let warn = false;
+  if (shot.takenAt) {
+    const when = new Date(shot.takenAt);
+    parts.push(
+      t.importTaken(
+        when.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }),
+      ),
+    );
+    if ((now.getTime() - when.getTime()) / 3600000 > IMPORT_MAX_AGE_H) {
+      parts.push(t.importOld);
+      warn = true;
+    }
+  } else {
+    parts.push(t.importNoDate);
+    warn = true;
+  }
+  if (!shot.gps) {
+    parts.push(t.importNoGps);
+    warn = true;
+  } else if (position) {
+    const d = distanceM(shot.gps, position);
+    parts.push(d <= IMPORT_MAX_DISTANCE_M ? t.importHere : t.importFar(d));
+    if (d > IMPORT_MAX_DISTANCE_M) warn = true;
+  }
+  return { text: parts.join(" · "), warn };
 }
 
 export interface CaptureResult extends TreeMeasurements {
@@ -156,6 +204,8 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
   const [cameraReady, setCameraReady] = useState(false);
   const [view, setView] = useState({ w: 0, h: 0 });
   const [toast, setToast] = useState<string | null>(null);
+  const [zoomIndex, setZoomIndex] = useState(0);
+  const [whyOpen, setWhyOpen] = useState(false);
 
   const cameraRef = useRef<CameraView>(null);
   const positionRef = useRef<{ lat: number; lon: number } | null>(null);
@@ -168,6 +218,11 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
   const step: ScanStep | undefined = current === REVIEW ? undefined : stepByKey(current);
   const shot = step ? shots[step.key] : undefined;
   const cameraLive = qrMode || (!!step && !shot);
+  const canZoom = zoomAllowed(step) && !qrMode;
+
+  useEffect(() => {
+    setZoomIndex(0);
+  }, [current]);
 
   const setPos = useCallback((p: { lat: number; lon: number }) => {
     positionRef.current = p;
@@ -356,10 +411,13 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
       } catch {
         // Size check is best-effort; the server enforces the cap.
       }
+      const exif = asset.exif as Record<string, unknown> | null | undefined;
       storeShot(step.key, {
         image: { uri: asset.uri, name: asset.fileName ?? `${step.key}.jpg`, type: asset.mimeType ?? "image/jpeg" },
         imported: true,
-        focal35mm: exifFocal35mm(asset.exif as Record<string, unknown> | null | undefined),
+        focal35mm: exifFocal35mm(exif),
+        gps: exifGps(exif),
+        takenAt: exifTakenAt(exif)?.toISOString() ?? null,
       });
     } finally {
       setImporting(false);
@@ -397,6 +455,18 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
       { text: t.discardYes, style: "destructive", onPress: onBack },
     ]);
   }, [qrMode, shotsTaken, onBack]);
+
+  useEffect(() => {
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (whyOpen) {
+        setWhyOpen(false);
+        return true;
+      }
+      goBack();
+      return true;
+    });
+    return () => sub.remove();
+  }, [goBack, whyOpen]);
 
   const missing = REQUIRED_KEYS.filter((k) => !shots[k]);
   const measureReady =
@@ -611,6 +681,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
               facing="back"
               flash="off"
               enableTorch={torchOn && cameraReady}
+              zoom={canZoom ? ZOOM_LEVELS[zoomIndex] : 0}
               onCameraReady={() => setCameraReady(true)}
               barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
               onBarcodeScanned={onBarcode}
@@ -627,7 +698,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
                 <FramingGuide frame={step.frame} left={bracketLeft} right={bracketRight} />
                 {guiding ? (
                   <View style={s.dbhGuide} pointerEvents="none" testID="dbh-guide">
-                    <Text style={s.guideTag}>1,30 m</Text>
+                    <Text style={s.guideTag}>{t.guideTag}</Text>
                     {tilt.available ? (
                       <Text testID="level-indicator" style={[s.levelBadge, level ? s.levelOk : s.levelWarn]}>
                         {level ? t.level : t.levelFix(tilt.rollDeg, tilt.elevationDeg)}
@@ -639,6 +710,17 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
                 <View style={s.chips} pointerEvents="box-none">
                   <GpsChip status={gpsStatus} onRetry={() => void locate(true)} />
                   {treeCode ? <TreeChip code={treeCode} onUnlink={unlinkTree} /> : null}
+                  {step.key === "dbh" ? (
+                    <Pressable
+                      testID="dbh-why"
+                      onPress={() => setWhyOpen(true)}
+                      style={s.chip}
+                      accessibilityRole="button"
+                    >
+                      <CircleHelp size={14} color={th.c.gold} strokeWidth={2.4} />
+                      <Text style={s.chipLabel}>{t.dbhWhy}</Text>
+                    </Pressable>
+                  ) : null}
                   {guiding && plateLive != null ? (
                     <Text style={s.chipText} testID="plate-live">
                       {t.plateDistance(plateLive)}
@@ -668,7 +750,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
                     <Pressable
                       testID="capture-button"
                       onPress={() => void takePicture()}
-                      disabled={taking}
+                      disabled={taking || !cameraReady}
                       style={({ pressed }) => [s.shutter, pressed && s.shutterPressed]}
                       accessibilityRole="button"
                       accessibilityLabel={step.title}
@@ -684,6 +766,17 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
                         accessibilityLabel={t.skip}
                       >
                         <Text style={s.sideText}>{t.skipDbh}</Text>
+                      </Pressable>
+                    ) : canZoom ? (
+                      <Pressable
+                        testID="zoom-button"
+                        style={[s.sideBtn, zoomIndex > 0 && s.sideBtnOn]}
+                        onPress={() => setZoomIndex((i) => (i + 1) % ZOOM_LEVELS.length)}
+                        accessibilityRole="button"
+                        accessibilityLabel={t.zoomLabels[zoomIndex]}
+                      >
+                        <ZoomIn size={18} color={zoomIndex > 0 ? "#1B2114" : "#FFFFFF"} strokeWidth={2.2} />
+                        <Text style={[s.zoomText, zoomIndex > 0 && s.zoomTextOn]}>{t.zoomLabels[zoomIndex]}</Text>
                       </Pressable>
                     ) : (
                       <View style={s.sideSpacer} />
@@ -710,6 +803,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
               ) : (
                 <Image source={{ uri: shot.image.uri }} style={s.fill} resizeMode="contain" />
               )}
+              {shot.imported ? <ImportBadge shot={shot} position={position} /> : null}
             </View>
             <View style={s.sheet} testID="dbh-panel">
               {measureMode === "photo" ? (
@@ -721,7 +815,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
                     {autoDistance && !overrideAuto ? (
                       <Pressable testID="distance-edit" onPress={() => setOverrideAuto(true)} hitSlop={8}>
                         <Txt variant="small" tone="olive" bold>
-                          {t.heightEdit}
+                          {t.edit}
                         </Txt>
                       </Pressable>
                     ) : null}
@@ -842,11 +936,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
           <>
             <View style={s.adjustWrap}>
               <Image source={{ uri: shot.image.uri }} style={s.fill} resizeMode="contain" />
-              {shot.imported ? (
-                <View style={s.importBadge}>
-                  <Pill tone="info" label={t.imported} />
-                </View>
-              ) : null}
+              {shot.imported ? <ImportBadge shot={shot} position={position} /> : null}
             </View>
             <View style={[s.sheet, s.actionRow]}>
               <Button
@@ -903,6 +993,21 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
         ) : null}
       </KeyboardAvoidingView>
 
+      {whyOpen ? (
+        <View style={s.whyBackdrop} testID="dbh-why-card">
+          <View style={s.whyCard}>
+            <Txt variant="heading">{t.dbhWhyTitle}</Txt>
+            <Txt variant="small">{t.dbhWhyBody}</Txt>
+            {t.dbhWhyTips.map((tip) => (
+              <Txt key={tip} variant="small" tone="muted">
+                {`• ${tip}`}
+              </Txt>
+            ))}
+            <Button testID="dbh-why-ok" label={t.dbhWhyOk} onPress={() => setWhyOpen(false)} />
+          </View>
+        </View>
+      ) : null}
+
       <Clinometer
         visible={clinoOpen}
         initialDistanceM={depth > 0 ? depth : undefined}
@@ -938,6 +1043,19 @@ function FramingGuide({ frame, left, right }: { frame: ScanStep["frame"]; left: 
         <View style={[s.corner, s.cBL]} />
         <View style={[s.corner, s.cBR]} />
       </View>
+    </View>
+  );
+}
+
+function ImportBadge({ shot, position }: { shot: StepShot; position: { lat: number; lon: number } | null }) {
+  const s = useStyles();
+  const info = importInfo(shot, position);
+  return (
+    <View style={s.importBadge} testID="import-badge">
+      <Pill tone={info.warn ? "warn" : "info"} label={info.warn ? t.importCheck : t.imported} />
+      <Text style={[s.importInfo, info.warn && s.importInfoWarn]} testID="import-info">
+        {info.text}
+      </Text>
     </View>
   );
 }
@@ -1085,7 +1203,14 @@ function Review(props: {
                 accessibilityLabel={st.title}
               >
                 {sh ? (
-                  <Image source={{ uri: sh.image.uri }} style={s.tileImg} />
+                  <>
+                    <Image source={{ uri: sh.image.uri }} style={s.tileImg} />
+                    {sh.imported && importInfo(sh, props.position).warn ? (
+                      <View style={s.tileWarn} testID={`tile-warn-${st.key}`}>
+                        <Text style={s.tileWarnText}>!</Text>
+                      </View>
+                    ) : null}
+                  </>
                 ) : (
                   <Plus size={22} color={required ? th.c.warn : th.c.muted} />
                 )}
@@ -1110,7 +1235,7 @@ function Review(props: {
                 {dbhText}
               </Txt>
             </View>
-            <Button label={shots.dbh ? t.heightEdit : t.railDbh} variant="secondary" compact onPress={() => props.onOpenStep("dbh")} />
+            <Button label={shots.dbh ? t.edit : t.railDbh} variant="secondary" compact onPress={() => props.onOpenStep("dbh")} />
           </View>
           <View style={s.divider} />
           <View style={s.row}>
@@ -1468,7 +1593,52 @@ const useStyles = makeStyles((th) => ({
   qrOverlay: { ...{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }, alignItems: "center", justifyContent: "center", gap: th.space.lg },
   qrFrame: { width: 230, height: 230, borderWidth: 3, borderColor: th.c.gold, borderRadius: 18 },
   adjustWrap: { flex: 1, backgroundColor: "#000" },
-  importBadge: { position: "absolute", left: th.space.md, top: th.space.md },
+  importBadge: { position: "absolute", left: th.space.md, right: th.space.md, top: th.space.md, gap: 6 },
+  importInfo: {
+    alignSelf: "flex-start",
+    color: "#FFFFFF",
+    backgroundColor: "rgba(0,0,0,0.6)",
+    fontFamily: th.fonts.body,
+    fontSize: 12.5,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: th.radius.sm,
+    overflow: "hidden",
+  },
+  importInfoWarn: { color: th.c.warn },
+  tileWarn: {
+    position: "absolute",
+    top: 6,
+    right: 6,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: th.c.warn,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tileWarnText: { color: "#0F130C", fontFamily: th.fonts.display, fontSize: 13 },
+  sideBtnOn: { backgroundColor: th.c.gold },
+  zoomText: { color: "#FFFFFF", fontFamily: th.fonts.bodyBold, fontSize: 10 },
+  zoomTextOn: { color: "#1B2114" },
+  whyBackdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    padding: th.space.lg,
+  },
+  whyCard: {
+    backgroundColor: th.c.surface,
+    borderRadius: th.radius.lg,
+    borderWidth: 1,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.sm,
+  },
   sheet: {
     backgroundColor: th.c.surface,
     borderTopWidth: 1,
