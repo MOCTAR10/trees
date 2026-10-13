@@ -1435,6 +1435,89 @@ export async function issueAttestation(
   return resp.json();
 }
 
+export type StudyType = "ppf" | "eie";
+export type StudyStatus = "soumis" | "valide" | "rejete" | "expire";
+
+export interface EnvironmentalStudy {
+  id: number;
+  title_id: number;
+  study_type: StudyType;
+  reference: string;
+  authority: string | null;
+  conducted_at: string | null;
+  valid_from: string | null;
+  valid_to: string | null;
+  status: StudyStatus;
+  certificate_ref: string | null;
+  certificate_issued_at: string | null;
+  certificate_issued_by?: number | null;
+  decision_motif?: string | null;
+  created_at: string;
+  title_ref?: string | null;
+  org_name?: string | null;
+}
+
+export async function listStudies(titleId: number): Promise<EnvironmentalStudy[]> {
+  const resp = await timedFetch(`${API_BASE}/api/titles/${titleId}/studies`, {
+    headers: headers(),
+  });
+  if (!resp.ok) throw new Error(`Studies ${resp.status}`);
+  return resp.json();
+}
+
+export async function createStudy(
+  titleId: number,
+  input: {
+    study_type: StudyType;
+    reference: string;
+    authority?: string | null;
+    conducted_at?: string | null;
+    valid_from?: string | null;
+    valid_to?: string | null;
+  },
+): Promise<EnvironmentalStudy> {
+  const resp = await timedFetch(`${API_BASE}/api/titles/${titleId}/studies`, {
+    method: "POST",
+    headers: headers(true),
+    body: JSON.stringify(input),
+  });
+  if (!resp.ok) throw new Error(`Study ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
+export async function decideStudy(
+  titleId: number,
+  studyId: number,
+  decision: "valide" | "rejete",
+  motif?: string | null,
+): Promise<{ id: number; title_id: number; status: StudyStatus; decision_motif?: string | null }> {
+  const resp = await timedFetch(`${API_BASE}/api/titles/${titleId}/studies/${studyId}`, {
+    method: "PATCH",
+    headers: headers(true),
+    body: JSON.stringify({ decision, motif: motif ?? null }),
+  });
+  if (!resp.ok) throw new Error(`Study ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
+export async function issueStudyCertificate(
+  titleId: number,
+  studyId: number,
+  reference: string,
+): Promise<{
+  id: number;
+  title_id: number;
+  certificate_ref: string | null;
+  certificate_issued_at: string | null;
+}> {
+  const resp = await timedFetch(
+    `${API_BASE}/api/titles/${titleId}/studies/${studyId}/certificate`,
+    { method: "POST", headers: headers(true), body: JSON.stringify({ reference }) },
+  );
+  if (!resp.ok) throw new Error(`Certificate ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
 export type TaxType =
   | "superficie"
   | "abattage"

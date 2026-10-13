@@ -26,6 +26,7 @@ import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
 import AacAuthorizations from "./AacAuthorizations";
 import TitleConventions from "./TitleConventions";
+import TitleStudies from "./TitleStudies";
 import UfaDme from "./UfaDme";
 import Badge, { aacTone, titleTone } from "./Badge";
 
@@ -162,6 +163,7 @@ export default function CompanyTitles() {
             {expandedTitle === title.id ? (
               <View style={styles.detail}>
                 <TitleConventions titleId={title.id} mode="company" />
+                <TitleStudies titleId={title.id} mode="company" />
                 <Text style={styles.section}>{fr.titles.units}</Text>
                 {unitsLoading === title.id ? (
                   <ActivityIndicator color={colors.accent} />

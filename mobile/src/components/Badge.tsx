@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import type { AacStatus, AuthorizationStatus, CertStatus, ConventionStatus, DocStatus, TaxStatus, TitleStatus } from "../api/client";
+import type { AacStatus, AuthorizationStatus, CertStatus, ConventionStatus, DocStatus, StudyStatus, TaxStatus, TitleStatus } from "../api/client";
 import { colors, spacing, type } from "../theme";
 
 export type Tone = "neutral" | "success" | "warning" | "danger" | "accent";
@@ -34,6 +34,13 @@ export function docTone(status: DocStatus): Tone {
     default:
       return "neutral";
   }
+}
+
+export function studyTone(status: StudyStatus): Tone {
+  if (status === "valide") return "success";
+  if (status === "rejete" || status === "expire") return "danger";
+  if (status === "soumis") return "warning";
+  return "neutral";
 }
 
 export function titleTone(status: TitleStatus): Tone {

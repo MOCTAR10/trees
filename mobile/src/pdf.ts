@@ -95,6 +95,11 @@ export async function exportConventionPdf(titleId: number, conventionId: number)
   );
 }
 
+/** Environmental study (PPF / EIE) + certificat de conformité PDF. */
+export async function exportStudyPdf(titleId: number, studyId: number): Promise<string> {
+  return getPdfToCache(`/api/titles/${titleId}/studies/${studyId}/pdf`, `etude_${studyId}.pdf`);
+}
+
 /** Third-party certification (FSC / PAFC / …) PDF. */
 export async function exportCertificationPdf(id: number): Promise<string> {
   return getPdfToCache(`/api/certifications/${id}/pdf`, `certification_${id}.pdf`);
