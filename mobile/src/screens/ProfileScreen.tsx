@@ -1,9 +1,14 @@
+import { LogOut } from "lucide-react-native";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, View } from "react-native";
 
 import { AuthUser } from "../api/client";
+import { rankForRole } from "../components/RoleHeader";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
+import { Button, Card, KeyValue, RankStripes, ScreenHeader, Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
+
+const t = fr.profile;
 
 interface Props {
   user: AuthUser;
@@ -12,50 +17,61 @@ interface Props {
 }
 
 export default function ProfileScreen({ user, onLogout, onBack }: Props) {
+  const theme = useTheme();
+  const s = useStyles();
+  const rank = rankForRole(user.role);
   return (
-    <View style={styles.container}>
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={onBack}>
-          <Text style={styles.link}>{fr.history.back}</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.content}>
-        <View style={styles.card}>
-          <Text style={styles.label}>Nom</Text>
-          <Text style={styles.value}>{user.display_name}</Text>
-          <Text style={styles.label}>Email</Text>
-          <Text style={styles.value}>{user.email}</Text>
-          <Text style={styles.label}>Rôle</Text>
-          <Text style={styles.value}>{fr.roles[user.role]}</Text>
-        </View>
-        <TouchableOpacity style={styles.logoutBtn} onPress={onLogout}>
-          <Text style={styles.logoutText}>{fr.common.logout}</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={s.screen}>
+      <ScreenHeader eyebrow={fr.header.ministry} title={t.title} onBack={onBack} backLabel={fr.history.back} />
+      <ScrollView contentContainerStyle={s.content}>
+        <Card raised>
+          <View style={s.identity}>
+            <View style={s.avatar}>
+              <Txt variant="title" tone="onOlive">
+                {(user.display_name?.trim()[0] ?? "?").toUpperCase()}
+              </Txt>
+            </View>
+            <View style={s.identityText}>
+              <Txt variant="heading" numberOfLines={2}>
+                {user.display_name}
+              </Txt>
+              <View style={s.roleRow}>
+                {rank > 0 ? <RankStripes count={rank} color={theme.c.forest} /> : null}
+                <Txt variant="small" tone="muted">
+                  {fr.roles[user.role]}
+                </Txt>
+              </View>
+            </View>
+          </View>
+          <KeyValue label={t.name} value={user.display_name} />
+          <KeyValue label={t.email} value={user.email} />
+          <KeyValue label={t.role} value={fr.roles[user.role]} />
+        </Card>
+        <Button
+          label={fr.common.logout}
+          variant="danger"
+          onPress={onLogout}
+          icon={<LogOut size={18} color="#FFFFFF" />}
+        />
+      </ScrollView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  topBar: { padding: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  content: { flex: 1, padding: spacing.lg, gap: spacing.lg },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
-    gap: spacing.sm,
-  },
-  label: { color: colors.textDim, fontSize: type.caption, textTransform: "uppercase" },
-  value: { color: colors.text, fontSize: type.body, fontWeight: "600" },
-  logoutBtn: {
-    backgroundColor: colors.error,
-    borderRadius: 12,
-    paddingVertical: spacing.md,
+const useStyles = makeStyles((th) => ({
+  screen: { flex: 1, backgroundColor: th.c.bg },
+  content: { padding: th.space.lg, gap: th.space.lg },
+  identity: { flexDirection: "row", alignItems: "center", gap: th.space.md, marginBottom: th.space.sm },
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: th.c.olive,
+    borderWidth: 2,
+    borderColor: th.c.gold,
     alignItems: "center",
+    justifyContent: "center",
   },
-  logoutText: { color: colors.text, fontSize: type.body, fontWeight: "800" },
-});
+  identityText: { flex: 1, minWidth: 0, gap: 2 },
+  roleRow: { flexDirection: "row", alignItems: "center", gap: th.space.sm },
+}));

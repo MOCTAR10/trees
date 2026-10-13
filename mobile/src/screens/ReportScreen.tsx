@@ -1,10 +1,13 @@
+import { FileDown, Recycle } from "lucide-react-native";
 import React from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, View } from "react-native";
 
 import { V1Report } from "../api/client";
 import ForestChecksCard from "../components/ForestChecksCard";
+import { dec, signed } from "../design/format";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
+import { Bullet, Button, Card, KeyValue, ScreenHeader, Stat, Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
 
 const t = fr.report;
 
@@ -22,205 +25,168 @@ function label(map: Record<string, string>, code: string | null | undefined): st
   return map[code] ?? code;
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function distanceSource(source: V1Report["distance_source"]): string {
+  if (source === "ai") return t.distanceAi;
+  if (source === "qr") return t.distanceQr;
+  if (source === "lidar" || source === "arcore") return t.distanceSensor;
+  return t.distanceTyped;
+}
+
+export default function ReportScreen({ report, exporting, onValorize, onOpenPlan, onExportPdf, onBack }: Props) {
+  const theme = useTheme();
+  const s = useStyles();
+  const fmt = (v: number | null | undefined, unit = "", digits = 1) =>
+    v == null ? t.unknown : `${dec(v, digits)}${unit}`;
+  const heading = report.species_common_name_fr ?? report.species_scientific_name ?? t.unknown;
+  const showVision =
+    report.dbh_vision_cm != null &&
+    report.dbh_method !== null &&
+    ["tape_circumference", "caliper"].includes(report.dbh_method);
+
   return (
-    <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
-      <Text style={styles.rowValue}>{value}</Text>
+    <View style={s.screen}>
+      <ScreenHeader eyebrow={t.title} title={heading} onBack={onBack} backLabel={t.back} />
+      <ScrollView contentContainerStyle={s.content}>
+        <Card raised testID="report-hero">
+          {report.species_scientific_name ? (
+            <Txt variant="small" tone="muted" style={s.sci}>
+              {report.species_scientific_name}
+              {report.species_confidence != null
+                ? ` · ${t.confidence.toLowerCase()} ${dec(report.species_confidence * 100, 0)} %`
+                : ""}
+            </Txt>
+          ) : null}
+          <View style={s.stats}>
+            <Stat
+              testID="report-dbh"
+              value={report.measured_dbh_cm == null ? "—" : dec(report.measured_dbh_cm)}
+              unit={report.measured_dbh_cm == null ? undefined : "cm"}
+              label={t.dbh}
+              compact
+            />
+            <Stat
+              value={report.estimated_height_m == null ? "—" : dec(report.estimated_height_m, 0)}
+              unit={report.estimated_height_m == null ? undefined : "m"}
+              label={t.height}
+              compact
+            />
+            <Stat
+              value={report.estimated_age_years == null ? "—" : dec(report.estimated_age_years, 0)}
+              unit={report.estimated_age_years == null ? undefined : "ans"}
+              label={t.age}
+              compact
+            />
+          </View>
+          {report.measured_dbh_cm == null ? (
+            <Txt variant="small" tone="warn">
+              {t.noDbh}
+            </Txt>
+          ) : null}
+        </Card>
+
+        <Card testID="measurement-card">
+          <Txt variant="heading">{t.measurement}</Txt>
+          <KeyValue label={t.method} value={label(t.dbhMethods, report.dbh_method)} />
+          {report.distance_m != null ? (
+            <KeyValue
+              label={t.distance}
+              value={`${dec(report.distance_m, 2)} m (${distanceSource(report.distance_source)})`}
+            />
+          ) : null}
+          {report.tree_code ? <KeyValue label={t.treeCode} value={report.tree_code} /> : null}
+          {showVision ? <KeyValue label={t.visionCheck} value={fmt(report.dbh_vision_cm, " cm")} /> : null}
+          {report.dbh_discrepancy_pct != null ? (
+            <KeyValue label={t.discrepancy} value={`${signed(report.dbh_discrepancy_pct)} %`} />
+          ) : null}
+          {report.dbh_uncertainty_cm != null ? (
+            <KeyValue label={t.uncertainty} value={`± ${dec(report.dbh_uncertainty_cm)} cm`} />
+          ) : null}
+          {report.height_method ? (
+            <KeyValue label={t.heightMethod} value={label(t.heightMethods, report.height_method)} />
+          ) : null}
+          {report.measurement_notes && report.measurement_notes.length > 0 ? (
+            <View style={s.notes}>
+              <Txt variant="label" tone="muted">
+                {t.quality}
+              </Txt>
+              {report.measurement_notes.map((code) => (
+                <Bullet key={code}>{t.notes[code] ?? code}</Bullet>
+              ))}
+            </View>
+          ) : null}
+        </Card>
+
+        <Card testID="tree-card">
+          <KeyValue label={t.model} value={report.age_model_used ?? t.unknown} />
+          <KeyValue label={t.health} value={report.health_status ?? t.unknown} />
+          <KeyValue label={t.soil} value={report.soil_type ?? t.unknown} />
+          <KeyValue label={t.canopy} value={fmt(report.canopy_density_fcd, "", 2)} />
+        </Card>
+
+        {report.species_candidates && report.species_candidates.length > 1 ? (
+          <Card testID="species-candidates">
+            <Txt variant="heading">{t.candidates}</Txt>
+            {report.species_candidates.slice(1).map((c) => (
+              <KeyValue
+                key={c.scientific_name}
+                label={`${c.scientific_name}${c.common_name_fr ? ` (${c.common_name_fr})` : ""}`}
+                value={`${dec(c.combined * 100, 0)} %`}
+              />
+            ))}
+          </Card>
+        ) : null}
+
+        {report.forest_checks ? <ForestChecksCard checks={report.forest_checks} title={t.forestCheck} /> : null}
+
+        {report.co2e_kg != null ? (
+          <Card testID="carbon-card">
+            <Txt variant="heading">{t.carbon}</Txt>
+            <Stat value={dec(report.co2e_kg / 1000, 2)} unit="t CO₂e" label={t.co2e} tone="ok" />
+            <KeyValue label={t.agb} value={fmt(report.aboveground_biomass_kg, " kg", 0)} />
+            <KeyValue label={t.carbonStock} value={fmt(report.carbon_stock_kg, " kg C", 0)} />
+            <KeyValue label={t.co2e} value={fmt(report.co2e_kg, " kg", 0)} />
+          </Card>
+        ) : null}
+
+        {report.narrative_fr ? (
+          <Card>
+            <Txt variant="heading">{t.narrative}</Txt>
+            <Txt>{report.narrative_fr}</Txt>
+          </Card>
+        ) : null}
+
+        <View style={s.actions}>
+          {onValorize ? (
+            <Button
+              label={t.toValorization}
+              onPress={onValorize}
+              disabled={!!exporting}
+              icon={<Recycle size={18} color={theme.c.onOlive} />}
+            />
+          ) : null}
+          {onOpenPlan ? (
+            <Button label={t.openPlan} onPress={onOpenPlan} disabled={!!exporting} />
+          ) : null}
+          {onExportPdf ? (
+            <Button
+              label={t.exportReport}
+              variant="secondary"
+              onPress={onExportPdf}
+              loading={!!exporting}
+              icon={<FileDown size={18} color={theme.c.olive} />}
+            />
+          ) : null}
+        </View>
+      </ScrollView>
     </View>
   );
 }
 
-export default function ReportScreen({
-  report,
-  exporting,
-  onValorize,
-  onOpenPlan,
-  onExportPdf,
-  onBack,
-}: Props) {
-  const fmt = (v: number | null | undefined, unit = "", digits = 1) =>
-    v == null ? t.unknown : `${v.toFixed(digits)}${unit}`;
-
-  return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {onBack && (
-        <TouchableOpacity onPress={onBack}>
-          <Text style={styles.link}>{t.back}</Text>
-        </TouchableOpacity>
-      )}
-      <Text style={styles.title}>{t.title}</Text>
-
-      <View style={styles.card}>
-        <Text style={styles.species}>
-          {report.species_scientific_name ?? t.unknown}
-          {report.species_common_name_fr ? ` — ${report.species_common_name_fr}` : ""}
-        </Text>
-        {report.species_confidence != null && (
-          <Text style={styles.caption}>
-            {t.confidence}: {(report.species_confidence * 100).toFixed(0)}%
-          </Text>
-        )}
-
-        <Row label={t.dbh} value={fmt(report.measured_dbh_cm, " cm")} />
-        <Row label={t.height} value={fmt(report.estimated_height_m, " m")} />
-        <Row label={t.age} value={fmt(report.estimated_age_years, " ans", 0)} />
-        <Row label={t.model} value={report.age_model_used ?? t.unknown} />
-        <Row label={t.health} value={report.health_status ?? t.unknown} />
-        <Row label={t.soil} value={report.soil_type ?? t.unknown} />
-        <Row label={t.canopy} value={fmt(report.canopy_density_fcd, "", 2)} />
-      </View>
-
-      <View style={styles.card} testID="measurement-card">
-        <Text style={styles.cardTitle}>{t.measurement}</Text>
-        {report.measured_dbh_cm == null ? (
-          <Text style={styles.warning}>{t.noDbh}</Text>
-        ) : null}
-        <Row label={t.method} value={label(t.dbhMethods, report.dbh_method)} />
-        {report.distance_m != null ? (
-          <Row
-            label={t.distance}
-            value={`${report.distance_m.toFixed(2)} m (${
-              report.distance_source === "ai"
-                ? t.distanceAi
-                : report.distance_source === "qr"
-                  ? t.distanceQr
-                  : report.distance_source === "lidar" || report.distance_source === "arcore"
-                    ? t.distanceSensor
-                    : t.distanceTyped
-            })`}
-          />
-        ) : null}
-        {report.tree_code ? <Row label={t.treeCode} value={report.tree_code} /> : null}
-        {report.dbh_vision_cm != null &&
-        report.dbh_method !== null &&
-        ["tape_circumference", "caliper"].includes(report.dbh_method) ? (
-          <Row label={t.visionCheck} value={fmt(report.dbh_vision_cm, " cm")} />
-        ) : null}
-        {report.dbh_discrepancy_pct != null ? (
-          <Row
-            label={t.discrepancy}
-            value={`${report.dbh_discrepancy_pct > 0 ? "+" : ""}${report.dbh_discrepancy_pct.toFixed(1)} %`}
-          />
-        ) : null}
-        {report.dbh_uncertainty_cm != null ? (
-          <Row label={t.uncertainty} value={`± ${report.dbh_uncertainty_cm.toFixed(1)} cm`} />
-        ) : null}
-        {report.height_method ? (
-          <Row label={t.heightMethod} value={label(t.heightMethods, report.height_method)} />
-        ) : null}
-        {report.measurement_notes && report.measurement_notes.length > 0 ? (
-          <View style={styles.notes}>
-            <Text style={styles.caption}>{t.quality}</Text>
-            {report.measurement_notes.map((code) => (
-              <Text key={code} style={styles.note}>
-                • {t.notes[code] ?? code}
-              </Text>
-            ))}
-          </View>
-        ) : null}
-      </View>
-
-      {report.species_candidates && report.species_candidates.length > 1 ? (
-        <View style={styles.card} testID="species-candidates">
-          <Text style={styles.cardTitle}>{t.candidates}</Text>
-          {report.species_candidates.slice(1).map((c) => (
-            <Row
-              key={c.scientific_name}
-              label={`${c.scientific_name}${c.common_name_fr ? ` (${c.common_name_fr})` : ""}`}
-              value={`${(c.combined * 100).toFixed(0)} %`}
-            />
-          ))}
-        </View>
-      ) : null}
-
-      {report.forest_checks ? (
-        <ForestChecksCard checks={report.forest_checks} title={t.forestCheck} />
-      ) : null}
-
-      {report.co2e_kg != null ? (
-        <View style={styles.card} testID="carbon-card">
-          <Text style={styles.cardTitle}>{t.carbon}</Text>
-          <Text style={styles.carbonHero}>{`${(report.co2e_kg / 1000).toFixed(2)} t CO₂e`}</Text>
-          <Row label={t.agb} value={fmt(report.aboveground_biomass_kg, " kg", 0)} />
-          <Row label={t.carbonStock} value={fmt(report.carbon_stock_kg, " kg C", 0)} />
-          <Row label={t.co2e} value={fmt(report.co2e_kg, " kg", 0)} />
-        </View>
-      ) : null}
-
-      {report.narrative_fr && (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t.narrative}</Text>
-          <Text style={styles.narrative}>{report.narrative_fr}</Text>
-        </View>
-      )}
-
-      {onValorize && (
-        <TouchableOpacity style={styles.button} onPress={onValorize} disabled={!!exporting}>
-          <Text style={styles.buttonText}>{t.toValorization}</Text>
-        </TouchableOpacity>
-      )}
-      {onOpenPlan && (
-        <TouchableOpacity style={styles.button} onPress={onOpenPlan} disabled={!!exporting}>
-          <Text style={styles.buttonText}>{t.openPlan}</Text>
-        </TouchableOpacity>
-      )}
-      {onExportPdf && (
-        <TouchableOpacity
-          style={styles.exportButton}
-          onPress={onExportPdf}
-          disabled={!!exporting}
-        >
-          {exporting ? (
-            <ActivityIndicator color={colors.text} />
-          ) : (
-            <Text style={styles.exportText}>{t.exportReport}</Text>
-          )}
-        </TouchableOpacity>
-      )}
-    </ScrollView>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.lg, gap: spacing.md },
-  title: { color: colors.text, fontSize: type.title, fontWeight: "700" },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: spacing.md,
-    gap: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  cardTitle: { color: colors.accent, fontSize: type.heading, fontWeight: "600" },
-  species: { color: colors.text, fontSize: type.heading, fontStyle: "italic" },
-  caption: { color: colors.textDim, fontSize: type.caption },
-  row: { flexDirection: "row", justifyContent: "space-between", gap: spacing.md },
-  rowLabel: { color: colors.textDim, fontSize: type.body },
-  rowValue: { color: colors.text, fontSize: type.body, fontWeight: "600", flexShrink: 1, textAlign: "right" },
-  narrative: { color: colors.text, fontSize: type.body, lineHeight: 22 },
-  warning: { color: colors.warning, fontSize: type.body },
-  notes: { gap: 2, marginTop: spacing.xs },
-  note: { color: colors.textDim, fontSize: type.caption },
-  carbonHero: { color: colors.success, fontSize: type.title, fontWeight: "800" },
-  button: {
-    backgroundColor: colors.accent,
-    padding: spacing.md,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  buttonText: { color: colors.primary, fontSize: type.body, fontWeight: "700" },
-  exportButton: {
-    backgroundColor: colors.surfaceAlt,
-    padding: spacing.md,
-    borderRadius: 10,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: spacing.xl,
-  },
-  exportText: { color: colors.text, fontSize: type.body, fontWeight: "600" },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-});
+const useStyles = makeStyles((th) => ({
+  screen: { flex: 1, backgroundColor: th.c.bg },
+  content: { padding: th.space.lg, gap: th.space.lg, paddingBottom: th.space.xxl },
+  sci: { fontFamily: th.fonts.bodyItalic },
+  stats: { flexDirection: "row", gap: th.space.md },
+  notes: { gap: th.space.xs, marginTop: th.space.xs },
+  actions: { gap: th.space.md },
+}));

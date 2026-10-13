@@ -60,6 +60,15 @@ describe("RoleHeader", () => {
     expect(getByText("Localisation…")).toBeTruthy();
   });
 
+  it("shows the uniform rank stripes for Ministry and company roles only", () => {
+    const { queryByTestId, rerender } = render(<RoleHeader title="T" roleLabel="Administrateur" role="admin" />);
+    expect(queryByTestId("rank-stripes")?.children).toHaveLength(2);
+    rerender(<RoleHeader title="T" roleLabel="Entreprise" role="company" />);
+    expect(queryByTestId("rank-stripes")?.children).toHaveLength(1);
+    rerender(<RoleHeader title="T" roleLabel="Opérateur" role="operator" />);
+    expect(queryByTestId("rank-stripes")).toBeNull();
+  });
+
   it("hides the GPS row when coords are not provided", () => {
     const { queryByText } = render(<RoleHeader title="Titre" />);
     expect(queryByText("Localisation…")).toBeNull();

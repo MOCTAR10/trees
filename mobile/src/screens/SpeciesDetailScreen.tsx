@@ -1,17 +1,13 @@
+import { ChevronLeft } from "lucide-react-native";
 import React from "react";
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 
 import { getSpecies, SpeciesDetail } from "../api/client";
 import { COUNTRY_NAMES } from "../data/countries";
-import { IUCN_COLORS, IUCN_LABELS } from "../data/iucn";
-import { colors, spacing, type } from "../theme";
+import { IUCN_LABELS, IUCN_TONE } from "../data/iucn";
+import { dec } from "../design/format";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
+import { Card, EmptyState, KeyValue, Pill, Txt } from "../design/ui";
 
 interface Props {
   name: string;
@@ -34,9 +30,9 @@ function cacheDetail(name: string, detail: SpeciesDetail) {
 }
 
 export default function SpeciesDetailScreen({ name, onBack }: Props) {
-  const [detail, setDetail] = React.useState<SpeciesDetail | null>(
-    () => detailCache.get(name) ?? null,
-  );
+  const theme = useTheme();
+  const s = useStyles();
+  const [detail, setDetail] = React.useState<SpeciesDetail | null>(() => detailCache.get(name) ?? null);
   const [loading, setLoading] = React.useState(() => !detailCache.has(name));
   const [error, setError] = React.useState<string | null>(null);
 
@@ -74,92 +70,79 @@ export default function SpeciesDetailScreen({ name, onBack }: Props) {
   }, [name, load]);
 
   const status = detail?.iucn_status || "NE";
-  const iucnColor = IUCN_COLORS[status] ?? colors.textDim;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={onBack} accessibilityRole="button">
-          <Text style={styles.back}>← Retour</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={s.screen}>
+      <Pressable onPress={onBack} accessibilityRole="button" accessibilityLabel="Retour" style={s.back} hitSlop={6}>
+        <ChevronLeft size={20} color={theme.c.olive} />
+        <Txt tone="olive" bold>
+          Retour
+        </Txt>
+      </Pressable>
 
       {loading ? (
-        <ActivityIndicator style={styles.center} color={colors.accent} />
+        <ActivityIndicator style={s.loader} color={theme.c.olive} />
       ) : error || !detail ? (
-        <View style={styles.center}>
-          <Text style={styles.error}>{error ?? "Fiche introuvable."}</Text>
-          <TouchableOpacity onPress={() => void load(true)}>
-            <Text style={styles.link}>Réessayer</Text>
-          </TouchableOpacity>
-        </View>
+        <EmptyState
+          message={error ?? "Fiche introuvable."}
+          tone="risk"
+          action={{ label: "Réessayer", onPress: () => void load(true) }}
+        />
       ) : (
-        <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.scientific}>{detail.scientific_name}</Text>
+        <ScrollView contentContainerStyle={s.content}>
+          <Card raised>
+            <Txt variant="label" tone="gold">
+              Fiche espèce
+            </Txt>
+            <Txt variant="title" style={s.sci}>
+              {detail.scientific_name}
+            </Txt>
             {detail.common_name_fr ? (
-              <Text style={styles.common}>{detail.common_name_fr}</Text>
+              <Txt variant="heading" tone="muted">
+                {detail.common_name_fr}
+              </Txt>
             ) : null}
-            <View style={[styles.iucnBadge, { backgroundColor: iucnColor }]}>
-              <Text style={styles.iucnText}>
-                {status} · {IUCN_LABELS[status] ?? status}
-              </Text>
-            </View>
-          </View>
+            <Pill tone={IUCN_TONE[status] ?? "neutral"} label={`${status} · ${IUCN_LABELS[status] ?? status}`} />
+          </Card>
 
           <Section title="Taxonomie">
-            <Row label="Famille" value={detail.family || "—"} />
-            <Row label="Genre" value={detail.scientific_name.split(" ")[0]} />
-            <Row
-              label="Noms vernaculaires"
-              value={detail.aliases.length ? detail.aliases.join(", ") : "—"}
-            />
+            <KeyValue label="Famille" value={detail.family || "—"} />
+            <KeyValue label="Genre" value={detail.scientific_name.split(" ")[0]} />
+            <KeyValue label="Noms vernaculaires" value={detail.aliases.length ? detail.aliases.join(", ") : "—"} />
           </Section>
 
           <Section title="Caractéristiques">
-            <Row label="Densité du bois" value={`${detail.wood_density_g_cm3.toFixed(2)} g/cm³`} />
-            <Row label="Hauteur maximale" value={`${detail.max_height_m.toFixed(0)} m`} />
+            <KeyValue label="Densité du bois" value={`${dec(detail.wood_density_g_cm3, 2)} g/cm³`} />
+            <KeyValue label="Hauteur maximale" value={`${dec(detail.max_height_m, 0)} m`} />
           </Section>
 
           <Section title="Croissance (Chapman-Richards)">
-            <Text style={styles.formula}>
-              D(t) = {detail.cr_asymptote_a_cm} · (1 − e^(−{detail.cr_rate_k}·t))^{detail.cr_shape_p}
-            </Text>
-            <Row label="Asymptote A" value={`${detail.cr_asymptote_a_cm} cm`} />
-            <Row label="Taux k" value={String(detail.cr_rate_k)} />
-            <Row label="Forme p" value={String(detail.cr_shape_p)} />
-            <Row
-              label="Hauteur-diamètre"
-              value={`H = 1.3 + ${detail.hd_a}·D / (${detail.hd_b} + D)`}
-            />
-            <Row label="Source" value={detail.cr_source || "—"} />
+            <View style={s.formula}>
+              <Txt variant="small" style={s.mono}>
+                D(t) = {detail.cr_asymptote_a_cm} · (1 − e^(−{detail.cr_rate_k}·t))^{detail.cr_shape_p}
+              </Txt>
+            </View>
+            <KeyValue label="Asymptote A" value={`${detail.cr_asymptote_a_cm} cm`} />
+            <KeyValue label="Taux k" value={String(detail.cr_rate_k)} />
+            <KeyValue label="Forme p" value={String(detail.cr_shape_p)} />
+            <KeyValue label="Hauteur-diamètre" value={`H = 1.3 + ${detail.hd_a}·D / (${detail.hd_b} + D)`} />
+            <KeyValue label="Source" value={detail.cr_source || "—"} />
           </Section>
 
           <Section title="Conservation">
-            <Row
-              label="Statut IUCN"
-              value={`${status} · ${IUCN_LABELS[status] ?? "—"}`}
-            />
-            <Row label="Annexe CITES" value={detail.cites_appendix || "—"} />
-            <Row label="Liste UE" value={detail.eu_listing || "—"} />
-            <Row
+            <KeyValue label="Statut IUCN" value={`${status} · ${IUCN_LABELS[status] ?? "—"}`} />
+            <KeyValue label="Annexe CITES" value={detail.cites_appendix || "—"} />
+            <KeyValue label="Liste UE" value={detail.eu_listing || "—"} />
+            <KeyValue
               label="Originaire d'Afrique"
-              value={
-                detail.native_to_africa === null
-                  ? "—"
-                  : detail.native_to_africa
-                    ? "Oui"
-                    : "Non"
-              }
+              value={detail.native_to_africa === null ? "—" : detail.native_to_africa ? "Oui" : "Non"}
             />
           </Section>
 
           <Section title="Distribution">
-            <Text style={styles.chips}>
-              {detail.countries.length
-                ? detail.countries.map((c) => COUNTRY_NAMES[c] ?? c).join(" · ")
-                : "—"}
-            </Text>
+            <Txt>
+              {detail.countries.length ? detail.countries.map((c) => COUNTRY_NAMES[c] ?? c).join(" · ") : "—"}
+            </Txt>
           </Section>
         </ScrollView>
       )}
@@ -169,68 +152,28 @@ export default function SpeciesDetailScreen({ name, onBack }: Props) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+    <Card>
+      <Txt variant="label" tone="gold">
+        {title}
+      </Txt>
       {children}
-    </View>
+    </Card>
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
-      <Text style={styles.rowValue}>{value}</Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  topBar: { padding: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
-  back: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700", marginTop: spacing.sm },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.sm, padding: spacing.lg },
-  error: { color: colors.error, fontSize: type.body },
-  content: { padding: spacing.md, gap: spacing.md, paddingBottom: spacing.xl },
-  header: { gap: spacing.xs },
-  scientific: { color: colors.text, fontSize: type.title, fontWeight: "800", fontStyle: "italic" },
-  common: { color: colors.textDim, fontSize: type.heading },
-  iucnBadge: {
-    alignSelf: "flex-start",
-    borderRadius: 8,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    marginTop: spacing.xs,
-  },
-  iucnText: { color: colors.text, fontSize: type.body, fontWeight: "800" },
-  section: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.sm,
-  },
-  sectionTitle: {
-    color: colors.accent,
-    fontSize: type.caption,
-    fontWeight: "800",
-    textTransform: "uppercase",
-  },
-  formula: {
-    color: colors.text,
-    fontSize: type.body,
-    fontStyle: "italic",
-    fontFamily: "monospace",
-  },
-  row: {
+const useStyles = makeStyles((th) => ({
+  screen: { flex: 1, backgroundColor: th.c.bg },
+  back: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: spacing.md,
+    alignItems: "center",
+    gap: 2,
+    minHeight: 48,
+    paddingHorizontal: th.space.md,
+    alignSelf: "flex-start",
   },
-  rowLabel: { color: colors.textDim, fontSize: type.body, flexShrink: 0 },
-  rowValue: { color: colors.text, fontSize: type.body, fontWeight: "600", flex: 1, textAlign: "right" },
-  chips: { color: colors.text, fontSize: type.body, lineHeight: 22 },
-});
+  loader: { flex: 1 },
+  content: { paddingHorizontal: th.space.lg, paddingBottom: th.space.xxl, gap: th.space.lg },
+  sci: { fontFamily: th.fonts.bodyItalic, fontSize: 24, lineHeight: 30 },
+  formula: { backgroundColor: th.c.surface2, borderRadius: th.radius.sm, padding: th.space.sm },
+  mono: { fontFamily: "monospace" },
+}));

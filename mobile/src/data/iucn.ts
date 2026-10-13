@@ -21,3 +21,13 @@ export const IUCN_COLORS: Record<string, string> = {
   NT: colors.warning,
   LC: colors.success,
 };
+
+export const IUCN_TONE: Record<string, "ok" | "warn" | "risk"> = {
+  EX: "risk",
+  EW: "risk",
+  CR: "risk",
+  EN: "risk",
+  VU: "warn",
+  NT: "warn",
+  LC: "ok",
+};

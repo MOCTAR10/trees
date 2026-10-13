@@ -1,18 +1,13 @@
+import { Trash2 } from "lucide-react-native";
 import React from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ActivityIndicator, Alert, FlatList, Pressable, View } from "react-native";
 
 import { GroupTree, listGroupTrees } from "../api/client";
+import { VERDICT_TONE } from "../components/ForestChecksCard";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
+import { Button, EmptyState, Pill, Segmented, Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
 import { StoredScan } from "../storage/history";
-import { colors, spacing, type } from "../theme";
 
 const t = fr.history;
 
@@ -26,7 +21,25 @@ interface Props {
   onBack?: () => void;
 }
 
+function when(iso: string): string {
+  return new Date(iso).toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function initials(name: string | null | undefined): string {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  return (parts[0][0] + (parts[1]?.[0] ?? parts[0][1] ?? "")).toUpperCase();
+}
+
 export default function HistoryScreen({ scans, onOpen, onDelete, onClear, onBack }: Props) {
+  const theme = useTheme();
+  const s = useStyles();
   const [scope, setScope] = React.useState<Scope>("mine");
   const [group, setGroup] = React.useState<GroupTree[]>([]);
   const [groupLoading, setGroupLoading] = React.useState(false);
@@ -57,183 +70,151 @@ export default function HistoryScreen({ scans, onOpen, onDelete, onClear, onBack
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.topBar}>
-        {onBack && (
-          <TouchableOpacity onPress={onBack}>
-            <Text style={styles.link}>{t.back}</Text>
-          </TouchableOpacity>
-        )}
-        <Text style={styles.title}>{t.title}</Text>
-        {scope === "mine" && scans.length > 0 && (
-          <TouchableOpacity onPress={confirmClear}>
-            <Text style={[styles.link, styles.danger]}>{t.clear}</Text>
-          </TouchableOpacity>
-        )}
+    <View style={s.screen}>
+      <View style={s.top}>
+        {onBack ? <Button label={t.back} variant="ghost" compact onPress={onBack} /> : null}
+        <Txt variant="title" style={s.title}>
+          {t.title}
+        </Txt>
+        {scope === "mine" && scans.length > 0 ? (
+          <Button label={t.clear} variant="ghost" compact onPress={confirmClear} />
+        ) : null}
       </View>
-
-      <View style={styles.segment}>
-        <TouchableOpacity
-          style={[styles.segBtn, scope === "mine" && styles.segBtnOn]}
-          onPress={() => setScope("mine")}
-          accessibilityRole="button"
-          accessibilityState={{ selected: scope === "mine" }}
-        >
-          <Text style={[styles.segText, scope === "mine" && styles.segTextOn]}>{t.mine}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.segBtn, scope === "group" && styles.segBtnOn]}
-          onPress={() => setScope("group")}
-          accessibilityRole="button"
-          accessibilityState={{ selected: scope === "group" }}
-        >
-          <Text style={[styles.segText, scope === "group" && styles.segTextOn]}>{t.group}</Text>
-        </TouchableOpacity>
+      <View style={s.segment}>
+        <Segmented
+          options={[
+            { key: "mine", label: t.mine },
+            { key: "group", label: t.group },
+          ]}
+          value={scope}
+          onChange={setScope}
+        />
       </View>
 
       {scope === "mine" ? (
         scans.length === 0 ? (
-          <View style={styles.empty}>
-            <Text style={styles.emptyText}>{t.empty}</Text>
-          </View>
+          <EmptyState message={t.empty} />
         ) : (
           <FlatList
             data={scans}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.list}
+            contentContainerStyle={s.list}
             renderItem={({ item }) => {
-              const species =
-                item.report.species_common_name_fr ??
-                item.report.species_scientific_name ??
-                t.unknown;
-              const when = new Date(item.created_at).toLocaleDateString("fr-FR", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              });
+              const r = item.report;
+              const species = r.species_common_name_fr ?? r.species_scientific_name ?? t.unknown;
+              const verdict = r.forest_checks?.verdict;
               return (
-                <View style={styles.row}>
-                  <TouchableOpacity style={styles.rowMain} onPress={() => onOpen(item)}>
-                    <Text style={styles.rowTitle} numberOfLines={1}>
-                      {species}
-                    </Text>
-                    <Text style={styles.rowMeta}>
-                      {t.dbh(item.report.measured_dbh_cm)} · {when} · {item.latitude.toFixed(4)},{" "}
-                      {item.longitude.toFixed(4)}
-                    </Text>
-                    {item.valorization && <Text style={styles.rowPlan}>✓ {t.planDone}</Text>}
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.deleteBtn} onPress={() => onDelete(item.id)}>
-                    <Text style={styles.deleteText}>✕</Text>
-                  </TouchableOpacity>
+                <View style={s.row}>
+                  <Pressable
+                    style={({ pressed }) => [s.rowMain, pressed && s.pressed]}
+                    onPress={() => onOpen(item)}
+                    accessibilityRole="button"
+                    accessibilityLabel={species}
+                  >
+                    <View style={s.thumb}>
+                      <Txt variant="small" tone="olive" numeric>
+                        {initials(species)}
+                      </Txt>
+                    </View>
+                    <View style={s.rowText}>
+                      <Txt bold numberOfLines={1}>
+                        {species}
+                      </Txt>
+                      <Txt variant="caption" tone="muted" numberOfLines={2}>
+                        {`${t.dbh(r.measured_dbh_cm)} · ${when(item.created_at)} · ${item.latitude.toFixed(4)}, ${item.longitude.toFixed(4)}`}
+                      </Txt>
+                      <View style={s.pills}>
+                        {verdict ? (
+                          <Pill tone={VERDICT_TONE[verdict] ?? "neutral"} label={fr.home.verdictShort[verdict] ?? verdict} />
+                        ) : null}
+                        {item.valorization ? <Pill tone="gold" label={t.planDone} /> : null}
+                      </View>
+                    </View>
+                  </Pressable>
+                  <Pressable
+                    style={({ pressed }) => [s.delete, pressed && s.pressed]}
+                    onPress={() => onDelete(item.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={t.delete}
+                    hitSlop={4}
+                  >
+                    <Trash2 size={18} color={theme.c.risk} />
+                  </Pressable>
                 </View>
               );
             }}
           />
         )
       ) : groupLoading ? (
-        <ActivityIndicator style={styles.empty} color={colors.accent} />
+        <ActivityIndicator style={s.loader} color={theme.c.olive} />
       ) : groupError ? (
-        <View style={styles.empty}>
-          <Text style={styles.error}>{groupError}</Text>
-          <TouchableOpacity onPress={loadGroup}>
-            <Text style={styles.link}>{fr.common.retry}</Text>
-          </TouchableOpacity>
-        </View>
+        <EmptyState message={groupError} tone="risk" action={{ label: fr.common.retry, onPress: loadGroup }} />
       ) : group.length === 0 ? (
-        <View style={styles.empty}>
-          <Text style={styles.emptyText}>{t.emptyGroup}</Text>
-        </View>
+        <EmptyState message={t.emptyGroup} />
       ) : (
         <FlatList
           data={group}
           keyExtractor={(item) => String(item.id)}
-          contentContainerStyle={styles.list}
-          renderItem={({ item }) => {
-            const when = new Date(item.created_at).toLocaleDateString("fr-FR", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            });
-            return (
-              <View style={styles.row}>
-                <View style={styles.rowMain}>
-                  <Text style={styles.rowTitle} numberOfLines={1}>
+          contentContainerStyle={s.list}
+          renderItem={({ item }) => (
+            <View style={s.row}>
+              <View style={s.rowMain}>
+                <View style={s.thumb}>
+                  <Txt variant="small" tone="olive" numeric>
+                    {initials(item.owner_name)}
+                  </Txt>
+                </View>
+                <View style={s.rowText}>
+                  <Txt bold numberOfLines={1}>
                     {item.owner_name}
-                  </Text>
-                  <Text style={styles.rowMeta}>
-                    {item.species_scientific_name ?? t.unknown} · {t.dbh(item.measured_dbh_cm)} ·{" "}
-                    {when}
-                  </Text>
+                  </Txt>
+                  <Txt variant="caption" tone="muted" numberOfLines={2}>
+                    {`${item.species_scientific_name ?? t.unknown} · ${t.dbh(item.measured_dbh_cm)} · ${when(item.created_at)}`}
+                  </Txt>
                 </View>
               </View>
-            );
-          }}
+            </View>
+          )}
         />
       )}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  topBar: {
+const useStyles = makeStyles((th) => ({
+  screen: { flex: 1, backgroundColor: th.c.bg },
+  top: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    padding: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    minWidth: 0,
+    gap: th.space.sm,
+    paddingHorizontal: th.space.lg,
+    paddingTop: th.space.lg,
   },
-  title: { color: colors.text, fontSize: type.heading, fontWeight: "700", flexShrink: 1 },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  danger: { color: colors.error },
-  segment: {
-    flexDirection: "row",
-    margin: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.xs,
-    gap: spacing.xs,
-  },
-  segBtn: {
-    flex: 1,
-    paddingVertical: spacing.sm,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  segBtnOn: { backgroundColor: colors.surfaceAlt },
-  segText: { color: colors.textDim, fontSize: type.body, fontWeight: "600" },
-  segTextOn: { color: colors.accent, fontWeight: "800" },
-  empty: { flex: 1, alignItems: "center", justifyContent: "center", padding: spacing.lg },
-  emptyText: { color: colors.textDim, fontSize: type.body },
-  error: { color: colors.error, fontSize: type.body },
-  list: { padding: spacing.md, gap: spacing.sm },
+  title: { flex: 1 },
+  segment: { paddingHorizontal: th.space.lg, paddingVertical: th.space.md },
+  loader: { flex: 1 },
+  list: { paddingHorizontal: th.space.lg, paddingBottom: th.space.xxl, gap: th.space.sm },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.surface,
-    borderRadius: 12,
+    backgroundColor: th.c.surface,
+    borderRadius: th.radius.lg,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
+    borderColor: th.c.line,
+    paddingLeft: th.space.md,
+    paddingRight: th.space.xs,
   },
-  rowMain: { flex: 1, gap: spacing.xs },
-  rowTitle: { color: colors.text, fontSize: type.body, fontWeight: "700", fontStyle: "italic" },
-  rowMeta: { color: colors.textDim, fontSize: type.caption },
-  rowPlan: { color: colors.success, fontSize: type.caption, fontWeight: "700" },
-  deleteBtn: {
-    marginLeft: spacing.md,
-    padding: spacing.sm,
-    borderRadius: 8,
-    backgroundColor: colors.surfaceAlt,
+  rowMain: { flex: 1, flexDirection: "row", alignItems: "center", gap: th.space.md, paddingVertical: th.space.md },
+  rowText: { flex: 1, minWidth: 0, gap: 2 },
+  pills: { flexDirection: "row", gap: th.space.xs, flexWrap: "wrap", marginTop: 2 },
+  thumb: {
+    width: 40,
+    height: 40,
+    borderRadius: th.radius.md,
+    backgroundColor: th.c.oliveSoft,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  deleteText: { color: colors.error, fontSize: type.body, fontWeight: "700" },
-});
+  delete: { width: 48, height: 48, alignItems: "center", justifyContent: "center", borderRadius: th.radius.md },
+  pressed: { opacity: 0.6 },
+}));

@@ -14,7 +14,8 @@ import FilterSheet, { FilterOption } from "../components/FilterSheet";
 import RoleHeader from "../components/RoleHeader";
 import SkeletonList from "../components/SkeletonList";
 import SoftLoader from "../components/SoftLoader";
-import { IUCN_COLORS } from "../data/iucn";
+import { IUCN_TONE } from "../data/iucn";
+import { Pill } from "../design/ui";
 import {
   CatalogScope,
   EnrichedSpecies,
@@ -24,7 +25,7 @@ import {
   refreshTrees,
   useCatalogue,
 } from "../storage/catalogueStore";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { normalize } from "../utils/text";
 
 interface Props {
@@ -62,6 +63,8 @@ const CATALOG_SCOPES: { key: CatalogScope; label: string }[] = [
 ];
 
 export default function SpeciesScreen({ onOpenSpecies, onBack, showHeader = false }: Props) {
+  const th = useTheme();
+  const styles = useStyles();
   const catalogue = useCatalogue();
   const [segment, setSegment] = React.useState<Segment>("catalogue");
   const [catalogScope, setCatalogScope] = React.useState<CatalogScope>("arbres");
@@ -385,7 +388,7 @@ export default function SpeciesScreen({ onOpenSpecies, onBack, showHeader = fals
               value={query}
               onChangeText={setQuery}
               placeholder="Rechercher (nom scientifique ou commun)"
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               style={styles.input}
             />
             <View style={styles.filterRow}>
@@ -562,20 +565,15 @@ const SpeciesRow = React.memo(function SpeciesRow({
   item: EnrichedSpecies;
   onOpen?: (species: SpeciesSummary) => void;
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   return (
     <TouchableOpacity style={styles.row} disabled={!onOpen} onPress={() => onOpen?.(item)}>
       <View style={styles.rowHeader}>
         <Text style={styles.scientific} numberOfLines={1}>
           {item.scientific_name}
         </Text>
-        <View
-          style={[
-            styles.iucnBadge,
-            { backgroundColor: IUCN_COLORS[item.iucn_status ?? ""] ?? colors.textDim },
-          ]}
-        >
-          <Text style={styles.iucnText}>{item.iucn_status ?? "NE"}</Text>
-        </View>
+        <Pill tone={IUCN_TONE[item.iucn_status ?? ""] ?? "neutral"} label={item.iucn_status ?? "NE"} />
       </View>
       <Text style={styles.common}>{item.common_name_fr ?? "—"}</Text>
       <Text style={styles.meta}>
@@ -602,6 +600,8 @@ const FilterButton = React.memo(function FilterButton({
   onPress: () => void;
   onClear: () => void;
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   return (
     <View style={[styles.filterBtn, (value || open) && styles.filterBtnActive]}>
       <TouchableOpacity
@@ -630,115 +630,115 @@ const FilterButton = React.memo(function FilterButton({
   );
 });
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  topBar: { padding: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  segmentBar: { padding: spacing.md, paddingBottom: 0 },
-  scopeBar: { paddingHorizontal: spacing.md, paddingTop: spacing.sm },
+const useStyles = makeStyles((th) => ({
+  container: { flex: 1, backgroundColor: th.c.bg },
+  topBar: { padding: th.space.lg, borderBottomWidth: 1, borderBottomColor: th.c.line },
+  link: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  segmentBar: { padding: th.space.lg, paddingBottom: 0 },
+  scopeBar: { paddingHorizontal: th.space.lg, paddingTop: th.space.sm },
   segment: {
     flexDirection: "row",
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.xs,
-    gap: spacing.xs,
+    backgroundColor: th.c.surface2,
+    borderRadius: th.radius.md,
+    padding: 3,
+    gap: 3,
   },
   segBtn: {
     flex: 1,
     alignItems: "center",
-    paddingVertical: spacing.sm,
-    borderRadius: 9,
+    justifyContent: "center",
+    minHeight: 40,
+    borderRadius: th.radius.sm + 2,
   },
-  segBtnOn: { backgroundColor: colors.accent },
+  segBtnOn: { backgroundColor: th.c.surface, borderWidth: 1, borderColor: th.c.line },
   segBtnDim: { opacity: 0.6 },
-  segText: { color: colors.textDim, fontSize: type.caption, fontWeight: "700" },
-  segTextOn: { color: colors.primary },
-  searchBar: { padding: spacing.md, gap: spacing.sm },
+  segText: { color: th.c.muted, fontSize: 13.5, fontFamily: th.fonts.body },
+  segTextOn: { color: th.c.olive, fontFamily: th.fonts.bodyBold },
+  searchBar: { padding: th.space.lg, gap: th.space.sm },
   input: {
-    backgroundColor: colors.surface,
-    borderRadius: 8,
+    minHeight: 48,
+    backgroundColor: th.c.surface,
+    borderRadius: th.radius.md,
     borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    color: colors.text,
-    fontSize: type.body,
+    borderColor: th.c.line,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    color: th.c.ink,
+    fontSize: 15,
+    fontFamily: th.fonts.body,
   },
   statsRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  stats: { color: colors.textDim, fontSize: type.caption },
-  resetLink: { color: colors.accent, fontSize: type.caption, fontWeight: "700" },
+  stats: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  resetLink: { color: th.c.olive, fontSize: 12, fontFamily: th.fonts.bodyBold },
   resetDim: { opacity: 0.45 },
-  filterRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+  filterRow: { flexDirection: "row", flexWrap: "wrap", gap: th.space.sm },
   filterBtn: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: 8,
+    paddingHorizontal: th.space.lg,
+    minHeight: 40,
+    borderRadius: th.radius.pill,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderColor: th.c.line,
+    backgroundColor: th.c.surface,
   },
   filterBtnMain: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.xs,
+    gap: th.space.xs,
   },
-  filterBtnActive: { borderColor: colors.accent, backgroundColor: colors.surfaceAlt },
-  filterBtnText: { color: colors.textDim, fontSize: type.caption, flexShrink: 1 },
-  filterBtnValue: { color: colors.accent, fontWeight: "700" },
-  filterChevron: { color: colors.textDim, fontSize: type.caption },
-  filterClear: { color: colors.accent, fontSize: type.body, fontWeight: "800", marginLeft: spacing.sm },
+  filterBtnActive: { borderColor: th.c.olive, backgroundColor: th.c.oliveSoft },
+  filterBtnText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body, flexShrink: 1 },
+  filterBtnValue: { color: th.c.olive, fontFamily: th.fonts.bodyBold },
+  filterChevron: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  filterClear: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold, marginLeft: th.space.sm },
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    padding: spacing.lg,
-    gap: spacing.sm,
+    padding: th.space.xl,
+    gap: th.space.sm,
   },
-  list: { padding: spacing.md, gap: spacing.sm },
+  list: { padding: th.space.lg, gap: th.space.sm },
   listWrap: { flex: 1, flexDirection: "row" },
   listFlex: { flex: 1 },
   sectionHeader: {
-    color: colors.accent,
-    fontSize: type.caption,
-    fontWeight: "800",
+    color: th.c.goldInk,
+    fontSize: 13,
+    fontFamily: th.fonts.display,
+    letterSpacing: 1.2,
     textTransform: "uppercase",
-    paddingVertical: spacing.xs,
-    backgroundColor: colors.background,
+    paddingTop: th.space.sm,
+    paddingBottom: th.space.xs,
+    backgroundColor: th.c.bg,
   },
-  rail: { width: 26, alignItems: "center", justifyContent: "center", paddingVertical: spacing.sm },
-  railLetter: { color: colors.accent, fontSize: 10, fontWeight: "700", paddingVertical: 1 },
+  rail: { width: 26, alignItems: "center", justifyContent: "center", paddingVertical: th.space.sm },
+  railLetter: { color: th.c.olive, fontSize: 11, fontFamily: th.fonts.displaySemi, paddingVertical: 1 },
   row: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
+    backgroundColor: th.c.surface,
+    borderRadius: th.radius.lg,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
   rowHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: spacing.sm,
+    gap: th.space.sm,
   },
   scientific: {
-    color: colors.text,
-    fontSize: type.body,
-    fontWeight: "700",
-    fontStyle: "italic",
+    color: th.c.ink,
+    fontSize: 15,
+    fontFamily: th.fonts.bodyItalic,
     flexShrink: 1,
   },
-  common: { color: colors.text, fontSize: type.body },
-  meta: { color: colors.textDim, fontSize: type.caption },
-  health: { color: colors.warning, fontSize: type.caption, fontWeight: "600" },
-  iucnBadge: { borderRadius: 6, paddingHorizontal: spacing.sm, paddingVertical: 2 },
-  iucnText: { color: colors.text, fontSize: type.caption, fontWeight: "800" },
-});
+  common: { color: th.c.ink, fontSize: 16, fontFamily: th.fonts.bodyBold },
+  meta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  health: { color: th.c.warn, fontSize: 12, fontFamily: th.fonts.bodyBold },
+}));

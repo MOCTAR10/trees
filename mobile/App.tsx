@@ -9,8 +9,11 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAppFonts } from './src/design/fonts';
+import { ThemeProvider, useTheme } from './src/design/ThemeProvider';
+import { EmptyState } from './src/design/ui';
 import { fr } from './src/i18n/fr';
 import { colors, spacing, type } from './src/theme';
 import { sharePdf, exportPlanPdf, exportReportPdf } from './src/pdf';
@@ -63,9 +66,31 @@ type Phase =
   | 'capture';
 
 const TAB_PHASES: Phase[] = ['home', 'species', 'map', 'history'];
+const DESIGNED_PHASES: Phase[] = ['report', 'profile', 'valorization', 'analyzing', 'valorizing', 'error', 'capture'];
 
+
+function Shell({ band, children }: { band: boolean; children: React.ReactNode }) {
+  const t = useTheme();
+  return (
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={[styles.safe, { backgroundColor: band ? t.c.forest : colors.background }]}
+    >
+      <StatusBar style="light" />
+      <View style={[styles.body, { backgroundColor: band ? t.c.bg : colors.background }]}>{children}</View>
+    </SafeAreaView>
+  );
+}
+
+function BottomInset({ kind }: { kind: 'nav' | 'page' | 'band' | 'legacy' }) {
+  const t = useTheme();
+  const insets = useSafeAreaInsets();
+  const bg = kind === 'nav' ? t.c.surface : kind === 'page' ? t.c.bg : kind === 'band' ? t.c.forest : colors.background;
+  return <View style={{ height: insets.bottom, backgroundColor: bg }} />;
+}
 
 export default function App() {
+  const fontsReady = useAppFonts();
   const [phase, setPhase] = useState<Phase>("home");
   const [valorization, setValorization] = useState<V2Response | null>(null);
   const [report, setReport] = useState<V1Report | null>(null);
@@ -474,19 +499,21 @@ export default function App() {
     startTransition(() => setPhase(key as Phase));
   }, []);
 
-  if (bootstrapping) {
+  if (bootstrapping || !fontsReady) {
     return <LoadingScreen />;
   }
 
   if (!user) {
     return (
       <SafeAreaProvider>
-        <SafeAreaView style={styles.safe}>
-          <StatusBar style="light" />
-          <ErrorBoundary>
-            <LoginScreen onLogin={handleLogin} />
-          </ErrorBoundary>
-        </SafeAreaView>
+        <ThemeProvider>
+          <Shell band>
+            <ErrorBoundary>
+              <LoginScreen onLogin={handleLogin} />
+            </ErrorBoundary>
+          </Shell>
+          <BottomInset kind="page" />
+        </ThemeProvider>
       </SafeAreaProvider>
     );
   }
@@ -509,6 +536,7 @@ export default function App() {
     return name;
   })();
   const isTab = TAB_PHASES.includes(phase);
+  const designed = isTab || DESIGNED_PHASES.includes(phase);
 
   const renderHome = () => {
     switch (user.role) {
@@ -521,6 +549,9 @@ export default function App() {
             onNew={() => requestPhase("capture")}
             onHistory={goHistory}
             onSync={syncQueue}
+            scans={scans}
+            userName={user.display_name}
+            onOpenScan={openScan}
           />
         );
       case "company":
@@ -534,13 +565,14 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.safe}>
-        <StatusBar style="light" />
+      <ThemeProvider force={user.role === 'operator' ? undefined : 'dark'}>
+      <Shell band={designed}>
         <ErrorBoundary onHome={goHome}>
         {isTab && (
           <RoleHeader
             title={fr.appTitle}
             roleLabel={roleLabel}
+            role={user.role}
             orgName={headerOrg}
             coords={headerCoords}
             onOpenProfile={() => requestPhase("profile")}
@@ -619,7 +651,9 @@ export default function App() {
       )}
       {phase === "capture" && (
         <Suspense fallback={<RouteLoader message={fr.common.openingCamera} />}>
-          <CaptureScreen onCaptured={handleCaptured} onBack={goHome} />
+          <ThemeProvider force="dark">
+            <CaptureScreen onCaptured={handleCaptured} onBack={goHome} />
+          </ThemeProvider>
         </Suspense>
       )}
       {phase === "report" && report && (
@@ -647,12 +681,7 @@ export default function App() {
         <LoadingScreen message={phase === "analyzing" ? fr.capture.waiting : fr.common.loading} />
       )}
       {phase === "error" && (
-        <View style={styles.center}>
-          <Text style={styles.error}>{fr.report.error}</Text>
-          <Text style={styles.link} onPress={goHome}>
-            {fr.report.startOver}
-          </Text>
-        </View>
+        <EmptyState message={fr.report.error} tone="risk" action={{ label: fr.report.startOver, onPress: goHome }} />
       )}
       {exporting && (
         <View style={styles.exporting}>
@@ -662,13 +691,26 @@ export default function App() {
       )}
       {isTab && <BottomNav user={user} active={phase} onChange={handleTabChange} />}
         </ErrorBoundary>
-      </SafeAreaView>
+      </Shell>
+      <BottomInset
+        kind={
+          isTab
+            ? 'nav'
+            : phase === 'analyzing' || phase === 'valorizing'
+              ? 'band'
+              : designed && phase !== 'capture'
+                ? 'page'
+                : 'legacy'
+        }
+      />
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background, position: "relative" },
+  body: { flex: 1, position: "relative" },
   tabPage: { flex: 1 },
   tabHidden: { display: "none" },
   pendingBar: { height: 2, backgroundColor: colors.surface },
@@ -682,9 +724,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     zIndex: 2,
   },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 16 },
-  error: { color: colors.error, fontSize: type.body },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700", marginTop: 16 },
   exporting: {
     position: "absolute",
     top: 0,

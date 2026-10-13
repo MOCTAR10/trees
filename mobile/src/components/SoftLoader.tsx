@@ -1,7 +1,8 @@
 import React from "react";
 import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
+import { colors } from "../theme";
 
 type SoftLoaderVariant = "full" | "inline" | "bar";
 
@@ -12,6 +13,8 @@ interface Props {
 
 /** Branded pulse + indeterminate bar — replaces the yellow ActivityIndicator. */
 export default function SoftLoader({ message, variant = "inline" }: Props) {
+  const th = useTheme();
+  const styles = useStyles();
   const pulse = React.useRef(new Animated.Value(0.35)).current;
   const slide = React.useRef(new Animated.Value(0)).current;
 
@@ -78,12 +81,12 @@ export default function SoftLoader({ message, variant = "inline" }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((th) => ({
   wrap: {
     alignItems: "center",
     justifyContent: "center",
-    gap: spacing.sm,
-    padding: spacing.lg,
+    gap: th.space.sm,
+    padding: th.space.xl,
   },
   wrapFull: { flex: 1 },
   orb: {
@@ -91,10 +94,10 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     borderWidth: 2,
-    borderColor: colors.primaryLight,
+    borderColor: th.c.forest,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: th.c.surface2,
   },
   orbInner: {
     width: 22,
@@ -103,17 +106,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.flagGreen,
   },
   message: {
-    color: colors.textDim,
-    fontSize: type.caption,
+    color: th.c.muted,
+    fontSize: 12,
+    fontFamily: th.fonts.body,
     textAlign: "center",
-    marginTop: spacing.xs,
+    marginTop: th.space.xs,
   },
   barTrack: {
     height: 3,
     borderRadius: 2,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: th.c.surface2,
     overflow: "hidden",
-    marginHorizontal: spacing.md,
+    marginHorizontal: th.space.lg,
   },
   barFill: {
     width: 72,
@@ -125,9 +129,9 @@ const styles = StyleSheet.create({
     width: 160,
     height: 3,
     borderRadius: 2,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: th.c.surface2,
     overflow: "hidden",
-    marginTop: spacing.sm,
+    marginTop: th.space.sm,
   },
   barFillWide: {
     width: 72,
@@ -135,4 +139,4 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     backgroundColor: colors.flagGreen,
   },
-});
+}));

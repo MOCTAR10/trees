@@ -40,7 +40,7 @@ import {
 } from "../api/client";
 import ForestChecksCard, { VERDICT_COLORS } from "../components/ForestChecksCard";
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { compactFr, toPolygons } from "../utils/geojson";
 import { bboxFor, clusterPoints, regionForBox, zoomFor } from "../utils/mapMath";
 
@@ -89,6 +89,8 @@ function verdictOf(tree: MapTree): Verdict {
 }
 
 export default function MapScreen() {
+  const th = useTheme();
+  const styles = useStyles();
   const [mode, setMode] = React.useState<Mode>("mine");
   const [trees, setTrees] = React.useState<MapTree[]>(() => mapCache.get("mine") ?? []);
   const [loading, setLoading] = React.useState(() => !mapCache.has("mine"));
@@ -314,19 +316,19 @@ export default function MapScreen() {
     <View style={styles.container}>
       <View style={styles.top}>
         <View style={styles.searchBox}>
-          <Search size={18} color={colors.textDim} />
+          <Search size={18} color={th.c.muted} />
           <TextInput
             testID="map-search"
             style={styles.searchInput}
             value={query}
             onChangeText={onQuery}
             placeholder={t.searchPlaceholder}
-            placeholderTextColor={colors.textDim}
+            placeholderTextColor={th.c.muted}
             returnKeyType="search"
           />
           {query ? (
             <TouchableOpacity testID="map-search-clear" onPress={() => onQuery("")}>
-              <X size={18} color={colors.textDim} />
+              <X size={18} color={th.c.muted} />
             </TouchableOpacity>
           ) : null}
         </View>
@@ -342,7 +344,7 @@ export default function MapScreen() {
                   style={styles.result}
                   onPress={() => goToResult(r)}
                 >
-                  <View style={[styles.swatch, { backgroundColor: LAYER_STYLE[r.layer]?.stroke ?? colors.accent }]} />
+                  <View style={[styles.swatch, { backgroundColor: LAYER_STYLE[r.layer]?.stroke ?? th.c.olive }]} />
                   <View style={styles.flex}>
                     <Text style={styles.resultName} numberOfLines={1}>
                       {r.name}
@@ -408,7 +410,7 @@ export default function MapScreen() {
                     <Polygon
                       key={`${key}-${String(f.properties.id ?? i)}-${j}`}
                       coordinates={coords}
-                      strokeColor={LAYER_STYLE[key]?.stroke ?? colors.accent}
+                      strokeColor={LAYER_STYLE[key]?.stroke ?? th.c.olive}
                       fillColor={LAYER_STYLE[key]?.fill ?? "rgba(212,160,23,0.15)"}
                       strokeWidth={key === "aac" ? 3 : 1.5}
                       zIndex={key === "aac" ? 4 : 2}
@@ -440,7 +442,7 @@ export default function MapScreen() {
                       .filter((p): p is string => p != null)
                       .join(" · ") || undefined
                   }
-                  pinColor={c.items[0].eudr_verdict ? VERDICT_COLORS[c.items[0].eudr_verdict] : colors.accent}
+                  pinColor={c.items[0].eudr_verdict ? VERDICT_COLORS[c.items[0].eudr_verdict] : th.c.olive}
                   zIndex={10}
                 />
               ) : (
@@ -470,7 +472,7 @@ export default function MapScreen() {
             {point ? (
               <Marker
                 coordinate={{ latitude: point.lat, longitude: point.lon }}
-                pinColor={point.status === "done" ? VERDICT_COLORS[point.checks.verdict] : colors.textDim}
+                pinColor={point.status === "done" ? VERDICT_COLORS[point.checks.verdict] : th.c.muted}
                 zIndex={11}
               />
             ) : null}
@@ -478,19 +480,19 @@ export default function MapScreen() {
 
           <View style={styles.fabs}>
             <TouchableOpacity testID="legend-button" style={styles.fab} onPress={() => setLegendOpen(true)}>
-              <Layers size={20} color={colors.primary} />
+              <Layers size={20} color={th.c.onOlive} />
             </TouchableOpacity>
             <TouchableOpacity testID="locate-button" style={styles.fab} onPress={() => void locate()}>
-              <Crosshair size={20} color={colors.primary} />
+              <Crosshair size={20} color={th.c.onOlive} />
             </TouchableOpacity>
             <TouchableOpacity testID="fit-button" style={styles.fab} onPress={fit}>
-              <Maximize size={20} color={colors.primary} />
+              <Maximize size={20} color={th.c.onOlive} />
             </TouchableOpacity>
           </View>
 
           {loading || fetching ? (
             <View style={styles.loadingBadge}>
-              <ActivityIndicator color={colors.accent} size="small" />
+              <ActivityIndicator color={th.c.olive} size="small" />
               <Text style={styles.loadingText}>{loading ? fr.common.openingMap : t.updating}</Text>
             </View>
           ) : null}
@@ -498,7 +500,7 @@ export default function MapScreen() {
           {feature ? (
             <View style={styles.sheet} testID="feature-sheet">
               <View style={styles.sheetHead}>
-                <View style={[styles.swatch, { backgroundColor: LAYER_STYLE[feature.layer]?.stroke ?? colors.accent }]} />
+                <View style={[styles.swatch, { backgroundColor: LAYER_STYLE[feature.layer]?.stroke ?? th.c.olive }]} />
                 <Text style={styles.sheetTitle} numberOfLines={2}>
                   {feature.name ?? labelFor(feature.layer)}
                 </Text>
@@ -546,7 +548,7 @@ export default function MapScreen() {
             <View style={styles.sheet} testID="point-sheet">
               {point.status === "loading" ? (
                 <View style={styles.rowCenter}>
-                  <ActivityIndicator color={colors.accent} />
+                  <ActivityIndicator color={th.c.olive} />
                   <Text style={styles.dim}>{t.checking}</Text>
                 </View>
               ) : point.status === "done" ? (
@@ -623,7 +625,7 @@ export default function MapScreen() {
               <LegendRow
                 key={v}
                 testID={`verdict-${v}`}
-                color={v === "none" ? colors.accent : VERDICT_COLORS[v]}
+                color={v === "none" ? th.c.olive : VERDICT_COLORS[v]}
                 label={v === "none" ? t.unknownVerdict : t.verdicts[v]}
                 count={verdictCounts[v]}
                 on={prefs.verdicts.includes(v)}
@@ -642,7 +644,7 @@ export default function MapScreen() {
         <ScrollView style={styles.modal} contentContainerStyle={styles.modalContent} testID="context-modal">
           <Text style={styles.legendTitle}>{t.contextTitle}</Text>
           {!context ? (
-            <ActivityIndicator color={colors.accent} />
+            <ActivityIndicator color={th.c.olive} />
           ) : (
             <>
               {context.highlights.map((h) => (
@@ -687,6 +689,8 @@ function LegendRow({
   on: boolean;
   onPress: () => void;
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   return (
     <TouchableOpacity
       testID={testID}
@@ -707,50 +711,50 @@ function LegendRow({
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+const useStyles = makeStyles((th) => ({
+  container: { flex: 1, backgroundColor: th.c.bg },
   flex: { flex: 1 },
-  top: { paddingHorizontal: spacing.md, paddingTop: spacing.sm, gap: spacing.xs, zIndex: 20 },
+  top: { paddingHorizontal: th.space.lg, paddingTop: th.space.sm, gap: th.space.xs, zIndex: 20 },
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
+    gap: th.space.sm,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
+    borderColor: th.c.line,
+    paddingHorizontal: th.space.lg,
   },
-  searchInput: { flex: 1, color: colors.text, fontSize: type.body, paddingVertical: spacing.sm },
+  searchInput: { flex: 1, color: th.c.ink, fontSize: 15, fontFamily: th.fonts.body, paddingVertical: th.space.sm },
   results: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.xs,
   },
-  result: { flexDirection: "row", alignItems: "center", gap: spacing.sm, padding: spacing.sm },
-  resultName: { color: colors.text, fontSize: type.body, fontWeight: "700" },
+  result: { flexDirection: "row", alignItems: "center", gap: th.space.sm, padding: th.space.sm },
+  resultName: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
   segment: {
     flexDirection: "row",
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.xs,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.xs,
+    gap: th.space.xs,
   },
-  segBtn: { flex: 1, paddingVertical: spacing.xs, borderRadius: 8, alignItems: "center" },
-  segBtnOn: { backgroundColor: colors.surfaceAlt },
-  segText: { color: colors.textDim, fontSize: type.caption, fontWeight: "700" },
-  segTextOn: { color: colors.accent, fontWeight: "800" },
-  mapWrap: { flex: 1, position: "relative", marginTop: spacing.xs },
-  fabs: { position: "absolute", right: spacing.md, top: spacing.md, gap: spacing.sm },
+  segBtn: { flex: 1, paddingVertical: th.space.xs, borderRadius: 8, alignItems: "center" },
+  segBtnOn: { backgroundColor: th.c.surface2 },
+  segText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  segTextOn: { color: th.c.olive, fontFamily: th.fonts.bodyBold },
+  mapWrap: { flex: 1, position: "relative", marginTop: th.space.xs },
+  fabs: { position: "absolute", right: th.space.lg, top: th.space.lg, gap: th.space.sm },
   fab: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
     alignItems: "center",
     justifyContent: "center",
     elevation: 3,
@@ -766,92 +770,92 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  clusterText: { color: colors.primary, fontWeight: "800", fontSize: type.caption },
+  clusterText: { color: th.c.onOlive, fontFamily: th.fonts.bodyBold, fontSize: 12 },
   loadingBadge: {
     position: "absolute",
-    top: spacing.md,
+    top: th.space.lg,
     alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: th.space.sm,
     backgroundColor: "rgba(24,36,32,0.92)",
     borderRadius: 20,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
+    paddingVertical: th.space.xs,
+    paddingHorizontal: th.space.lg,
   },
-  loadingText: { color: colors.text, fontSize: type.caption, fontWeight: "700" },
+  loadingText: { color: th.c.ink, fontSize: 12, fontFamily: th.fonts.bodyBold },
   hintBadge: {
     position: "absolute",
-    bottom: spacing.md,
-    left: spacing.md,
-    right: spacing.md,
+    bottom: th.space.lg,
+    left: th.space.lg,
+    right: th.space.lg,
     backgroundColor: "rgba(24,36,32,0.85)",
     borderRadius: 10,
-    padding: spacing.sm,
+    padding: th.space.sm,
   },
-  hintText: { color: colors.textDim, fontSize: type.caption, textAlign: "center" },
+  hintText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body, textAlign: "center" },
   sheet: {
     position: "absolute",
-    bottom: spacing.md,
-    left: spacing.md,
-    right: spacing.md,
-    backgroundColor: colors.surface,
+    bottom: th.space.lg,
+    left: th.space.lg,
+    right: th.space.lg,
+    backgroundColor: th.c.surface,
     borderRadius: 14,
-    padding: spacing.md,
-    gap: spacing.xs,
+    padding: th.space.lg,
+    gap: th.space.xs,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  sheetHead: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  sheetTitle: { color: colors.text, fontSize: type.heading, fontWeight: "800", flex: 1 },
-  sheetActions: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: spacing.xs },
-  primaryBtn: { backgroundColor: colors.accent, borderRadius: 10, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
-  primaryText: { color: colors.primary, fontWeight: "800", fontSize: type.body },
-  rowCenter: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  rowWrap: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs },
-  dim: { color: colors.textDim, fontSize: type.body },
-  dimSmall: { color: colors.textDim, fontSize: type.caption },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.md },
-  error: { color: colors.error, fontSize: type.body },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700", marginTop: spacing.sm },
+  sheetHead: { flexDirection: "row", alignItems: "center", gap: th.space.sm },
+  sheetTitle: { color: th.c.ink, fontSize: 19, fontFamily: th.fonts.bodyBold, flex: 1 },
+  sheetActions: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: th.space.xs },
+  primaryBtn: { backgroundColor: th.c.olive, borderRadius: 10, paddingHorizontal: th.space.lg, paddingVertical: th.space.sm },
+  primaryText: { color: th.c.onOlive, fontFamily: th.fonts.bodyBold, fontSize: 15 },
+  rowCenter: { flexDirection: "row", alignItems: "center", gap: th.space.sm },
+  rowWrap: { flexDirection: "row", flexWrap: "wrap", gap: th.space.xs },
+  dim: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body },
+  dimSmall: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: th.space.lg },
+  error: { color: th.c.risk, fontSize: 15, fontFamily: th.fonts.body },
+  link: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold, marginTop: th.space.sm },
   backdrop: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.4)" },
   legend: {
     maxHeight: "80%",
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
   },
-  legendContent: { padding: spacing.lg, gap: spacing.xs },
-  legendTitle: { color: colors.text, fontSize: type.title, fontWeight: "800" },
-  section: { color: colors.accent, fontSize: type.body, fontWeight: "800", marginTop: spacing.md },
-  legendRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm, paddingVertical: spacing.xs },
-  legendLabel: { color: colors.text, fontSize: type.body, flex: 1 },
-  legendOff: { color: colors.textDim },
+  legendContent: { padding: th.space.xl, gap: th.space.xs },
+  legendTitle: { color: th.c.ink, fontSize: 26, fontFamily: th.fonts.bodyBold },
+  section: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold, marginTop: th.space.lg },
+  legendRow: { flexDirection: "row", alignItems: "center", gap: th.space.sm, paddingVertical: th.space.xs },
+  legendLabel: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.body, flex: 1 },
+  legendOff: { color: th.c.muted },
   swatch: { width: 14, height: 14, borderRadius: 4 },
   toggle: {
     width: 38,
     height: 22,
     borderRadius: 11,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: th.c.surface2,
     padding: 2,
     justifyContent: "center",
   },
-  toggleOn: { backgroundColor: colors.accent },
+  toggleOn: { backgroundColor: th.c.olive },
   knob: { width: 18, height: 18, borderRadius: 9, backgroundColor: "#FFFFFF" },
   knobOn: { alignSelf: "flex-end" },
   chip: {
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
+    borderColor: th.c.line,
+    paddingHorizontal: th.space.lg,
     paddingVertical: 4,
   },
-  chipOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  chipText: { color: colors.text, fontSize: type.caption, fontWeight: "700" },
-  chipTextOn: { color: colors.primary },
-  modal: { flex: 1, backgroundColor: colors.background },
-  modalContent: { padding: spacing.lg, gap: spacing.sm },
-  kv: { flexDirection: "row", justifyContent: "space-between", gap: spacing.md },
-  kvLabel: { color: colors.textDim, fontSize: type.caption, flexShrink: 1 },
-  kvValue: { color: colors.text, fontSize: type.caption, fontWeight: "700", flexShrink: 1, textAlign: "right" },
-});
+  chipOn: { backgroundColor: th.c.olive, borderColor: th.c.olive },
+  chipText: { color: th.c.ink, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  chipTextOn: { color: th.c.onOlive },
+  modal: { flex: 1, backgroundColor: th.c.bg },
+  modalContent: { padding: th.space.xl, gap: th.space.sm },
+  kv: { flexDirection: "row", justifyContent: "space-between", gap: th.space.lg },
+  kvLabel: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body, flexShrink: 1 },
+  kvValue: { color: th.c.ink, fontSize: 12, fontFamily: th.fonts.bodyBold, flexShrink: 1, textAlign: "right" },
+}));

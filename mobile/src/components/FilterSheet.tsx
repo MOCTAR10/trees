@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { normalize } from "../utils/text";
 
 export interface FilterOption {
@@ -37,6 +37,8 @@ export default function FilterSheet({
   onSelect,
   onClose,
 }: Props) {
+  const th = useTheme();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const listRef = React.useRef<SectionList<FilterOption, { title: string }>>(null);
   const [query, setQuery] = React.useState("");
@@ -81,7 +83,7 @@ export default function FilterSheet({
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
-        <View style={[styles.sheet, { paddingBottom: insets.bottom + spacing.md }]}>
+        <View style={[styles.sheet, { paddingBottom: insets.bottom + th.space.lg }]}>
           <View style={styles.handle} />
           <View style={styles.header}>
             <Text style={styles.title}>{title}</Text>
@@ -98,7 +100,7 @@ export default function FilterSheet({
             value={query}
             onChangeText={setQuery}
             placeholder="Rechercher…"
-            placeholderTextColor={colors.textDim}
+            placeholderTextColor={th.c.muted}
             style={styles.input}
           />
 
@@ -155,7 +157,7 @@ export default function FilterSheet({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((th) => ({
   overlay: { flex: 1, justifyContent: "flex-end" },
   backdrop: {
     position: "absolute",
@@ -167,82 +169,83 @@ const styles = StyleSheet.create({
   },
   sheet: {
     height: "82%",
-    backgroundColor: colors.background,
+    backgroundColor: th.c.bg,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     borderWidth: 1,
     borderBottomWidth: 0,
-    borderColor: colors.border,
-    paddingTop: spacing.sm,
+    borderColor: th.c.line,
+    paddingTop: th.space.sm,
   },
   handle: {
     alignSelf: "center",
     width: 40,
     height: 4,
     borderRadius: 2,
-    backgroundColor: colors.border,
-    marginBottom: spacing.sm,
+    backgroundColor: th.c.line,
+    marginBottom: th.space.sm,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.sm,
+    paddingHorizontal: th.space.xl,
+    paddingBottom: th.space.sm,
   },
-  title: { color: colors.text, fontSize: type.heading, fontWeight: "800" },
-  close: { color: colors.textDim, fontSize: type.heading },
+  title: { color: th.c.ink, fontSize: 19, fontFamily: th.fonts.bodyBold },
+  close: { color: th.c.muted, fontSize: 19, fontFamily: th.fonts.body },
   input: {
-    marginHorizontal: spacing.lg,
-    backgroundColor: colors.surface,
+    marginHorizontal: th.space.xl,
+    backgroundColor: th.c.surface,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    color: colors.text,
-    fontSize: type.body,
+    borderColor: th.c.line,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    color: th.c.ink,
+    fontSize: 15,
+    fontFamily: th.fonts.body,
   },
   clearAll: {
-    marginHorizontal: spacing.lg,
-    marginTop: spacing.sm,
-    paddingVertical: spacing.sm,
+    marginHorizontal: th.space.xl,
+    marginTop: th.space.sm,
+    paddingVertical: th.space.sm,
     borderRadius: 8,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderColor: th.c.line,
+    backgroundColor: th.c.surface,
   },
-  clearAllActive: { borderColor: colors.accent, backgroundColor: colors.surfaceAlt },
-  clearAllText: { color: colors.text, fontSize: type.body, fontWeight: "700" },
-  body: { flex: 1, flexDirection: "row", marginTop: spacing.sm },
-  listContent: { paddingHorizontal: spacing.md, paddingBottom: spacing.lg },
+  clearAllActive: { borderColor: th.c.olive, backgroundColor: th.c.surface2 },
+  clearAllText: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  body: { flex: 1, flexDirection: "row", marginTop: th.space.sm },
+  listContent: { paddingHorizontal: th.space.lg, paddingBottom: th.space.xl },
   sectionHeader: {
-    color: colors.accent,
-    fontSize: type.caption,
-    fontWeight: "800",
+    color: th.c.olive,
+    fontSize: 12,
+    fontFamily: th.fonts.bodyBold,
     textTransform: "uppercase",
-    paddingVertical: spacing.xs,
-    backgroundColor: colors.background,
+    paddingVertical: th.space.xs,
+    backgroundColor: th.c.bg,
   },
   option: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: spacing.sm + 2,
-    paddingHorizontal: spacing.sm,
+    paddingVertical: th.space.sm + 2,
+    paddingHorizontal: th.space.sm,
     borderRadius: 8,
   },
-  optionSelected: { backgroundColor: colors.surfaceAlt },
-  optionLabel: { color: colors.text, fontSize: type.body, flexShrink: 1 },
-  optionLabelSelected: { color: colors.accent, fontWeight: "700" },
-  optionCount: { color: colors.textDim, fontSize: type.caption, marginLeft: spacing.sm },
-  empty: { color: colors.textDim, fontSize: type.body, textAlign: "center", padding: spacing.lg },
+  optionSelected: { backgroundColor: th.c.surface2 },
+  optionLabel: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.body, flexShrink: 1 },
+  optionLabelSelected: { color: th.c.olive, fontFamily: th.fonts.bodyBold },
+  optionCount: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body, marginLeft: th.space.sm },
+  empty: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body, textAlign: "center", padding: th.space.xl },
   rail: {
     width: 28,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: spacing.sm,
+    paddingVertical: th.space.sm,
   },
-  railLetter: { color: colors.accent, fontSize: 11, fontWeight: "700", paddingVertical: 1 },
-});
+  railLetter: { color: th.c.olive, fontSize: 11, fontFamily: th.fonts.bodyBold, paddingVertical: 1 },
+}));

@@ -1,10 +1,12 @@
 import React from "react";
 import { Animated, Easing, StyleSheet, View } from "react-native";
 
-import { colors, spacing } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 /** Soft placeholder rows while catalogue data is hydrating. */
 export default function SkeletonList({ rows = 8 }: { rows?: number }) {
+  const th = useTheme();
+  const styles = useStyles();
   const pulse = React.useRef(new Animated.Value(0.4)).current;
 
   React.useEffect(() => {
@@ -41,32 +43,32 @@ export default function SkeletonList({ rows = 8 }: { rows?: number }) {
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: { flex: 1, padding: spacing.md, gap: spacing.sm },
+const useStyles = makeStyles((th) => ({
+  wrap: { flex: 1, padding: th.space.lg, gap: th.space.sm },
   row: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.sm,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.sm,
   },
   lineWide: {
     height: 14,
     width: "72%",
     borderRadius: 6,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: th.c.surface2,
   },
   lineMid: {
     height: 12,
     width: "48%",
     borderRadius: 6,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: th.c.surface2,
   },
   lineShort: {
     height: 10,
     width: "36%",
     borderRadius: 6,
-    backgroundColor: colors.border,
+    backgroundColor: th.c.line,
   },
-});
+}));

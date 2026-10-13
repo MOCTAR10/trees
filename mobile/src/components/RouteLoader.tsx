@@ -1,30 +1,30 @@
 import React from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
+import { Txt } from "../design/ui";
 
 export default function RouteLoader({ message }: { message: string }) {
+  const theme = useTheme();
+  const s = useStyles();
   return (
-    <View style={styles.container} accessibilityRole="progressbar" accessibilityLabel={message}>
-      <ActivityIndicator color={colors.accent} size="large" />
-      <Text style={styles.message}>{message}</Text>
+    <View style={s.container} accessibilityRole="progressbar" accessibilityLabel={message}>
+      <ActivityIndicator color={theme.c.olive} size="large" />
+      <Txt tone="muted" bold style={s.message}>
+        {message}
+      </Txt>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((th) => ({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: th.c.bg,
     alignItems: "center",
     justifyContent: "center",
-    padding: spacing.xl,
-    gap: spacing.md,
+    padding: th.space.xl,
+    gap: th.space.md,
   },
-  message: {
-    color: colors.textDim,
-    fontSize: type.body,
-    fontWeight: "600",
-    textAlign: "center",
-  },
-});
+  message: { textAlign: "center" },
+}));

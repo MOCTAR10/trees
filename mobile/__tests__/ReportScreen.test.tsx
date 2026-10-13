@@ -33,12 +33,12 @@ describe("ReportScreen measurement & carbon", () => {
       <ReportScreen report={base} onValorize={null} />,
     );
     expect(getByText("Ruban (circonférence ÷ π)")).toBeTruthy();
-    expect(getByText("60.1 cm")).toBeTruthy();
-    expect(getByText("-3.7 %")).toBeTruthy();
+    expect(getByText("60,1 cm")).toBeTruthy();
+    expect(getByText("−3,7 %")).toBeTruthy();
     expect(getByText("Clinomètre")).toBeTruthy();
-    expect(getByText("• Focale lue dans la photo (EXIF)")).toBeTruthy();
+    expect(getByText("Focale lue dans la photo (EXIF)")).toBeTruthy();
     expect(getByTestId("carbon-card")).toBeTruthy();
-    expect(getByText("5.42 t CO₂e")).toBeTruthy();
+    expect(getByTestId("carbon-card")).toHaveTextContent(/5,42 t CO₂e/);
   });
 
   it("shows the QR-plate distance, other species and the GFW check", () => {
@@ -57,7 +57,7 @@ describe("ReportScreen measurement & carbon", () => {
         onValorize={null}
       />,
     );
-    expect(getByText("2.01 m (mesurée par la plaque QR)")).toBeTruthy();
+    expect(getByText("2,01 m (mesurée par la plaque QR)")).toBeTruthy();
     expect(getByTestId("species-candidates")).toBeTruthy();
     expect(getByText("Canarium schweinfurthii (Aiélé)")).toBeTruthy();
     expect(getByText("Conforme (aucun signal)")).toBeTruthy();

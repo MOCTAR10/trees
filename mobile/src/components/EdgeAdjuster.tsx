@@ -9,7 +9,7 @@ import {
 } from "react-native";
 
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { dbhFromEdges, isPlausibleDbh, moveEdge } from "../utils/dbh";
 
 const t = fr.capture;
@@ -43,6 +43,8 @@ export default function EdgeAdjuster({
   edges,
   onChange,
 }: Props) {
+  const th = useTheme();
+  const styles = useStyles();
   const [box, setBox] = useState({ width: 0, height: 0 });
   const edgesRef = useRef(edges);
   edgesRef.current = edges;
@@ -129,34 +131,34 @@ export default function EdgeAdjuster({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((th) => ({
   fill: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   shade: { position: "absolute", backgroundColor: "rgba(212,160,23,0.18)" },
   handle: { position: "absolute", width: 44, alignItems: "center" },
-  line: { position: "absolute", top: 0, bottom: 0, width: 3, backgroundColor: colors.accent },
+  line: { position: "absolute", top: 0, bottom: 0, width: 3, backgroundColor: th.c.gold },
   grip: {
     position: "absolute",
     top: "45%",
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.gold,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
     borderColor: "#FFFFFF",
   },
-  gripText: { color: colors.primary, fontSize: 11, fontWeight: "800" },
+  gripText: { color: "#1B2114", fontSize: 11, fontFamily: th.fonts.bodyBold },
   readout: {
     position: "absolute",
-    top: spacing.xl * 2,
+    top: th.space.lg,
     alignSelf: "center",
     backgroundColor: "rgba(0,0,0,0.65)",
     borderRadius: 10,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.xs,
     alignItems: "center",
   },
-  readoutText: { color: "#FFFFFF", fontSize: type.heading, fontWeight: "800" },
-  readoutHint: { color: "#DDDDDD", fontSize: type.caption },
-});
+  readoutText: { color: "#FFFFFF", fontSize: 19, fontFamily: th.fonts.bodyBold },
+  readoutHint: { color: "#DDDDDD", fontSize: 12, fontFamily: th.fonts.body },
+}));

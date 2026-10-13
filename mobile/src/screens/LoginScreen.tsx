@@ -17,7 +17,8 @@ import { Eye, EyeOff, Fingerprint, LockKeyhole, LogIn } from "lucide-react-nativ
 import { checkEmail, EmailCheckResponse, getMe, login, setAuthToken } from "../api/client";
 import { fr } from "../i18n/fr";
 import { Session } from "../storage/session";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
+import { colors } from "../theme";
 
 const LEAF_LOGO = require("../../assets/leaf_logo.jpg");
 const GREENLEAVE_LOGO = require("../../assets/greenleave_logo.png");
@@ -29,6 +30,8 @@ interface Props {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginScreen({ onLogin }: Props) {
+  const th = useTheme();
+  const styles = useStyles();
   const { width } = useWindowDimensions();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,7 +42,7 @@ export default function LoginScreen({ onLogin }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const cardWidth = Math.min(width - spacing.lg * 2, 360);
+  const cardWidth = Math.min(width - th.space.xl * 2, 360);
 
   const verifyEmail = async () => {
     const value = email.trim();
@@ -106,6 +109,10 @@ export default function LoginScreen({ onLogin }: Props) {
             <View style={[styles.tricolorStripe, { backgroundColor: colors.flagGold }]} />
             <View style={[styles.tricolorStripe, { backgroundColor: colors.flagBlue }]} />
           </View>
+          <View style={styles.goldRule}>
+            <View style={styles.goldLine} />
+            <View style={styles.goldLine} />
+          </View>
         </View>
 
         <View style={[styles.card, { width: cardWidth }]}>
@@ -117,7 +124,7 @@ export default function LoginScreen({ onLogin }: Props) {
               <TextInput
                 style={styles.input}
                 placeholder={fr.auth.email}
-                placeholderTextColor={colors.textDim}
+                placeholderTextColor={th.c.muted}
                 autoCapitalize="none"
                 autoCorrect={false}
                 keyboardType="email-address"
@@ -138,13 +145,13 @@ export default function LoginScreen({ onLogin }: Props) {
                 accessibilityState={{ disabled: checking }}
               >
                 {checking ? (
-                  <ActivityIndicator color={colors.primary} size="small" />
+                  <ActivityIndicator color="#1B2114" size="small" />
                 ) : identity ? (
                   <View style={styles.checkCircle}>
                     <Text style={styles.checkMark}>✓</Text>
                   </View>
                 ) : (
-                  <Fingerprint size={34} color={colors.primary} strokeWidth={2.25} />
+                  <Fingerprint size={30} color="#1B2114" strokeWidth={2.25} />
                 )}
               </TouchableOpacity>
             </View>
@@ -174,7 +181,7 @@ export default function LoginScreen({ onLogin }: Props) {
                   <TextInput
                     style={styles.passwordInput}
                     placeholder={fr.auth.password}
-                    placeholderTextColor={colors.textDim}
+                    placeholderTextColor={th.c.muted}
                     secureTextEntry={!showPassword}
                     autoCapitalize="none"
                     autoCorrect={false}
@@ -191,9 +198,9 @@ export default function LoginScreen({ onLogin }: Props) {
                     accessibilityLabel={showPassword ? fr.auth.hidePassword : fr.auth.showPassword}
                   >
                     {showPassword ? (
-                      <EyeOff size={18} color={colors.accent} strokeWidth={2} />
+                      <EyeOff size={18} color={th.c.olive} strokeWidth={2} />
                     ) : (
-                      <Eye size={18} color={colors.accent} strokeWidth={2} />
+                      <Eye size={18} color={th.c.olive} strokeWidth={2} />
                     )}
                   </TouchableOpacity>
                 </View>
@@ -216,10 +223,10 @@ export default function LoginScreen({ onLogin }: Props) {
                 accessibilityState={{ disabled: busy }}
               >
                 {busy ? (
-                  <ActivityIndicator color="#FFFFFF" />
+                  <ActivityIndicator color={th.c.onOlive} />
                 ) : (
                   <View style={styles.buttonRow}>
-                    <LogIn size={18} color="#FFFFFF" strokeWidth={2} />
+                    <LogIn size={18} color={th.c.onOlive} strokeWidth={2} />
                     <Text style={styles.buttonText}>{fr.auth.submit}</Text>
                   </View>
                 )}
@@ -229,7 +236,7 @@ export default function LoginScreen({ onLogin }: Props) {
         </View>
 
         <View style={styles.notice}>
-          <LockKeyhole size={18} color={colors.textDim} strokeWidth={2} />
+          <LockKeyhole size={18} color={th.c.muted} strokeWidth={2} />
           <Text style={styles.noticeText}>{fr.auth.footer}</Text>
         </View>
 
@@ -247,40 +254,43 @@ export default function LoginScreen({ onLogin }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
+const useStyles = makeStyles((th) => ({
+  screen: { flex: 1, backgroundColor: th.c.bg },
   scroll: {
     flexGrow: 1,
     alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: spacing.xl,
-    paddingBottom: spacing.xl + 40,
+    paddingBottom: th.space.xxl + 40,
   },
   officialSection: {
+    alignSelf: "stretch",
     alignItems: "center",
-    marginBottom: spacing.lg,
+    backgroundColor: th.c.forest,
+    paddingTop: th.space.xxl,
+    paddingBottom: th.space.xl + 4,
+    paddingHorizontal: th.space.xl,
+    marginBottom: th.space.xl,
   },
   emblem: {
-    backgroundColor: colors.surfaceAlt,
+    borderRadius: th.radius.md,
     overflow: "hidden",
-    marginBottom: spacing.md,
+    marginBottom: th.space.lg,
   },
   emblemSeal: { width: 128, height: 86 },
   republicText: {
-    color: colors.textDim,
-    fontSize: type.caption,
-    fontWeight: "700",
-    letterSpacing: 0.6,
+    color: th.c.gold,
+    fontSize: 12,
+    fontFamily: th.fonts.displaySemi,
+    letterSpacing: 1.6,
     textTransform: "uppercase",
     textAlign: "center",
   },
   ministryText: {
-    color: colors.text,
-    fontSize: type.heading,
-    fontWeight: "800",
-    textTransform: "uppercase",
+    color: th.c.onForest,
+    fontSize: 24,
+    lineHeight: 28,
+    fontFamily: th.fonts.display,
     textAlign: "center",
-    marginTop: spacing.xs,
+    marginTop: th.space.xs,
   },
   tricolor: {
     flexDirection: "row",
@@ -288,63 +298,72 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     overflow: "hidden",
-    marginTop: spacing.md,
+    marginTop: th.space.lg,
   },
   tricolorStripe: { flex: 1 },
+  goldRule: { position: "absolute", left: 0, right: 0, bottom: 0, height: 4, justifyContent: "space-between" },
+  goldLine: { height: 1.5, backgroundColor: th.c.gold },
   card: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
+    backgroundColor: th.c.surface,
+    borderColor: th.c.line,
     borderWidth: 1,
-    borderRadius: 16,
-    padding: spacing.sm,
+    borderRadius: th.radius.xl,
+    padding: th.space.lg,
     alignItems: "stretch",
+    shadowColor: th.c.shadow,
+    shadowOpacity: th.scheme === "dark" ? 0.4 : 0.08,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 3,
   },
-  title: { color: colors.text, fontSize: type.title, fontWeight: "800", textAlign: "center" },
+  title: { color: th.c.ink, fontSize: 26, lineHeight: 30, fontFamily: th.fonts.display, textAlign: "center" },
   subtitle: {
-    color: colors.textDim,
-    fontSize: type.body,
+    color: th.c.muted,
+    fontSize: 15,
+    fontFamily: th.fonts.body,
     textAlign: "center",
-    marginBottom: spacing.sm,
+    marginBottom: th.space.md,
   },
   form: { alignItems: "stretch" },
   label: {
-    color: colors.text,
-    fontSize: type.caption,
-    fontWeight: "700",
+    color: th.c.ink,
+    fontSize: 12,
+    fontFamily: th.fonts.bodyBold,
     marginBottom: 2,
   },
-  passwordLabel: { marginTop: spacing.md },
+  passwordLabel: { marginTop: th.space.lg },
   verifyRow: { flexDirection: "row", alignItems: "stretch" },
   input: {
     flex: 1,
-    backgroundColor: colors.background,
+    minHeight: 52,
+    backgroundColor: th.c.bg,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: type.body,
+    borderColor: th.c.line,
+    color: th.c.ink,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    fontSize: 15,
+    fontFamily: th.fonts.body,
   },
   verifyButton: {
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: spacing.sm,
-    borderRadius: 8,
-    backgroundColor: colors.flagGold,
-    width: 48,
-    height: 48,
-    minWidth: 48,
+    marginLeft: th.space.sm,
+    borderRadius: th.radius.md,
+    backgroundColor: th.c.gold,
+    width: 52,
+    minHeight: 52,
   },
   checkCircle: {
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: colors.success,
+    backgroundColor: th.c.ok,
     alignItems: "center",
     justifyContent: "center",
   },
-  checkMark: { color: "#FFFFFF", fontSize: 13, fontWeight: "900", lineHeight: 15 },
+  checkMark: { color: "#FFFFFF", fontSize: 13, fontFamily: th.fonts.bodyBold, lineHeight: 15 },
   identityRow: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -352,88 +371,94 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   identityTexts: { flex: 1 },
-  identityText: { color: colors.success, fontSize: type.caption, fontWeight: "700" },
-  identityOrg: { color: colors.textDim, fontSize: type.caption, marginTop: 2 },
+  identityText: { color: th.c.ok, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  identityOrg: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body, marginTop: 2 },
   passwordRow: { flexDirection: "row", alignItems: "stretch" },
   passwordInput: {
     flex: 1,
-    backgroundColor: colors.background,
+    minHeight: 52,
+    backgroundColor: th.c.bg,
     borderTopLeftRadius: 12,
     borderBottomLeftRadius: 12,
     borderWidth: 1,
     borderRightWidth: 0,
-    borderColor: colors.border,
-    color: colors.text,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: type.body,
+    borderColor: th.c.line,
+    color: th.c.ink,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    fontSize: 15,
+    fontFamily: th.fonts.body,
   },
   eye: {
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors.background,
+    backgroundColor: th.c.bg,
     borderTopRightRadius: 12,
     borderBottomRightRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
+    borderColor: th.c.line,
+    paddingHorizontal: th.space.lg,
     minWidth: 72,
   },
   error: {
-    color: colors.error,
-    fontSize: type.caption,
+    color: th.c.risk,
+    fontSize: 12,
+    fontFamily: th.fonts.body,
     textAlign: "center",
-    marginTop: spacing.sm,
+    marginTop: th.space.sm,
   },
   button: {
-    backgroundColor: colors.flagGreen,
-    borderRadius: 12,
-    paddingVertical: spacing.md,
+    backgroundColor: th.c.olive,
+    borderRadius: th.radius.md,
+    minHeight: 52,
+    justifyContent: "center",
     alignItems: "center",
-    marginTop: spacing.md,
+    marginTop: th.space.lg,
   },
   buttonDisabled: { opacity: 0.6 },
-  buttonRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  buttonText: { color: "#FFFFFF", fontSize: type.body, fontWeight: "800" },
+  buttonRow: { flexDirection: "row", alignItems: "center", gap: th.space.sm },
+  buttonText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   notice: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: th.space.sm,
     alignSelf: "center",
     maxWidth: 340,
-    marginTop: spacing.lg,
-    marginHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
+    marginTop: th.space.xl,
+    marginHorizontal: th.space.xl,
+    paddingVertical: th.space.sm,
+    paddingHorizontal: th.space.lg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surfaceAlt,
+    borderColor: th.c.line,
+    backgroundColor: th.c.surface2,
   },
   noticeText: {
     flex: 1,
-    color: colors.textDim,
-    fontSize: type.caption,
+    color: th.c.muted,
+    fontSize: 12,
+    fontFamily: th.fonts.body,
     lineHeight: 18,
   },
   version: {
-    color: colors.textDim,
+    color: th.c.muted,
     fontSize: 11,
+    fontFamily: th.fonts.body,
     textAlign: "center",
-    marginTop: spacing.md,
+    marginTop: th.space.lg,
   },
   brandFooter: {
-    marginTop: spacing.xl,
+    marginTop: th.space.xxl,
     alignItems: "center",
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: th.space.xl,
     width: "100%",
   },
   brandRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: spacing.xs,
+    marginBottom: th.space.xs,
   },
-  brandLogo: { width: 22, height: 22, marginRight: spacing.sm },
-  brandName: { color: colors.textDim, fontSize: type.caption, fontWeight: "700" },
-  copyright: { color: colors.textDim, fontSize: 11, textAlign: "center", lineHeight: 16 },
-});
+  brandLogo: { width: 22, height: 22, marginRight: th.space.sm },
+  brandName: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  copyright: { color: th.c.muted, fontSize: 11, fontFamily: th.fonts.body, textAlign: "center", lineHeight: 16 },
+}));

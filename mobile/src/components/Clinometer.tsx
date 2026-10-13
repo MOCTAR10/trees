@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { clinometerHeight } from "../utils/tilt";
 import { useDeviceTilt } from "../utils/useDeviceTilt";
 
@@ -24,6 +24,8 @@ interface Props {
  * gives both angles and the height follows (`d · (tan top − tan base)`).
  */
 export default function Clinometer({ visible, initialDistanceM, onDone, onClose }: Props) {
+  const th = useTheme();
+  const styles = useStyles();
   const tilt = useDeviceTilt(visible);
   const [step, setStep] = useState<Step>("distance");
   const [distanceText, setDistanceText] = useState("");
@@ -72,7 +74,7 @@ export default function Clinometer({ visible, initialDistanceM, onDone, onClose 
                 onChangeText={setDistanceText}
                 keyboardType="numeric"
                 placeholder="15"
-                placeholderTextColor={colors.textDim}
+                placeholderTextColor={th.c.muted}
               />
               <TouchableOpacity
                 testID="clino-start"
@@ -136,46 +138,47 @@ export default function Clinometer({ visible, initialDistanceM, onDone, onClose 
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((th) => ({
   backdrop: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.45)" },
   sheet: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
-    padding: spacing.lg,
-    gap: spacing.sm,
+    padding: th.space.xl,
+    gap: th.space.sm,
   },
-  title: { color: colors.text, fontSize: type.heading, fontWeight: "800" },
-  hint: { color: colors.textDim, fontSize: type.body },
-  warning: { color: colors.warning, fontSize: type.body },
-  angle: { color: colors.accent, fontSize: 44, fontWeight: "800", textAlign: "center" },
-  result: { color: colors.success, fontSize: 40, fontWeight: "800", textAlign: "center" },
+  title: { color: th.c.ink, fontSize: 19, fontFamily: th.fonts.bodyBold },
+  hint: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body },
+  warning: { color: th.c.warn, fontSize: 15, fontFamily: th.fonts.body },
+  angle: { color: th.c.olive, fontSize: 44, fontFamily: th.fonts.bodyBold, textAlign: "center" },
+  result: { color: th.c.ok, fontSize: 40, fontFamily: th.fonts.bodyBold, textAlign: "center" },
   input: {
-    backgroundColor: colors.background,
-    color: colors.text,
+    backgroundColor: th.c.bg,
+    color: th.c.ink,
     borderRadius: 8,
-    padding: spacing.sm,
-    fontSize: type.body,
+    padding: th.space.sm,
+    fontSize: 15,
+    fontFamily: th.fonts.body,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
     textAlign: "center",
   },
-  row: { flexDirection: "row", gap: spacing.sm },
+  row: { flexDirection: "row", gap: th.space.sm },
   flex: { flex: 1 },
   primary: {
-    backgroundColor: colors.accent,
-    padding: spacing.md,
+    backgroundColor: th.c.olive,
+    padding: th.space.lg,
     borderRadius: 10,
     alignItems: "center",
   },
-  primaryText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
+  primaryText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   secondary: {
-    backgroundColor: colors.surfaceAlt,
-    padding: spacing.md,
+    backgroundColor: th.c.surface2,
+    padding: th.space.lg,
     borderRadius: 10,
     alignItems: "center",
   },
-  secondaryText: { color: colors.text, fontSize: type.body, fontWeight: "700" },
-  close: { alignItems: "center", paddingVertical: spacing.sm },
+  secondaryText: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  close: { alignItems: "center", paddingVertical: th.space.sm },
   disabled: { opacity: 0.4 },
-});
+}));
