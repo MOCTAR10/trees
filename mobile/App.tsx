@@ -353,6 +353,9 @@ export default function App() {
               measuredHeightM: capture.measuredHeightM,
               heightSource: capture.heightSource,
               treeCode: capture.treeCode,
+              depthSource: capture.depthSource,
+              edgeLeft: capture.edgeLeft,
+              edgeRight: capture.edgeRight,
             },
             shots,
           });

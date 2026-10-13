@@ -88,6 +88,8 @@ describe("processScanV1", () => {
       measuredHeightM: 31.5,
       heightSource: "clinometer",
       treeCode: " GA-DEMO-005 ",
+      edgeLeft: 0.4,
+      edgeRight: 0.6,
     });
 
     const value = (name: string) => appended.find((part) => part.name === name)?.value;
@@ -101,6 +103,8 @@ describe("processScanV1", () => {
     expect(value("measured_height_m")).toBe("31.5");
     expect(value("height_source")).toBe("clinometer");
     expect(value("tree_code")).toBe("GA-DEMO-005");
+    expect(value("edge_left")).toBe("0.4000");
+    expect(value("edge_right")).toBe("0.6000");
     expect(value("ar_depth_m")).toBeUndefined();
 
     spy.mockRestore();

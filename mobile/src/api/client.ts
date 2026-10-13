@@ -275,6 +275,9 @@ export interface TreeMeasurements {
   treeCode?: string;
   /** Where `arDepthM` comes from when a native sensor measured it. */
   depthSource?: "lidar" | "arcore";
+  /** Trunk edges confirmed by the operator on the DBH photo (fractions 0..1). */
+  edgeLeft?: number;
+  edgeRight?: number;
 }
 
 /** Focal length shared by the scan: the DBH shot first, else any shot. */
@@ -312,6 +315,8 @@ export async function processScanV1(
     ["height_source", params.measuredHeightM ? params.heightSource : undefined],
     ["tree_code", params.treeCode?.trim() || undefined],
     ["depth_source", params.arDepthM ? params.depthSource : undefined],
+    ["edge_left", params.edgeRight != null ? params.edgeLeft?.toFixed(4) : undefined],
+    ["edge_right", params.edgeLeft != null ? params.edgeRight?.toFixed(4) : undefined],
   ];
   optional.forEach(([key, value]) => {
     if (value !== undefined && value !== "" && !(typeof value === "number" && !(value > 0))) {

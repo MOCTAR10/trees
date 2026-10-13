@@ -437,3 +437,50 @@ describe("CaptureScreen native depth sensor", () => {
     expect(onCaptured.mock.calls[0][0].depthSource).toBeUndefined();
   });
 });
+
+
+describe("CaptureScreen operator edges", () => {
+  it("lets the operator confirm the trunk edges on the DBH photo and sends them", async () => {
+    const { Image } = require("react-native");
+    const sizeSpy = jest
+      .spyOn(Image, "getSize")
+      .mockImplementation((_uri: unknown, ok: unknown) => (ok as (w: number, h: number) => void)(4032, 3024));
+    const EdgeAdjuster = require("../src/components/EdgeAdjuster").default;
+    const onCaptured = jest.fn();
+    const view = render(<CaptureScreen onCaptured={onCaptured} onBack={jest.fn()} />);
+    await waitFor(() => expect(view.getByText(/Position capturée/)).toBeTruthy());
+    await captureQuickViews(view.getByTestId);
+    fireEvent.press(view.getByTestId("next-button"));
+    await flush();
+    fireEvent.press(view.getByTestId("capture-button")); // DBH shot
+    await flush();
+    await waitFor(() => expect(view.getByTestId("edge-adjuster")).toBeTruthy());
+
+    fireEvent.changeText(view.getByTestId("depth-input"), "2");
+    act(() => view.UNSAFE_getByType(EdgeAdjuster).props.onChange({ left: 0.4, right: 0.6 }));
+    fireEvent.press(view.getByTestId("analyze-button"));
+    await flush();
+    expect(onCaptured.mock.calls[0][0]).toMatchObject({ edgeLeft: 0.4, edgeRight: 0.6, arDepthM: 2 });
+    sizeSpy.mockRestore();
+  });
+
+  it("does not send edges the operator never touched", async () => {
+    const { Image } = require("react-native");
+    const sizeSpy = jest
+      .spyOn(Image, "getSize")
+      .mockImplementation((_uri: unknown, ok: unknown) => (ok as (w: number, h: number) => void)(4032, 3024));
+    const onCaptured = jest.fn();
+    const view = render(<CaptureScreen onCaptured={onCaptured} onBack={jest.fn()} />);
+    await waitFor(() => expect(view.getByText(/Position capturée/)).toBeTruthy());
+    await captureQuickViews(view.getByTestId);
+    fireEvent.press(view.getByTestId("next-button"));
+    await flush();
+    fireEvent.press(view.getByTestId("capture-button"));
+    await flush();
+    fireEvent.changeText(view.getByTestId("depth-input"), "2");
+    fireEvent.press(view.getByTestId("analyze-button"));
+    await flush();
+    expect(onCaptured.mock.calls[0][0].edgeLeft).toBeUndefined();
+    sizeSpy.mockRestore();
+  });
+});

@@ -38,6 +38,7 @@ import {
   TreeMeasurements,
 } from "../api/client";
 import Clinometer from "../components/Clinometer";
+import EdgeAdjuster, { Edges } from "../components/EdgeAdjuster";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
 import { isDepthSensorAvailable, measureCenterDistance } from "../../modules/depth-sensor";
@@ -144,6 +145,9 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
   const [sensorBusy, setSensorBusy] = useState(false);
   const [sensorNote, setSensorNote] = useState<string | null>(null);
   const [depthSource, setDepthSource] = useState<"lidar" | "arcore" | undefined>(undefined);
+  const [edges, setEdges] = useState<Edges>({ left: 0.35, right: 0.65 });
+  const [edgesTouched, setEdgesTouched] = useState(false);
+  const [dbhPhotoSize, setDbhPhotoSize] = useState<{ width: number; height: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [taking, setTaking] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -238,6 +242,20 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
       setSensorBusy(false);
     }
   }, []);
+
+  const dbhShot = Object.entries(previews).find(([key]) => steps.find((st) => st.key === key)?.organ === "dbh")?.[1];
+  const dbhUri = dbhShot?.image.uri;
+  useEffect(() => {
+    setDbhPhotoSize(null);
+    setEdges({ left: 0.35, right: 0.65 });
+    setEdgesTouched(false);
+    if (!dbhUri) return;
+    Image.getSize(
+      dbhUri,
+      (width, height) => setDbhPhotoSize({ width, height }),
+      () => setDbhPhotoSize(null),
+    );
+  }, [dbhUri]);
 
   const onBarcode = useCallback(({ data }: { data: string }) => {
     const code = data?.trim();
@@ -381,6 +399,8 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
       heightSource: height > 0 ? heightSource : undefined,
       treeCode: treeCode ?? undefined,
       depthSource: depth > 0 ? depthSource : undefined,
+      edgeLeft: edgesTouched && dbhUri ? edges.left : undefined,
+      edgeRight: edgesTouched && dbhUri ? edges.right : undefined,
     });
   }, [
     blockReason,
@@ -395,6 +415,9 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
     heightSource,
     treeCode,
     depthSource,
+    edges,
+    edgesTouched,
+    dbhUri,
     onCaptured,
   ]);
 
@@ -479,7 +502,20 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <View style={styles.scanner}>
-          {shot && !scanningQr ? (
+          {shot && !scanningQr && step.organ === "dbh" && dbhPhotoSize ? (
+            <EdgeAdjuster
+              uri={shot.image.uri}
+              widthPx={dbhPhotoSize.width}
+              heightPx={dbhPhotoSize.height}
+              focal35mm={shot.focal35mm}
+              distanceM={depth > 0 ? depth : null}
+              edges={edges}
+              onChange={(next) => {
+                setEdges(next);
+                setEdgesTouched(true);
+              }}
+            />
+          ) : shot && !scanningQr ? (
             <Image source={{ uri: shot.image.uri }} style={styles.fill} resizeMode="cover" />
           ) : (
             <CameraView
