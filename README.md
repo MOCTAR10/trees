@@ -126,6 +126,24 @@ EXPO_PUBLIC_API_URL=http://<your-lan-ip>:3000
 If the phone cannot reach Metro, the Windows Firewall is likely blocking port
 8081 — use `npx expo start --tunnel`.
 
+## Native depth sensor (LiDAR / ARCore) — development build
+
+The scanner can read the bark distance from the phone's depth sensor (iPhone /
+iPad Pro LiDAR, ARCore Depth on supported Android phones). This native module
+(`mobile/modules/depth-sensor`) does not exist in Expo Go, where the app falls
+back to the QR plate, the typed distance or the server AI. To try it:
+
+```powershell
+cd mobile
+npx expo install expo-dev-client
+npx expo run:android          # Android Studio + a USB phone, or:
+# eas build --profile development --platform android   (Expo account)
+npx expo start --dev-client
+```
+
+A "Mesurer (capteur)" button then appears next to the distance field on the
+capture screen. Validate on a real device before field use.
+
 ## Tests and checks
 
 | Area | Command |

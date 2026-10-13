@@ -44,14 +44,14 @@ only (`mobile/src/i18n/fr.ts`). There is **no navigation library**: `App.tsx`
 routes with a `phase` state machine plus role checks; screens are mounted from
 per-role containers (`CompanyScreen`, `AdminScreen`, …) that expose tabs.
 
-## 2. Where we are (as of Slice 16)
+## 2. Where we are (as of Slice 17)
 
 The product is built as **vertical slices**: each slice ships a DB migration, the
 backend, optionally an operational CLI under `tools/`, the mobile UI, and the
 doc update — as separate logical commits. The full history lives in
 `docs/GABON_WORKFLOW_ANALYSIS.md` **§9**.
 
-**Slices 1–16 are DONE, committed on `main`, and pushed (CI green).** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
+**Slices 1–17 are DONE, committed on `main`, and pushed (CI green).** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
 
 | # | Domaine | Migration | Backend | Mobile | Docs §9 |
 | --- | --- | --- | --- | --- | --- |
@@ -71,9 +71,10 @@ doc update — as separate logical commits. The full history lives in
 | 14 | Mesure de l'arbre : DBH fiabilisé (ruban/compas + photo), hauteur mesurée, carbone | `020_slice14.sql` | `/api/v1/process-scan` (champs mesure) | `CaptureScreen` (étape DBH, ruban/compas, hauteur), `ReportScreen` | pt 14 |
 | 15 | Scanner IA (SAM 2.1, distance IA), grume liée par QR, clinomètre/niveau, carbone par AAC | `021_slice15.sql` | `/api/v1/capabilities`, `/api/dashboard` (carbone), `tools.export_trunk_dataset` | `Clinometer`, `CaptureScreen` (QR, niveau, auto), `AdminDashboard` | pt 15 |
 | 16 | Espèce (flore régionale + re-classement Gabon), plaque QR « règle », contrôles GFW, Carte 2.0 | `022_slice16.sql` | `/api/map/*`, `tools.gfw_api_key`, `tools.import_gfw_layers`, `tools.import_gabon_context`, `tools.print_qr_plates` | `MapScreen`, `ForestChecksCard`, `ReportScreen` | pt 16 |
+| 17 | Carte fluide (emprise + zoom, recherche, fiches), contrôles parc/concession à la déclaration, plaques par déclaration, capteur LiDAR/ARCore natif | — | `/api/map/layers?zoom&bbox`, `/api/map/search`, `/api/map/feature`, `/api/felling/declarations/{id}/plates.pdf` | `MapScreen`, `CompanyScreen`, `CaptureScreen`, `modules/depth-sensor` | pt 17 |
 
-Latest verified suite counts (Slice 16): **`pytest` 423 passed** ·
-**`jest` 122 passed / 37 suites** · `ruff` and `tsc` clean.
+Latest verified suite counts (Slice 17): **`pytest` 430 passed** ·
+**`jest` 134 passed / 39 suites** · `ruff` and `tsc` clean.
 
 ### What is left (next candidates)
 
@@ -234,8 +235,16 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
   (lost on container recreation).
 - PostGIS/SQL is **not** covered by the fake-DB unit tests — always smoke the new
   queries on real Postgres.
-- `mobile/__tests__/CaptureScreen.test.tsx` is known-flaky under full parallel
-  `jest`; it passes on re-run/in isolation. Unrelated to feature work.
+- `mobile/__tests__/CaptureScreen.test.tsx` and `OrgDocuments.test.tsx` can
+  time out under full parallel `jest` on a loaded machine; they pass on re-run
+  / in isolation. Unrelated to feature work.
+- Map layers must stay viewport + zoom bounded (`/api/map/layers?zoom&bbox`):
+  the full Gabon GFW layers are ~65 000 vertices (7.5 MB) unsimplified.
+- `mobile/modules/depth-sensor` is native (Swift/Kotlin) and only compiles in
+  an Expo **Development Build** (`npx expo install expo-dev-client`,
+  `npx expo run:android` / `eas build --profile development`); Expo Go simply
+  reports it unavailable. Do not add `expo-dev-client` casually: it changes
+  `expo start` for everyone (use `--go` to keep Expo Go).
 - On Windows/Docker Desktop the API's `--reload` can lag or miss a save on the
   bind mount. If a live check still shows old behaviour, run
   `docker restart forestry_fastapi` before concluding the fix failed.
