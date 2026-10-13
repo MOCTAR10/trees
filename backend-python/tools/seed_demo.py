@@ -43,6 +43,13 @@ AAC_OPEN_LABEL = "DEMO-AAC-2026-01"
 AAC_CLOSED_LABEL = "DEMO-AAC-2026-02"
 TREE_PREFIX = "GA-DEMO-"
 
+#: Official DME/UFA values seeded for the demo UFA (Loi 016/01 art. 124):
+#: ``(scientific name, dme_cm, source)``. They replace the provisional default
+#: and demonstrate the per-UFA audit origin in the felling compliance gate.
+SEEDED_UFA_DME: tuple[tuple[str, float, str], ...] = (
+    ("Aucoumea klaineana", 75.0, "Arrêté 0001/MEF — DME UFA Démo 1"),
+)
+
 TODAY = date.today()
 
 #: Anomaly families this dataset is designed to trigger. Kept as an explicit
@@ -328,6 +335,21 @@ async def seed() -> None:
     )
     aac_open = await _insert_aac(ufa["id"], AAC_OPEN_LABEL, 5_000.0, 15_000.0, "ouvert")
     aac_closed = await _insert_aac(ufa["id"], AAC_CLOSED_LABEL, 4_500.0, 12_000.0, "ferme")
+
+    # Official DME/UFA (Loi 016/01 art. 124): overrides the provisional default
+    # so the admin UI shows an "Arrêté UFA" row and declarations are judged
+    # against it. Cascades with the UFA, so re-running stays idempotent.
+    for species, dme_cm, source in SEEDED_UFA_DME:
+        await db.execute(
+            "INSERT INTO ufa_dme"
+            " (ufa_id, species_scientific_name, dme_cm, source, decided_by, decided_at)"
+            " VALUES ($1, $2, $3, $4, $5, now())",
+            ufa["id"],
+            species,
+            dme_cm,
+            source,
+            admin_id,
+        )
 
     for auth_type, ref in (
         ("certificat_assiette", "DEMO-CA-2026-01"),

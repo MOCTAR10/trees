@@ -45,6 +45,19 @@ def test_below_dme_stem_is_genuinely_below_its_dme():
     assert dbh < dme
 
 
+def test_seeded_ufa_dme_is_stricter_than_provisional_and_bites():
+    species, override, source = seed_demo.SEEDED_UFA_DME[0]
+    provisional = dme_for(species)[0]
+    assert provisional is not None
+    # The demo shows an official floor stricter than the interim default...
+    assert override > provisional
+    # ...and the below-DME stem is below the *official* value it is judged by.
+    below_species, dbh, _ = _BY_SUFFIX["001"]
+    assert below_species == species
+    assert dbh < override
+    assert seed_demo.TREE_PREFIX and source  # non-empty provenance
+
+
 def test_reserved_stem_is_a_reserved_species():
     species, _, _ = _BY_SUFFIX["002"]
     assert is_reserved_species(species)
