@@ -10,6 +10,10 @@ class Settings(BaseSettings):
 
     plantnet_api_key: str = ""
     plantnet_base_url: str = "https://my-api.plantnet.org/v2/identify"
+    # Regional flora covering Gabon (TDWG West-Central Tropical Africa); the
+    # global flora is asked only when the regional score stays below the bar.
+    plantnet_project: str = "k-west-central-tropical-africa"
+    plantnet_fallback_below: float = 0.2
 
     groq_api_key: str = ""
     groq_model: str = "openai/gpt-oss-120b"
@@ -33,6 +37,11 @@ class Settings(BaseSettings):
     # models + torch + the RAG embedder would otherwise get the API OOM-killed.
     ai_min_memory_mb: int = 3000
 
+    # Printed side (cm) of the QR symbol on official tree plates (black square,
+    # quiet zone excluded): the plate becomes a ruler in the DBH photo.
+    # À valider par le métier.
+    qr_tag_size_cm: float = 8.0
+
     # Reference-labelled DBH photos (tape/caliper) kept as training data.
     scan_media_dir: str = ""
 
@@ -40,6 +49,10 @@ class Settings(BaseSettings):
 
     # IUCN Red List status enrichment (optional, tools only)
     iucn_api_token: str = ""
+
+    # Global Forest Watch Data API (tree-cover loss, RADD alerts, parks,
+    # concessions at the scan point). Create with ``python -m tools.gfw_api_key``.
+    gfw_api_key: str = ""
 
     # Auth / RBAC (Track F)
     jwt_secret: str = "dev-insecure-secret-change-me"

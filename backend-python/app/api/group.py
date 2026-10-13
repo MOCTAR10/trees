@@ -63,7 +63,8 @@ async def group_trees(
                ts.measured_dbh_cm, ts.estimated_height_m, ts.estimated_age_years,
                ts.health_status,
                ST_Y(ts.geom) AS latitude, ST_X(ts.geom) AS longitude,
-               ts.created_at, u.display_name AS owner_name, u.id AS owner_id
+               ts.created_at, u.display_name AS owner_name, u.id AS owner_id,
+               ts.co2e_kg, ts.tree_code, ts.forest_checks->>'verdict' AS eudr_verdict
         FROM tree_scans ts
         JOIN users u ON u.id = ts.user_id
         WHERE u.cooperative_id = $1 OR u.company_id = $2

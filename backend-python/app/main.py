@@ -31,6 +31,7 @@ from app.api import (
     v1,
     v2,
 )
+from app.api import map as map_api
 from app.core import bootstrap
 from app.services import ai_models, db, http
 
@@ -80,6 +81,7 @@ app.include_router(certifications.router, prefix="/api/certifications", tags=["c
 app.include_router(anomalies.router, prefix="/api/anomalies", tags=["anomalies"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
 app.include_router(knowledge.router, prefix="/api/knowledge", tags=["knowledge"])
+app.include_router(map_api.router, prefix="/api/map", tags=["map"])
 app.include_router(species.router, prefix="/api/species", tags=["species"])
 app.include_router(trees.router, prefix="/api", tags=["trees"])
 app.include_router(group.router, prefix="/api/group", tags=["group"])

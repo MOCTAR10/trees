@@ -154,7 +154,11 @@ def test_low_confidence_species_is_not_asserted(client, monkeypatch):
     async def weak_identify(**kwargs):
         return types.SimpleNamespace(scientific_name="Albizia ferruginea", score=0.009)
 
-    monkeypatch.setattr(v1, "plantnet", types.SimpleNamespace(identify=weak_identify))
+    monkeypatch.setattr(
+        v1,
+        "plantnet",
+        types.SimpleNamespace(identify=weak_identify, identify_regional=weak_identify),
+    )
     body = _post(client, circumference_cm="196").json()
     assert body["species_scientific_name"] is None
     assert body["species_confidence"] == 0.009

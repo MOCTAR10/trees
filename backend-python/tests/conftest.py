@@ -7,7 +7,7 @@ leak into the next and defeat monkeypatch.setenv. Reset it around every test.
 import pytest
 
 from app.config import get_settings
-from app.services import gee, soilgrids
+from app.services import forest_watch, gee, soilgrids
 
 
 @pytest.fixture(autouse=True)
@@ -15,8 +15,10 @@ def _reset_settings_cache(monkeypatch):
     # A developer .env may enable the scanner AI; tests never load real models.
     monkeypatch.setenv("AI_MODELS_ENABLED", "false")
     monkeypatch.setenv("SCAN_MEDIA_DIR", "")
+    monkeypatch.setenv("GFW_API_KEY", "")
     get_settings.cache_clear()
     soilgrids.clear_cache()
     gee.clear_cache()
+    forest_watch.clear_cache()
     yield
     get_settings.cache_clear()

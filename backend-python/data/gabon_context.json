@@ -1,0 +1,308 @@
+{
+  "country": "Gabon",
+  "source": "Global Forest Watch — statistiques pays (téléchargements du tableau de bord)",
+  "generated_at": "2026-10-13",
+  "highlights": [
+    {
+      "key": "land_area",
+      "label": "Superficie du pays",
+      "value": 26454961.5,
+      "unit": "ha"
+    },
+    {
+      "key": "tree_cover_2000",
+      "label": "Couvert arboré 2000 (≥ 30 %)",
+      "value": 24690954.4,
+      "unit": "ha"
+    },
+    {
+      "key": "primary_forest_2001",
+      "label": "Forêt primaire humide 2001",
+      "value": 22669515.4,
+      "unit": "ha"
+    },
+    {
+      "key": "natural_forest_2020",
+      "label": "Forêt naturelle 2020 (référence RDUE)",
+      "value": 23838664.4,
+      "unit": "ha"
+    },
+    {
+      "key": "intact_forest_2000",
+      "label": "Paysages forestiers intacts 2000",
+      "value": 10875630.1,
+      "unit": "ha"
+    },
+    {
+      "key": "plantations",
+      "label": "Plantations (palmier à huile…)",
+      "value": 24673.7,
+      "unit": "ha"
+    },
+    {
+      "key": "agb_stock_2000",
+      "label": "Biomasse aérienne 2000",
+      "value": 6645467131.8,
+      "unit": "Mg"
+    },
+    {
+      "key": "co2_stock_2000",
+      "label": "Stock de CO₂ aérien 2000",
+      "value": 11452355023.8,
+      "unit": "Mg CO2"
+    },
+    {
+      "key": "soil_carbon_2000",
+      "label": "Carbone organique du sol",
+      "value": 1324209082.2,
+      "unit": "Mg C"
+    },
+    {
+      "key": "net_change_ha",
+      "label": "Évolution nette du couvert (hauteur)",
+      "value": -98960.2,
+      "unit": "ha"
+    },
+    {
+      "key": "net_flux_co2e",
+      "label": "Flux net de carbone forestier (2001-2024)",
+      "value": -1634639040.6,
+      "unit": "Mg CO2e"
+    }
+  ],
+  "emissions_by_year": [
+    {
+      "year": 2001,
+      "co2e_mg": 8934418.479699446
+    },
+    {
+      "year": 2002,
+      "co2e_mg": 8239558.71111362
+    },
+    {
+      "year": 2003,
+      "co2e_mg": 10313477.691399558
+    },
+    {
+      "year": 2004,
+      "co2e_mg": 5949559.6520054275
+    },
+    {
+      "year": 2005,
+      "co2e_mg": 10881083.748146983
+    },
+    {
+      "year": 2006,
+      "co2e_mg": 10981139.192076793
+    },
+    {
+      "year": 2007,
+      "co2e_mg": 9837300.152659785
+    },
+    {
+      "year": 2008,
+      "co2e_mg": 10345995.657083092
+    },
+    {
+      "year": 2009,
+      "co2e_mg": 11499878.985680388
+    },
+    {
+      "year": 2010,
+      "co2e_mg": 6663602.149601678
+    },
+    {
+      "year": 2011,
+      "co2e_mg": 11108853.010377107
+    },
+    {
+      "year": 2012,
+      "co2e_mg": 10795217.783144766
+    },
+    {
+      "year": 2013,
+      "co2e_mg": 27147383.856959194
+    },
+    {
+      "year": 2014,
+      "co2e_mg": 30670032.09547976
+    },
+    {
+      "year": 2015,
+      "co2e_mg": 16646113.055835534
+    },
+    {
+      "year": 2016,
+      "co2e_mg": 21216041.461471215
+    },
+    {
+      "year": 2017,
+      "co2e_mg": 25260388.370885994
+    },
+    {
+      "year": 2018,
+      "co2e_mg": 17352595.950932328
+    },
+    {
+      "year": 2019,
+      "co2e_mg": 18745575.008727837
+    },
+    {
+      "year": 2020,
+      "co2e_mg": 14396097.186042704
+    },
+    {
+      "year": 2021,
+      "co2e_mg": 12312066.163845498
+    },
+    {
+      "year": 2022,
+      "co2e_mg": 19736459.794822674
+    },
+    {
+      "year": 2023,
+      "co2e_mg": 13365711.337283479
+    },
+    {
+      "year": 2024,
+      "co2e_mg": 19626722.146009427
+    },
+    {
+      "year": 2025,
+      "co2e_mg": 14914283.801512336
+    }
+  ],
+  "emissions_latest_year": 2025,
+  "emissions_by_driver": [
+    {
+      "driver": "Shifting cultivation",
+      "label": "Agriculture itinérante",
+      "latest_co2e_mg": 9055358.838362122,
+      "latest_share": 0.6072,
+      "total_co2e_mg": 214374511.4
+    },
+    {
+      "driver": "Hard commodities",
+      "label": "Mines et matières premières",
+      "latest_co2e_mg": 1918715.3303954776,
+      "latest_share": 0.1286,
+      "total_co2e_mg": 16768034.7
+    },
+    {
+      "driver": "Logging",
+      "label": "Exploitation forestière",
+      "latest_co2e_mg": 1741117.061427115,
+      "latest_share": 0.1167,
+      "total_co2e_mg": 46195089.5
+    },
+    {
+      "driver": "Permanent agriculture",
+      "label": "Agriculture permanente",
+      "latest_co2e_mg": 1469526.1559195253,
+      "latest_share": 0.0985,
+      "total_co2e_mg": 59308897.8
+    },
+    {
+      "driver": "Settlements & Infrastructure",
+      "label": "Settlements & Infrastructure",
+      "latest_co2e_mg": 311260.82572548103,
+      "latest_share": 0.0209,
+      "total_co2e_mg": 7308071.7
+    },
+    {
+      "driver": "Other natural disturbances",
+      "label": "Autres perturbations naturelles",
+      "latest_co2e_mg": 176891.93267890668,
+      "latest_share": 0.0119,
+      "total_co2e_mg": 9109511.5
+    },
+    {
+      "driver": "Wildfire",
+      "label": "Feux",
+      "latest_co2e_mg": 125209.06722307659,
+      "latest_share": 0.0084,
+      "total_co2e_mg": 547543.1
+    },
+    {
+      "driver": "Unknown",
+      "label": "Unknown",
+      "latest_co2e_mg": 116204.58978063198,
+      "latest_share": 0.0078,
+      "total_co2e_mg": 13327895.7
+    }
+  ],
+  "provinces": [
+    {
+      "code": "1",
+      "name": "Estuaire",
+      "tree_cover_2000_ha": 1989053.535464467,
+      "area_ha": 1989053.535464467,
+      "tree_cover_2010_ha": 1913473.104999554,
+      "gain_2000_2020_ha": 3236.8926154586643
+    },
+    {
+      "code": "2",
+      "name": "Haut-Ogooué",
+      "tree_cover_2000_ha": 3369437.043150912,
+      "area_ha": 3369437.043150912,
+      "tree_cover_2010_ha": 2559381.1791508216,
+      "gain_2000_2020_ha": 12119.106059693731
+    },
+    {
+      "code": "3",
+      "name": "Moyen-Ogooué",
+      "tree_cover_2000_ha": 1782987.536495329,
+      "area_ha": 1782987.536495329,
+      "tree_cover_2010_ha": 1685791.1094547275,
+      "gain_2000_2020_ha": 3845.4660099033517
+    },
+    {
+      "code": "4",
+      "name": "Ngounié",
+      "tree_cover_2000_ha": 3838594.2071558693,
+      "area_ha": 3838594.2071558693,
+      "tree_cover_2010_ha": 3685409.289827225,
+      "gain_2000_2020_ha": 6935.558937534383
+    },
+    {
+      "code": "5",
+      "name": "Nyanga",
+      "tree_cover_2000_ha": 2181576.129673774,
+      "area_ha": 2181576.129673774,
+      "tree_cover_2010_ha": 1929043.2680902032,
+      "gain_2000_2020_ha": 7250.557302010576
+    },
+    {
+      "code": "6",
+      "name": "Ogooué-Ivindo",
+      "tree_cover_2000_ha": 4348340.166339756,
+      "area_ha": 4348340.166339756,
+      "tree_cover_2010_ha": 4294250.629481652,
+      "gain_2000_2020_ha": 4240.808399617016
+    },
+    {
+      "code": "7",
+      "name": "Ogooué-Lolo",
+      "tree_cover_2000_ha": 2903554.2339110607,
+      "area_ha": 2903554.2339110607,
+      "tree_cover_2010_ha": 2888651.0341019575,
+      "gain_2000_2020_ha": 3500.207101869211
+    },
+    {
+      "code": "8",
+      "name": "Ogooué-Maritime",
+      "tree_cover_2000_ha": 2289993.940828068,
+      "area_ha": 2289993.940828068,
+      "tree_cover_2010_ha": 2005590.128033916,
+      "gain_2000_2020_ha": 3635.4053681083537
+    },
+    {
+      "code": "9",
+      "name": "Woleu-Ntem",
+      "tree_cover_2000_ha": 3751424.7018478806,
+      "area_ha": 3751424.7018478806,
+      "tree_cover_2010_ha": 3738322.703838896,
+      "gain_2000_2020_ha": 5267.068907724386
+    }
+  ]
+}

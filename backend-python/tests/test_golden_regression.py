@@ -20,6 +20,7 @@ from fastapi.testclient import TestClient
 
 from app.api import v1, v2
 from app.main import app
+from app.services import species_rank
 
 GOLDEN_DIR = Path(__file__).parent / "golden"
 V1_GOLDEN = GOLDEN_DIR / "v1_report.json"
@@ -114,10 +115,16 @@ def install_v1_fakes(monkeypatch=None) -> list:
     async def fake_execute(sql, *args):
         return "INSERT 0 1"
 
-    _install(monkeypatch, v1, "plantnet", types.SimpleNamespace(identify=fake_identify), restores)
     _install(
         monkeypatch,
         v1,
+        "plantnet",
+        types.SimpleNamespace(identify=fake_identify, identify_regional=fake_identify),
+        restores,
+    )
+    _install(
+        monkeypatch,
+        species_rank,
         "gbif",
         types.SimpleNamespace(validate_species_for_location=fake_validate),
         restores,
@@ -262,6 +269,15 @@ def run_v2() -> dict:
 
 def refresh_goldens() -> None:
     """Regenerate baseline fixtures (dev tool; run with `python -m tests.golden_regression`)."""
+    import os
+
+    from app.config import get_settings
+
+    # Same isolation as tests/conftest.py: a developer .env must not switch on
+    # the scanner AI or media storage while baselines are written.
+    os.environ["AI_MODELS_ENABLED"] = "false"
+    os.environ["SCAN_MEDIA_DIR"] = ""
+    get_settings.cache_clear()
     GOLDEN_DIR.mkdir(exist_ok=True)
     for path, data in ((V1_GOLDEN, run_v1()), (V2_GOLDEN, run_v2())):
         path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")

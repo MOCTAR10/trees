@@ -24,7 +24,19 @@ from app.core.growth_models import estimate_age_by_integration
 from app.core.height_diameter import estimate_height_m
 from app.core.species_data import resolve_species
 from app.models.schemas import V1Report
-from app.services import ai_models, db, gbif, gee, groq_llm, pdf_report, plantnet, rag, soilgrids
+from app.services import (
+    ai_models,
+    db,
+    forest_watch,
+    gee,
+    groq_llm,
+    pdf_report,
+    plantnet,
+    qr_plate,
+    rag,
+    soilgrids,
+    species_rank,
+)
 from app.services.biomass_engine import living_carbon
 from app.services.vision import PLAUSIBLE_DBH_CM, measure_dbh
 
@@ -40,8 +52,12 @@ PLAUSIBLE_HEIGHT_M = (1.3, 80.0)
 #: Measurement views sent through SAM 2.1 (each costs a few CPU seconds).
 AI_MAX_VIEWS = 2
 
-#: Pl@ntNet score below which the top match is a guess, not an identification.
+#: Combined score (Pl@ntNet x Gabon priors) below which the top match is a
+#: guess, not an identification.
 MIN_SPECIES_SCORE = 0.15
+
+#: Alternatives shown to the operator.
+SPECIES_CANDIDATES = 3
 
 #: Confidence factor of a photo DBH whose bark distance was estimated by AI.
 AI_DISTANCE_CONFIDENCE = 0.6
@@ -315,29 +331,31 @@ def _resolve_dbh(
 
 async def _identify_species(
     views: list[dict], latitude: float, longitude: float
-) -> tuple[str | None, float | None]:
-    """Pl@ntNet multi-organ fusion, then the GBIF geographic cross-check."""
-    species_name, species_score = None, None
+) -> tuple[str | None, float | None, list[dict], str | None]:
+    """Pl@ntNet (regional flora first) re-ranked with Gabon priors and GBIF.
+
+    Returns the retained name (``None`` below the confidence bar), the raw
+    Pl@ntNet score of the best candidate, the ranked candidates and the flora.
+    """
     try:
         selected = _select_views(views)
-        pn = await plantnet.identify(
+        pn = await plantnet.identify_regional(
             images=[v["bytes"] for v in selected],
             organs=[_PLANTNET_ORGAN.get(v["organ"], v["organ"]) for v in selected],
             lang="fr",
         )
-        species_name, species_score = pn.scientific_name, pn.score
     except Exception as exc:
         logger.warning("Pl@ntNet identification skipped: %s", exc)
-    if species_name and (species_score or 0) < MIN_SPECIES_SCORE:
-        species_name = None  # a guess, not an identification
-    if species_name:
-        try:
-            check = await gbif.validate_species_for_location(species_name, latitude, longitude)
-            if not check["valid"] and (species_score or 0) < 0.5:
-                species_name = None  # low confidence + no local occurrences
-        except Exception as exc:
-            logger.warning("GBIF location cross-check skipped: %s", exc)
-    return species_name, species_score
+        return None, None, [], None
+    candidates = getattr(pn, "candidates", None) or (
+        [{"scientific_name": pn.scientific_name, "score": pn.score}] if pn.scientific_name else []
+    )
+    ranked = await species_rank.rerank(candidates, latitude, longitude)
+    if not ranked:
+        return None, None, [], getattr(pn, "project", None)
+    best = ranked[0]
+    name = best["scientific_name"] if best["combined"] >= MIN_SPECIES_SCORE else None
+    return name, best["score"], ranked[:SPECIES_CANDIDATES], getattr(pn, "project", None)
 
 
 async def _soil_class(latitude: float, longitude: float) -> str | None:
@@ -347,6 +365,24 @@ async def _soil_class(latitude: float, longitude: float) -> str | None:
         logger.warning("SoilGrids lookup skipped: %s", exc)
         return None
     return soil_data["soil_class"] if soil_data else None
+
+
+async def _read_plate(
+    views: list[dict], focal_px: float | None, focal_35mm: float | None
+) -> tuple[qr_plate.PlateReading | None, float | None]:
+    """QR plate on the measurement views: (reading, plate distance in m)."""
+    plate_cm = get_settings().qr_tag_size_cm
+    first: qr_plate.PlateReading | None = None
+    for view in _measurement_views(views):
+        reading = await asyncio.to_thread(qr_plate.detect, view["bgr"])
+        if reading is None:
+            continue
+        first = first or reading
+        focal, _source = _resolve_focal(view, focal_px, focal_35mm)
+        distance = qr_plate.distance_m(reading, focal, plate_cm)
+        if distance:
+            return reading, distance
+    return first, None
 
 
 async def _prepare_ai(views: list[dict], ar_depth_m: float | None) -> float | None:
@@ -476,27 +512,49 @@ async def process_scan(
     if not views:
         raise HTTPException(status_code=400, detail="Au moins une image est requise")
 
+    # --- QR plate: a measured distance and the tree's own registry code ---
+    plate, plate_distance = await _read_plate(views, focal_px, focal_35mm)
+    plate_note = None
+    if plate and plate.code and linked_code is None and user is not None:
+        try:
+            linked_code = await _linked_tree_code(plate.code, user)
+        except HTTPException:
+            plate_note = "qr_tree_unknown"
+
     # --- STEPS 2-4 run concurrently: species ID, AI trunk/distance, context ---
-    (species_name, species_score), ai_distance, soil, fcd_data = await asyncio.gather(
+    species, ai_distance, soil, fcd_data, forest_checks = await asyncio.gather(
         _identify_species(views, latitude, longitude),
-        _prepare_ai(views, ar_depth_m),
+        _prepare_ai(views, ar_depth_m or plate_distance),
         _soil_class(latitude, longitude),
         gee.canopy_density(latitude, longitude),
+        forest_watch.check_point(latitude, longitude),
     )
+    species_name, species_score, species_candidates, species_flora = species
     fcd = fcd_data["fcd"]
 
     # --- STEP 3: DBH — tape/caliper reference, SAM 2.1 + OpenCV vision check ---
-    distance, distance_source = ar_depth_m, ("typed" if ar_depth_m else None)
-    if not distance and ai_distance:
+    if plate_distance:
+        distance, distance_source = plate_distance, "qr"
+    elif ar_depth_m:
+        distance, distance_source = ar_depth_m, "typed"
+    elif ai_distance:
         distance, distance_source = ai_distance, "ai"
+    else:
+        distance, distance_source = None, None
     dbh = _resolve_dbh(views, distance, focal_px, focal_35mm, circumference_cm, caliper_dbh_cm)
+    if distance_source == "qr":
+        dbh.notes.insert(0, "depth_qr_plate")
+    elif plate is not None and plate_distance is None:
+        dbh.notes.append("qr_plate_unreadable")
+    if plate_note:
+        dbh.notes.append(plate_note)
     if distance_source == "ai":
         dbh.notes.insert(0, "depth_ai_estimated")
         if dbh.method not in REFERENCE_METHODS and dbh.confidence is not None:
             dbh.confidence = round(dbh.confidence * AI_DISTANCE_CONFIDENCE, 3)
     if any(v.get("ai_mask") is not None for v in views):
         dbh.notes.append("ai_segmentation")
-    if species_name is None and species_score is not None:
+    if species_name is None and species_candidates:
         dbh.notes.append("species_low_confidence")
     dbh_cm, dbh_method, dbh_conf = dbh.dbh_cm, dbh.method, dbh.confidence
     media_key = _save_labelled_media(views, dbh)
@@ -585,9 +643,9 @@ async def process_scan(
                 image_habitat_url, ar_depth_m, camera_focal_px, user_id,
                 dbh_vision_cm, dbh_uncertainty_cm, measurement_notes, height_method,
                 aboveground_biomass_kg, carbon_stock_kg, co2e_kg,
-                tree_code, depth_source, media_key,
+                tree_code, depth_source, media_key, forest_checks,
                 image_urls, view_meta
-            ) VALUES ($1, $2, ST_SetSRID(ST_MakePoint($4, $3), 4326), $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22::jsonb, $23, $24, $25, $26, $27, $28, $29, $30::jsonb, $31::jsonb)
+            ) VALUES ($1, $2, ST_SetSRID(ST_MakePoint($4, $3), 4326), $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22::jsonb, $23, $24, $25, $26, $27, $28, $29, $30::jsonb, $31::jsonb, $32::jsonb)
             RETURNING id
             """,
             species_name,
@@ -619,6 +677,7 @@ async def process_scan(
             linked_code,
             distance_source,
             media_key,
+            json.dumps(forest_checks) if forest_checks else None,
             json.dumps(image_urls),
             json.dumps(view_meta),
         )
@@ -651,6 +710,9 @@ async def process_scan(
         distance_m=distance,
         distance_source=distance_source,
         tree_code=linked_code,
+        species_candidates=species_candidates,
+        species_flora=species_flora,
+        forest_checks=forest_checks,
     )
 
 

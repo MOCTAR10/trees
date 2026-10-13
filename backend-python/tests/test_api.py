@@ -6,6 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.services import species_rank
 
 
 def _png(color=(90, 60, 30)) -> bytes:
@@ -92,9 +93,22 @@ def test_v1_process_scan(client, monkeypatch):
     async def fake_execute(sql, *args):
         return "INSERT 0 1"
 
-    monkeypatch.setattr(v1, "plantnet", type("M", (), {"identify": staticmethod(fake_identify)})())
     monkeypatch.setattr(
-        v1, "gbif", type("G", (), {"validate_species_for_location": staticmethod(fake_validate)})()
+        v1,
+        "plantnet",
+        type(
+            "M",
+            (),
+            {
+                "identify": staticmethod(fake_identify),
+                "identify_regional": staticmethod(fake_identify),
+            },
+        )(),
+    )
+    monkeypatch.setattr(
+        species_rank,
+        "gbif",
+        type("G", (), {"validate_species_for_location": staticmethod(fake_validate)})(),
     )
     monkeypatch.setattr(v1, "soilgrids", type("S", (), {"fetch_soil": staticmethod(fake_soil)})())
     monkeypatch.setattr(v1, "gee", type("E", (), {"canopy_density": staticmethod(fake_fcd)})())
@@ -447,9 +461,22 @@ def test_v1_multi_view_uses_best_five(client, monkeypatch):
         persisted["args"] = args
         return "INSERT 0 1"
 
-    monkeypatch.setattr(v1, "plantnet", type("M", (), {"identify": staticmethod(fake_identify)})())
     monkeypatch.setattr(
-        v1, "gbif", type("G", (), {"validate_species_for_location": staticmethod(fake_validate)})()
+        v1,
+        "plantnet",
+        type(
+            "M",
+            (),
+            {
+                "identify": staticmethod(fake_identify),
+                "identify_regional": staticmethod(fake_identify),
+            },
+        )(),
+    )
+    monkeypatch.setattr(
+        species_rank,
+        "gbif",
+        type("G", (), {"validate_species_for_location": staticmethod(fake_validate)})(),
     )
     monkeypatch.setattr(v1, "soilgrids", type("S", (), {"fetch_soil": staticmethod(fake_soil)})())
     monkeypatch.setattr(v1, "gee", type("E", (), {"canopy_density": staticmethod(fake_fcd)})())

@@ -17,7 +17,8 @@ async def my_trees(
         """
         SELECT id, species_scientific_name, species_confidence, measured_dbh_cm,
                estimated_height_m, estimated_age_years, health_status,
-               ST_Y(geom) AS latitude, ST_X(geom) AS longitude, created_at
+               ST_Y(geom) AS latitude, ST_X(geom) AS longitude, created_at,
+               co2e_kg, tree_code, forest_checks->>'verdict' AS eudr_verdict
         FROM tree_scans
         WHERE user_id = $1
         ORDER BY created_at DESC
