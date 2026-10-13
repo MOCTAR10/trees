@@ -211,6 +211,7 @@ def _references_block(items: Any) -> list:
 DBH_METHOD_LABELS = {
     "tape_circumference": "Ruban (circonférence ÷ π)",
     "caliper": "Compas forestier",
+    "operator_edges": "Photo — bords confirmés par l'opérateur",
     "sam2_opencv": "Vision IA (SAM 2.1 + OpenCV)",
     "opencv_depth": "Vision (profondeur)",
     "opencv_edge_profile": "Vision (profil des bords)",
@@ -233,6 +234,7 @@ MEASUREMENT_NOTE_LABELS = {
     "depth_missing": "Distance au tronc non renseignée — vision non exécutée",
     "depth_ai_estimated": "Distance au tronc estimée par IA (Depth Anything V2)",
     "ai_segmentation": "Tronc découpé par IA (SAM 2.1)",
+    "edges_operator": "Bords du tronc placés / confirmés par l'opérateur sur la photo",
     "depth_sensor": "Distance mesurée par le capteur de profondeur (LiDAR / ARCore)",
     "depth_qr_plate": "Distance mesurée grâce à la plaque QR de l'arbre (règle de taille connue)",
     "qr_plate_unreadable": "Plaque QR vue mais trop petite ou trop oblique pour mesurer",

@@ -94,6 +94,24 @@ def tangent_diameter_cm(silhouette_px: float, depth_m: float, focal_px: float) -
     return 2.0 * depth_m * 100.0 * sin_a / (1.0 - sin_a)
 
 
+def diameter_from_edges_cm(
+    x_left_px: float, x_right_px: float, center_px: float, focal_px: float, depth_m: float
+) -> float:
+    """Exact diameter from the two trunk edges placed on the photo (cm).
+
+    Works for an off-centre trunk: the half-angle is taken between the two
+    edge rays (``atan((x - c) / f)``), then the tangent-silhouette model.
+    """
+    if not x_right_px > x_left_px or focal_px <= 0 or depth_m <= 0:
+        raise ValueError("edges must be ordered, focal_px and depth_m positive")
+    a_left = math.atan((x_left_px - center_px) / focal_px)
+    a_right = math.atan((x_right_px - center_px) / focal_px)
+    sin_a = math.sin((a_right - a_left) / 2.0)
+    if sin_a >= 1.0:
+        raise ValueError("degenerate silhouette")
+    return 2.0 * depth_m * 100.0 * sin_a / (1.0 - sin_a)
+
+
 def silhouette_px_for_trunk(diameter_cm: float, depth_m: float, focal_px: float) -> float:
     """Inverse of :func:`tangent_diameter_cm`: projected width of a trunk (px)."""
     r = diameter_cm / 200.0

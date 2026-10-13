@@ -9,6 +9,7 @@ import statistics
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
+from types import SimpleNamespace
 
 import cv2
 import numpy as np
@@ -19,7 +20,7 @@ from PIL import Image
 from app.config import get_settings
 from app.core.chapman_richards import estimate_age_for_species
 from app.core.deps import get_optional_user
-from app.core.geometry import DEFAULT_FOCAL_35MM, focal_px_from_35mm
+from app.core.geometry import DEFAULT_FOCAL_35MM, diameter_from_edges_cm, focal_px_from_35mm
 from app.core.growth_models import estimate_age_by_integration
 from app.core.height_diameter import estimate_height_m
 from app.core.species_data import resolve_species
@@ -61,6 +62,9 @@ SPECIES_CANDIDATES = 3
 
 #: Confidence factor of a photo DBH whose bark distance was estimated by AI.
 AI_DISTANCE_CONFIDENCE = 0.6
+
+#: Confidence of a DBH read from operator-confirmed edges (human in the loop).
+OPERATOR_EDGES_CONFIDENCE = 0.9
 
 #: Native depth sensors whose reading beats the QR plate and the typed value.
 SENSOR_SOURCES = frozenset({"lidar", "arcore"})
@@ -237,6 +241,27 @@ def _measurement_views(views: list[dict]) -> list[dict]:
     return []
 
 
+def _operator_edges_measurement(view: dict, depth_m: float, focal_px: float):
+    """DBH from the trunk edges the operator confirmed on the photo.
+
+    Edges arrive as fractions of the displayed photo width (robust to EXIF
+    rotation); ``cv2.imdecode`` applies the same orientation, so they map onto
+    this image's columns. Same tangent geometry as the phone's live preview.
+    """
+    width = view["bgr"].shape[1]
+    left_frac, right_frac = view["edges"]
+    dbh_cm = diameter_from_edges_cm(
+        left_frac * width, right_frac * width, width / 2.0, focal_px, depth_m
+    )
+    margin = 2.0 / width
+    return SimpleNamespace(
+        dbh_cm=round(dbh_cm, 2),
+        method="operator_edges",
+        confidence=OPERATOR_EDGES_CONFIDENCE,
+        touches_frame=left_frac <= margin or right_frac >= 1.0 - margin,
+    )
+
+
 def _vision_dbh(
     views: list[dict],
     ar_depth_m: float | None,
@@ -257,7 +282,10 @@ def _vision_dbh(
             notes.append(source)
         extra = {"mask": view["ai_mask"]} if view.get("ai_mask") is not None else {}
         try:
-            measurement = measure_dbh(view["bgr"], depth_m=ar_depth_m, focal_px=focal, **extra)
+            if view.get("edges"):
+                measurement = _operator_edges_measurement(view, ar_depth_m, focal)
+            else:
+                measurement = measure_dbh(view["bgr"], depth_m=ar_depth_m, focal_px=focal, **extra)
         except (RuntimeError, ValueError) as exc:
             logger.warning("DBH measurement skipped: %s", exc)
             continue
@@ -504,6 +532,15 @@ async def process_scan(
     depth_source: str | None = Form(
         None, description="Origine de ar_depth_m : lidar | arcore (capteur) ou saisie"
     ),
+    edge_left: float | None = Form(
+        None,
+        ge=0,
+        le=1,
+        description="Bord gauche du tronc (fraction de la largeur de la photo DBH)",
+    ),
+    edge_right: float | None = Form(
+        None, ge=0, le=1, description="Bord droit du tronc (fraction de la largeur de la photo DBH)"
+    ),
     user: dict | None = Depends(get_optional_user),
 ):
     linked_code = await _linked_tree_code(tree_code, user)
@@ -539,6 +576,10 @@ async def process_scan(
     fcd = fcd_data["fcd"]
 
     # --- STEP 3: DBH — tape/caliper reference, SAM 2.1 + OpenCV vision check ---
+    if edge_left is not None and edge_right is not None and edge_right > edge_left:
+        dbh_views = [v for v in views if v["organ"] == "dbh"]
+        if dbh_views:
+            dbh_views[0]["edges"] = (edge_left, edge_right)
     if ar_depth_m and depth_source in SENSOR_SOURCES:
         distance, distance_source = ar_depth_m, depth_source
     elif plate_distance:
@@ -558,6 +599,8 @@ async def process_scan(
         dbh.notes.append("qr_plate_unreadable")
     if plate_note:
         dbh.notes.append(plate_note)
+    if any(v.get("edges") for v in views):
+        dbh.notes.append("edges_operator")
     if distance_source == "ai":
         dbh.notes.insert(0, "depth_ai_estimated")
         if dbh.method not in REFERENCE_METHODS and dbh.confidence is not None:

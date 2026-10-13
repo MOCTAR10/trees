@@ -273,3 +273,31 @@ def test_sensor_distance_wins_over_typed_and_is_noted(client, monkeypatch):
     assert body["measurement_notes"][0] == "depth_sensor"
     typed = _post(client, focal_px="2200", ar_depth_m="2.05", depth_source="bogus").json()
     assert typed["distance_source"] == "typed"
+
+
+def test_operator_edges_measure_the_dbh_offline_style(client, monkeypatch):
+    install_v1_fakes(monkeypatch)
+    monkeypatch.setattr(
+        v1, "measure_dbh", lambda *a, **k: pytest.fail("edges given: no segmentation")
+    )
+    # 8x8 test image, f = 8 px: edges at 0.30 / 0.70 of the width, bark at 2 m.
+    import math
+
+    width, f, z = 8, 8.0, 2.0
+    expected = None
+    a_l, a_r = math.atan((0.3 * width - 4) / f), math.atan((0.7 * width - 4) / f)
+    s_ = math.sin((a_r - a_l) / 2)
+    expected = 2 * z * 100 * s_ / (1 - s_)
+    body = _post(
+        client, focal_px=str(f), ar_depth_m=str(z), edge_left="0.30", edge_right="0.70"
+    ).json()
+    assert body["dbh_method"] == "operator_edges"
+    assert body["measured_dbh_cm"] == pytest.approx(expected, abs=0.01)
+    assert "edges_operator" in body["measurement_notes"]
+
+
+def test_operator_edges_at_the_frame_border_are_refused(client, monkeypatch):
+    install_v1_fakes(monkeypatch)
+    body = _post(client, focal_px="8", ar_depth_m="2", edge_left="0.0", edge_right="0.6").json()
+    assert body["measured_dbh_cm"] is None
+    assert "trunk_exceeds_frame" in body["measurement_notes"]

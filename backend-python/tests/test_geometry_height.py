@@ -4,6 +4,7 @@ import pytest
 
 from app.core.geometry import (
     chord_corrected_diameter_cm,
+    diameter_from_edges_cm,
     focal_px_from_35mm,
     focal_px_from_hfov,
     silhouette_px_for_trunk,
@@ -77,3 +78,20 @@ def test_height_curve_monotonic_and_capped():
 def test_bole_height():
     assert bole_height_m(40) >= 5.0
     assert bole_height_m(40) < estimate_height_m(40)
+
+
+@pytest.mark.parametrize("offset_px", [0.0, 400.0, -650.0])
+def test_edges_give_the_true_diameter_even_off_centre(offset_px):
+    # 55 cm trunk at 2 m, f = 1600 px, centred then shifted sideways.
+    f, z, d = 1600.0, 2.0, 55.0
+    r = d / 200.0
+    alpha = math.asin(r / (z + r))
+    axis = math.atan(offset_px / f)
+    left = f * math.tan(axis - alpha)
+    right = f * math.tan(axis + alpha)
+    assert math.isclose(diameter_from_edges_cm(left, right, 0.0, f, z), d, rel_tol=1e-9)
+
+
+def test_edges_must_be_ordered():
+    with pytest.raises(ValueError):
+        diameter_from_edges_cm(100, 50, 0, 1600, 2)
