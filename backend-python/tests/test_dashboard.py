@@ -50,10 +50,26 @@ def _setup(monkeypatch):
     }
 
     registry = [
-        {"species_scientific_name": "Aucoumea klaineana", "measured_dbh_cm": 90, "status": "transforme"},
-        {"species_scientific_name": "Aucoumea klaineana", "measured_dbh_cm": 80, "status": "abattu"},
-        {"species_scientific_name": "Pericopsis elata", "measured_dbh_cm": 70, "status": "transporte"},
-        {"species_scientific_name": "Entandrophragma", "measured_dbh_cm": 60, "status": "inventorie"},
+        {
+            "species_scientific_name": "Aucoumea klaineana",
+            "measured_dbh_cm": 90,
+            "status": "transforme",
+        },
+        {
+            "species_scientific_name": "Aucoumea klaineana",
+            "measured_dbh_cm": 80,
+            "status": "abattu",
+        },
+        {
+            "species_scientific_name": "Pericopsis elata",
+            "measured_dbh_cm": 70,
+            "status": "transporte",
+        },
+        {
+            "species_scientific_name": "Entandrophragma",
+            "measured_dbh_cm": 60,
+            "status": "inventorie",
+        },
     ]
 
     async def fetch_one(sql, *args):

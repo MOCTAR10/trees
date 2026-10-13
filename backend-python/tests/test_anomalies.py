@@ -85,7 +85,9 @@ def _setup(monkeypatch):
             ],
             "reserved_species": [],
         },
-        "unauth": [{"tree_code": "GA-WILD", "created_at": "2026-02-01T08:00:00+00:00", "actor_id": 4}],
+        "unauth": [
+            {"tree_code": "GA-WILD", "created_at": "2026-02-01T08:00:00+00:00", "actor_id": 4}
+        ],
         "closed_aac_decls": [
             {
                 "declaration_id": 9,
@@ -280,7 +282,7 @@ def test_review_requires_motif_when_dismissed(client, monkeypatch):
     assert ("below_dme", "GA-DME-1") in state["reviews"]
 
     listed = client.get("/api/anomalies", headers=_auth(admin)).json()
-    reviewed = [i for i in listed if i["type"] == "below_dme"][0]
+    reviewed = next(i for i in listed if i["type"] == "below_dme")
     assert reviewed["review_status"] == "ecartee"
     assert reviewed["review_motif"] == "Erreur de mesure confirmée sur site"
 
