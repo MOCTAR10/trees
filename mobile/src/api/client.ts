@@ -1205,6 +1205,52 @@ export async function createAac(
   return resp.json();
 }
 
+export type DmeOrigin = "ufa" | "provisional" | "unknown";
+
+export interface UfaDmeEntry {
+  species_scientific_name: string;
+  dme_cm: number;
+  source: string | null;
+  origin: DmeOrigin;
+}
+
+export interface UfaDmeView {
+  ufa_id: number;
+  title_id: number;
+  label: string;
+  entries: UfaDmeEntry[];
+}
+
+export async function getUfaDme(ufaId: number): Promise<UfaDmeView> {
+  const resp = await timedFetch(`${API_BASE}/api/titles/units/${ufaId}/dme`, {
+    headers: headers(),
+  });
+  if (!resp.ok) throw new Error(`DME ${resp.status}`);
+  return resp.json();
+}
+
+export async function setUfaDme(
+  ufaId: number,
+  entries: { species_scientific_name: string; dme_cm: number; source?: string | null }[],
+): Promise<UfaDmeView> {
+  const resp = await timedFetch(`${API_BASE}/api/titles/units/${ufaId}/dme`, {
+    method: "PUT",
+    headers: headers(true),
+    body: JSON.stringify({ entries }),
+  });
+  if (!resp.ok) throw new Error(`DME ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
+export async function clearUfaDme(ufaId: number, species: string): Promise<UfaDmeView> {
+  const resp = await timedFetch(
+    `${API_BASE}/api/titles/units/${ufaId}/dme/${encodeURIComponent(species)}`,
+    { method: "DELETE", headers: headers(true) },
+  );
+  if (!resp.ok) throw new Error(`DME ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
 export async function actOnAac(
   aacId: number,
   input: {

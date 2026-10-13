@@ -25,6 +25,7 @@ import {
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
 import AacAuthorizations from "./AacAuthorizations";
+import UfaDme from "./UfaDme";
 import Badge, { aacTone, titleTone } from "./Badge";
 
 const TITLE_TYPES: TitleType[] = ["CFAD", "PFA", "PGG", "FC"];
@@ -224,6 +225,7 @@ export default function CompanyTitles() {
                               </View>
                             ))
                           )}
+                          <UfaDme ufaId={unit.id} mode="company" />
                         </View>
                       ) : null}
                     </View>

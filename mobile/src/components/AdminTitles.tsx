@@ -30,6 +30,7 @@ import {
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
 import AacAuthorizations from "./AacAuthorizations";
+import UfaDme from "./UfaDme";
 import Badge, { aacTone, titleTone } from "./Badge";
 
 const DECISIONS: Record<TitleStatus, TitleDecision[]> = {
@@ -333,6 +334,7 @@ export default function AdminTitles() {
                                 </View>
                               ))
                             )}
+                            <UfaDme ufaId={unit.id} mode="admin" />
                           </View>
                         ) : null}
                       </View>

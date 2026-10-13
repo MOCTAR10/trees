@@ -397,6 +397,28 @@ export const fr = {
         rejete: "Rejeter",
       } as Record<string, string>,
     },
+    dme: {
+      section: "Diamètres minimums d'exploitabilité (DME/UFA)",
+      hint: "Seuils officiels par UFA (art. 124). À défaut, seuil provisoire.",
+      origin: {
+        ufa: "Arrêté UFA",
+        provisional: "Provisoire",
+        unknown: "Inconnu",
+      } as Record<string, string>,
+      species: "Essence",
+      dmeCm: "DME (cm)",
+      source: "Référence légale",
+      sourcePlaceholder: "Arrêté n°… / plan d'aménagement",
+      fix: "Fixer",
+      reset: "Rétablir le seuil provisoire",
+      save: "Enregistrer",
+      cancel: "Annuler",
+      invalid: "DME invalide (0 < cm ≤ 400).",
+      saved: "DME de l'UFA enregistré.",
+      resetDone: "Seuil provisoire rétabli.",
+      error: "Opération impossible.",
+      noEntries: "Aucune essence.",
+    },
   },
 
   taxes: {
