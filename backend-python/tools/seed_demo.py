@@ -103,6 +103,28 @@ SEEDED_STUDIES: tuple[dict, ...] = (
     },
 )
 
+#: Exact felling location (lon, lat in WGS84) for a subset of the demo stems,
+#: written to ``tree_registry.geom`` so the EUDR per-log geolocation is
+#: demonstrable. Five points fall inside the declared parcel below, one (006)
+#: is deliberately outside it.
+SEEDED_GEOLOCATION: tuple[tuple[str, float, float], ...] = (
+    ("001", 11.4500, -0.2500),
+    ("002", 11.4700, -0.2000),
+    ("003", 11.5000, -0.1500),
+    ("004", 11.5200, -0.2200),
+    ("005", 11.5500, -0.1800),
+    ("006", 11.7000, -0.0500),  # outside the parcel polygon
+)
+
+#: One EUDR diligence statement for the demo CFAD, with the parcel polygon that
+#: contains the geolocated stems above. Counters are computed from
+#: ``tree_registry`` at seed time (5 inside / 1 outside).
+SEEDED_DILIGENCE: dict = {
+    "parcel_label": "Parcelle d'origine DEMO-CFAD-01",
+    "parcel_wkt": ("POLYGON((11.40 -0.30, 11.60 -0.30, 11.60 -0.10, 11.40 -0.10, 11.40 -0.30))"),
+    "declared_volume_m3": 120.0,
+}
+
 #: Anomaly families this dataset is designed to trigger. Kept as an explicit
 #: contract (asserted in the test-suite) so a detector added later cannot be
 #: silently left out of the demo.
@@ -554,6 +576,37 @@ async def seed() -> None:
             f"DF10-2026-{suffix}",
         )
 
+    # --- EUDR: per-log geolocation + one diligence statement ----------------
+    for suffix, lon, lat in SEEDED_GEOLOCATION:
+        await db.execute(
+            "UPDATE tree_registry SET geom = ST_SetSRID(ST_MakePoint($2, $3), 4326)"
+            " WHERE tree_code = $1",
+            _code(suffix),
+            lon,
+            lat,
+        )
+    await db.execute(
+        "INSERT INTO eudr_diligence"
+        " (org_id, title_id, parcel_label, parcel_geom, geolocated_stem_count,"
+        "  felled_stem_count, inside_parcel_stem_count, outside_parcel_stem_count,"
+        "  declared_volume_m3, status, submitted_by)"
+        " SELECT $1, $2, $3, ST_GeomFromText($4, 4326),"
+        "   COUNT(COALESCE(stump_geom, geom)), COUNT(*),"
+        "   COUNT(*) FILTER (WHERE COALESCE(stump_geom, geom) IS NOT NULL"
+        "     AND ST_Covers(ST_GeomFromText($4, 4326), COALESCE(stump_geom, geom))),"
+        "   COUNT(*) FILTER (WHERE COALESCE(stump_geom, geom) IS NOT NULL"
+        "     AND NOT ST_Covers(ST_GeomFromText($4, 4326), COALESCE(stump_geom, geom))),"
+        "   $5, 'soumis', $6"
+        " FROM tree_registry WHERE company_id = $6"
+        "   AND status IN ('abattu','transporte','transforme')",
+        company_org,
+        title_id,
+        SEEDED_DILIGENCE["parcel_label"],
+        SEEDED_DILIGENCE["parcel_wkt"],
+        SEEDED_DILIGENCE["declared_volume_m3"],
+        company_id,
+    )
+
     # --- Custody ledger (incl. one felling without any declaration) ---------
     for suffix in ("001", "002", "003", "004", "005", "006", "099"):
         await db.execute(
@@ -704,6 +757,10 @@ async def seed() -> None:
     print(f"  community FC  : {FC_REF} (CCC DEMO-CCC-01)")
     print(f"  stems         : {len(STEMS)} registered, all 9 anomaly families covered")
     print(f"  studies       : {len(SEEDED_STUDIES)} (PPF validée + certificat, EIE en attente)")
+    print(
+        f"  EUDR          : 1 diligence, {len(SEEDED_GEOLOCATION)} grumes géolocalisées "
+        "(5 dans la parcelle, 1 hors)"
+    )
 
 
 async def run() -> None:

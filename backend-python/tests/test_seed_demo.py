@@ -83,6 +83,22 @@ def test_seeded_studies_cover_ppf_and_eie():
     assert eie["certificate_ref"] is None
 
 
+def test_seeded_eudr_geolocation_and_diligence_are_consistent():
+    suffixes = {suffix for suffix, *_ in seed_demo.STEMS}
+    geo = seed_demo.SEEDED_GEOLOCATION
+    # Every geolocated point refers to a seeded stem, with plausible WGS84 coords.
+    assert {suffix for suffix, _, _ in geo} <= suffixes
+    for _, lon, lat in geo:
+        assert -180.0 <= lon <= 180.0
+        assert -90.0 <= lat <= 90.0
+    # The demo geolocates several stems (inside) and keeps at least one outside.
+    assert len(geo) >= 2
+    d = seed_demo.SEEDED_DILIGENCE
+    assert d["parcel_label"]
+    assert d["parcel_wkt"].startswith("POLYGON((")
+    assert d["declared_volume_m3"] > 0
+
+
 def test_reserved_stem_is_a_reserved_species():
     species, _, _ = _BY_SUFFIX["002"]
     assert is_reserved_species(species)
