@@ -37,6 +37,10 @@ COMPANY_EMAIL = "company.demo@forestry.local"
 COMPANY_PASSWORD = "Demo12345"
 COMPANY_NAME = "Société Forestière Démo (CFAD)"
 COMMUNITY_NAME = "Communauté Villageoise Démo (Mikongo)"
+AGENT_EMAIL = "agent.demo@forestry.local"
+AGENT_FIRST, AGENT_LAST, AGENT_MATRICULE = "Nzé", "Obiang", "AGT-DEMO-01"
+CHANTIER_TITLE = "Chantier Démo — inventaire AAC 2026-01"
+OPEN_PROJECT_TITLE = "Cartographier le Moabi (projet ouvert)"
 
 TITLE_REF = "DEMO-CFAD-01"
 FC_REF = "DEMO-FC-01"
@@ -294,6 +298,68 @@ async def _company_user(org_id: int) -> int:
         org_id,
     )
     return row["id"]
+
+
+async def _agent_user(company_id: int) -> int:
+    """Demo field agent of the demo company, with a real name and matricule."""
+    row = await _one("SELECT id FROM users WHERE email = $1", AGENT_EMAIL)
+    values = (
+        f"{AGENT_FIRST} {AGENT_LAST}",
+        security.hash_password(COMPANY_PASSWORD),
+        company_id,
+        AGENT_FIRST,
+        AGENT_LAST,
+        AGENT_MATRICULE,
+    )
+    if row:
+        await db.execute(
+            "UPDATE users SET display_name = $2, role = 'operator', is_active = TRUE,"
+            " password_hash = $3, company_id = $4, first_name = $5, last_name = $6,"
+            " matricule = $7 WHERE id = $1",
+            row["id"],
+            *values,
+        )
+        return row["id"]
+    row = await _one(
+        "INSERT INTO users (email, display_name, role, password_hash, company_id,"
+        " first_name, last_name, matricule)"
+        " VALUES ($1, $2, 'operator', $3, $4, $5, $6, $7) RETURNING id",
+        AGENT_EMAIL,
+        *values,
+    )
+    return row["id"]
+
+
+async def _demo_projects(company_id: int, admin_id: int, agent_id: int, aac_id: int) -> None:
+    """A chantier on the open AAC (agent invited) and an open participative project."""
+    await db.execute(
+        "DELETE FROM projects WHERE title = ANY($1::text[])", [CHANTIER_TITLE, OPEN_PROJECT_TITLE]
+    )
+    chantier = await _one(
+        "INSERT INTO projects (title, description, objective, status, created_by, kind,"
+        " participation, aac_id)"
+        " VALUES ($1, $2, 'inventaire', 'open', $3, 'chantier', 'invitation', $4) RETURNING id",
+        CHANTIER_TITLE,
+        "Mesure et contrôle des tiges inventoriées de l'AAC ouverte.",
+        company_id,
+        aac_id,
+    )
+    await db.execute(
+        "INSERT INTO project_participants (project_id, user_id, status, invited_by)"
+        " VALUES ($1, $2, 'invited', $3)",
+        chantier["id"],
+        agent_id,
+        company_id,
+    )
+    await db.execute(
+        "INSERT INTO projects (title, description, target_type, target_value, objective,"
+        " status, created_by, kind, participation)"
+        " VALUES ($1, $2, 'species', 'Baillonella toxisperma', 'cartographie', 'open', $3,"
+        " 'participatif', 'open')",
+        OPEN_PROJECT_TITLE,
+        "Signalez chaque Moabi rencontré : espèce protégée, à cartographier.",
+        admin_id,
+    )
 
 
 async def _insert_title(
@@ -812,8 +878,13 @@ async def seed() -> None:
         admin_id,
     )
 
+    agent_id = await _agent_user(company_id)
+    await _demo_projects(company_id, admin_id, agent_id, aac_open)
+
     print("Demo dataset seeded.")
     print(f"  company login : {COMPANY_EMAIL} / {COMPANY_PASSWORD}")
+    print(f"  agent login   : {AGENT_EMAIL} / {COMPANY_PASSWORD} ({AGENT_FIRST} {AGENT_LAST})")
+    print(f"  projects      : {CHANTIER_TITLE} (agent invité), {OPEN_PROJECT_TITLE}")
     print(f"  title/UFA/AAC : {TITLE_REF} -> {UFA_LABEL} -> {AAC_OPEN_LABEL}, {AAC_CLOSED_LABEL}")
     print(f"  community FC  : {FC_REF} (CCC DEMO-CCC-01)")
     print(f"  stems         : {len(STEMS)} registered, all 9 anomaly families covered")
