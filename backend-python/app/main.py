@@ -19,6 +19,7 @@ from app.api import (
     eudr,
     felling,
     group,
+    home,
     knowledge,
     organizations,
     projects,
@@ -87,6 +88,7 @@ app.include_router(trees.router, prefix="/api", tags=["trees"])
 app.include_router(group.router, prefix="/api/group", tags=["group"])
 app.include_router(diagnostics.router, prefix="/api/diagnostics", tags=["diagnostics"])
 app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
+app.include_router(home.router, prefix="/api/home", tags=["home"])
 
 
 @app.get("/health")

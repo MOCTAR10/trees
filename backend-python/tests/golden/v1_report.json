@@ -37,5 +37,8 @@
     }
   ],
   "species_flora": null,
-  "forest_checks": null
+  "forest_checks": null,
+  "project_id": null,
+  "project_title": null,
+  "project_note": null
 }

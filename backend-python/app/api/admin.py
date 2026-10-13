@@ -10,13 +10,19 @@ from app.services import db
 router = APIRouter()
 
 VALID_ROLES = {"operator", "cooperative", "company", "admin"}
-_USER_COLUMNS = "id, email, display_name, role, is_active, cooperative_id, company_id, organization_id, created_at"
+_USER_COLUMNS = (
+    "id, email, display_name, role, is_active, cooperative_id, company_id, organization_id, "
+    "first_name, last_name, matricule, created_at"
+)
 
 
 class CreateUserRequest(BaseModel):
     email: str
-    display_name: str
+    display_name: str | None = None
     password: str
+    first_name: str | None = None
+    last_name: str | None = None
+    matricule: str | None = None
     role: str
     cooperative_id: int | None = None
     company_id: int | None = None
@@ -26,6 +32,9 @@ class CreateUserRequest(BaseModel):
 class UpdateUserRequest(BaseModel):
     is_active: bool | None = None
     display_name: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    matricule: str | None = None
     role: str | None = None
     password: str | None = None
     cooperative_id: int | None = None
@@ -51,6 +60,12 @@ async def create_user(body: CreateUserRequest, _admin: dict = Depends(require_ro
         if org is None:
             raise HTTPException(status_code=404, detail="Organisation introuvable")
 
+    first = (body.first_name or "").strip() or None
+    last = (body.last_name or "").strip() or None
+    display = (body.display_name or "").strip() or " ".join(p for p in (first, last) if p)
+    if not display:
+        raise HTTPException(status_code=422, detail="Nom affiché ou prénom/nom requis")
+
     existing = await db.fetch_one("SELECT id FROM users WHERE email=$1", body.email)
     if existing is not None:
         raise HTTPException(status_code=409, detail="Cet email est déjà utilisé")
@@ -58,17 +73,22 @@ async def create_user(body: CreateUserRequest, _admin: dict = Depends(require_ro
     row = await db.fetch_one(
         """
         INSERT INTO users
-            (email, display_name, role, password_hash, cooperative_id, company_id, organization_id)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-        RETURNING id, email, display_name, role, cooperative_id, company_id, organization_id, created_at
+            (email, display_name, role, password_hash, cooperative_id, company_id, organization_id,
+             first_name, last_name, matricule)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        RETURNING id, email, display_name, role, cooperative_id, company_id, organization_id,
+                  first_name, last_name, matricule, created_at
         """,
         body.email,
-        body.display_name,
+        display,
         body.role,
         security.hash_password(body.password),
         body.cooperative_id,
         body.company_id,
         body.organization_id,
+        first,
+        last,
+        (body.matricule or "").strip() or None,
     )
     return dict(row)
 
@@ -102,6 +122,11 @@ async def update_user(
     if body.display_name is not None:
         sets.append(f"display_name=${len(values) + 1}")
         values.append(body.display_name)
+    for column in ("first_name", "last_name", "matricule"):
+        value = getattr(body, column)
+        if value is not None:
+            sets.append(f"{column}=${len(values) + 1}")
+            values.append(value.strip() or None)
     if body.role is not None:
         sets.append(f"role=${len(values) + 1}")
         values.append(body.role)

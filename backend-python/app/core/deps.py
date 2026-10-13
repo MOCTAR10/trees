@@ -7,7 +7,8 @@ from app.core import security
 from app.services import db
 
 _USER_COLUMNS = (
-    "id, email, display_name, role, is_active, cooperative_id, company_id, organization_id"
+    "id, email, display_name, role, is_active, cooperative_id, company_id, organization_id, "
+    "first_name, last_name, matricule"
 )
 
 

@@ -58,6 +58,15 @@ class V1Report(BaseModel):
         None,
         description="Contrôles Global Forest Watch au point (perte de couvert, alertes RADD, aire protégée, concession, biomasse)",
     )
+    project_id: int | None = Field(
+        None, description="Chantier / projet auquel le scan est rattaché"
+    )
+    project_title: str | None = Field(None, description="Titre du chantier / projet demandé")
+    project_note: str | None = Field(
+        None,
+        description="Raison d'un non-rattachement : project_closed | project_not_member | "
+        "project_out_of_zone | project_unknown | project_login_required",
+    )
 
 
 class ResidueChannel(BaseModel):

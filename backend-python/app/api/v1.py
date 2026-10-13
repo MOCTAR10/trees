@@ -33,6 +33,7 @@ from app.services import (
     groq_llm,
     pdf_report,
     plantnet,
+    projects,
     qr_plate,
     rag,
     soilgrids,
@@ -541,9 +542,15 @@ async def process_scan(
     edge_right: float | None = Form(
         None, ge=0, le=1, description="Bord droit du tronc (fraction de la largeur de la photo DBH)"
     ),
+    project_id: int | None = Form(
+        None, description="Scan fait pour un chantier / projet (participant actif requis)"
+    ),
     user: dict | None = Depends(get_optional_user),
 ):
     linked_code = await _linked_tree_code(tree_code, user)
+    scan_project, project_title, project_note = await projects.resolve_scan_project(
+        project_id, user, latitude, longitude
+    )
     limit = get_settings().max_image_bytes
     views = await _collect_views(
         limit,
@@ -697,8 +704,8 @@ async def process_scan(
                 dbh_vision_cm, dbh_uncertainty_cm, measurement_notes, height_method,
                 aboveground_biomass_kg, carbon_stock_kg, co2e_kg,
                 tree_code, depth_source, media_key, forest_checks,
-                image_urls, view_meta
-            ) VALUES ($1, $2, ST_SetSRID(ST_MakePoint($4, $3), 4326), $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22::jsonb, $23, $24, $25, $26, $27, $28, $29, $30::jsonb, $31::jsonb, $32::jsonb)
+                image_urls, view_meta, project_id
+            ) VALUES ($1, $2, ST_SetSRID(ST_MakePoint($4, $3), 4326), $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22::jsonb, $23, $24, $25, $26, $27, $28, $29, $30::jsonb, $31::jsonb, $32::jsonb, $33)
             RETURNING id
             """,
             species_name,
@@ -733,6 +740,7 @@ async def process_scan(
             json.dumps(forest_checks) if forest_checks else None,
             json.dumps(image_urls),
             json.dumps(view_meta),
+            scan_project,
         )
     except Exception as exc:
         logger.warning("v1 persistence failed (report still returned): %s", exc)
@@ -766,6 +774,9 @@ async def process_scan(
         species_candidates=species_candidates,
         species_flora=species_flora,
         forest_checks=forest_checks,
+        project_id=scan_project,
+        project_title=project_title,
+        project_note=project_note,
     )
 
 
