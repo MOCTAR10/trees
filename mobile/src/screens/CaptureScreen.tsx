@@ -40,6 +40,7 @@ import {
 import Clinometer from "../components/Clinometer";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
+import { isDepthSensorAvailable, measureCenterDistance } from "../../modules/depth-sensor";
 import { isLevel } from "../utils/tilt";
 import { useDeviceTilt } from "../utils/useDeviceTilt";
 
@@ -139,6 +140,10 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
   const [clinoOpen, setClinoOpen] = useState(false);
   const [scanningQr, setScanningQr] = useState(false);
   const [treeCode, setTreeCode] = useState<string | null>(null);
+  const [sensorAvailable, setSensorAvailable] = useState(false);
+  const [sensorBusy, setSensorBusy] = useState(false);
+  const [sensorNote, setSensorNote] = useState<string | null>(null);
+  const [depthSource, setDepthSource] = useState<"lidar" | "arcore" | undefined>(undefined);
   const [submitting, setSubmitting] = useState(false);
   const [taking, setTaking] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -195,6 +200,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
 
   useEffect(() => {
     let alive = true;
+    void isDepthSensorAvailable().then((ok) => alive && setSensorAvailable(ok));
     void getScanCapabilities().then((c) => alive && setCaps(c));
     return () => {
       alive = false;
@@ -215,6 +221,23 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
   const guiding = step.organ === "dbh" && !shot && !scanningQr;
   const tilt = useDeviceTilt(guiding);
   const level = isLevel(tilt.elevationDeg, tilt.rollDeg);
+
+  const measureWithSensor = useCallback(async () => {
+    setSensorBusy(true);
+    setSensorNote(null);
+    try {
+      const reading = await measureCenterDistance();
+      if (reading) {
+        setDepthText(reading.distanceM.toFixed(2));
+        setDepthSource(reading.source);
+        setSensorNote(t.sensorUsed(reading.source));
+      } else {
+        setSensorNote(t.sensorFailed);
+      }
+    } finally {
+      setSensorBusy(false);
+    }
+  }, []);
 
   const onBarcode = useCallback(({ data }: { data: string }) => {
     const code = data?.trim();
@@ -357,6 +380,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
       measuredHeightM: height > 0 ? height : undefined,
       heightSource: height > 0 ? heightSource : undefined,
       treeCode: treeCode ?? undefined,
+      depthSource: depth > 0 ? depthSource : undefined,
     });
   }, [
     blockReason,
@@ -370,6 +394,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
     height,
     heightSource,
     treeCode,
+    depthSource,
     onCaptured,
   ]);
 
@@ -597,6 +622,20 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
             ))}
           </View>
 
+          <Text
+            testID="ai-status"
+            style={[styles.aiStatus, caps.ai_segmentation ? styles.aiOn : styles.aiOff]}
+            numberOfLines={1}
+          >
+            {caps.ai_segmentation
+              ? t.aiOn
+              : caps.offline
+                ? t.aiOffline
+                : caps.ai_off_reason === "memory"
+                  ? t.aiOffMemory
+                  : t.aiOffDisabled}
+          </Text>
+
           {treeCode ? (
             <View style={styles.treeChip} testID="tree-chip">
               <Text style={styles.treeChipText} numberOfLines={1}>
@@ -627,7 +666,11 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
                 testID="depth-input"
                 style={styles.input}
                 value={depthText}
-                onChangeText={setDepthText}
+                onChangeText={(text) => {
+                  setDepthText(text);
+                  setDepthSource(undefined);
+                  setSensorNote(null);
+                }}
                 keyboardType="numeric"
                 placeholder="2.0"
                 placeholderTextColor={colors.textDim}
@@ -644,6 +687,24 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
               />
             )}
           </View>
+
+          {measureMode === "photo" && sensorAvailable ? (
+            <View style={styles.depthRow}>
+              <TouchableOpacity
+                testID="sensor-button"
+                style={[styles.sensorBtn, sensorBusy && styles.disabled]}
+                disabled={sensorBusy}
+                onPress={() => void measureWithSensor()}
+              >
+                <Text style={styles.sensorText}>{sensorBusy ? t.sensorBusy : t.sensorMeasure}</Text>
+              </TouchableOpacity>
+              {sensorNote ? (
+                <Text testID="sensor-note" style={styles.depthLabel} numberOfLines={1}>
+                  {sensorNote}
+                </Text>
+              ) : null}
+            </View>
+          ) : null}
 
           <View style={styles.depthRow}>
             <Text style={styles.depthLabel} numberOfLines={1}>
@@ -936,6 +997,16 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     borderRadius: 10,
   },
+  aiStatus: { fontSize: type.caption, fontWeight: "700" },
+  sensorBtn: {
+    backgroundColor: colors.accent,
+    borderRadius: 8,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+  },
+  sensorText: { color: colors.primary, fontSize: type.caption, fontWeight: "800" },
+  aiOn: { color: colors.success },
+  aiOff: { color: colors.textDim },
   treeChip: {
     flexDirection: "row",
     alignItems: "center",

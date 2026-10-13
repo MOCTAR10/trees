@@ -115,6 +115,14 @@ export async function exportDashboardPdf(): Promise<string> {
   return getPdfToCache("/api/dashboard/pdf", `tableau_de_bord_${Date.now()}.pdf`);
 }
 
+/** QR plates of a declaration's stems (print at 100 % or engrave in-house). */
+export async function exportDeclarationPlatesPdf(declarationId: number): Promise<string> {
+  return getPdfToCache(
+    `/api/felling/declarations/${declarationId}/plates.pdf`,
+    `plaques_declaration_${declarationId}.pdf`,
+  );
+}
+
 export async function sharePdf(uri: string): Promise<void> {
   if (await Sharing.isAvailableAsync()) {
     await Sharing.shareAsync(uri, {

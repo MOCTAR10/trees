@@ -85,7 +85,9 @@ export default function ReportScreen({
                 ? t.distanceAi
                 : report.distance_source === "qr"
                   ? t.distanceQr
-                  : t.distanceTyped
+                  : report.distance_source === "lidar" || report.distance_source === "arcore"
+                    ? t.distanceSensor
+                    : t.distanceTyped
             })`}
           />
         ) : null}

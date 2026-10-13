@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+  <application>
+    <!-- AR optional: the app installs on phones without ARCore; depth is a bonus. -->
+    <meta-data
+        android:name="com.google.ar.core"
+        android:value="optional"
+        tools:replace="android:value" />
+  </application>
+</manifest>

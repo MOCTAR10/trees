@@ -136,7 +136,7 @@ export interface V1Report {
   carbon_stock_kg?: number | null;
   co2e_kg?: number | null;
   distance_m?: number | null;
-  distance_source?: "qr" | "typed" | "ai" | null;
+  distance_source?: "lidar" | "arcore" | "qr" | "typed" | "ai" | null;
   tree_code?: string | null;
   species_candidates?: {
     scientific_name: string;
@@ -241,7 +241,12 @@ export type HeightSource = "clinometer" | "manual";
 export interface ScanCapabilities {
   ai_segmentation: boolean;
   ai_distance: boolean;
+  ai_configured?: boolean;
+  /** Why the AI is off: "disabled" (not enabled) or "memory" (server too small). */
+  ai_off_reason?: "disabled" | "memory" | null;
   max_image_bytes?: number;
+  /** Client-side: the server could not be reached. */
+  offline?: boolean;
 }
 
 /** Server-side scanner abilities; all off when the server is unreachable. */
@@ -251,7 +256,7 @@ export async function getScanCapabilities(): Promise<ScanCapabilities> {
     if (!resp.ok) throw new Error(`capabilities ${resp.status}`);
     return resp.json();
   } catch {
-    return { ai_segmentation: false, ai_distance: false };
+    return { ai_segmentation: false, ai_distance: false, offline: true };
   }
 }
 
@@ -268,6 +273,8 @@ export interface TreeMeasurements {
   heightSource?: HeightSource;
   /** Registry code of the tree (scanned from its QR tag). */
   treeCode?: string;
+  /** Where `arDepthM` comes from when a native sensor measured it. */
+  depthSource?: "lidar" | "arcore";
 }
 
 /** Focal length shared by the scan: the DBH shot first, else any shot. */
@@ -304,6 +311,7 @@ export async function processScanV1(
     ["measured_height_m", params.measuredHeightM],
     ["height_source", params.measuredHeightM ? params.heightSource : undefined],
     ["tree_code", params.treeCode?.trim() || undefined],
+    ["depth_source", params.arDepthM ? params.depthSource : undefined],
   ];
   optional.forEach(([key, value]) => {
     if (value !== undefined && value !== "" && !(typeof value === "number" && !(value > 0))) {
@@ -854,6 +862,8 @@ export interface GeoFeature {
 
 export interface MapLayers {
   labels: Record<string, string>;
+  counts?: Record<string, number>;
+  tolerance?: number;
   layers: Record<string, { type: "FeatureCollection"; features: GeoFeature[] }>;
 }
 
@@ -879,8 +889,54 @@ async function getJson<T>(path: string): Promise<T> {
 }
 
 export const getMapTiles = () => getJson<MapTileLayer[]>("/api/map/tiles");
-export const getMapLayers = () => getJson<MapLayers>("/api/map/layers");
 export const getNationalContext = () => getJson<NationalContext>("/api/map/context");
+
+/** Vector layers for the visible area, simplified server-side for `zoom`. */
+export function getMapLayers(params?: {
+  zoom?: number;
+  bbox?: [number, number, number, number];
+  layers?: string[];
+}): Promise<MapLayers> {
+  const q: string[] = [];
+  if (params?.zoom != null) q.push(`zoom=${params.zoom.toFixed(1)}`);
+  if (params?.bbox) q.push(`bbox=${params.bbox.map((v) => v.toFixed(4)).join(",")}`);
+  if (params?.layers?.length) q.push(`layers=${params.layers.join(",")}`);
+  return getJson<MapLayers>(`/api/map/layers${q.length ? `?${q.join("&")}` : ""}`);
+}
+
+export interface MapSearchResult {
+  kind: "gfw" | "aac" | "tree";
+  layer: string;
+  id: number | null;
+  name: string;
+  subtitle: string | null;
+  lat: number | null;
+  lon: number | null;
+  west: number | null;
+  south: number | null;
+  east: number | null;
+  north: number | null;
+}
+
+export const searchMap = (q: string) =>
+  getJson<MapSearchResult[]>(`/api/map/search?q=${encodeURIComponent(q)}`);
+
+export interface MapFeatureDetail {
+  id: number;
+  layer: string;
+  name: string | null;
+  attrs?: Record<string, unknown>;
+  area_ha?: number | null;
+  lat?: number | null;
+  lon?: number | null;
+  status?: string | null;
+  holder?: string | null;
+  title_ref?: string | null;
+  campaign_year?: number | null;
+}
+
+export const getMapFeature = (layer: string, id: number) =>
+  getJson<MapFeatureDetail>(`/api/map/feature/${layer}/${id}`);
 
 /** GFW checks at a point; `null` when GFW is not configured on the server. */
 export async function checkMapPoint(lat: number, lon: number): Promise<ForestChecks | null> {

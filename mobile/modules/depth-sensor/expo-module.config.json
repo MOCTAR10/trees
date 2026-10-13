@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["DepthSensorModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.depthsensor.DepthSensorModule"]
+  }
+}

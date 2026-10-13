@@ -1,3 +1,6 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Location from "expo-location";
+import { Crosshair, Layers, Maximize, Search, X } from "lucide-react-native";
 import React from "react";
 import {
   ActivityIndicator,
@@ -5,95 +8,125 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import MapView, { LongPressEvent, Marker, Polygon, Region, UrlTile } from "react-native-maps";
+import MapView, {
+  LongPressEvent,
+  MapType,
+  Marker,
+  Polygon,
+  Region,
+  UrlTile,
+} from "react-native-maps";
 
 import {
   checkMapPoint,
   ForestChecks,
+  getMapFeature,
   getMapLayers,
   getMapTiles,
   getNationalContext,
   listGroupTrees,
   listMyTrees,
+  MapFeatureDetail,
   MapLayers,
+  MapSearchResult,
   MapTileLayer,
   MyTree,
   NationalContext,
+  searchMap,
 } from "../api/client";
 import ForestChecksCard, { VERDICT_COLORS } from "../components/ForestChecksCard";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
 import { compactFr, toPolygons } from "../utils/geojson";
+import { bboxFor, clusterPoints, regionForBox, zoomFor } from "../utils/mapMath";
 
 type Mode = "mine" | "group";
-
 type MapTree = MyTree & { owner_name?: string | null };
+type Verdict = "conforme" | "a_verifier" | "risque_deforestation" | "none";
 
 const t = fr.map;
 
-const DEFAULT_REGION: Region = {
-  latitude: -0.7,
-  longitude: 11.6,
-  latitudeDelta: 6,
-  longitudeDelta: 6,
-};
+const GABON: Region = { latitude: -0.7, longitude: 11.6, latitudeDelta: 6, longitudeDelta: 6 };
+const PREFS_KEY = "forestry:map-prefs";
+const FETCH_DEBOUNCE_MS = 450;
+const VECTOR_KEYS = ["aac", "protected_areas", "logging_concessions", "mining_concessions"];
+const VERDICTS: Verdict[] = ["conforme", "a_verifier", "risque_deforestation", "none"];
 
-const MAX_MARKERS = 150;
-
-/** Stroke / fill per vector layer. */
-const LAYER_STYLE: Record<string, { stroke: string; fill: string }> = {
-  aac: { stroke: "#D4A017", fill: "rgba(212,160,23,0.18)" },
-  protected_areas: { stroke: "#2E9E5B", fill: "rgba(46,158,91,0.20)" },
-  logging_concessions: { stroke: "#B5651D", fill: "rgba(181,101,29,0.15)" },
-  mining_concessions: { stroke: "#7E57C2", fill: "rgba(126,87,194,0.15)" },
+/** Stroke / fill per vector layer (legend swatches use the stroke). */
+export const LAYER_STYLE: Record<string, { stroke: string; fill: string }> = {
+  aac: { stroke: "#D4A017", fill: "rgba(212,160,23,0.20)" },
+  protected_areas: { stroke: "#2E9E5B", fill: "rgba(46,158,91,0.18)" },
+  logging_concessions: { stroke: "#B5651D", fill: "rgba(181,101,29,0.12)" },
+  mining_concessions: { stroke: "#7E57C2", fill: "rgba(126,87,194,0.14)" },
 };
 
 const mapCache = new Map<Mode, MapTree[]>();
 
-function regionFor(rows: MapTree[]): Region {
-  if (rows.length === 0) return DEFAULT_REGION;
-  let minLat = Infinity;
-  let maxLat = -Infinity;
-  let minLon = Infinity;
-  let maxLon = -Infinity;
-  for (const tr of rows) {
-    const lat = tr.latitude as number;
-    const lon = tr.longitude as number;
-    minLat = Math.min(minLat, lat);
-    maxLat = Math.max(maxLat, lat);
-    minLon = Math.min(minLon, lon);
-    maxLon = Math.max(maxLon, lon);
-  }
-  return {
-    latitude: (minLat + maxLat) / 2,
-    longitude: (minLon + maxLon) / 2,
-    latitudeDelta: Math.max(0.05, (maxLat - minLat) * 1.6 + 0.02),
-    longitudeDelta: Math.max(0.05, (maxLon - minLon) * 1.6 + 0.02),
-  };
+interface Prefs {
+  enabled: string[];
+  mapType: MapType;
+  verdicts: Verdict[];
 }
+
+const DEFAULT_PREFS: Prefs = {
+  enabled: ["aac", "protected_areas"],
+  mapType: "standard",
+  verdicts: [...VERDICTS],
+};
 
 type PointState =
   | { status: "loading"; lat: number; lon: number }
   | { status: "done"; lat: number; lon: number; checks: ForestChecks }
   | { status: "off" | "error"; lat: number; lon: number };
 
+function verdictOf(tree: MapTree): Verdict {
+  const v = tree.eudr_verdict;
+  return v === "conforme" || v === "a_verifier" || v === "risque_deforestation" ? v : "none";
+}
+
 export default function MapScreen() {
   const [mode, setMode] = React.useState<Mode>("mine");
   const [trees, setTrees] = React.useState<MapTree[]>(() => mapCache.get("mine") ?? []);
   const [loading, setLoading] = React.useState(() => !mapCache.has("mine"));
   const [error, setError] = React.useState<string | null>(null);
+  const [prefs, setPrefs] = React.useState<Prefs>(DEFAULT_PREFS);
   const [tiles, setTiles] = React.useState<MapTileLayer[]>([]);
   const [layers, setLayers] = React.useState<MapLayers | null>(null);
-  const [enabled, setEnabled] = React.useState<Set<string>>(() => new Set(["aac"]));
+  const [fetching, setFetching] = React.useState(false);
+  const [region, setRegion] = React.useState<Region>(GABON);
+  const [legendOpen, setLegendOpen] = React.useState(false);
+  const [query, setQuery] = React.useState("");
+  const [results, setResults] = React.useState<MapSearchResult[] | null>(null);
+  const [feature, setFeature] = React.useState<MapFeatureDetail | null>(null);
+  const [point, setPoint] = React.useState<PointState | null>(null);
   const [context, setContext] = React.useState<NationalContext | null>(null);
   const [contextOpen, setContextOpen] = React.useState(false);
-  const [point, setPoint] = React.useState<PointState | null>(null);
   const mapRef = React.useRef<MapView>(null);
+  const fetchTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestId = React.useRef(0);
 
-  const load = React.useCallback(async (m: Mode) => {
+  // --- preferences (layers, base map, filters) survive app restarts -------
+  React.useEffect(() => {
+    void AsyncStorage.getItem(PREFS_KEY)
+      .then((raw) => {
+        if (raw) setPrefs({ ...DEFAULT_PREFS, ...(JSON.parse(raw) as Partial<Prefs>) });
+      })
+      .catch(() => undefined);
+  }, []);
+  const updatePrefs = (patch: Partial<Prefs>) =>
+    setPrefs((prev) => {
+      const next = { ...prev, ...patch };
+      void AsyncStorage.setItem(PREFS_KEY, JSON.stringify(next)).catch(() => undefined);
+      return next;
+    });
+
+  // --- scans -----------------------------------------------------------------
+  const loadTrees = React.useCallback(async (m: Mode) => {
     const cached = mapCache.get(m);
     if (cached) {
       setTrees(cached);
@@ -103,7 +136,7 @@ export default function MapScreen() {
     }
     setError(null);
     try {
-      const rows: MapTree[] = m === "mine" ? await listMyTrees(200) : await listGroupTrees(500);
+      const rows: MapTree[] = m === "mine" ? await listMyTrees(500) : await listGroupTrees(1000);
       const geo = rows.filter((tr) => tr.latitude != null && tr.longitude != null);
       mapCache.set(m, geo);
       setTrees(geo);
@@ -116,24 +149,152 @@ export default function MapScreen() {
   }, []);
 
   React.useEffect(() => {
-    void load(mode);
-  }, [load, mode]);
+    void loadTrees(mode);
+  }, [loadTrees, mode]);
 
   React.useEffect(() => {
-    void getMapTiles().then(setTiles).catch(() => setTiles([]));
-    void getMapLayers().then(setLayers).catch(() => setLayers(null));
+    void getMapTiles()
+      .then(setTiles)
+      .catch(() => setTiles([]));
   }, []);
 
+  // --- vector layers follow the viewport (debounced, last request wins) ----
+  const enabledVectors = prefs.enabled.filter((k) => VECTOR_KEYS.includes(k));
+  const enabledKey = enabledVectors.join(",");
   React.useEffect(() => {
-    if (trees.length > 0) mapRef.current?.animateToRegion(regionFor(trees), 400);
+    if (fetchTimer.current) clearTimeout(fetchTimer.current);
+    fetchTimer.current = setTimeout(() => {
+      const id = ++requestId.current;
+      if (!enabledKey) {
+        setLayers((prev) => (prev ? { ...prev, layers: {} } : prev));
+        return;
+      }
+      setFetching(true);
+      void getMapLayers({ zoom: zoomFor(region), bbox: bboxFor(region), layers: enabledKey.split(",") })
+        .then((data) => {
+          if (id === requestId.current) setLayers(data);
+        })
+        .catch((err) => console.error("map layers failed", err))
+        .finally(() => {
+          if (id === requestId.current) setFetching(false);
+        });
+    }, FETCH_DEBOUNCE_MS);
+    return () => {
+      if (fetchTimer.current) clearTimeout(fetchTimer.current);
+    };
+  }, [region, enabledKey]);
+
+  // --- search ----------------------------------------------------------------
+  const onQuery = (text: string) => {
+    setQuery(text);
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    if (text.trim().length < 2) {
+      setResults(null);
+      return;
+    }
+    searchTimer.current = setTimeout(() => {
+      void searchMap(text.trim())
+        .then(setResults)
+        .catch(() => setResults([]));
+    }, 300);
+  };
+
+  const goToResult = (r: MapSearchResult) => {
+    setResults(null);
+    setQuery(r.name);
+    if (r.west != null && r.south != null && r.east != null && r.north != null) {
+      mapRef.current?.animateToRegion(regionForBox(r.west, r.south, r.east, r.north), 500);
+    } else if (r.lat != null && r.lon != null) {
+      mapRef.current?.animateToRegion(
+        { latitude: r.lat, longitude: r.lon, latitudeDelta: 0.02, longitudeDelta: 0.02 },
+        500,
+      );
+    }
+    if (r.id != null && r.kind !== "tree") void openFeature(r.layer, r.id);
+  };
+
+  // --- interactions ------------------------------------------------------------
+  const openFeature = async (layer: string, id: number) => {
+    setPoint(null);
+    try {
+      setFeature(await getMapFeature(layer, id));
+    } catch (err) {
+      console.error("feature detail failed", err);
+    }
+  };
+
+  const runPointCheck = async (lat: number, lon: number) => {
+    setFeature(null);
+    setPoint({ status: "loading", lat, lon });
+    try {
+      const checks = await checkMapPoint(lat, lon);
+      setPoint(checks ? { status: "done", lat, lon, checks } : { status: "off", lat, lon });
+    } catch (err) {
+      console.error("point check failed", err);
+      setPoint({ status: "error", lat, lon });
+    }
+  };
+
+  const onLongPress = (e: LongPressEvent) => {
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+    void runPointCheck(latitude, longitude);
+  };
+
+  const locate = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") return;
+      const pos = await Location.getCurrentPositionAsync({});
+      mapRef.current?.animateToRegion(
+        { latitude: pos.coords.latitude, longitude: pos.coords.longitude, latitudeDelta: 0.05, longitudeDelta: 0.05 },
+        500,
+      );
+    } catch (err) {
+      console.error("locate failed", err);
+    }
+  };
+
+  const filtered = React.useMemo(
+    () => trees.filter((tr) => prefs.verdicts.includes(verdictOf(tr))),
+    [trees, prefs.verdicts],
+  );
+
+  const fit = () => {
+    if (filtered.length === 0) {
+      mapRef.current?.animateToRegion(GABON, 500);
+      return;
+    }
+    const lats = filtered.map((tr) => tr.latitude as number);
+    const lons = filtered.map((tr) => tr.longitude as number);
+    mapRef.current?.animateToRegion(
+      regionForBox(Math.min(...lons), Math.min(...lats), Math.max(...lons), Math.max(...lats), 1.6),
+      500,
+    );
+  };
+
+  const clusters = React.useMemo(
+    () =>
+      clusterPoints(
+        filtered.map((tr) => ({ latitude: tr.latitude as number, longitude: tr.longitude as number, item: tr })),
+        region,
+      ),
+    [filtered, region],
+  );
+
+  const verdictCounts = React.useMemo(() => {
+    const out: Record<Verdict, number> = { conforme: 0, a_verifier: 0, risque_deforestation: 0, none: 0 };
+    for (const tr of trees) out[verdictOf(tr)] += 1;
+    return out;
   }, [trees]);
 
-  const toggle = (key: string) =>
-    setEnabled((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
+  const toggleLayer = (key: string) =>
+    updatePrefs({
+      enabled: prefs.enabled.includes(key) ? prefs.enabled.filter((k) => k !== key) : [...prefs.enabled, key],
+    });
+
+  const toggleVerdict = (v: Verdict) =>
+    updatePrefs({
+      verdicts: prefs.verdicts.includes(v) ? prefs.verdicts.filter((x) => x !== v) : [...prefs.verdicts, v],
     });
 
   const openContext = async () => {
@@ -147,79 +308,77 @@ export default function MapScreen() {
     }
   };
 
-  const onLongPress = async (e: LongPressEvent) => {
-    const { latitude: lat, longitude: lon } = e.nativeEvent.coordinate;
-    setPoint({ status: "loading", lat, lon });
-    try {
-      const checks = await checkMapPoint(lat, lon);
-      setPoint(checks ? { status: "done", lat, lon, checks } : { status: "off", lat, lon });
-    } catch (err) {
-      console.error("point check failed", err);
-      setPoint({ status: "error", lat, lon });
-    }
-  };
-
-  const visible = React.useMemo(() => trees.slice(0, MAX_MARKERS), [trees]);
-  const hiddenCount = trees.length - visible.length;
-  const chips = [
-    ...tiles.map((tl) => ({ key: tl.key, label: tl.label })),
-    ...Object.keys(layers?.layers ?? {}).map((key) => ({
-      key,
-      label: layers?.labels[key] ?? key,
-    })),
-  ];
+  const labelFor = (key: string) => layers?.labels[key] ?? key;
 
   return (
     <View style={styles.container}>
-      <View style={styles.segment}>
-        {(["mine", "group"] as Mode[]).map((m) => (
-          <TouchableOpacity
-            key={m}
-            style={[styles.segBtn, mode === m && styles.segBtnOn]}
-            onPress={() => setMode(m)}
-            accessibilityRole="button"
-            accessibilityState={{ selected: mode === m }}
-          >
-            <Text style={[styles.segText, mode === m && styles.segTextOn]}>
-              {m === "mine" ? t.mine : t.group}
-            </Text>
-          </TouchableOpacity>
-        ))}
-        <TouchableOpacity
-          testID="context-button"
-          style={styles.segBtn}
-          onPress={() => void openContext()}
-        >
-          <Text style={styles.segText}>{t.context}</Text>
-        </TouchableOpacity>
-      </View>
-
-      {chips.length > 0 ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.chips}
-          contentContainerStyle={styles.chipsContent}
-        >
-          {chips.map((c) => (
+      <View style={styles.top}>
+        <View style={styles.searchBox}>
+          <Search size={18} color={colors.textDim} />
+          <TextInput
+            testID="map-search"
+            style={styles.searchInput}
+            value={query}
+            onChangeText={onQuery}
+            placeholder={t.searchPlaceholder}
+            placeholderTextColor={colors.textDim}
+            returnKeyType="search"
+          />
+          {query ? (
+            <TouchableOpacity testID="map-search-clear" onPress={() => onQuery("")}>
+              <X size={18} color={colors.textDim} />
+            </TouchableOpacity>
+          ) : null}
+        </View>
+        {results ? (
+          <View style={styles.results} testID="map-search-results">
+            {results.length === 0 ? (
+              <Text style={styles.dim}>{t.noResults}</Text>
+            ) : (
+              results.map((r, i) => (
+                <TouchableOpacity
+                  key={`${r.kind}-${r.id ?? r.name}-${i}`}
+                  testID={`search-result-${i}`}
+                  style={styles.result}
+                  onPress={() => goToResult(r)}
+                >
+                  <View style={[styles.swatch, { backgroundColor: LAYER_STYLE[r.layer]?.stroke ?? colors.accent }]} />
+                  <View style={styles.flex}>
+                    <Text style={styles.resultName} numberOfLines={1}>
+                      {r.name}
+                    </Text>
+                    {r.subtitle ? (
+                      <Text style={styles.dimSmall} numberOfLines={1}>
+                        {r.subtitle}
+                      </Text>
+                    ) : null}
+                  </View>
+                </TouchableOpacity>
+              ))
+            )}
+          </View>
+        ) : null}
+        <View style={styles.segment}>
+          {(["mine", "group"] as Mode[]).map((m) => (
             <TouchableOpacity
-              key={c.key}
-              testID={`layer-${c.key}`}
-              style={[styles.chip, enabled.has(c.key) && styles.chipOn]}
-              onPress={() => toggle(c.key)}
-              accessibilityRole="switch"
-              accessibilityState={{ checked: enabled.has(c.key) }}
+              key={m}
+              style={[styles.segBtn, mode === m && styles.segBtnOn]}
+              onPress={() => setMode(m)}
+              accessibilityState={{ selected: mode === m }}
             >
-              <Text style={[styles.chipText, enabled.has(c.key) && styles.chipTextOn]}>{c.label}</Text>
+              <Text style={[styles.segText, mode === m && styles.segTextOn]}>{m === "mine" ? t.mine : t.group}</Text>
             </TouchableOpacity>
           ))}
-        </ScrollView>
-      ) : null}
+          <TouchableOpacity testID="context-button" style={styles.segBtn} onPress={() => void openContext()}>
+            <Text style={styles.segText}>{t.context}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {error && trees.length === 0 ? (
         <View style={styles.center}>
           <Text style={styles.error}>{error}</Text>
-          <TouchableOpacity onPress={() => void load(mode)}>
+          <TouchableOpacity onPress={() => void loadTrees(mode)}>
             <Text style={styles.link}>{fr.common.retry}</Text>
           </TouchableOpacity>
         </View>
@@ -227,77 +386,164 @@ export default function MapScreen() {
         <View style={styles.mapWrap}>
           <MapView
             ref={mapRef}
-            style={styles.map}
-            initialRegion={DEFAULT_REGION}
-            onLongPress={(e) => void onLongPress(e)}
+            style={styles.flex}
+            initialRegion={GABON}
+            mapType={prefs.mapType}
+            onRegionChangeComplete={setRegion}
+            onLongPress={onLongPress}
+            showsUserLocation
+            toolbarEnabled={false}
             testID="map-view"
           >
             {tiles
-              .filter((tl) => enabled.has(tl.key))
+              .filter((tl) => prefs.enabled.includes(tl.key))
               .map((tl) => (
-                <UrlTile key={tl.key} urlTemplate={tl.url} maximumZ={12} zIndex={1} opacity={0.75} />
+                <UrlTile key={tl.key} urlTemplate={tl.url} maximumZ={13} zIndex={1} opacity={0.8} />
               ))}
             {Object.entries(layers?.layers ?? {})
-              .filter(([key]) => enabled.has(key))
+              .filter(([key]) => prefs.enabled.includes(key))
               .flatMap(([key, fc]) =>
                 fc.features.flatMap((f, i) =>
                   toPolygons(f.geometry).map((coords, j) => (
                     <Polygon
-                      key={`${key}-${i}-${j}`}
+                      key={`${key}-${String(f.properties.id ?? i)}-${j}`}
                       coordinates={coords}
                       strokeColor={LAYER_STYLE[key]?.stroke ?? colors.accent}
                       fillColor={LAYER_STYLE[key]?.fill ?? "rgba(212,160,23,0.15)"}
-                      strokeWidth={2}
-                      zIndex={2}
+                      strokeWidth={key === "aac" ? 3 : 1.5}
+                      zIndex={key === "aac" ? 4 : 2}
+                      tappable
+                      onPress={() =>
+                        f.properties.id != null && void openFeature(key, Number(f.properties.id))
+                      }
                     />
                   )),
                 ),
               )}
-            {visible.map((tr) => (
-              <Marker
-                key={tr.id}
-                coordinate={{ latitude: tr.latitude as number, longitude: tr.longitude as number }}
-                title={
-                  mode === "group"
-                    ? (tr.owner_name ?? t.unknownMember)
-                    : (tr.species_scientific_name ?? t.unknownSpecies)
-                }
-                description={
-                  [
-                    mode === "group" ? (tr.species_scientific_name ?? t.unknownSpecies) : null,
-                    tr.measured_dbh_cm != null ? `DBH ${tr.measured_dbh_cm.toFixed(1)} cm` : null,
-                    tr.co2e_kg != null ? `${(tr.co2e_kg / 1000).toFixed(1)} t CO₂e` : null,
-                    tr.eudr_verdict ? t.verdicts[tr.eudr_verdict] : null,
-                    tr.tree_code ?? null,
-                  ]
-                    .filter((p): p is string => p != null)
-                    .join(" · ") || undefined
-                }
-                pinColor={tr.eudr_verdict ? VERDICT_COLORS[tr.eudr_verdict] : colors.accent}
-              />
-            ))}
+            {clusters.map((c) =>
+              c.items.length === 1 ? (
+                <Marker
+                  key={`tree-${c.items[0].id}`}
+                  coordinate={{ latitude: c.latitude, longitude: c.longitude }}
+                  title={
+                    mode === "group"
+                      ? (c.items[0].owner_name ?? t.unknownMember)
+                      : (c.items[0].species_scientific_name ?? t.unknownSpecies)
+                  }
+                  description={
+                    [
+                      c.items[0].measured_dbh_cm != null ? `DBH ${c.items[0].measured_dbh_cm.toFixed(1)} cm` : null,
+                      c.items[0].co2e_kg != null ? `${(c.items[0].co2e_kg / 1000).toFixed(1)} t CO₂e` : null,
+                      c.items[0].eudr_verdict ? t.verdicts[c.items[0].eudr_verdict] : null,
+                      c.items[0].tree_code ?? null,
+                    ]
+                      .filter((p): p is string => p != null)
+                      .join(" · ") || undefined
+                  }
+                  pinColor={c.items[0].eudr_verdict ? VERDICT_COLORS[c.items[0].eudr_verdict] : colors.accent}
+                  zIndex={10}
+                />
+              ) : (
+                <Marker
+                  key={`cluster-${c.key}`}
+                  testID="cluster"
+                  coordinate={{ latitude: c.latitude, longitude: c.longitude }}
+                  zIndex={10}
+                  onPress={() =>
+                    mapRef.current?.animateToRegion(
+                      {
+                        latitude: c.latitude,
+                        longitude: c.longitude,
+                        latitudeDelta: region.latitudeDelta / 4,
+                        longitudeDelta: region.longitudeDelta / 4,
+                      },
+                      400,
+                    )
+                  }
+                >
+                  <View style={styles.cluster}>
+                    <Text style={styles.clusterText}>{c.items.length}</Text>
+                  </View>
+                </Marker>
+              ),
+            )}
             {point ? (
               <Marker
                 coordinate={{ latitude: point.lat, longitude: point.lon }}
                 pinColor={point.status === "done" ? VERDICT_COLORS[point.checks.verdict] : colors.textDim}
+                zIndex={11}
               />
             ) : null}
           </MapView>
 
-          {loading ? (
+          <View style={styles.fabs}>
+            <TouchableOpacity testID="legend-button" style={styles.fab} onPress={() => setLegendOpen(true)}>
+              <Layers size={20} color={colors.primary} />
+            </TouchableOpacity>
+            <TouchableOpacity testID="locate-button" style={styles.fab} onPress={() => void locate()}>
+              <Crosshair size={20} color={colors.primary} />
+            </TouchableOpacity>
+            <TouchableOpacity testID="fit-button" style={styles.fab} onPress={fit}>
+              <Maximize size={20} color={colors.primary} />
+            </TouchableOpacity>
+          </View>
+
+          {loading || fetching ? (
             <View style={styles.loadingBadge}>
               <ActivityIndicator color={colors.accent} size="small" />
-              <Text style={styles.loadingText}>{fr.common.openingMap}</Text>
-            </View>
-          ) : null}
-          {!loading && hiddenCount > 0 ? (
-            <View style={styles.countBadge}>
-              <Text style={styles.countText}>+{hiddenCount} arbres</Text>
+              <Text style={styles.loadingText}>{loading ? fr.common.openingMap : t.updating}</Text>
             </View>
           ) : null}
 
-          {point ? (
-            <View style={styles.pointSheet} testID="point-sheet">
+          {feature ? (
+            <View style={styles.sheet} testID="feature-sheet">
+              <View style={styles.sheetHead}>
+                <View style={[styles.swatch, { backgroundColor: LAYER_STYLE[feature.layer]?.stroke ?? colors.accent }]} />
+                <Text style={styles.sheetTitle} numberOfLines={2}>
+                  {feature.name ?? labelFor(feature.layer)}
+                </Text>
+              </View>
+              <Text style={styles.dimSmall}>{labelFor(feature.layer)}</Text>
+              {feature.area_ha != null ? (
+                <View style={styles.kv}>
+                  <Text style={styles.kvLabel}>{t.area}</Text>
+                  <Text style={styles.kvValue}>{`${compactFr(feature.area_ha)} ha`}</Text>
+                </View>
+              ) : null}
+              {feature.holder ? (
+                <View style={styles.kv}>
+                  <Text style={styles.kvLabel}>{t.holder}</Text>
+                  <Text style={styles.kvValue}>{feature.holder}</Text>
+                </View>
+              ) : null}
+              {Object.entries({ ...(feature.attrs ?? {}), status: feature.status, title_ref: feature.title_ref })
+                .filter(([k, v]) => t.attrLabels[k] && v != null && v !== "")
+                .slice(0, 5)
+                .map(([k, v]) => (
+                  <View key={k} style={styles.kv}>
+                    <Text style={styles.kvLabel}>{t.attrLabels[k]}</Text>
+                    <Text style={styles.kvValue} numberOfLines={1}>
+                      {String(v)}
+                    </Text>
+                  </View>
+                ))}
+              <View style={styles.sheetActions}>
+                {feature.lat != null && feature.lon != null ? (
+                  <TouchableOpacity
+                    testID="feature-check"
+                    style={styles.primaryBtn}
+                    onPress={() => void runPointCheck(feature.lat as number, feature.lon as number)}
+                  >
+                    <Text style={styles.primaryText}>{t.checkHere}</Text>
+                  </TouchableOpacity>
+                ) : null}
+                <TouchableOpacity testID="feature-close" onPress={() => setFeature(null)}>
+                  <Text style={styles.link}>{t.close}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : point ? (
+            <View style={styles.sheet} testID="point-sheet">
               {point.status === "loading" ? (
                 <View style={styles.rowCenter}>
                   <ActivityIndicator color={colors.accent} />
@@ -314,15 +560,87 @@ export default function MapScreen() {
             </View>
           ) : (
             <View style={styles.hintBadge}>
-              <Text style={styles.hintText}>{t.longPressHint}</Text>
+              <Text style={styles.hintText}>
+                {`${t.shownOf(filtered.length, trees.length)} · ${t.longPressHint}`}
+              </Text>
             </View>
           )}
         </View>
       )}
 
+      <Modal visible={legendOpen} transparent animationType="slide" onRequestClose={() => setLegendOpen(false)}>
+        <View style={styles.backdrop}>
+          <ScrollView style={styles.legend} contentContainerStyle={styles.legendContent} testID="legend-sheet">
+            <Text style={styles.legendTitle}>{t.layers}</Text>
+
+            <Text style={styles.section}>{t.baseMap}</Text>
+            <View style={styles.rowWrap}>
+              {(
+                [
+                  ["standard", t.baseStandard],
+                  ["satellite", t.baseSatellite],
+                  ["hybrid", t.baseHybrid],
+                ] as [MapType, string][]
+              ).map(([value, label]) => (
+                <TouchableOpacity
+                  key={value}
+                  testID={`base-${value}`}
+                  style={[styles.chip, prefs.mapType === value && styles.chipOn]}
+                  onPress={() => updatePrefs({ mapType: value })}
+                >
+                  <Text style={[styles.chipText, prefs.mapType === value && styles.chipTextOn]}>{label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={styles.section}>{t.gfwLayers}</Text>
+            {tiles.map((tl) => (
+              <LegendRow
+                key={tl.key}
+                testID={`layer-${tl.key}`}
+                color={tl.key === "radd_alerts" ? "#E91E63" : "#FF6F61"}
+                label={tl.label}
+                on={prefs.enabled.includes(tl.key)}
+                onPress={() => toggleLayer(tl.key)}
+              />
+            ))}
+
+            <Text style={styles.section}>{t.vectorLayers}</Text>
+            {VECTOR_KEYS.map((key) => (
+              <LegendRow
+                key={key}
+                testID={`layer-${key}`}
+                color={LAYER_STYLE[key].stroke}
+                label={labelFor(key)}
+                count={layers?.counts?.[key]}
+                on={prefs.enabled.includes(key)}
+                onPress={() => toggleLayer(key)}
+              />
+            ))}
+
+            <Text style={styles.section}>{t.scansFilter}</Text>
+            {VERDICTS.map((v) => (
+              <LegendRow
+                key={v}
+                testID={`verdict-${v}`}
+                color={v === "none" ? colors.accent : VERDICT_COLORS[v]}
+                label={v === "none" ? t.unknownVerdict : t.verdicts[v]}
+                count={verdictCounts[v]}
+                on={prefs.verdicts.includes(v)}
+                onPress={() => toggleVerdict(v)}
+              />
+            ))}
+
+            <TouchableOpacity testID="legend-close" onPress={() => setLegendOpen(false)}>
+              <Text style={styles.link}>{t.close}</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </Modal>
+
       <Modal visible={contextOpen} animationType="slide" onRequestClose={() => setContextOpen(false)}>
         <ScrollView style={styles.modal} contentContainerStyle={styles.modalContent} testID="context-modal">
-          <Text style={styles.modalTitle}>{t.contextTitle}</Text>
+          <Text style={styles.legendTitle}>{t.contextTitle}</Text>
           {!context ? (
             <ActivityIndicator color={colors.accent} />
           ) : (
@@ -342,7 +660,7 @@ export default function MapScreen() {
                   </Text>
                 </View>
               ))}
-              <Text style={styles.source}>{t.contextSource}</Text>
+              <Text style={styles.dimSmall}>{t.contextSource}</Text>
             </>
           )}
           <TouchableOpacity testID="context-close" onPress={() => setContextOpen(false)}>
@@ -354,12 +672,67 @@ export default function MapScreen() {
   );
 }
 
+function LegendRow({
+  testID,
+  color,
+  label,
+  count,
+  on,
+  onPress,
+}: {
+  testID: string;
+  color: string;
+  label: string;
+  count?: number;
+  on: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      testID={testID}
+      style={styles.legendRow}
+      onPress={onPress}
+      accessibilityRole="switch"
+      accessibilityState={{ checked: on }}
+    >
+      <View style={[styles.swatch, { backgroundColor: color, opacity: on ? 1 : 0.3 }]} />
+      <Text style={[styles.legendLabel, !on && styles.legendOff]} numberOfLines={1}>
+        {label}
+      </Text>
+      {count != null ? <Text style={styles.dimSmall}>{count}</Text> : null}
+      <View style={[styles.toggle, on && styles.toggleOn]}>
+        <View style={[styles.knob, on && styles.knobOn]} />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  flex: { flex: 1 },
+  top: { paddingHorizontal: spacing.md, paddingTop: spacing.sm, gap: spacing.xs, zIndex: 20 },
+  searchBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.md,
+  },
+  searchInput: { flex: 1, color: colors.text, fontSize: type.body, paddingVertical: spacing.sm },
+  results: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.xs,
+  },
+  result: { flexDirection: "row", alignItems: "center", gap: spacing.sm, padding: spacing.sm },
+  resultName: { color: colors.text, fontSize: type.body, fontWeight: "700" },
   segment: {
     flexDirection: "row",
-    margin: spacing.md,
-    marginBottom: spacing.xs,
     backgroundColor: colors.surface,
     borderRadius: 12,
     borderWidth: 1,
@@ -367,25 +740,33 @@ const styles = StyleSheet.create({
     padding: spacing.xs,
     gap: spacing.xs,
   },
-  segBtn: { flex: 1, paddingVertical: spacing.sm, borderRadius: 8, alignItems: "center" },
+  segBtn: { flex: 1, paddingVertical: spacing.xs, borderRadius: 8, alignItems: "center" },
   segBtnOn: { backgroundColor: colors.surfaceAlt },
   segText: { color: colors.textDim, fontSize: type.caption, fontWeight: "700" },
   segTextOn: { color: colors.accent, fontWeight: "800" },
-  chips: { flexGrow: 0, marginBottom: spacing.xs },
-  chipsContent: { paddingHorizontal: spacing.md, gap: spacing.xs },
-  chip: {
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 4,
-    backgroundColor: colors.surface,
+  mapWrap: { flex: 1, position: "relative", marginTop: spacing.xs },
+  fabs: { position: "absolute", right: spacing.md, top: spacing.md, gap: spacing.sm },
+  fab: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.accent,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 3,
   },
-  chipOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  chipText: { color: colors.text, fontSize: type.caption, fontWeight: "700" },
-  chipTextOn: { color: colors.primary },
-  map: { flex: 1 },
-  mapWrap: { flex: 1, position: "relative" },
+  cluster: {
+    minWidth: 34,
+    height: 34,
+    borderRadius: 17,
+    paddingHorizontal: 6,
+    backgroundColor: "rgba(212,160,23,0.95)",
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  clusterText: { color: colors.primary, fontWeight: "800", fontSize: type.caption },
   loadingBadge: {
     position: "absolute",
     top: spacing.md,
@@ -395,20 +776,10 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     backgroundColor: "rgba(24,36,32,0.92)",
     borderRadius: 20,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.xs,
     paddingHorizontal: spacing.md,
   },
   loadingText: { color: colors.text, fontSize: type.caption, fontWeight: "700" },
-  countBadge: {
-    position: "absolute",
-    top: spacing.md,
-    right: spacing.md,
-    backgroundColor: "rgba(24,36,32,0.92)",
-    borderRadius: 12,
-    paddingVertical: 4,
-    paddingHorizontal: spacing.md,
-  },
-  countText: { color: colors.textDim, fontSize: type.caption, fontWeight: "600" },
   hintBadge: {
     position: "absolute",
     bottom: spacing.md,
@@ -419,7 +790,7 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
   },
   hintText: { color: colors.textDim, fontSize: type.caption, textAlign: "center" },
-  pointSheet: {
+  sheet: {
     position: "absolute",
     bottom: spacing.md,
     left: spacing.md,
@@ -427,21 +798,60 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: 14,
     padding: spacing.md,
-    gap: spacing.sm,
+    gap: spacing.xs,
     borderWidth: 1,
     borderColor: colors.border,
   },
+  sheetHead: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  sheetTitle: { color: colors.text, fontSize: type.heading, fontWeight: "800", flex: 1 },
+  sheetActions: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: spacing.xs },
+  primaryBtn: { backgroundColor: colors.accent, borderRadius: 10, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
+  primaryText: { color: colors.primary, fontWeight: "800", fontSize: type.body },
   rowCenter: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  rowWrap: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs },
   dim: { color: colors.textDim, fontSize: type.body },
+  dimSmall: { color: colors.textDim, fontSize: type.caption },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.md },
   error: { color: colors.error, fontSize: type.body },
   link: { color: colors.accent, fontSize: type.body, fontWeight: "700", marginTop: spacing.sm },
+  backdrop: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.4)" },
+  legend: {
+    maxHeight: "80%",
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+  },
+  legendContent: { padding: spacing.lg, gap: spacing.xs },
+  legendTitle: { color: colors.text, fontSize: type.title, fontWeight: "800" },
+  section: { color: colors.accent, fontSize: type.body, fontWeight: "800", marginTop: spacing.md },
+  legendRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm, paddingVertical: spacing.xs },
+  legendLabel: { color: colors.text, fontSize: type.body, flex: 1 },
+  legendOff: { color: colors.textDim },
+  swatch: { width: 14, height: 14, borderRadius: 4 },
+  toggle: {
+    width: 38,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: colors.surfaceAlt,
+    padding: 2,
+    justifyContent: "center",
+  },
+  toggleOn: { backgroundColor: colors.accent },
+  knob: { width: 18, height: 18, borderRadius: 9, backgroundColor: "#FFFFFF" },
+  knobOn: { alignSelf: "flex-end" },
+  chip: {
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 4,
+  },
+  chipOn: { backgroundColor: colors.accent, borderColor: colors.accent },
+  chipText: { color: colors.text, fontSize: type.caption, fontWeight: "700" },
+  chipTextOn: { color: colors.primary },
   modal: { flex: 1, backgroundColor: colors.background },
   modalContent: { padding: spacing.lg, gap: spacing.sm },
-  modalTitle: { color: colors.text, fontSize: type.title, fontWeight: "800" },
-  section: { color: colors.accent, fontSize: type.heading, fontWeight: "700", marginTop: spacing.md },
   kv: { flexDirection: "row", justifyContent: "space-between", gap: spacing.md },
-  kvLabel: { color: colors.textDim, fontSize: type.body, flexShrink: 1 },
-  kvValue: { color: colors.text, fontSize: type.body, fontWeight: "700" },
-  source: { color: colors.textDim, fontSize: type.caption, marginTop: spacing.md },
+  kvLabel: { color: colors.textDim, fontSize: type.caption, flexShrink: 1 },
+  kvValue: { color: colors.text, fontSize: type.caption, fontWeight: "700", flexShrink: 1, textAlign: "right" },
 });

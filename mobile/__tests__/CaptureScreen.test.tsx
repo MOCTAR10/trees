@@ -53,6 +53,16 @@ jest.mock("expo-camera", () => {
   };
 });
 
+const mockSensor = {
+  available: false,
+  reading: null as null | { distanceM: number; confidence: number; source: string },
+};
+
+jest.mock("../modules/depth-sensor", () => ({
+  isDepthSensorAvailable: jest.fn(async () => mockSensor.available),
+  measureCenterDistance: jest.fn(async () => mockSensor.reading),
+}));
+
 jest.mock("expo-location", () => ({
   Accuracy: { Balanced: 3, High: 4 },
   requestForegroundPermissionsAsync: jest.fn(async () => ({ status: "granted" })),
@@ -84,6 +94,8 @@ const flush = () =>
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockSensor.available = false;
+  mockSensor.reading = null;
   motion.listener = null;
   motion.all = [];
   globalThis.fetch = jest.fn(async () => {
@@ -362,5 +374,66 @@ describe("CaptureScreen", () => {
     const result = onCaptured.mock.calls[0][0];
     expect(result.measuredHeightM).toBeCloseTo(30.3);
     expect(result.heightSource).toBe("clinometer");
+  });
+});
+
+describe("CaptureScreen server AI status", () => {
+  it("tells the operator whether the server AI is active and why not", async () => {
+    globalThis.fetch = jest.fn(async () => ({
+      ok: true,
+      json: async () => ({ ai_segmentation: false, ai_distance: false, ai_configured: true, ai_off_reason: "memory" }),
+    })) as unknown as typeof fetch;
+    const first = render(<CaptureScreen onCaptured={jest.fn()} onBack={jest.fn()} />);
+    await waitFor(() => expect(first.getByTestId("ai-status").props.children).toMatch(/insuffisante/));
+    first.unmount();
+
+    globalThis.fetch = jest.fn(async () => ({
+      ok: true,
+      json: async () => ({ ai_segmentation: true, ai_distance: true, ai_configured: true, ai_off_reason: null }),
+    })) as unknown as typeof fetch;
+    const second = render(<CaptureScreen onCaptured={jest.fn()} onBack={jest.fn()} />);
+    await waitFor(() => expect(second.getByTestId("ai-status").props.children).toMatch(/active/));
+  });
+});
+
+
+describe("CaptureScreen native depth sensor", () => {
+  it("hides the sensor button in Expo Go", async () => {
+    const { queryByTestId, getByText } = render(<CaptureScreen onCaptured={jest.fn()} onBack={jest.fn()} />);
+    await waitFor(() => expect(getByText(/Position capturée/)).toBeTruthy());
+    expect(queryByTestId("sensor-button")).toBeNull();
+  });
+
+  it("fills the distance from LiDAR and sends its source", async () => {
+    mockSensor.available = true;
+    mockSensor.reading = { distanceM: 2.04, confidence: 0.92, source: "lidar" };
+    const onCaptured = jest.fn();
+    const { getByTestId, getByText } = render(<CaptureScreen onCaptured={onCaptured} onBack={jest.fn()} />);
+    await waitFor(() => expect(getByTestId("sensor-button")).toBeTruthy());
+    await act(async () => {
+      fireEvent.press(getByTestId("sensor-button"));
+    });
+    expect(getByTestId("depth-input").props.value).toBe("2.04");
+    expect(getByTestId("sensor-note").props.children).toMatch(/LiDAR/);
+    await captureQuickViews(getByTestId);
+    fireEvent.press(getByTestId("analyze-button"));
+    await flush();
+    expect(onCaptured.mock.calls[0][0]).toMatchObject({ arDepthM: 2.04, depthSource: "lidar" });
+  });
+
+  it("typing a distance afterwards drops the sensor source", async () => {
+    mockSensor.available = true;
+    mockSensor.reading = { distanceM: 2.04, confidence: 0.92, source: "arcore" };
+    const onCaptured = jest.fn();
+    const { getByTestId } = render(<CaptureScreen onCaptured={onCaptured} onBack={jest.fn()} />);
+    await waitFor(() => expect(getByTestId("sensor-button")).toBeTruthy());
+    await act(async () => {
+      fireEvent.press(getByTestId("sensor-button"));
+    });
+    fireEvent.changeText(getByTestId("depth-input"), "2.5");
+    await captureQuickViews(getByTestId);
+    fireEvent.press(getByTestId("analyze-button"));
+    await flush();
+    expect(onCaptured.mock.calls[0][0].depthSource).toBeUndefined();
   });
 });

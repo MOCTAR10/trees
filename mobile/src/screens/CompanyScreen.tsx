@@ -23,6 +23,7 @@ import {
 } from "../api/client";
 import RoleHeader from "../components/RoleHeader";
 import { fr } from "../i18n/fr";
+import { exportDeclarationPlatesPdf, sharePdf } from "../pdf";
 import { colors, spacing, type } from "../theme";
 import CompanyTitles from "../components/CompanyTitles";
 import CompanyTraceability from "../components/CompanyTraceability";
@@ -48,6 +49,18 @@ export default function CompanyScreen({ user, onLogout, showHeader = true }: Pro
   const [picking, setPicking] = useState<CompanyResidue | null>(null);
   const [tab, setTab] = useState<CompanyTab>("residues");
   const [declarations, setDeclarations] = useState<Declaration[]>([]);
+  const [platesBusy, setPlatesBusy] = useState<number | null>(null);
+
+  const printPlates = async (declarationId: number) => {
+    setPlatesBusy(declarationId);
+    try {
+      await sharePdf(await exportDeclarationPlatesPdf(declarationId));
+    } catch (err) {
+      console.error("plates export failed", err);
+    } finally {
+      setPlatesBusy(null);
+    }
+  };
   const [declLoading, setDeclLoading] = useState(false);
   const [declError, setDeclError] = useState<string | null>(null);
   const [declaring, setDeclaring] = useState(false);
@@ -217,6 +230,15 @@ export default function CompanyScreen({ user, onLogout, showHeader = true }: Pro
                     {item.decision_motif ? (
                       <Text style={styles.meta}>{item.decision_motif}</Text>
                     ) : null}
+                    <TouchableOpacity
+                      testID={`plates-${item.id}`}
+                      onPress={() => void printPlates(item.id)}
+                      disabled={platesBusy === item.id}
+                    >
+                      <Text style={styles.link}>
+                        {platesBusy === item.id ? fr.felling.platesBusy : fr.felling.printPlates}
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 )}
               />
