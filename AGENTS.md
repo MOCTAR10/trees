@@ -44,14 +44,14 @@ only (`mobile/src/i18n/fr.ts`). There is **no navigation library**: `App.tsx`
 routes with a `phase` state machine plus role checks; screens are mounted from
 per-role containers (`CompanyScreen`, `AdminScreen`, …) that expose tabs.
 
-## 2. Where we are (as of Slice 17)
+## 2. Where we are (as of Slice 18)
 
 The product is built as **vertical slices**: each slice ships a DB migration, the
 backend, optionally an operational CLI under `tools/`, the mobile UI, and the
 doc update — as separate logical commits. The full history lives in
 `docs/GABON_WORKFLOW_ANALYSIS.md` **§9**.
 
-**Slices 1–17 are DONE, committed on `main`, and pushed (CI green).** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
+**Slices 1–17 are DONE, committed on `main`, and pushed (CI green). Slice 18 is implemented and verified locally.** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
 
 | # | Domaine | Migration | Backend | Mobile | Docs §9 |
 | --- | --- | --- | --- | --- | --- |
@@ -72,9 +72,10 @@ doc update — as separate logical commits. The full history lives in
 | 15 | Scanner IA (SAM 2.1, distance IA), grume liée par QR, clinomètre/niveau, carbone par AAC | `021_slice15.sql` | `/api/v1/capabilities`, `/api/dashboard` (carbone), `tools.export_trunk_dataset` | `Clinometer`, `CaptureScreen` (QR, niveau, auto), `AdminDashboard` | pt 15 |
 | 16 | Espèce (flore régionale + re-classement Gabon), plaque QR « règle », contrôles GFW, Carte 2.0 | `022_slice16.sql` | `/api/map/*`, `tools.gfw_api_key`, `tools.import_gfw_layers`, `tools.import_gabon_context`, `tools.print_qr_plates` | `MapScreen`, `ForestChecksCard`, `ReportScreen` | pt 16 |
 | 17 | Carte fluide (emprise + zoom, recherche, fiches), contrôles parc/concession à la déclaration, plaques par déclaration, capteur LiDAR/ARCore natif | — | `/api/map/layers?zoom&bbox`, `/api/map/search`, `/api/map/feature`, `/api/felling/declarations/{id}/plates.pdf` | `MapScreen`, `CompanyScreen`, `CaptureScreen`, `modules/depth-sensor` | pt 17 |
+| 18 | DBH par bords confirmés par l'opérateur, calcul hors-ligne sur le téléphone ; IA lourde désactivée par défaut | `023_slice18.sql` | `/api/v1/process-scan` (`edge_left`, `edge_right`) | `EdgeAdjuster`, `utils/dbh.ts`, `CaptureScreen` | pt 18 |
 
-Latest verified suite counts (Slice 17): **`pytest` 430 passed** ·
-**`jest` 134 passed / 39 suites** · `ruff` and `tsc` clean.
+Latest verified suite counts (Slice 18): **`pytest` 436 passed** ·
+**`jest` 146 passed / 41 suites** · `ruff` and `tsc` clean.
 
 ### What is left (next candidates)
 
@@ -251,7 +252,10 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
 - `tree_scans.dbh_method` has a CHECK constraint: a new DBH method value must be
   added there (migration) or the scan insert fails — and v1 only **logs** that
   failure (the report is still returned), so watch the API logs.
-- Scanner AI (`AI_MODELS_ENABLED=true`) needs **≥ 3 GB** for the API container
+- DBH design choice: the operator confirms the trunk edges and the phone computes
+  DBH offline (`mobile/src/utils/dbh.ts` mirrors `core/geometry.diameter_from_edges_cm`;
+  keep the two in sync). Heavy AI stays **off by default**.
+- Scanner AI (`AI_MODELS_ENABLED=true`, optional) needs **≥ 3 GB** for the API container
   (`AI_MIN_MEMORY_MB`); below that it disables itself and logs why. Docker
   Desktop defaults can be lower (1.8 GB here): raise it in Docker Desktop →
   Settings → Resources. First load downloads ~250 MB into `forestry_hf_cache`
