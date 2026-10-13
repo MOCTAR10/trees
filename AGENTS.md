@@ -75,7 +75,7 @@ doc update — as separate logical commits. The full history lives in
 | 18 | DBH par bords confirmés par l'opérateur, calcul hors-ligne sur le téléphone ; IA lourde désactivée par défaut | `023_slice18.sql` | `/api/v1/process-scan` (`edge_left`, `edge_right`) | `EdgeAdjuster`, `utils/dbh.ts`, `CaptureScreen` | pt 18 |
 
 Latest verified suite counts (Slice 18 + design pass): **`pytest` 436 passed** ·
-**`jest` 164 passed / 44 suites** · `ruff` and `tsc` clean.
+**`jest` 159 passed / 43 suites** · `ruff` and `tsc` clean.
 
 ### What is left (next candidates)
 
@@ -224,10 +224,10 @@ Get-Content db/migrations/0NN_sliceNN.sql | docker exec -i forestry_postgres psq
   Edges are sent only after the operator taps « Valider le diamètre ».
   The DBH step explains 1,30 m (« Pourquoi 1,30 m ? »); zoom only on leaf /
   flower / fruit (DBH views keep their geometry); Android back is handled.
-  Imported photos show their EXIF position/date (`utils/exif.ts`) and are
-  flagged beyond 100 m / 24 h / no GPS — phone-side warning only, not sent to
-  the server yet (roadmap §10 open point 18). The Groq narrative is labelled
-  as AI-written and indicative in the report.
+  **Live capture only**: gallery import was removed on purpose (EUDR /
+  Ministry record — photo, GPS and time from the same moment at the tree;
+  roadmap §10 decision 16). Do not re-add an import path to the official scan.
+  The Groq narrative is labelled as AI-written and indicative in the report.
 
 ## 6. CI, push, verification
 
