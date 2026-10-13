@@ -167,6 +167,8 @@ def test_render_diligence_pdf():
         "consultation_document_id": 55,
         "felled_stem_count": 3,
         "geolocated_stem_count": 2,
+        "inside_parcel_stem_count": 2,
+        "outside_parcel_stem_count": 0,
         "declared_volume_m3": 42.0,
     }
     _assert_pdf(pdf_report.render_diligence_pdf(doc, org_name="Bois SA"))

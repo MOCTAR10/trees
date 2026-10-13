@@ -50,7 +50,25 @@ def _setup(monkeypatch):
         "seq": 1,
         "diligence": {},
         "titles": {30: {"holder_org_id": 10, "reference": "T-1"}},
-        "counts": {"felled": 3, "geolocated": 2},
+        "counts": {"felled": 3, "geolocated": 2, "inside": 2},
+        "stems": [
+            {
+                "tree_code": "GA-2026-000001",
+                "species_scientific_name": "Aucoumea klaineana",
+                "status": "abattu",
+                "latitude": 0.5,
+                "longitude": 0.5,
+                "inside": True,
+            },
+            {
+                "tree_code": "GA-2026-000002",
+                "species_scientific_name": "Milicia excelsa",
+                "status": "transporte",
+                "latitude": 9.0,
+                "longitude": 9.0,
+                "inside": False,
+            },
+        ],
     }
 
     def _enrich(d):
@@ -90,10 +108,12 @@ def _setup(monkeypatch):
                 "consultation_document_id": args[4],
                 "geolocated_stem_count": args[5],
                 "felled_stem_count": args[6],
-                "declared_volume_m3": args[7],
-                "notes": args[8],
+                "inside_parcel_stem_count": args[7],
+                "outside_parcel_stem_count": args[8],
+                "declared_volume_m3": args[9],
+                "notes": args[10],
                 "status": "soumis",
-                "submitted_by": args[9],
+                "submitted_by": args[11],
                 "decided_by": None,
                 "decided_at": None,
                 "decision_motif": None,
@@ -117,6 +137,8 @@ def _setup(monkeypatch):
 
     async def fetch_all(sql, *args):
         s = " ".join(sql.split()).lower()
+        if "join tree_registry r" in s:
+            return [dict(r) for r in state["stems"]]
         if "from eudr_diligence d" in s:
             rows = [_enrich(d) for d in state["diligence"].values()]
             return _apply(rows, s, args)
@@ -157,6 +179,64 @@ def test_company_submits_diligence_with_geolocation_counts(client, monkeypatch):
     assert body["status"] == "soumis"
     assert body["felled_stem_count"] == 3
     assert body["geolocated_stem_count"] == 2
+    assert body["inside_parcel_stem_count"] == 2
+    assert body["outside_parcel_stem_count"] == 0
+
+
+def test_geolocation_outside_counts_when_stems_straddle_the_parcel(client, monkeypatch):
+    users, state = _setup(monkeypatch)
+    state["counts"] = {"felled": 4, "geolocated": 4, "inside": 3}
+    body = _create(client, _token(users[2])).json()
+    assert body["geolocated_stem_count"] == 4
+    assert body["inside_parcel_stem_count"] == 3
+    assert body["outside_parcel_stem_count"] == 1
+
+
+def test_without_parcel_polygon_containment_is_not_asserted(client, monkeypatch):
+    users, _ = _setup(monkeypatch)
+    resp = _create(client, _token(users[2]), parcel_wkt=None)
+    assert resp.status_code == 201
+    body = resp.json()
+    assert body["inside_parcel_stem_count"] == 0
+    assert body["outside_parcel_stem_count"] == 0
+
+
+def test_stems_endpoint_lists_per_log_geolocation(client, monkeypatch):
+    users, _ = _setup(monkeypatch)
+    did = _create(client, _token(users[2])).json()["id"]
+    resp = client.get(
+        f"/api/eudr/diligence/{did}/stems",
+        headers={"Authorization": f"Bearer {_token(users[2])}"},
+    )
+    assert resp.status_code == 200
+    stems = resp.json()
+    assert len(stems) == 2
+    assert stems[0]["tree_code"] == "GA-2026-000001"
+    assert stems[0]["latitude"] == 0.5 and stems[0]["inside"] is True
+    assert stems[1]["inside"] is False
+
+
+def test_stems_endpoint_scoped_to_organization(client, monkeypatch):
+    users, _ = _setup(monkeypatch)
+    did = _create(client, _token(users[2])).json()["id"]
+    assert (
+        client.get(
+            f"/api/eudr/diligence/{did}/stems",
+            headers={"Authorization": f"Bearer {_token(users[6])}"},
+        ).status_code
+        == 403
+    )
+
+
+def test_stems_endpoint_unknown_diligence_is_404(client, monkeypatch):
+    users, _ = _setup(monkeypatch)
+    assert (
+        client.get(
+            "/api/eudr/diligence/9999/stems",
+            headers={"Authorization": f"Bearer {_token(users[1])}"},
+        ).status_code
+        == 404
+    )
 
 
 def test_foreign_title_is_403(client, monkeypatch):

@@ -708,6 +708,9 @@ def render_diligence_pdf(doc: dict, org_name: str | None = None) -> bytes:
     felled = doc.get("felled_stem_count") or 0
     geolocated = doc.get("geolocated_stem_count") or 0
     ratio = (geolocated / felled) if felled else None
+    parcel_present = bool(doc.get("parcel_wkt"))
+    inside = doc.get("inside_parcel_stem_count") or 0
+    outside = doc.get("outside_parcel_stem_count") or 0
     title = doc.get("title_ref") or (f"#{doc.get('title_id')}" if doc.get("title_id") else None)
     consultation = doc.get("consultation_document_id")
 
@@ -727,6 +730,13 @@ def render_diligence_pdf(doc: dict, org_name: str | None = None) -> bytes:
                     "Grumes géolocalisées",
                     f"{geolocated} ({_pct(ratio)})" if felled else str(geolocated),
                 ),
+                (
+                    "Grumes dans la parcelle",
+                    f"{inside} ({_pct(inside / geolocated)})"
+                    if geolocated and parcel_present
+                    else ("—" if not parcel_present else str(inside)),
+                ),
+                ("Grumes hors parcelle", str(outside) if parcel_present else "—"),
                 ("Volume déclaré", _fr_num(doc.get("declared_volume_m3"), 3, " m³")),
             ]
         ),
