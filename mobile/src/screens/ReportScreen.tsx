@@ -76,6 +76,15 @@ export default function ReportScreen({
           <Text style={styles.warning}>{t.noDbh}</Text>
         ) : null}
         <Row label={t.method} value={label(t.dbhMethods, report.dbh_method)} />
+        {report.distance_m != null ? (
+          <Row
+            label={t.distance}
+            value={`${report.distance_m.toFixed(2)} m (${
+              report.distance_source === "ai" ? t.distanceAi : t.distanceTyped
+            })`}
+          />
+        ) : null}
+        {report.tree_code ? <Row label={t.treeCode} value={report.tree_code} /> : null}
         {report.dbh_vision_cm != null &&
         report.dbh_method !== null &&
         ["tape_circumference", "caliper"].includes(report.dbh_method) ? (

@@ -165,6 +165,26 @@ export default function AdminDashboard() {
       {data.certifications.by_scheme.map((s) => (
         <Row key={s.scheme} label={s.scheme} value={fmtInt(s.count)} />
       ))}
+
+      {data.carbon ? (
+        <View testID="dashboard-carbon">
+          <Text style={styles.section}>{fr.dashboard.carbon}</Text>
+          <Row
+            label={fr.dashboard.carbonStock}
+            value={`${fmtNum(data.carbon.co2e_kg / 1000, 2)} t CO₂e`}
+          />
+          <Row label={fr.dashboard.carbonScans} value={fmtInt(data.carbon.scans)} />
+          <Row label={fr.dashboard.carbonReference} value={fmtInt(data.carbon.reference_scans)} />
+          <Row label={fr.dashboard.carbonLinked} value={fmtInt(data.carbon.linked_scans)} />
+          {data.carbon.by_aac.map((a) => (
+            <Row
+              key={a.aac_id}
+              label={`${a.aac_label}${a.title_ref ? ` · ${a.title_ref}` : ""}`}
+              value={`${fmtNum(a.co2e_kg / 1000, 2)} t (${fmtInt(a.scans)})`}
+            />
+          ))}
+        </View>
+      ) : null}
     </ScrollView>
   );
 }

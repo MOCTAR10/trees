@@ -135,6 +135,9 @@ export interface V1Report {
   aboveground_biomass_kg?: number | null;
   carbon_stock_kg?: number | null;
   co2e_kg?: number | null;
+  distance_m?: number | null;
+  distance_source?: "typed" | "ai" | null;
+  tree_code?: string | null;
 }
 
 export interface ResidueChannel {
@@ -225,6 +228,23 @@ const ORGAN_WIRE: Record<Organ, string> = {
 
 export type HeightSource = "clinometer" | "manual";
 
+export interface ScanCapabilities {
+  ai_segmentation: boolean;
+  ai_distance: boolean;
+  max_image_bytes?: number;
+}
+
+/** Server-side scanner abilities; all off when the server is unreachable. */
+export async function getScanCapabilities(): Promise<ScanCapabilities> {
+  try {
+    const resp = await timedFetch(`${API_BASE}/api/v1/capabilities`, { headers: headers() });
+    if (!resp.ok) throw new Error(`capabilities ${resp.status}`);
+    return resp.json();
+  } catch {
+    return { ai_segmentation: false, ai_distance: false };
+  }
+}
+
 export interface TreeMeasurements {
   /** Distance from the phone to the bark at 1.30 m (m) — enables photo DBH. */
   arDepthM?: number;
@@ -236,6 +256,8 @@ export interface TreeMeasurements {
   caliperDbhCm?: number;
   measuredHeightM?: number;
   heightSource?: HeightSource;
+  /** Registry code of the tree (scanned from its QR tag). */
+  treeCode?: string;
 }
 
 /** Focal length shared by the scan: the DBH shot first, else any shot. */
@@ -271,6 +293,7 @@ export async function processScanV1(
     ["caliper_dbh_cm", params.caliperDbhCm],
     ["measured_height_m", params.measuredHeightM],
     ["height_source", params.measuredHeightM ? params.heightSource : undefined],
+    ["tree_code", params.treeCode?.trim() || undefined],
   ];
   optional.forEach(([key, value]) => {
     if (value !== undefined && value !== "" && !(typeof value === "number" && !(value > 0))) {
@@ -2321,6 +2344,19 @@ export interface DashboardOverview {
     total: number;
     by_status: Record<string, StatusRollup>;
     by_scheme: { scheme: string; count: number; surface_ha: number }[];
+  };
+  carbon?: {
+    scans: number;
+    co2e_kg: number;
+    reference_scans: number;
+    linked_scans: number;
+    by_aac: {
+      aac_id: number;
+      aac_label: string;
+      title_ref: string | null;
+      scans: number;
+      co2e_kg: number;
+    }[];
   };
 }
 

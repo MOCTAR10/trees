@@ -61,4 +61,30 @@ describe("AdminDashboard", () => {
     expect(getByText("900 000 FCFA")).toBeTruthy();
     expect(getByText("FSC")).toBeTruthy();
   });
+
+  it("shows the measured carbon stock per AAC", async () => {
+    mocked.dashboardOverview.mockResolvedValue({
+      ...overview,
+      carbon: {
+        scans: 3,
+        co2e_kg: 70360,
+        reference_scans: 3,
+        linked_scans: 2,
+        by_aac: [
+          {
+            aac_id: 21,
+            aac_label: "DEMO-AAC-2026-01",
+            title_ref: "DEMO-CFAD-01",
+            scans: 3,
+            co2e_kg: 70360,
+          },
+        ],
+      },
+    });
+    const { getByTestId, getByText } = render(<AdminDashboard />);
+    await waitFor(() => expect(getByTestId("dashboard-carbon")).toBeTruthy());
+    expect(getByText("70.36 t CO₂e")).toBeTruthy();
+    expect(getByText("DEMO-AAC-2026-01 · DEMO-CFAD-01")).toBeTruthy();
+    expect(getByText("70.36 t (3)")).toBeTruthy();
+  });
 });

@@ -9,7 +9,10 @@ import {
   Flashlight,
   FlashlightOff,
   ImagePlus,
+  QrCode,
   RotateCcw,
+  Ruler,
+  X,
 } from "lucide-react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -25,9 +28,20 @@ import {
   View,
 } from "react-native";
 
-import { CapturedImage, CaptureShot, Organ, TreeMeasurements } from "../api/client";
+import {
+  CapturedImage,
+  CaptureShot,
+  getScanCapabilities,
+  HeightSource,
+  Organ,
+  ScanCapabilities,
+  TreeMeasurements,
+} from "../api/client";
+import Clinometer from "../components/Clinometer";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
+import { isLevel } from "../utils/tilt";
+import { useDeviceTilt } from "../utils/useDeviceTilt";
 
 const t = fr.capture;
 
@@ -120,6 +134,11 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
   const [measureMode, setMeasureMode] = useState<MeasureMode>("photo");
   const [refText, setRefText] = useState("");
   const [heightText, setHeightText] = useState("");
+  const [heightSource, setHeightSource] = useState<HeightSource>("manual");
+  const [caps, setCaps] = useState<ScanCapabilities>({ ai_segmentation: false, ai_distance: false });
+  const [clinoOpen, setClinoOpen] = useState(false);
+  const [scanningQr, setScanningQr] = useState(false);
+  const [treeCode, setTreeCode] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [taking, setTaking] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -174,6 +193,14 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
     void locate(false);
   }, [locate]);
 
+  useEffect(() => {
+    let alive = true;
+    void getScanCapabilities().then((c) => alive && setCaps(c));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   const step = steps[stepIndex];
   const shot = previews[step.key];
   const requiredTotal = steps.filter((s) => s.required).length;
@@ -183,7 +210,18 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
   const depth = parseNum(depthText);
   const reference = parseNum(refText);
   const height = parseNum(heightText);
-  const measureReady = measureMode === "photo" ? depth > 0 : reference > 0;
+  const measureReady =
+    measureMode === "photo" ? depth > 0 || caps.ai_distance : reference > 0;
+  const guiding = step.organ === "dbh" && !shot && !scanningQr;
+  const tilt = useDeviceTilt(guiding);
+  const level = isLevel(tilt.elevationDeg, tilt.rollDeg);
+
+  const onBarcode = useCallback(({ data }: { data: string }) => {
+    const code = data?.trim();
+    if (!code) return;
+    setTreeCode(code);
+    setScanningQr(false);
+  }, []);
   const blockReason = !allRequired
     ? t.requiredMissing
     : !position
@@ -317,7 +355,8 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
       circumferenceCm: measureMode === "tape" ? reference : undefined,
       caliperDbhCm: measureMode === "caliper" ? reference : undefined,
       measuredHeightM: height > 0 ? height : undefined,
-      heightSource: height > 0 ? "manual" : undefined,
+      heightSource: height > 0 ? heightSource : undefined,
+      treeCode: treeCode ?? undefined,
     });
   }, [
     blockReason,
@@ -329,6 +368,8 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
     measureMode,
     reference,
     height,
+    heightSource,
+    treeCode,
     onCaptured,
   ]);
 
@@ -381,6 +422,19 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
           </Text>
         </View>
         <TouchableOpacity
+          testID="qr-button"
+          style={[styles.iconBtn, (scanningQr || treeCode) && styles.iconBtnOn]}
+          onPress={() => setScanningQr((v) => !v)}
+          accessibilityRole="button"
+          accessibilityLabel={t.qrScan}
+        >
+          <QrCode
+            size={20}
+            color={scanningQr || treeCode ? colors.primary : colors.text}
+            strokeWidth={2}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
           testID="torch-toggle"
           style={[styles.iconBtn, torchOn && styles.iconBtnOn]}
           onPress={() => setTorchOn((v) => !v)}
@@ -400,7 +454,7 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <View style={styles.scanner}>
-          {shot ? (
+          {shot && !scanningQr ? (
             <Image source={{ uri: shot.image.uri }} style={styles.fill} resizeMode="cover" />
           ) : (
             <CameraView
@@ -410,13 +464,39 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
               flash="off"
               enableTorch={torchOn && cameraReady}
               onCameraReady={() => setCameraReady(true)}
+              barcodeScannerSettings={
+                scanningQr ? { barcodeTypes: ["qr", "code128", "datamatrix"] } : undefined
+              }
+              onBarcodeScanned={scanningQr ? onBarcode : undefined}
             />
           )}
 
-          {step.organ === "dbh" && !shot ? (
+          {scanningQr ? (
+            <View style={styles.qrOverlay} testID="qr-overlay">
+              <View style={styles.qrFrame} pointerEvents="none" />
+              <Text style={styles.guideText}>{t.qrHint}</Text>
+              <TouchableOpacity
+                testID="qr-cancel"
+                style={styles.qrCancel}
+                onPress={() => setScanningQr(false)}
+              >
+                <Text style={styles.buttonText}>{t.qrCancel}</Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
+
+          {guiding ? (
             <View style={styles.guide} pointerEvents="none" testID="dbh-guide">
               <View style={styles.guideLine} />
               <Text style={styles.guideText}>{t.dbhGuide}</Text>
+              {tilt.available ? (
+                <Text
+                  testID="level-indicator"
+                  style={[styles.levelBadge, level ? styles.levelOk : styles.levelWarn]}
+                >
+                  {level ? t.level : t.levelFix(tilt.rollDeg, tilt.elevationDeg)}
+                </Text>
+              ) : null}
             </View>
           ) : null}
 
@@ -517,10 +597,27 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
             ))}
           </View>
 
+          {treeCode ? (
+            <View style={styles.treeChip} testID="tree-chip">
+              <Text style={styles.treeChipText} numberOfLines={1}>
+                {t.treeLinked(treeCode)}
+              </Text>
+              <TouchableOpacity
+                testID="tree-unlink"
+                onPress={() => setTreeCode(null)}
+                accessibilityLabel={t.unlinkTree}
+              >
+                <X size={16} color={colors.primary} strokeWidth={2.5} />
+              </TouchableOpacity>
+            </View>
+          ) : null}
+
           <View style={styles.depthRow}>
             <Text style={styles.depthLabel} numberOfLines={1}>
               {measureMode === "photo"
-                ? t.depthLabel
+                ? caps.ai_distance
+                  ? t.depthAutoLabel
+                  : t.depthLabel
                 : measureMode === "tape"
                   ? t.tapeLabel
                   : t.caliperLabel}
@@ -552,11 +649,23 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
             <Text style={styles.depthLabel} numberOfLines={1}>
               {t.heightLabel}
             </Text>
+            <TouchableOpacity
+              testID="clinometer-button"
+              style={styles.clinoBtn}
+              onPress={() => setClinoOpen(true)}
+              accessibilityRole="button"
+              accessibilityLabel={t.clinometer}
+            >
+              <Ruler size={18} color={colors.primary} strokeWidth={2.25} />
+            </TouchableOpacity>
             <TextInput
               testID="height-input"
               style={styles.input}
               value={heightText}
-              onChangeText={setHeightText}
+              onChangeText={(text) => {
+                setHeightText(text);
+                setHeightSource("manual");
+              }}
               keyboardType="numeric"
               placeholder="—"
               placeholderTextColor={colors.textDim}
@@ -632,6 +741,16 @@ export default function CaptureScreen({ onCaptured, onBack }: Props) {
           ) : null}
         </View>
       </KeyboardAvoidingView>
+
+      <Clinometer
+        visible={clinoOpen}
+        onClose={() => setClinoOpen(false)}
+        onDone={(heightM) => {
+          setHeightText(String(heightM));
+          setHeightSource("clinometer");
+          setClinoOpen(false);
+        }}
+      />
     </View>
   );
 }
@@ -782,6 +901,59 @@ const styles = StyleSheet.create({
     height: 2,
     backgroundColor: colors.accent,
     opacity: 0.9,
+  },
+  levelBadge: {
+    marginTop: spacing.xs,
+    fontSize: type.caption,
+    fontWeight: "800",
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: 6,
+    overflow: "hidden",
+  },
+  levelOk: { backgroundColor: colors.success, color: "#FFFFFF" },
+  levelWarn: { backgroundColor: colors.warning, color: "#000000" },
+  qrOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.md,
+  },
+  qrFrame: {
+    width: 220,
+    height: 220,
+    borderWidth: 3,
+    borderColor: colors.accent,
+    borderRadius: 16,
+  },
+  qrCancel: {
+    backgroundColor: "rgba(0,0,0,0.6)",
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: 10,
+  },
+  treeChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    gap: spacing.sm,
+    backgroundColor: colors.accent,
+    borderRadius: 14,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 4,
+  },
+  treeChipText: { color: colors.primary, fontSize: type.caption, fontWeight: "800" },
+  clinoBtn: {
+    width: 40,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: colors.accent,
+    alignItems: "center",
+    justifyContent: "center",
   },
   guideText: {
     marginTop: spacing.xs,

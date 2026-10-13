@@ -352,6 +352,7 @@ export default function App() {
               caliperDbhCm: capture.caliperDbhCm,
               measuredHeightM: capture.measuredHeightM,
               heightSource: capture.heightSource,
+              treeCode: capture.treeCode,
             },
             shots,
           });

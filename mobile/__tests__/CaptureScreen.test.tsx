@@ -2,11 +2,40 @@ import { act, fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
 import { Alert } from "react-native";
 
+const cameraProps: { current: any } = { current: null };
+
+type MotionListener = (data: { rotation: { alpha: number; beta: number; gamma: number } }) => void;
+const motion: { listener: MotionListener | null; all: MotionListener[] } = {
+  listener: null,
+  all: [],
+};
+const emit = (beta: number, gamma = 0) =>
+  act(() => {
+    motion.all.forEach((cb) => cb({ rotation: { alpha: 0, beta, gamma } }));
+  });
+
+jest.mock("expo-sensors", () => ({
+  DeviceMotion: {
+    isAvailableAsync: jest.fn(async () => true),
+    setUpdateInterval: jest.fn(),
+    addListener: jest.fn((cb: MotionListener) => {
+      motion.listener = cb;
+      motion.all.push(cb);
+      return {
+        remove: jest.fn(() => {
+          motion.all = motion.all.filter((l) => l !== cb);
+        }),
+      };
+    }),
+  },
+}));
+
 jest.mock("expo-camera", () => {
   const ReactLib = require("react");
   const { View } = require("react-native");
   return {
     CameraView: ReactLib.forwardRef((props: any, ref: any) => {
+      cameraProps.current = props;
       const [ready, setReady] = ReactLib.useState(false);
       ReactLib.useImperativeHandle(ref, () => ({
         takePictureAsync: async () => ({
@@ -55,7 +84,25 @@ const flush = () =>
 
 beforeEach(() => {
   jest.clearAllMocks();
+  motion.listener = null;
+  motion.all = [];
+  globalThis.fetch = jest.fn(async () => {
+    throw new TypeError("Network request failed");
+  }) as unknown as typeof fetch;
 });
+
+async function captureQuickViews(getByTestId: (id: string) => any) {
+  fireEvent.press(getByTestId("mode-quick"));
+  await flush();
+  for (let i = 0; i < 3; i += 1) {
+    fireEvent.press(getByTestId("capture-button"));
+    await flush();
+    if (i < 2) {
+      fireEvent.press(getByTestId("next-button"));
+      await flush();
+    }
+  }
+}
 
 describe("CaptureScreen", () => {
   it("captures the required quick views and emits shots", async () => {
@@ -238,5 +285,82 @@ describe("CaptureScreen", () => {
     expect(queryByTestId("analyze-button")).toBeTruthy();
     fireEvent.press(getByTestId("retry-gps-button"));
     await waitFor(() => expect(getByText(/Position capturée/)).toBeTruthy());
+  });
+
+  it("links the registry tree from a scanned QR code", async () => {
+    const onCaptured = jest.fn();
+    const { getByTestId, getByText, queryByTestId } = render(
+      <CaptureScreen onCaptured={onCaptured} onBack={jest.fn()} />,
+    );
+    await waitFor(() => expect(getByText(/Position capturée/)).toBeTruthy());
+    fireEvent.press(getByTestId("qr-button"));
+    expect(getByTestId("qr-overlay")).toBeTruthy();
+    expect(cameraProps.current.barcodeScannerSettings.barcodeTypes).toContain("qr");
+    act(() => cameraProps.current.onBarcodeScanned({ data: " GA-DEMO-005 " }));
+    expect(queryByTestId("qr-overlay")).toBeNull();
+    expect(getByText("Arbre lié : GA-DEMO-005")).toBeTruthy();
+
+    await captureQuickViews(getByTestId);
+    fireEvent.changeText(getByTestId("depth-input"), "2");
+    fireEvent.press(getByTestId("analyze-button"));
+    await flush();
+    expect(onCaptured.mock.calls[0][0].treeCode).toBe("GA-DEMO-005");
+
+    fireEvent.press(getByTestId("tree-unlink"));
+    expect(queryByTestId("tree-chip")).toBeNull();
+  });
+
+  it("lets the server estimate the distance when the AI is available", async () => {
+    globalThis.fetch = jest.fn(async () => ({
+      ok: true,
+      json: async () => ({ ai_segmentation: true, ai_distance: true }),
+    })) as unknown as typeof fetch;
+    const onCaptured = jest.fn();
+    const { getByTestId, getByText } = render(
+      <CaptureScreen onCaptured={onCaptured} onBack={jest.fn()} />,
+    );
+    await waitFor(() => expect(getByText(/Position capturée/)).toBeTruthy());
+    await waitFor(() => expect(getByText(/vide = estimée par IA/)).toBeTruthy());
+    await captureQuickViews(getByTestId);
+    fireEvent.press(getByTestId("analyze-button"));
+    await flush();
+    expect(onCaptured).toHaveBeenCalledTimes(1);
+    expect(onCaptured.mock.calls[0][0].arDepthM).toBeUndefined();
+  });
+
+  it("shows a live level on the DBH step and records a clinometer height", async () => {
+    const onCaptured = jest.fn();
+    const { getByTestId, getByText } = render(
+      <CaptureScreen onCaptured={onCaptured} onBack={jest.fn()} />,
+    );
+    await waitFor(() => expect(getByText(/Position capturée/)).toBeTruthy());
+    await captureQuickViews(getByTestId);
+    fireEvent.press(getByTestId("next-button"));
+    await flush();
+    expect(getByTestId("dbh-guide")).toBeTruthy();
+    await waitFor(() => expect(motion.listener).not.toBeNull());
+    emit(Math.PI / 2, 0.15);
+    expect(getByTestId("level-indicator").props.children).toMatch(/Redressez/);
+    emit(Math.PI / 2, 0);
+    expect(getByTestId("level-indicator").props.children).toBe("Téléphone droit ✓");
+
+    const before = motion.all.length;
+    fireEvent.press(getByTestId("clinometer-button"));
+    await waitFor(() => expect(motion.all.length).toBeGreaterThan(before));
+    fireEvent.changeText(getByTestId("clino-distance"), "20");
+    fireEvent.press(getByTestId("clino-start"));
+    emit(Math.PI / 2 + (55 * Math.PI) / 180);
+    fireEvent.press(getByTestId("clino-capture"));
+    emit(Math.PI / 2 - (5 * Math.PI) / 180);
+    fireEvent.press(getByTestId("clino-capture"));
+    fireEvent.press(getByTestId("clino-use"));
+    expect(getByTestId("height-input").props.value).toBe("30.3");
+
+    fireEvent.changeText(getByTestId("depth-input"), "2");
+    fireEvent.press(getByTestId("analyze-button"));
+    await flush();
+    const result = onCaptured.mock.calls[0][0];
+    expect(result.measuredHeightM).toBeCloseTo(30.3);
+    expect(result.heightSource).toBe("clinometer");
   });
 });
