@@ -74,8 +74,8 @@ doc update — as separate logical commits. The full history lives in
 | 17 | Carte fluide (emprise + zoom, recherche, fiches), contrôles parc/concession à la déclaration, plaques par déclaration, capteur LiDAR/ARCore natif | — | `/api/map/layers?zoom&bbox`, `/api/map/search`, `/api/map/feature`, `/api/felling/declarations/{id}/plates.pdf` | `MapScreen`, `CompanyScreen`, `CaptureScreen`, `modules/depth-sensor` | pt 17 |
 | 18 | DBH par bords confirmés par l'opérateur, calcul hors-ligne sur le téléphone ; IA lourde désactivée par défaut | `023_slice18.sql` | `/api/v1/process-scan` (`edge_left`, `edge_right`) | `EdgeAdjuster`, `utils/dbh.ts`, `CaptureScreen` | pt 18 |
 
-Latest verified suite counts (Slice 18): **`pytest` 436 passed** ·
-**`jest` 146 passed / 41 suites** · `ruff` and `tsc` clean.
+Latest verified suite counts (Slice 18 + design pass): **`pytest` 436 passed** ·
+**`jest` 164 passed / 44 suites** · `ruff` and `tsc` clean.
 
 ### What is left (next candidates)
 
@@ -222,6 +222,12 @@ Get-Content db/migrations/0NN_sliceNN.sql | docker exec -i forestry_postgres psq
   guide only and is never sent). Distance otherwise comes from the depth sensor
   (auto at the DBH shot) or a one-tap preset; tape/caliper is a secondary option.
   Edges are sent only after the operator taps « Valider le diamètre ».
+  The DBH step explains 1,30 m (« Pourquoi 1,30 m ? »); zoom only on leaf /
+  flower / fruit (DBH views keep their geometry); Android back is handled.
+  Imported photos show their EXIF position/date (`utils/exif.ts`) and are
+  flagged beyond 100 m / 24 h / no GPS — phone-side warning only, not sent to
+  the server yet (roadmap §10 open point 18). The Groq narrative is labelled
+  as AI-written and indicative in the report.
 
 ## 6. CI, push, verification
 
