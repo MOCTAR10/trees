@@ -2,6 +2,7 @@ import React from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { V1Report } from "../api/client";
+import ForestChecksCard from "../components/ForestChecksCard";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
 
@@ -80,7 +81,11 @@ export default function ReportScreen({
           <Row
             label={t.distance}
             value={`${report.distance_m.toFixed(2)} m (${
-              report.distance_source === "ai" ? t.distanceAi : t.distanceTyped
+              report.distance_source === "ai"
+                ? t.distanceAi
+                : report.distance_source === "qr"
+                  ? t.distanceQr
+                  : t.distanceTyped
             })`}
           />
         ) : null}
@@ -113,6 +118,23 @@ export default function ReportScreen({
           </View>
         ) : null}
       </View>
+
+      {report.species_candidates && report.species_candidates.length > 1 ? (
+        <View style={styles.card} testID="species-candidates">
+          <Text style={styles.cardTitle}>{t.candidates}</Text>
+          {report.species_candidates.slice(1).map((c) => (
+            <Row
+              key={c.scientific_name}
+              label={`${c.scientific_name}${c.common_name_fr ? ` (${c.common_name_fr})` : ""}`}
+              value={`${(c.combined * 100).toFixed(0)} %`}
+            />
+          ))}
+        </View>
+      ) : null}
+
+      {report.forest_checks ? (
+        <ForestChecksCard checks={report.forest_checks} title={t.forestCheck} />
+      ) : null}
 
       {report.co2e_kg != null ? (
         <View style={styles.card} testID="carbon-card">

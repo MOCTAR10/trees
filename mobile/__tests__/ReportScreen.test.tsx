@@ -41,6 +41,28 @@ describe("ReportScreen measurement & carbon", () => {
     expect(getByText("5.42 t CO₂e")).toBeTruthy();
   });
 
+  it("shows the QR-plate distance, other species and the GFW check", () => {
+    const { getByText, getByTestId } = render(
+      <ReportScreen
+        report={{
+          ...base,
+          distance_m: 2.01,
+          distance_source: "qr",
+          species_candidates: [
+            { scientific_name: "Aucoumea klaineana", common_name_fr: "Okoumé", score: 0.6, combined: 0.72, prior: "essence_gabon", local_occurrences: 40 },
+            { scientific_name: "Canarium schweinfurthii", common_name_fr: "Aiélé", score: 0.2, combined: 0.19, prior: "presente_gabon", local_occurrences: 3 },
+          ],
+          forest_checks: { verdict: "conforme", flags: [], loss_years: [], radd_alerts: 0 },
+        }}
+        onValorize={null}
+      />,
+    );
+    expect(getByText("2.01 m (mesurée par la plaque QR)")).toBeTruthy();
+    expect(getByTestId("species-candidates")).toBeTruthy();
+    expect(getByText("Canarium schweinfurthii (Aiélé)")).toBeTruthy();
+    expect(getByText("Conforme (aucun signal)")).toBeTruthy();
+  });
+
   it("explains how to get a diameter when none was measured", () => {
     const { getByText, queryByTestId } = render(
       <ReportScreen

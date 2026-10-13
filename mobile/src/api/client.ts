@@ -136,8 +136,18 @@ export interface V1Report {
   carbon_stock_kg?: number | null;
   co2e_kg?: number | null;
   distance_m?: number | null;
-  distance_source?: "typed" | "ai" | null;
+  distance_source?: "qr" | "typed" | "ai" | null;
   tree_code?: string | null;
+  species_candidates?: {
+    scientific_name: string;
+    common_name_fr: string | null;
+    score: number;
+    combined: number;
+    prior: string;
+    local_occurrences: number | null;
+  }[];
+  species_flora?: string | null;
+  forest_checks?: ForestChecks | null;
 }
 
 export interface ResidueChannel {
@@ -807,6 +817,79 @@ export interface MyTree {
   latitude: number | null;
   longitude: number | null;
   created_at: string;
+  co2e_kg?: number | null;
+  tree_code?: string | null;
+  eudr_verdict?: EudrVerdict | null;
+}
+
+export type EudrVerdict = "conforme" | "a_verifier" | "risque_deforestation" | "indisponible";
+
+export interface ForestChecks {
+  source?: string;
+  verdict: EudrVerdict;
+  flags: string[];
+  unavailable?: string[];
+  loss_years?: number[] | null;
+  radd_alerts?: number | null;
+  radd_latest?: string | null;
+  natural_forest_2020?: boolean | null;
+  mapped_agb_mg_ha?: number | null;
+  protected_area?: string | null;
+  logging_concession?: string | null;
+  local_layers?: { layer: string; name: string | null }[];
+}
+
+export interface MapTileLayer {
+  key: string;
+  label: string;
+  url: string;
+  source: string;
+}
+
+export interface GeoFeature {
+  type: "Feature";
+  geometry: { type: string; coordinates: unknown };
+  properties: Record<string, unknown>;
+}
+
+export interface MapLayers {
+  labels: Record<string, string>;
+  layers: Record<string, { type: "FeatureCollection"; features: GeoFeature[] }>;
+}
+
+export interface NationalContext {
+  country: string;
+  source: string;
+  highlights: { key: string; label: string; value: number | null; unit: string }[];
+  emissions_by_year: { year: number; co2e_mg: number | null }[];
+  emissions_latest_year: number | null;
+  emissions_by_driver: {
+    driver: string;
+    label: string;
+    latest_co2e_mg: number;
+    latest_share: number | null;
+  }[];
+  provinces: { code: string; name: string; tree_cover_2000_ha?: number | null }[];
+}
+
+async function getJson<T>(path: string): Promise<T> {
+  const resp = await timedFetch(`${API_BASE}${path}`, { headers: headers() });
+  if (!resp.ok) throw new Error(`${path} ${resp.status}`);
+  return resp.json();
+}
+
+export const getMapTiles = () => getJson<MapTileLayer[]>("/api/map/tiles");
+export const getMapLayers = () => getJson<MapLayers>("/api/map/layers");
+export const getNationalContext = () => getJson<NationalContext>("/api/map/context");
+
+/** GFW checks at a point; `null` when GFW is not configured on the server. */
+export async function checkMapPoint(lat: number, lon: number): Promise<ForestChecks | null> {
+  const resp = await timedFetch(`${API_BASE}/api/map/point-check?lat=${lat}&lon=${lon}`, {
+    headers: headers(),
+  });
+  if (resp.status === 503) return null;
+  if (!resp.ok) throw new Error(`point-check ${resp.status}`);
+  return resp.json();
 }
 
 export async function listMyTrees(limit = 200): Promise<MyTree[]> {
