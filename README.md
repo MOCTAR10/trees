@@ -102,6 +102,7 @@ rows):
 ```powershell
 docker exec -it forestry_fastapi python -m tools.seed_demo
 # company login: company.demo@forestry.local / Demo12345
+# field agent  : agent.demo@forestry.local / Demo12345 (Nzé Obiang, invited to the demo chantier)
 ```
 
 Sign in through `POST /api/auth/login` to receive a JWT; send it as

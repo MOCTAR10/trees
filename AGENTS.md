@@ -44,14 +44,14 @@ only (`mobile/src/i18n/fr.ts`). There is **no navigation library**: `App.tsx`
 routes with a `phase` state machine plus role checks; screens are mounted from
 per-role containers (`CompanyScreen`, `AdminScreen`, …) that expose tabs.
 
-## 2. Where we are (as of Slice 18)
+## 2. Where we are (as of Slice 19)
 
 The product is built as **vertical slices**: each slice ships a DB migration, the
 backend, optionally an operational CLI under `tools/`, the mobile UI, and the
 doc update — as separate logical commits. The full history lives in
 `docs/GABON_WORKFLOW_ANALYSIS.md` **§9**.
 
-**Slices 1–17 are DONE, committed on `main`, and pushed (CI green). Slice 18 is implemented and verified locally.** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
+**Slices 1–18 are DONE, committed on `main`, and pushed (CI green). Slice 19 is implemented and verified locally.** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
 
 | # | Domaine | Migration | Backend | Mobile | Docs §9 |
 | --- | --- | --- | --- | --- | --- |
@@ -73,9 +73,10 @@ doc update — as separate logical commits. The full history lives in
 | 16 | Espèce (flore régionale + re-classement Gabon), plaque QR « règle », contrôles GFW, Carte 2.0 | `022_slice16.sql` | `/api/map/*`, `tools.gfw_api_key`, `tools.import_gfw_layers`, `tools.import_gabon_context`, `tools.print_qr_plates` | `MapScreen`, `ForestChecksCard`, `ReportScreen` | pt 16 |
 | 17 | Carte fluide (emprise + zoom, recherche, fiches), contrôles parc/concession à la déclaration, plaques par déclaration, capteur LiDAR/ARCore natif | — | `/api/map/layers?zoom&bbox`, `/api/map/search`, `/api/map/feature`, `/api/felling/declarations/{id}/plates.pdf` | `MapScreen`, `CompanyScreen`, `CaptureScreen`, `modules/depth-sensor` | pt 17 |
 | 18 | DBH par bords confirmés par l'opérateur, calcul hors-ligne sur le téléphone ; IA lourde désactivée par défaut | `023_slice18.sql` | `/api/v1/process-scan` (`edge_left`, `edge_right`) | `EdgeAdjuster`, `utils/dbh.ts`, `CaptureScreen` | pt 18 |
+| 19 | Accueil agent (prénom, activité, groupe), chantiers d'AAC et projets participatifs, scan libre ou pour un projet | `024_slice19.sql` | `/api/home/summary`, `/api/home/me`, `/api/projects` (join/accept/decline/invite/aac-options, `/{id}/chantier`), `/api/v1/process-scan` (`project_id`) | `HomeScreen`, `ChantierScreen`, `ProfileScreen`, `CaptureScreen`, `CreateProjectScreen`, `ProjectDetailScreen`, `AdminUsers`, `RoleHeader` (badge en ligne) | pt 19 |
 
-Latest verified suite counts (Slice 18 + design pass): **`pytest` 436 passed** ·
-**`jest` 159 passed / 43 suites** · `ruff` and `tsc` clean.
+Latest verified suite counts (Slice 19): **`pytest` 451 passed** (+ the AI-capabilities
+test, which needs ≥ 3 GB for Docker) · **`jest` 172 passed / 46 suites** · `ruff` and `tsc` clean.
 
 ### What is left (next candidates)
 
@@ -112,7 +113,8 @@ slice unprompted.
   The API source is bind-mounted with `--reload`, so new endpoints are live once
   saved; the DB is at host port **5433**.
 - Demo data: `docker exec forestry_fastapi python -m tools.seed_demo` (idempotent;
-  company login `company.demo@forestry.local` / `Demo12345`; admin from `.env`,
+  company login `company.demo@forestry.local` / `Demo12345`; field agent
+  `agent.demo@forestry.local` / `Demo12345` (Nzé Obiang, invited to the demo chantier); admin from `.env`,
   `admin@forestry.local` / `Admin12345`).
 - Slice 13 was applied live: the two legacy accounts (`company@forestry.local`,
   `coop@forestry.local`) are now linked to organizations 12 (`entreprise`,
