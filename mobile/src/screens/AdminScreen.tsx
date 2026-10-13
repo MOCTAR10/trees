@@ -12,15 +12,15 @@ import {
 import {
   adminStats,
   AdminStats,
-  AnomalyLine,
   AuthUser,
   decideDeclaration,
   Declaration,
   DeclarationLine,
   getDeclaration,
-  listAnomalies,
   listDeclarations,
 } from "../api/client";
+import AdminAnomalies from "../components/AdminAnomalies";
+import AdminDashboard from "../components/AdminDashboard";
 import AdminUsers from "../components/AdminUsers";
 import AdminDocuments from "../components/AdminDocuments";
 import AdminTitles from "../components/AdminTitles";
@@ -38,7 +38,17 @@ interface Props {
   showHeader?: boolean;
 }
 
-type Tab = "stats" | "users" | "declarations" | "anomalies" | "documents" | "titres" | "tracabilite" | "fiscal" | "cert";
+type Tab =
+  | "stats"
+  | "tableau"
+  | "users"
+  | "declarations"
+  | "anomalies"
+  | "documents"
+  | "titres"
+  | "tracabilite"
+  | "fiscal"
+  | "cert";
 
 export default function AdminScreen({ user, onLogout, showHeader = true }: Props) {
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -52,12 +62,6 @@ export default function AdminScreen({ user, onLogout, showHeader = true }: Props
   const [lines, setLines] = useState<Record<number, DeclarationLine[]>>({});
   const [motif, setMotif] = useState("");
   const [deciding, setDeciding] = useState(false);
-
-  const [anomalies, setAnomalies] = useState<{
-    below_dme_authorized: AnomalyLine[];
-    felled_without_authorization: AnomalyLine[];
-  } | null>(null);
-  const [anomLoading, setAnomLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -83,25 +87,13 @@ export default function AdminScreen({ user, onLogout, showHeader = true }: Props
     }
   }, []);
 
-  const loadAnomalies = useCallback(async () => {
-    setAnomLoading(true);
-    try {
-      setAnomalies(await listAnomalies());
-    } catch (err) {
-      console.error("anomalies load failed", err);
-    } finally {
-      setAnomLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     load();
   }, [load]);
 
   useEffect(() => {
     if (tab === "declarations") void loadDeclarations();
-    if (tab === "anomalies") void loadAnomalies();
-  }, [tab, loadDeclarations, loadAnomalies]);
+  }, [tab, loadDeclarations]);
 
   const toggle = async (id: number) => {
     if (expanded === id) {
@@ -149,9 +141,10 @@ export default function AdminScreen({ user, onLogout, showHeader = true }: Props
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "stats", label: fr.admin.tabStats },
+    { key: "tableau", label: fr.admin.tabDashboard },
     { key: "users", label: fr.admin.tabUsers },
     { key: "declarations", label: fr.felling.tabDeclarations },
-    { key: "anomalies", label: fr.felling.tabAnomalies },
+    { key: "anomalies", label: fr.anomaly.tab },
     { key: "documents", label: fr.docs.tab },
     { key: "titres", label: fr.titles.tab },
     { key: "tracabilite", label: fr.traceability.tab },
@@ -266,36 +259,9 @@ export default function AdminScreen({ user, onLogout, showHeader = true }: Props
           </ScrollView>
         )
       ) : tab === "anomalies" ? (
-        anomLoading || !anomalies ? (
-          <ActivityIndicator style={styles.center} color={colors.accent} />
-        ) : (
-          <ScrollView contentContainerStyle={styles.list}>
-            <Text style={styles.section}>{fr.felling.belowDmeTitle}</Text>
-            {anomalies.below_dme_authorized.length === 0 ? (
-              <Text style={styles.dim}>{fr.felling.noAnomalies}</Text>
-            ) : (
-              anomalies.below_dme_authorized.map((a, i) => (
-                <View key={`${a.tree_code}-${i}`} style={styles.card}>
-                  <Text style={styles.code}>{a.tree_code}</Text>
-                  <Text style={styles.meta}>
-                    {a.species_scientific_name ?? "—"} · {a.measured_dbh_cm ?? "—"} cm
-                    (DME {a.dme_cm ?? "—"})
-                  </Text>
-                </View>
-              ))
-            )}
-            <Text style={styles.section}>{fr.felling.wildTitle}</Text>
-            {anomalies.felled_without_authorization.length === 0 ? (
-              <Text style={styles.dim}>{fr.felling.noAnomalies}</Text>
-            ) : (
-              anomalies.felled_without_authorization.map((a, i) => (
-                <View key={`${a.tree_code}-${i}`} style={[styles.card, styles.dangerCard]}>
-                  <Text style={styles.code}>{a.tree_code}</Text>
-                </View>
-              ))
-            )}
-          </ScrollView>
-        )
+        <AdminAnomalies />
+      ) : tab === "tableau" ? (
+        <AdminDashboard />
       ) : loading ? (
         <ActivityIndicator style={styles.center} color={colors.accent} />
       ) : error ? (

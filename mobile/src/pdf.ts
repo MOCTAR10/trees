@@ -92,6 +92,16 @@ export async function exportCertificationPdf(id: number): Promise<string> {
   return getPdfToCache(`/api/certifications/${id}/pdf`, `certification_${id}.pdf`);
 }
 
+/** Ministry anomaly register PDF. */
+export async function exportAnomaliesPdf(): Promise<string> {
+  return getPdfToCache("/api/anomalies/pdf", `anomalies_${Date.now()}.pdf`);
+}
+
+/** Ministry dashboard rollup PDF. */
+export async function exportDashboardPdf(): Promise<string> {
+  return getPdfToCache("/api/dashboard/pdf", `tableau_de_bord_${Date.now()}.pdf`);
+}
+
 export async function sharePdf(uri: string): Promise<void> {
   if (await Sharing.isAvailableAsync()) {
     await Sharing.shareAsync(uri, {

@@ -1852,3 +1852,152 @@ export async function certificationSummary(): Promise<CertificationSummary> {
   if (!resp.ok) throw new Error(`Summary ${resp.status}`);
   return resp.json();
 }
+
+export type AnomalyType =
+  | "below_dme"
+  | "felled_without_authorization"
+  | "abattage_hors_aac"
+  | "espece_reservee"
+  | "aac_fermee"
+  | "documents_expires"
+  | "taxes_impayees"
+  | "cites_sans_permis"
+  | "transport_sans_bordereau";
+export type AnomalySeverity = "hard" | "warning";
+export type AnomalyReviewStatus = "ouverte" | "traitee" | "ecartee";
+
+export interface AdminAnomaly {
+  type: AnomalyType;
+  severity: AnomalySeverity;
+  label: string;
+  subject_key: string;
+  subject: string;
+  detail: string;
+  org_id: number | null;
+  org_name: string | null;
+  title_id: number | null;
+  title_ref: string | null;
+  aac_id: number | null;
+  aac_label: string | null;
+  detected_at: string | null;
+  review_status: AnomalyReviewStatus;
+  review_motif: string | null;
+}
+
+export interface AnomalyTypeSummary {
+  type: AnomalyType;
+  label: string;
+  severity: AnomalySeverity;
+  count: number;
+  ouvertes: number;
+}
+
+export interface AnomalySummary {
+  total: number;
+  hard: number;
+  warning: number;
+  ouvertes: number;
+  by_type: AnomalyTypeSummary[];
+}
+
+/** Ministry anomaly register (extended sweep), optionally filtered. */
+export async function listAdminAnomalies(
+  params: {
+    type?: AnomalyType;
+    severity?: AnomalySeverity;
+    review?: AnomalyReviewStatus | "all";
+  } = {},
+): Promise<AdminAnomaly[]> {
+  const query = new URLSearchParams();
+  if (params.type) query.set("type", params.type);
+  if (params.severity) query.set("severity", params.severity);
+  if (params.review) query.set("review", params.review);
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  const resp = await timedFetch(`${API_BASE}/api/anomalies${suffix}`, { headers: headers() });
+  if (!resp.ok) throw new Error(`Anomalies ${resp.status}`);
+  return resp.json();
+}
+
+export async function anomalySummary(): Promise<AnomalySummary> {
+  const resp = await timedFetch(`${API_BASE}/api/anomalies/summary`, { headers: headers() });
+  if (!resp.ok) throw new Error(`Anomaly summary ${resp.status}`);
+  return resp.json();
+}
+
+/** Record the Ministry decision for one detected anomaly. */
+export async function reviewAnomaly(input: {
+  anomaly_type: AnomalyType;
+  subject_key: string;
+  status: AnomalyReviewStatus;
+  decision_motif?: string | null;
+  title_id?: number | null;
+  aac_id?: number | null;
+  org_id?: number | null;
+}): Promise<{
+  anomaly_type: AnomalyType;
+  subject_key: string;
+  status: AnomalyReviewStatus;
+  decision_motif: string | null;
+}> {
+  const resp = await timedFetch(`${API_BASE}/api/anomalies/review`, {
+    method: "POST",
+    headers: headers(true),
+    body: JSON.stringify(input),
+  });
+  if (!resp.ok) throw new Error(`Anomaly review ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
+export interface StatusRollup {
+  status: string;
+  count: number;
+  surface_ha?: number;
+  possibility_m3?: number;
+}
+
+export interface DashboardOverview {
+  generated_at: string;
+  harvest: {
+    registry_stems: number;
+    stems_felled: number;
+    estimated_volume_m3: number;
+    by_species: { species: string; stems: number; volume_m3: number }[];
+    by_status: Record<string, number>;
+    transformation_rate: number;
+  };
+  titles: { total: number; by_status: Record<string, StatusRollup>; surface_ha: number };
+  aac: { total: number; by_status: Record<string, StatusRollup>; possibility_m3: number };
+  documents: {
+    total: number;
+    by_status: Record<string, StatusRollup>;
+    expired: number;
+    expiring_soon: number;
+  };
+  taxes: {
+    dues_total: number;
+    overdue: number;
+    settled: number;
+    overdue_amount_fcfa: number;
+    receipts: number;
+    receipts_amount_fcfa: number;
+  };
+  community: {
+    agreements: number;
+    active: number;
+    contribution_fcfa: number;
+    annual_volume_m3: number;
+    avg_fdl_rate: number;
+  };
+  transport: { documents: number; volume_m3: number };
+  certifications: {
+    total: number;
+    by_status: Record<string, StatusRollup>;
+    by_scheme: { scheme: string; count: number; surface_ha: number }[];
+  };
+}
+
+export async function dashboardOverview(): Promise<DashboardOverview> {
+  const resp = await timedFetch(`${API_BASE}/api/dashboard`, { headers: headers() });
+  if (!resp.ok) throw new Error(`Dashboard ${resp.status}`);
+  return resp.json();
+}
