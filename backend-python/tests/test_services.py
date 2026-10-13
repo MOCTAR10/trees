@@ -41,6 +41,31 @@ async def test_plantnet_identify_parses_best_match(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_plantnet_species_not_found_is_empty_result(monkeypatch):
+    monkeypatch.setenv("PLANTNET_API_KEY", "test-key")
+    with respx.mock:
+        respx.post("https://my-api.plantnet.org/v2/identify/all").mock(
+            return_value=httpx.Response(404, json={"message": "Species not found"})
+        )
+        result = await plantnet.identify(images=[b"fake"], organs=["bark"])
+    assert result.scientific_name is None
+    assert result.score is None
+
+
+@pytest.mark.asyncio
+async def test_plantnet_error_never_leaks_api_key(monkeypatch):
+    monkeypatch.setenv("PLANTNET_API_KEY", "secret-key-123")
+    with respx.mock:
+        respx.post("https://my-api.plantnet.org/v2/identify/all").mock(
+            return_value=httpx.Response(401)
+        )
+        with pytest.raises(RuntimeError) as excinfo:
+            await plantnet.identify(images=[b"fake"], organs=["bark"])
+    assert "secret-key-123" not in str(excinfo.value)
+    assert "401" in str(excinfo.value)
+
+
+@pytest.mark.asyncio
 async def test_plantnet_rejects_wrong_image_count():
     with pytest.raises(ValueError):
         await plantnet.identify(images=[], organs=[])

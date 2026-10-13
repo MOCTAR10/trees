@@ -55,5 +55,10 @@ async def identify(
         parts.append(("images", (f"view_{i}.jpg", img, "image/jpeg")))
         parts.append(("organs", (None, organ)))
     resp = await http.request("POST", url, params=params, files=parts, timeout=30.0)
-    resp.raise_for_status()
+    if resp.status_code == 404:
+        # Pl@ntNet answers 404 "Species not found" when nothing matches.
+        return PlantNetResult({})
+    if resp.is_error:
+        # Never surface the request URL: it carries the API key.
+        raise RuntimeError(f"Pl@ntNet HTTP {resp.status_code}")
     return PlantNetResult(resp.json())
