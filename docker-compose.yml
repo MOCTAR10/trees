@@ -28,6 +28,7 @@ services:
       - ./db/migrations/016_slice10.sql:/docker-entrypoint-initdb.d/16_slice10.sql:ro
       - ./db/migrations/017_slice11.sql:/docker-entrypoint-initdb.d/17_slice11.sql:ro
       - ./db/migrations/018_slice12.sql:/docker-entrypoint-initdb.d/18_slice12.sql:ro
+      - ./db/migrations/019_slice13.sql:/docker-entrypoint-initdb.d/19_slice13.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-forestry} -d ${POSTGRES_DB:-forestry}"]
       interval: 5s
