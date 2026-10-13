@@ -218,6 +218,36 @@ def test_render_certification_pdf():
     _assert_pdf(pdf_report.render_certification_pdf({}))
 
 
+def test_render_convention_pdf():
+    doc = {
+        "id": 501,
+        "title_id": 30,
+        "title_ref": "T-1",
+        "convention_type": "definitive",
+        "reference": "CONV-DEF-01",
+        "signed_at": "2026-01-10",
+        "start_date": "2026-01-10",
+        "end_date": "2041-01-10",
+        "surface_ha": 60000.0,
+        "status": "active",
+        "attestation_ref": "ATT-2026-01",
+        "attestation_issued_at": "2026-06-01",
+        "decision_motif": None,
+    }
+    _assert_pdf(pdf_report.render_convention_pdf(doc, org_name="Bois SA"))
+    _assert_pdf(
+        pdf_report.render_convention_pdf(
+            {
+                **doc,
+                "convention_type": "provisoire",
+                "attestation_ref": None,
+                "attestation_issued_at": None,
+            }
+        )
+    )
+    _assert_pdf(pdf_report.render_convention_pdf({}))
+
+
 def test_renders_with_missing_fields():
     # None / empty values must not raise
     _assert_pdf(pdf_report.render_measurement_pdf({}))

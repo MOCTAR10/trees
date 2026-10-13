@@ -433,6 +433,15 @@ AUTHORIZATION_STATUS_LABEL = {
     "delivre": "Délivré",
     "rejete": "Rejeté",
 }
+CONVENTION_TYPE_LABEL = {
+    "provisoire": "Convention provisoire",
+    "definitive": "Convention définitive",
+}
+CONVENTION_STATUS_LABEL = {
+    "active": "En vigueur",
+    "expiree": "Expirée",
+    "resiliee": "Résiliée",
+}
 CERT_TYPE_LABEL = {
     "gestion_durable": "Gestion durable",
     "legalite_plus": "Légalité plus",
@@ -873,6 +882,87 @@ def render_certification_pdf(doc: dict, org_name: str | None = None) -> bytes:
         ),
     ]
     return _build(story, "Certification")
+
+
+def render_convention_pdf(doc: dict, org_name: str | None = None) -> bytes:
+    """Convention provisoire / définitive + attestation de conformité -> PDF.
+
+    Materialises the legal instrument that confers the right to harvest a
+    forest title (Loi 016/01): the convention provisoire signed after the
+    CPAET, the convention définitive (~15 ans) that turns a title 'actif',
+    and the attestation de conformité the administration issues on
+    satisfactory completion.
+    """
+    doc = doc or {}
+    title_ref = doc.get("title_ref") or (f"#{doc.get('title_id')}" if doc.get("title_id") else None)
+    validity = (
+        " → ".join(
+            p for p in (_fmt_date(doc.get("start_date")), _fmt_date(doc.get("end_date"))) if p
+        )
+        or "—"
+    )
+    if doc.get("attestation_ref"):
+        issued = _fmt_date(doc.get("attestation_issued_at"))
+        attestation = doc["attestation_ref"] + (f" — {issued}" if issued else "")
+    else:
+        attestation = "Non délivrée"
+
+    story: list = [
+        Paragraph(
+            _safe(CONVENTION_TYPE_LABEL.get(doc.get("convention_type"), "Convention")),
+            S_TITLE,
+        ),
+        Paragraph(_safe(TAGLINE), S_SUB),
+        Spacer(1, 6 * mm),
+        _kv_table(
+            [
+                ("Opérateur", org_name or doc.get("org_name") or "—"),
+                ("Titre", title_ref),
+                (
+                    "Type",
+                    CONVENTION_TYPE_LABEL.get(
+                        doc.get("convention_type"), doc.get("convention_type")
+                    ),
+                ),
+                ("Référence", doc.get("reference") or "—"),
+                ("Signature", _fmt_date(doc.get("signed_at")) or "—"),
+                ("Période", validity),
+                (
+                    "Surface",
+                    f"{_fr_num(doc.get('surface_ha'))} ha" if doc.get("surface_ha") else "—",
+                ),
+                ("Statut", CONVENTION_STATUS_LABEL.get(doc.get("status"), doc.get("status"))),
+                ("Attestation de conformité", attestation),
+            ]
+        ),
+    ]
+
+    if doc.get("decision_motif"):
+        story += [
+            Spacer(1, 4 * mm),
+            Paragraph("Décision de l'administration", S_H2),
+            Paragraph(_safe(doc["decision_motif"]), S_BODY),
+        ]
+
+    story += [
+        Spacer(1, 5 * mm),
+        KeepTogether(
+            [
+                Paragraph("Base légale", S_H2),
+                Paragraph(
+                    _safe(
+                        "L'attribution d'un titre d'exploitation forestière donne lieu à une "
+                        "convention provisoire puis, à l'issue de la période probatoire, à une "
+                        "convention définitive (Code forestier gabonais, Loi 016/01). L'attestation "
+                        "de conformité est délivrée par l'administration lorsque les obligations de "
+                        "la convention sont remplies."
+                    ),
+                    S_SMALL,
+                ),
+            ]
+        ),
+    ]
+    return _build(story, "Convention forestière")
 
 
 SEVERITY_LABEL = {"hard": "Bloquant", "warning": "Avertissement"}

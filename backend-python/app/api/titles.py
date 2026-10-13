@@ -89,6 +89,49 @@ class UfaDmeIn(BaseModel):
     entries: list[DmeEntryIn] = Field(..., min_length=1, max_length=500)
 
 
+class ConventionIn(BaseModel):
+    convention_type: Literal["provisoire", "definitive"]
+    reference: str = Field(..., min_length=1)
+    signed_at: date | None = None
+    start_date: date | None = None
+    end_date: date | None = None
+    surface_ha: float | None = Field(None, gt=0)
+    motif: str | None = None
+
+
+class ConventionDecisionIn(BaseModel):
+    status: Literal["active", "expiree", "resiliee"]
+    motif: str | None = None
+
+
+class AttestationIn(BaseModel):
+    reference: str = Field(..., min_length=1)
+    issued_at: date | None = None
+
+
+#: Rank of each title status, used to *promote* a title when a convention is
+#: signed without ever resurrecting a retired/expired/rejected one.
+_TITLE_RANK = {
+    "demande": 0,
+    "exploration": 1,
+    "provisoire": 2,
+    "actif": 3,
+    "expire": 3,
+    "retire": 3,
+    "rejete": 3,
+}
+_CONVENTION_TARGET = {"provisoire": "provisoire", "definitive": "actif"}
+
+_CONVENTION_SELECT = (
+    "SELECT c.id, c.title_id, c.convention_type, c.reference, c.signed_at, c.start_date,"
+    " c.end_date, c.surface_ha, c.status, c.attestation_ref, c.attestation_issued_at,"
+    " c.attestation_issued_by, c.decision_motif, c.decided_by, c.decided_at, c.created_at,"
+    " t.title_type, t.reference AS title_ref, t.holder_org_id, o.name AS org_name"
+    " FROM title_conventions c"
+    " JOIN forest_titles t ON t.id = c.title_id"
+    " LEFT JOIN organizations o ON o.id = t.holder_org_id"
+)
+
 _AUTH_SELECT = (
     "SELECT aa.id, aa.aac_id, aa.authorization_type, aa.reference, aa.issued_by,"
     " aa.issued_at, aa.valid_from, aa.valid_to, aa.startup_notified_at,"
@@ -563,4 +606,186 @@ async def authorization_pdf(
         raise HTTPException(status_code=403, detail="Autorisation d'une autre organisation")
     data = current[1]
     pdf = pdf_report.render_authorization_pdf(data, data.get("org_name"))
+    return Response(content=pdf, media_type="application/pdf")
+
+
+# ───────────────── Conventions & attestation de conformité ─────────────────
+# The legal instruments that confer the right to harvest (Loi 016/01): the
+# convention provisoire signed after the CPAET and the convention définitive
+# (~15 ans) that turns a title 'actif'. The Ministry also issues the
+# attestation de conformité on satisfactory completion. Shared by the company
+# (read + PDF) and the Ministry (record / close / attest).
+
+
+async def _owner_of_convention(title_id: int, convention_id: int) -> dict | None:
+    row = await db.fetch_one(
+        f"{_CONVENTION_SELECT} WHERE c.id = $1 AND c.title_id = $2",
+        convention_id,
+        title_id,
+    )
+    return dict(row) if row else None
+
+
+@router.get("/{title_id}/conventions")
+async def list_conventions(
+    title_id: int,
+    user: dict = Depends(require_roles("company", "admin")),
+):
+    title = await db.fetch_one(
+        "SELECT id, holder_org_id FROM forest_titles WHERE id = $1", title_id
+    )
+    if title is None:
+        raise HTTPException(status_code=404, detail="Titre introuvable")
+    if user["role"] == "company" and title["holder_org_id"] != require_org(user):
+        raise HTTPException(status_code=403, detail="Titre d'une autre organisation")
+    rows = await db.fetch_all(
+        f"{_CONVENTION_SELECT} WHERE c.title_id = $1 ORDER BY c.created_at DESC",
+        title_id,
+    )
+    return [dict(r) for r in rows]
+
+
+@router.post("/{title_id}/conventions", status_code=201)
+async def record_convention(
+    title_id: int,
+    body: ConventionIn,
+    admin: dict = Depends(require_roles("admin")),
+):
+    title = await db.fetch_one("SELECT id, status FROM forest_titles WHERE id = $1", title_id)
+    if title is None:
+        raise HTTPException(status_code=404, detail="Titre introuvable")
+    if body.convention_type == "definitive":
+        provisoire = await db.fetch_one(
+            "SELECT id FROM title_conventions WHERE title_id = $1"
+            " AND convention_type = 'provisoire' AND status = 'active' LIMIT 1",
+            title_id,
+        )
+        if provisoire is None:
+            raise HTTPException(
+                status_code=409,
+                detail="La convention définitive exige une convention provisoire en vigueur",
+            )
+        existing = await db.fetch_one(
+            "SELECT id FROM title_conventions WHERE title_id = $1"
+            " AND convention_type = 'definitive' AND status = 'active' LIMIT 1",
+            title_id,
+        )
+        if existing is not None:
+            raise HTTPException(
+                status_code=409, detail="Une convention définitive est déjà en vigueur"
+            )
+
+    row = await db.fetch_one(
+        """
+        INSERT INTO title_conventions
+            (title_id, convention_type, reference, signed_at, start_date, end_date,
+             surface_ha, status, decision_motif, decided_by, decided_at, created_by)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', $8, $9, now(), $9)
+        RETURNING id, title_id, convention_type, reference, signed_at, start_date,
+                  end_date, surface_ha, status, attestation_ref, decision_motif, created_at
+        """,
+        title_id,
+        body.convention_type,
+        body.reference,
+        body.signed_at,
+        body.start_date,
+        body.end_date,
+        body.surface_ha,
+        body.motif,
+        admin["id"],
+    )
+
+    # The instrument promotes the title (provisoire → actif), never regresses.
+    target = _CONVENTION_TARGET[body.convention_type]
+    title_status = title["status"]
+    if _TITLE_RANK.get(title_status, 0) < _TITLE_RANK[target]:
+        title_status = target
+        await db.execute(
+            "UPDATE forest_titles SET status = $1, decided_by = $2, decided_at = now(),"
+            " decision_motif = $3 WHERE id = $4",
+            title_status,
+            admin["id"],
+            body.motif,
+            title_id,
+        )
+    result = dict(row)
+    result["title_status"] = title_status
+    return result
+
+
+@router.patch("/{title_id}/conventions/{convention_id}")
+async def decide_convention(
+    title_id: int,
+    convention_id: int,
+    body: ConventionDecisionIn,
+    admin: dict = Depends(require_roles("admin")),
+):
+    if body.status in ("expiree", "resiliee") and not body.motif:
+        raise HTTPException(status_code=400, detail="Motif requis pour clore une convention")
+    current = await _owner_of_convention(title_id, convention_id)
+    if current is None:
+        raise HTTPException(status_code=404, detail="Convention introuvable")
+    row = await db.fetch_one(
+        "UPDATE title_conventions SET status = $1, decision_motif = $2, decided_by = $3,"
+        " decided_at = now() WHERE id = $4"
+        " RETURNING id, title_id, convention_type, status, decision_motif",
+        body.status,
+        body.motif,
+        admin["id"],
+        convention_id,
+    )
+    result = dict(row)
+    # A convention définitive that stops being in force drops the title back
+    # to provisoire; the provisoire convention governs again.
+    if current["convention_type"] == "definitive" and body.status != "active":
+        title = await db.fetch_one("SELECT status FROM forest_titles WHERE id = $1", title_id)
+        if title is not None and title["status"] == "actif":
+            await db.execute(
+                "UPDATE forest_titles SET status = 'provisoire' WHERE id = $1", title_id
+            )
+            result["title_status"] = "provisoire"
+    return result
+
+
+@router.post("/{title_id}/conventions/{convention_id}/attestation")
+async def issue_attestation(
+    title_id: int,
+    convention_id: int,
+    body: AttestationIn,
+    admin: dict = Depends(require_roles("admin")),
+):
+    current = await _owner_of_convention(title_id, convention_id)
+    if current is None:
+        raise HTTPException(status_code=404, detail="Convention introuvable")
+    if current["status"] != "active":
+        raise HTTPException(
+            status_code=409,
+            detail="La convention doit être en vigueur pour délivrer l'attestation",
+        )
+    if current["attestation_ref"]:
+        raise HTTPException(status_code=409, detail="Attestation de conformité déjà délivrée")
+    row = await db.fetch_one(
+        "UPDATE title_conventions SET attestation_ref = $1, attestation_issued_at = $2,"
+        " attestation_issued_by = $3 WHERE id = $4"
+        " RETURNING id, title_id, attestation_ref, attestation_issued_at",
+        body.reference,
+        body.issued_at or date.today(),
+        admin["id"],
+        convention_id,
+    )
+    return dict(row)
+
+
+@router.get("/{title_id}/conventions/{convention_id}/pdf")
+async def convention_pdf(
+    title_id: int,
+    convention_id: int,
+    user: dict = Depends(require_roles("company", "admin")),
+):
+    current = await _owner_of_convention(title_id, convention_id)
+    if current is None:
+        raise HTTPException(status_code=404, detail="Convention introuvable")
+    if user["role"] == "company" and current["holder_org_id"] != require_org(user):
+        raise HTTPException(status_code=403, detail="Convention d'une autre organisation")
+    pdf = pdf_report.render_convention_pdf(current, current.get("org_name"))
     return Response(content=pdf, media_type="application/pdf")
