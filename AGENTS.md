@@ -79,7 +79,7 @@ doc update — as separate logical commits. The full history lives in
 | 22 | Cycle de vie de la grume : AAC + détenteur à la déclaration, abattage / transformation par le détenteur, bordereau ⇒ transport, réception par le destinataire, écran Suivi des grumes | `027_slice22.sql` | `services/custody.py`, `GET /api/felling/trees/{code}`, `POST /api/felling/events`, `/api/transport/destinations`, `/api/transport/documents` (destinataire, réception) | `CustodyScreen`, `QrScanner`, `CompanyTraceability`, `HomeScreen` | pt 22 |
 | 23 | Espace entreprise (À faire, décisions reçues, anomalies, PV), boussole des autorités (Ministère agissant, autorité compétente affichée), jeu pilote par l'API, suite de bout en bout | — | `/api/company/space`, `/api/admin/authorities`, `services/authorities.py`, `services/company_space.py`, `tools.seed_pilot`, `tools.pilot_client`, `tests_e2e/` | `CompanyHomeScreen`, `CompanyNav`, `ministry/AuthoritiesScreen`, `DecisionScreen` (bandeau) | pt 23 |
 
-Latest verified suite counts (Slice 23): **`pytest` 489 passed** (+ the AI-capabilities
+Latest verified suite counts (Slice 23): **`pytest` 490 passed** (+ the AI-capabilities
 test, which needs ≥ 3 GB for Docker) · **`tests_e2e` 12 passed** (real Postgres) ·
 **`jest` 192 passed / 51 suites** · `ruff` and `tsc` clean.
 
@@ -238,7 +238,8 @@ Get-Content db/migrations/0NN_sliceNN.sql | docker exec -i forestry_postgres psq
   À traiter · Carte · Organisations · Menu (`ADMIN_TABS`). Every pending file shows
   its competent authority and province (display only — a single `admin` role still
   decides). Provinces: `admin_areas` from `tools.import_provinces` (run it once on
-  a fresh volume); title province = `v_title_province` (manual, else geometry).
+  a fresh volume; it reads the bundled `data/gabon_adm1_geoboundaries.geojson`,
+  CC BY-SA 3.0 — `--download` refreshes from geoBoundaries); title province = `v_title_province` (manual, else geometry).
   Workflow coverage vs the Ministry guide: `docs/AUDIT_WORKFLOW_MINISTERE.md`.
   End-to-end audit by role and log lifecycle (open defects, priorities): `docs/AUDIT_PARCOURS_COMPLET.md`.
   Tapping a pending file opens `DecisionScreen` (one page for every queue, served by
@@ -262,8 +263,13 @@ Get-Content db/migrations/0NN_sliceNN.sql | docker exec -i forestry_postgres psq
 
 ## 6. CI, push, verification
 
-`.github/workflows/ci.yml` runs four jobs — **backend**, **gateway**, **mobile**,
-**stack smoke** — and gates on `CI · success`. `concurrency.cancel-in-progress`
+`.github/workflows/ci.yml` runs five jobs — **backend**, **gateway**, **mobile**,
+**stack smoke** and **workflow** — and gates on `CI · success`. The **workflow** job
+is the whole-workflow regression on a fresh PostgreSQL/PostGIS volume: every
+migration, the bundled provinces, `tools.seed_demo` twice (idempotency),
+`tools.seed_pilot` built then rebuilt after `--reset` (170 API steps, forbidden steps
+must be refused) and `pytest tests_e2e`. A change to a workflow rule must keep the
+pilot story and `tests_e2e/` in step, or this job fails. `concurrency.cancel-in-progress`
 cancels superseded runs, so **wait for the previous run to finish before
 pushing**.
 
