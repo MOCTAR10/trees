@@ -422,3 +422,13 @@ def test_company_aac_options_say_whether_felling_is_allowed(client, monkeypatch)
         ("AAC-01", None),
         ("AAC-02", "no_authorization"),
     ]
+
+
+def test_bundled_provinces_file_has_the_nine_provinces():
+    import json
+
+    from tools.import_provinces import BUNDLED, provinces
+
+    rows = provinces(json.loads(BUNDLED.read_text(encoding="utf-8")))
+    assert sorted(r["code"] for r in rows) == [f"GA-{i}" for i in range(1, 10)]
+    assert {"Haut-Ogooué", "Nyanga", "Ogooué-Ivindo"} <= {r["name"] for r in rows}

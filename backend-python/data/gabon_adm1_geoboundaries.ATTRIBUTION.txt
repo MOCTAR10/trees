@@ -1,0 +1,6 @@
+gabon_adm1_geoboundaries.geojson
+Source : geoBoundaries — gbOpen GAB ADM1 (simplified), release 9469f09
+https://www.geoboundaries.org  ·  Runfola et al. (2020), PLoS ONE 15(4): e0231866
+Licence : Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)
+Modification : propriétés réduites à shapeName, shapeISO, shapeID ; géométries inchangées.
+Ce fichier dérivé est diffusé sous la même licence CC BY-SA 3.0.
