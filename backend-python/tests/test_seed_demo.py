@@ -10,13 +10,14 @@ from app.core.reserved_species import is_reserved_species
 from app.services import anomalies
 from tools import seed_demo
 
-# tree_registry.status CHECK (db/migrations/008_abattage.sql).
+# tree_registry.status CHECK (db/migrations/027_slice22.sql).
 TREE_STATUSES = {
     "inventorie",
     "declare",
     "autorise",
     "abattu",
     "transporte",
+    "receptionne",
     "transforme",
 }
 

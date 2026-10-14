@@ -5,7 +5,7 @@ community forest with a ``CCC``, harvest activity (felled / transported /
 transformed stems), a transport document, fiscal receipts and dues, a
 certification and environmental studies (PPF/EIE) -- enough to light up every
 panel of
-``/api/dashboard`` and to trigger **all nine** anomaly families of
+``/api/dashboard`` and to trigger **every** anomaly family of
 ``app.services.anomalies``.
 
 Idempotent: it first removes its own rows (identified by the ``DEMO`` naming
@@ -182,6 +182,7 @@ STEMS: tuple[tuple[str, str, float, str], ...] = (
     ("008", "Milicia excelsa", 90.0, "transforme"),  # no bordereau
     ("009", "Lophira alata", 80.0, "transporte"),  # no bordereau
     ("010", "Dacryodes glaucescens", 75.0, "transporte"),  # covered by bordereau
+    ("011", "Aucoumea klaineana", 85.0, "autorise"),  # authorised, ready to fell
 )
 
 
@@ -706,10 +707,15 @@ async def seed() -> None:
             AAC_OPEN_LABEL if suffix != "006" else AAC_CLOSED_LABEL,
             title_id,
             aac_closed if suffix == "006" else aac_open,
-            f"HM-{suffix}",
-            datetime.now(UTC) - timedelta(days=10),
-            f"DF10-2026-{suffix}",
+            f"HM-{suffix}" if status != "autorise" else None,
+            datetime.now(UTC) - timedelta(days=10) if status != "autorise" else None,
+            f"DF10-2026-{suffix}" if status != "autorise" else None,
         )
+    await db.execute(
+        "UPDATE tree_registry r SET custodian_org_id = u.organization_id"
+        " FROM users u WHERE u.id = r.company_id AND r.tree_code LIKE $1",
+        f"{TREE_PREFIX}%",
+    )
 
     # --- EUDR: per-log geolocation + one diligence statement ----------------
     for suffix, lon, lat in SEEDED_GEOLOCATION:
@@ -921,7 +927,9 @@ async def seed() -> None:
     print(f"  projects      : {CHANTIER_TITLE} (agent invité), {OPEN_PROJECT_TITLE}")
     print(f"  title/UFA/AAC : {TITLE_REF} -> {UFA_LABEL} -> {AAC_OPEN_LABEL}, {AAC_CLOSED_LABEL}")
     print(f"  community FC  : {FC_REF} (CCC DEMO-CCC-01)")
-    print(f"  stems         : {len(STEMS)} registered, all 9 anomaly families covered")
+    print(
+        f"  stems         : {len(STEMS)} registered, all {len(SEEDED_ANOMALY_TYPES)} anomaly families covered"
+    )
     print(f"  studies       : {len(SEEDED_STUDIES)} (PPF validée + certificat, EIE en attente)")
     print(
         f"  EUDR          : 1 diligence, {len(SEEDED_GEOLOCATION)} grumes géolocalisées "
