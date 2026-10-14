@@ -51,6 +51,7 @@ import OrganisationScreen from './src/screens/ministry/OrganisationScreen';
 import MenuScreen from './src/screens/ministry/MenuScreen';
 import DomainScreen from './src/screens/ministry/DomainScreen';
 import DecisionScreen from './src/screens/ministry/DecisionScreen';
+import CustodyScreen from './src/screens/CustodyScreen';
 import type { DomainKey } from './src/screens/ministry/shared';
 import { applySession, clearSession, loadSession, saveSession, Session } from './src/storage/session';
 import { clearScans, deleteScan, loadScans, newScanId, saveScan, StoredScan, updateScanValorization } from './src/storage/history';
@@ -79,10 +80,11 @@ type Phase =
   | 'menu'
   | 'domain'
   | 'decision'
+  | 'custody'
   | 'organisation';
 
 const TAB_PHASES: Phase[] = ['home', 'species', 'map', 'history', 'inbox', 'orgs', 'menu'];
-const DESIGNED_PHASES: Phase[] = ['report', 'profile', 'valorization', 'analyzing', 'valorizing', 'error', 'capture', 'chantier', 'domain', 'decision', 'organisation'];
+const DESIGNED_PHASES: Phase[] = ['report', 'profile', 'valorization', 'analyzing', 'valorizing', 'error', 'capture', 'chantier', 'domain', 'decision', 'custody', 'organisation'];
 
 
 function Shell({ band, children }: { band: boolean; children: React.ReactNode }) {
@@ -646,6 +648,7 @@ export default function App() {
             onAcceptInvitation={(id) => void projectAction(id, acceptProjectInvitation)}
             onDeclineInvitation={(id) => void projectAction(id, declineProjectInvitation)}
             onOpenProjects={() => requestPhase("projects")}
+            onOpenCustody={user.company_id != null || user.organization_id != null ? () => requestPhase("custody") : undefined}
             onOpenProfile={() => requestPhase("profile")}
             onOpenProject={(p) => {
               setSelectedProject(p.id);
@@ -758,6 +761,7 @@ export default function App() {
         />
       )}
       {phase === "menu" && <MenuScreen onOpen={(key) => openDomain(key, "menu")} onLogout={handleLogout} />}
+      {phase === "custody" && <CustodyScreen onBack={goHome} />}
       {phase === "decision" && decisionItem && (
         <DecisionScreen
           type={decisionItem.type}

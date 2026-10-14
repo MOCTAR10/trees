@@ -56,6 +56,7 @@ describe("CompanyTraceability", () => {
     jest.clearAllMocks();
     mocked.listDf10.mockResolvedValue(DF10);
     mocked.listTransportDocuments.mockResolvedValue(DOCS);
+    mocked.listTransportDestinations.mockResolvedValue([{ id: 20, name: "Scierie Demo", org_type: "entreprise" }]);
     mockedPdf.exportDf10Pdf.mockResolvedValue("file://df10.pdf");
     mockedPdf.exportTransportPdf.mockResolvedValue("file://transport.pdf");
     mockedPdf.sharePdf.mockResolvedValue(undefined);
@@ -90,6 +91,8 @@ describe("CompanyTraceability", () => {
       getByPlaceholderText("Codes arbres (séparés par des virgules)"),
       "GA-1, GA-2",
     );
+    await waitFor(() => expect(getByTestId("transport-dest-20")).toBeTruthy());
+    fireEvent.press(getByTestId("transport-dest-20"));
     fireEvent.press(getByTestId("transport-submit"));
 
     await waitFor(() =>
@@ -97,6 +100,7 @@ describe("CompanyTraceability", () => {
         expect.objectContaining({
           doc_type: "bordereau_roulage",
           tree_codes: ["GA-1", "GA-2"],
+          destination_org_id: 20,
         }),
       ),
     );
@@ -126,5 +130,26 @@ describe("CompanyTraceability", () => {
     fireEvent.press(getByTestId("export-df10"));
     await waitFor(() => expect(mockedPdf.exportDf10Pdf).toHaveBeenCalled());
     expect(mockedPdf.sharePdf).toHaveBeenCalledWith("file://df10.pdf");
+  });
+});
+
+describe("CompanyTraceability incoming slips", () => {
+  it("lets the destination receive an incoming slip but not issue it", async () => {
+    jest.clearAllMocks();
+    mocked.listDf10.mockResolvedValue([]);
+    mocked.listTransportDestinations.mockResolvedValue([]);
+    mocked.listTransportDocuments.mockResolvedValue([
+      { ...DOCS[0], id: 7, status: "emis", direction: "entrant", org_name: "Société Forestière Démo", destination_org_id: 20 },
+      { ...DOCS[0], id: 8, status: "emis", direction: "sortant", destination_org_id: 20, destination_name: "Scierie Demo" },
+    ]);
+    mocked.actOnTransportDocument.mockResolvedValue({ ...DOCS[0], status: "receptionne" });
+    const view = render(<CompanyTraceability />);
+    fireEvent.press(view.getByTestId("seg-transport"));
+    await waitFor(() => expect(view.getByTestId("transport-advance-7")).toBeTruthy());
+    expect(view.getByText(/Expédié par Société Forestière Démo/)).toBeTruthy();
+    expect(view.getByText(/Destinataire : Scierie Demo/)).toBeTruthy();
+    expect(view.queryByTestId("transport-advance-8")).toBeNull();
+    fireEvent.press(view.getByTestId("transport-advance-7"));
+    await waitFor(() => expect(mocked.actOnTransportDocument).toHaveBeenCalledWith(7, "receptionne"));
   });
 });

@@ -31,6 +31,7 @@ import CompanyFiscal from "../components/CompanyFiscal";
 import CompanyCertifications from "../components/CompanyCertifications";
 import OrgDocuments from "../components/OrgDocuments";
 import OrgTaxes from "../components/OrgTaxes";
+import CustodyScreen from "./CustodyScreen";
 import DeclareScreen from "./DeclareScreen";
 
 interface Props {
@@ -39,7 +40,7 @@ interface Props {
   showHeader?: boolean;
 }
 
-type CompanyTab = "residues" | "abattage" | "documents" | "titres" | "taxes" | "tracabilite" | "fiscal" | "cert";
+type CompanyTab = "residues" | "abattage" | "grumes" | "documents" | "titres" | "taxes" | "tracabilite" | "fiscal" | "cert";
 
 export default function CompanyScreen({ user, onLogout, showHeader = true }: Props) {
   const [residues, setResidues] = useState<CompanyResidue[]>([]);
@@ -141,6 +142,7 @@ export default function CompanyScreen({ user, onLogout, showHeader = true }: Pro
   const TABS: { key: CompanyTab; label: string }[] = [
     { key: "residues", label: fr.felling.tabResidues },
     { key: "abattage", label: `${fr.felling.tabFelling} (${declarations.length})` },
+    { key: "grumes", label: fr.custody.tab },
     { key: "documents", label: fr.docs.tab },
     { key: "titres", label: fr.titles.tab },
     { key: "taxes", label: fr.taxes.tab },
@@ -170,7 +172,9 @@ export default function CompanyScreen({ user, onLogout, showHeader = true }: Pro
         ))}
       </ScrollView>
 
-      {tab === "documents" ? (
+      {tab === "grumes" ? (
+        <CustodyScreen />
+      ) : tab === "documents" ? (
         <OrgDocuments />
       ) : tab === "titres" ? (
         <CompanyTitles />

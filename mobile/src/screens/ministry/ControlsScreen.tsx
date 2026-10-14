@@ -1,4 +1,3 @@
-import { CameraView, useCameraPermissions } from "expo-camera";
 import * as Location from "expo-location";
 import { MapPin, Plus, QrCode, Search } from "lucide-react-native";
 import React, { useCallback, useEffect, useState } from "react";
@@ -13,6 +12,7 @@ import {
   listFieldControls,
   lookupControlCode,
 } from "../../api/client";
+import QrScanner from "../../components/QrScanner";
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
 import { Button, Card, EmptyState, Pill, PillTone, Txt } from "../../design/ui";
 import { fr } from "../../i18n/fr";
@@ -327,7 +327,10 @@ function NewControl({ visible, onClose, onDone }: { visible: boolean; onClose: (
         </View>
       </View>
       {scanning ? (
-        <QrScan
+        <QrScanner
+          testID="control-qr"
+          hint={t.scanHint}
+          cancelLabel={t.scanCancel}
           onCode={(value) => {
             setScanning(false);
             void check(value);
@@ -339,37 +342,10 @@ function NewControl({ visible, onClose, onDone }: { visible: boolean; onClose: (
   );
 }
 
-function QrScan({ onCode, onClose }: { onCode: (value: string) => void; onClose: () => void }) {
-  const s = useStyles();
-  const [permission, requestPermission] = useCameraPermissions();
-  useEffect(() => {
-    if (permission && !permission.granted) void requestPermission();
-  }, [permission, requestPermission]);
-  return (
-    <View style={s.scan} testID="control-qr">
-      {permission?.granted ? (
-        <CameraView
-          style={s.fill}
-          facing="back"
-          barcodeScannerSettings={{ barcodeTypes: ["qr", "code128", "datamatrix"] }}
-          onBarcodeScanned={({ data }) => data?.trim() && onCode(data.trim())}
-        />
-      ) : null}
-      <View style={s.scanBar}>
-        <Txt variant="small" style={s.scanText}>
-          {t.scanHint}
-        </Txt>
-        <Button label={t.scanCancel} variant="secondary" compact onPress={onClose} />
-      </View>
-    </View>
-  );
-}
-
 const useStyles = makeStyles((th) => ({
   screen: { flex: 1, backgroundColor: th.c.bg },
   content: { padding: th.space.lg, gap: th.space.md, paddingBottom: th.space.xxl },
   flex: { flex: 1 },
-  fill: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   compact: { padding: th.space.md, gap: th.space.xs },
   row: { flexDirection: "row", alignItems: "center", gap: th.space.sm },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: th.space.xs },
@@ -426,16 +402,4 @@ const useStyles = makeStyles((th) => ({
   },
   gps: { flexDirection: "row", alignItems: "center", gap: 6 },
   actions: { flexDirection: "row", gap: th.space.sm },
-  scan: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#000" },
-  scanBar: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    padding: th.space.lg,
-    gap: th.space.sm,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    alignItems: "center",
-  },
-  scanText: { color: "#FFFFFF", textAlign: "center" },
 }));

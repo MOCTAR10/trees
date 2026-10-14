@@ -16,9 +16,11 @@ import {
   createTransportDocument,
   Df10Entry,
   listDf10,
+  listTransportDestinations,
   listTransportDocuments,
   setDf10Abandon,
   TransportDocType,
+  TransportDestination,
   TransportDocument,
 } from "../api/client";
 import { exportDf10Pdf, exportTransportPdf, sharePdf } from "../pdf";
@@ -136,7 +138,7 @@ export default function CompanyTraceability() {
       await loadDocs();
     } catch (err) {
       console.error("transport transition failed", err);
-      setMessage(fr.traceability.error);
+      setMessage(err instanceof Error && err.message ? err.message : fr.traceability.error);
     } finally {
       setBusyId(null);
     }
@@ -265,7 +267,9 @@ export default function CompanyTraceability() {
             docs.map((doc) => (
               <View key={doc.id} style={styles.card}>
                 <View style={styles.cardTop}>
-                  <Text style={styles.title}>{`${doc.reference} · ${doc.doc_type}`}</Text>
+                  <Text style={styles.title}>
+                    {`${doc.reference} · ${doc.direction === "entrant" ? fr.traceability.incoming : fr.traceability.outgoing}`}
+                  </Text>
                   <Badge
                     label={fr.traceability.transportStatus[doc.status] ?? doc.status}
                     tone={transportTone(doc.status)}
@@ -277,11 +281,17 @@ export default function CompanyTraceability() {
                 <Text style={styles.meta}>
                   {doc.from_label ? `${doc.from_label} → ${doc.to_label ?? "—"}` : "—"}
                 </Text>
+                {doc.direction === "entrant" && doc.org_name ? (
+                  <Text style={styles.meta}>{fr.traceability.fromOrg(doc.org_name)}</Text>
+                ) : doc.destination_name ? (
+                  <Text style={styles.meta}>{fr.traceability.toOrg(doc.destination_name)}</Text>
+                ) : null}
                 <Text style={styles.meta}>
                   {`${fr.traceability.volume} : ${(doc.volume_m3 ?? 0).toFixed(3)} m³`}
                 </Text>
                 <View style={styles.actionsRow}>
-                  {doc.status !== "receptionne" ? (
+                  {(doc.status === "brouillon" && doc.direction !== "entrant") ||
+                  (doc.status === "emis" && (doc.direction === "entrant" || !doc.destination_org_id)) ? (
                     <TouchableOpacity
                       style={[styles.smallBtn, styles.smallBtnFlex]}
                       onPress={() => void advance(doc)}
@@ -434,6 +444,8 @@ function TransportModal({
   const [transporter, setTransporter] = useState("");
   const [vehicle, setVehicle] = useState("");
   const [codes, setCodes] = useState("");
+  const [destinations, setDestinations] = useState<TransportDestination[]>([]);
+  const [destination, setDestination] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -445,7 +457,11 @@ function TransportModal({
     setTransporter("");
     setVehicle("");
     setCodes("");
+    setDestination(null);
     setError(null);
+    listTransportDestinations()
+      .then(setDestinations)
+      .catch(() => setDestinations([]));
   }, [visible]);
 
   const submit = async () => {
@@ -468,11 +484,12 @@ function TransportModal({
         to_label: toLabel.trim() || null,
         transporter: transporter.trim() || null,
         vehicle_ref: vehicle.trim() || null,
+        destination_org_id: destination,
       });
       onSaved();
     } catch (err) {
       console.error("transport create failed", err);
-      setError(fr.traceability.error);
+      setError(err instanceof Error && err.message ? err.message : fr.traceability.error);
     } finally {
       setBusy(false);
     }
@@ -520,6 +537,29 @@ function TransportModal({
               value={toLabel}
               onChangeText={setToLabel}
             />
+            <Text style={styles.fieldLabel}>{fr.traceability.destinationOrg}</Text>
+            <View style={styles.chips}>
+              <TouchableOpacity
+                style={[styles.chip, destination == null && styles.chipOn]}
+                onPress={() => setDestination(null)}
+                testID="transport-dest-none"
+              >
+                <Text style={[styles.chipText, destination == null && styles.chipTextOn]}>
+                  {fr.traceability.destinationNone}
+                </Text>
+              </TouchableOpacity>
+              {destinations.map((d) => (
+                <TouchableOpacity
+                  key={d.id}
+                  style={[styles.chip, destination === d.id && styles.chipOn]}
+                  onPress={() => setDestination(d.id)}
+                  testID={`transport-dest-${d.id}`}
+                >
+                  <Text style={[styles.chipText, destination === d.id && styles.chipTextOn]}>{d.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <Text style={styles.dim}>{fr.traceability.issueNote}</Text>
             <TextInput
               style={styles.input}
               placeholder={fr.traceability.transporter}

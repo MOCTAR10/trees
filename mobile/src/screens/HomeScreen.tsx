@@ -1,4 +1,4 @@
-import { ChevronRight, CloudUpload, Mail, ScanLine, Users } from "lucide-react-native";
+import { ChevronRight, CloudUpload, Mail, ScanLine, Truck, Users } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
 
@@ -32,6 +32,7 @@ interface Props {
   onAcceptInvitation?: (id: number) => void;
   onDeclineInvitation?: (id: number) => void;
   onOpenProjects?: () => void;
+  onOpenCustody?: () => void;
   onOpenProfile?: () => void;
   /** Open a chantier screen (or a project page) from its row. */
   onOpenProject?: (project: HomeProject) => void;
@@ -146,6 +147,7 @@ export default function HomeScreen({
   onAcceptInvitation,
   onDeclineInvitation,
   onOpenProjects,
+  onOpenCustody,
   onOpenProfile,
   onOpenProject,
 }: Props) {
@@ -243,6 +245,26 @@ export default function HomeScreen({
         </View>
         <ChevronRight size={18} color={theme.c.muted} />
       </Pressable>
+      {onOpenCustody ? (
+        <Pressable
+          testID="home-custody"
+          onPress={onOpenCustody}
+          accessibilityRole="button"
+          accessibilityLabel={fr.custody.title}
+          style={({ pressed }) => [s.scanRow, pressed && s.pressed]}
+        >
+          <View style={[s.scanIcon, s.custodyIcon]}>
+            <Truck size={18} color={theme.c.olive} strokeWidth={2.2} />
+          </View>
+          <View style={s.rowText}>
+            <Txt bold>{fr.custody.title}</Txt>
+            <Txt variant="caption" tone="muted">
+              {fr.custody.homeLine}
+            </Txt>
+          </View>
+          <ChevronRight size={18} color={theme.c.muted} />
+        </Pressable>
+      ) : null}
       {pendingCount > 0 || syncing ? (
         <View style={s.syncRow}>
           <Pill tone="info" label={syncing ? t.syncing : t.pending(pendingCount)} testID="home-pending" />
@@ -548,6 +570,7 @@ const useStyles = makeStyles((th) => ({
     paddingVertical: th.space.sm,
     minHeight: 56,
   },
+  custodyIcon: { backgroundColor: th.c.surface2, borderWidth: 1.5, borderColor: th.c.olive },
   scanIcon: {
     width: 38,
     height: 38,

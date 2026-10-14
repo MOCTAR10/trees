@@ -555,6 +555,7 @@ export type RegistryStatus =
   | "autorise"
   | "abattu"
   | "transporte"
+  | "receptionne"
   | "transforme";
 export type CustodyEventKind = "abattu" | "transporte" | "receptionne" | "transforme";
 
@@ -689,13 +690,70 @@ export async function recordCustodyEvent(input: {
   photo_url?: string | null;
   note?: string | null;
 }): Promise<{ id: number; tree_code: string; event: CustodyEventKind }> {
-  const resp = await timedFetch(`${API_BASE}/api/felling/events`, {
-    method: "POST",
-    headers: headers(true),
-    body: JSON.stringify(input),
+  return postJson("/api/felling/events", input, "Custody");
+}
+
+export interface CustodyHistoryEntry {
+  event: CustodyEventKind;
+  created_at: string;
+  note: string | null;
+  transport_document_id: number | null;
+  actor: string | null;
+  latitude: number | null;
+  longitude: number | null;
+}
+
+export interface TreeCustody {
+  tree_code: string;
+  status: RegistryStatus;
+  status_label: string;
+  species_scientific_name: string | null;
+  measured_dbh_cm: number | null;
+  marking_type: MarkingType | null;
+  hammer_mark: string | null;
+  df10_entry_no: string | null;
+  felled_at: string | null;
+  aac_label: string | null;
+  custodian_name: string | null;
+  history: CustodyHistoryEntry[];
+  transport: {
+    id: number;
+    reference: string;
+    doc_type: TransportDocType;
+    status: TransportStatus;
+    destination_name: string | null;
+    to_label: string | null;
+  } | null;
+  is_holder: boolean;
+  next_event: "abattu" | "transforme" | null;
+  can_receive: boolean;
+}
+
+export async function getTreeCustody(code: string): Promise<TreeCustody> {
+  const resp = await timedFetch(`${API_BASE}/api/felling/trees/${encodeURIComponent(code)}`, {
+    headers: headers(),
   });
-  if (!resp.ok) throw new Error(`Custody ${resp.status}: ${await resp.text()}`);
+  if (!resp.ok) {
+    let detail = "";
+    try {
+      const data = await resp.json();
+      detail = typeof data?.detail === "string" ? data.detail : "";
+    } catch {
+      detail = "";
+    }
+    throw new Error(detail || `Tree ${resp.status}`);
+  }
   return resp.json();
+}
+
+/** A scanned QR is either a plate (bare tree code) or a slip (type|reference|n|volume). */
+export function parseScannedCode(raw: string): { kind: "tree" | "slip"; code: string } {
+  const value = raw.trim();
+  const parts = value.split("|");
+  if (parts.length >= 2 && ["bordereau_roulage", "feuille_route", "specification"].includes(parts[0])) {
+    return { kind: "slip", code: parts[1] };
+  }
+  return { kind: "tree", code: value };
 }
 
 export async function listRegistryTrees(status?: RegistryStatus): Promise<RegistryTree[]> {
@@ -2159,7 +2217,21 @@ export interface TransportDocument {
   title_id: number | null;
   aac_id: number | null;
   created_at: string;
+  destination_org_id?: number | null;
+  destination_name?: string | null;
+  org_name?: string | null;
+  received_at?: string | null;
+  direction?: "entrant" | "sortant";
 }
+
+export interface TransportDestination {
+  id: number;
+  name: string;
+  org_type: string;
+}
+
+export const listTransportDestinations = () =>
+  getLabeled<TransportDestination[]>("/api/transport/destinations", "Destinations");
 
 export interface TransportTree {
   tree_code: string;
@@ -2185,14 +2257,29 @@ export async function createTransportDocument(input: {
   vehicle_ref?: string | null;
   title_id?: number | null;
   aac_id?: number | null;
+  destination_org_id?: number | null;
 }): Promise<TransportDocument> {
   const resp = await timedFetch(`${API_BASE}/api/transport/documents`, {
     method: "POST",
     headers: headers(true),
     body: JSON.stringify(input),
   });
-  if (!resp.ok) throw new Error(`Transport ${resp.status}: ${await resp.text()}`);
+  if (!resp.ok) throw new Error(await transportError(resp));
   return resp.json();
+}
+
+async function transportError(resp: Response): Promise<string> {
+  try {
+    const data = await resp.json();
+    if (typeof data?.detail === "string") return data.detail;
+    if (data?.detail?.message) {
+      const codes: string[] = data.detail.tree_codes ?? [];
+      return codes.length ? `${data.detail.message} : ${codes.join(", ")}` : data.detail.message;
+    }
+  } catch {
+    return `Transport ${resp.status}`;
+  }
+  return `Transport ${resp.status}`;
 }
 
 export async function listTransportDocuments(
@@ -2221,7 +2308,7 @@ export async function actOnTransportDocument(
     headers: headers(true),
     body: JSON.stringify({ status }),
   });
-  if (!resp.ok) throw new Error(`Transport ${resp.status}: ${await resp.text()}`);
+  if (!resp.ok) throw new Error(await transportError(resp));
   return resp.json();
 }
 
