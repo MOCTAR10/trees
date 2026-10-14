@@ -164,8 +164,10 @@ SEEDED_ANOMALY_TYPES = frozenset(
         "taxes_impayees",
         "cites_sans_permis",
         "transport_sans_bordereau",
+        "controle_non_conforme",
     }
 )
+PV_PREFIX = "PV-DEMO-"
 
 #: (tree_code suffix, scientific name, DBH cm, registry status) for the demo
 #: stems that populate the dashboard harvest rollup.
@@ -211,6 +213,7 @@ async def _reset(company_id: int, org_ids: list[int]) -> None:
     ]
 
     await db.execute("DELETE FROM anomaly_reviews WHERE subject_key LIKE $1", f"{TREE_PREFIX}%")
+    await db.execute("DELETE FROM field_controls WHERE pv_reference LIKE $1", f"{PV_PREFIX}%")
     await db.execute(
         "DELETE FROM declaration_lines WHERE declaration_id IN"
         " (SELECT id FROM felling_declarations WHERE company_id = $1 OR title_id = ANY($2::int[]))",
@@ -298,6 +301,36 @@ async def _company_user(org_id: int) -> int:
         org_id,
     )
     return row["id"]
+
+
+async def _demo_controls(admin_id: int, org_id: int, aac_id: int) -> None:
+    """Ministry field controls: a compliant marking check and a non-compliant
+    roadside check on the log that travels without a slip."""
+    rows = [
+        ("marquage", "conforme", _code("001"), None, f"{PV_PREFIX}001"),
+        (
+            "route",
+            "non_conforme",
+            _code("009"),
+            "Grume en circulation sans bordereau de roulage",
+            f"{PV_PREFIX}002",
+        ),
+        ("visa_df10", "conforme", None, "Carnet DF10 visé, entrées à jour", f"{PV_PREFIX}003"),
+    ]
+    for kind, result, code, notes, pv in rows:
+        await db.execute(
+            "INSERT INTO field_controls"
+            " (control_type, result, tree_code, aac_id, org_id, notes, pv_reference, controlled_by)"
+            " VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+            kind,
+            result,
+            code,
+            aac_id,
+            org_id,
+            notes,
+            pv,
+            admin_id,
+        )
 
 
 async def _agent_user(company_id: int) -> int:
@@ -880,6 +913,7 @@ async def seed() -> None:
 
     agent_id = await _agent_user(company_id)
     await _demo_projects(company_id, admin_id, agent_id, aac_open)
+    await _demo_controls(admin_id, company_org, aac_open)
 
     print("Demo dataset seeded.")
     print(f"  company login : {COMPANY_EMAIL} / {COMPANY_PASSWORD}")
