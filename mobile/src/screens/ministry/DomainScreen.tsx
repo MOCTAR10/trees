@@ -16,6 +16,7 @@ import { ScreenHeader } from "../../design/ui";
 import { fr } from "../../i18n/fr";
 import SpeciesDetailScreen from "../SpeciesDetailScreen";
 import SpeciesScreen from "../SpeciesScreen";
+import ControlsScreen from "./ControlsScreen";
 import { DomainKey } from "./shared";
 
 const t = fr.ministry;
@@ -72,6 +73,8 @@ export default function DomainScreen({ domain, onBack }: Props) {
         return <AdminFiscal />;
       case "especes":
         return <Species />;
+      case "controles":
+        return <ControlsScreen />;
       default:
         return null;
     }

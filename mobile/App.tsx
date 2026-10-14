@@ -50,6 +50,7 @@ import OrganisationsScreen from './src/screens/ministry/OrganisationsScreen';
 import OrganisationScreen from './src/screens/ministry/OrganisationScreen';
 import MenuScreen from './src/screens/ministry/MenuScreen';
 import DomainScreen from './src/screens/ministry/DomainScreen';
+import DecisionScreen from './src/screens/ministry/DecisionScreen';
 import type { DomainKey } from './src/screens/ministry/shared';
 import { applySession, clearSession, loadSession, saveSession, Session } from './src/storage/session';
 import { clearScans, deleteScan, loadScans, newScanId, saveScan, StoredScan, updateScanValorization } from './src/storage/history';
@@ -77,10 +78,11 @@ type Phase =
   | 'orgs'
   | 'menu'
   | 'domain'
+  | 'decision'
   | 'organisation';
 
 const TAB_PHASES: Phase[] = ['home', 'species', 'map', 'history', 'inbox', 'orgs', 'menu'];
-const DESIGNED_PHASES: Phase[] = ['report', 'profile', 'valorization', 'analyzing', 'valorizing', 'error', 'capture', 'chantier', 'domain', 'organisation'];
+const DESIGNED_PHASES: Phase[] = ['report', 'profile', 'valorization', 'analyzing', 'valorizing', 'error', 'capture', 'chantier', 'domain', 'decision', 'organisation'];
 
 
 function Shell({ band, children }: { band: boolean; children: React.ReactNode }) {
@@ -117,6 +119,8 @@ export default function App() {
   const [scanProject, setScanProject] = useState<Pick<HomeProject, "id" | "title" | "kind"> | null>(null);
   const [chantierReturn, setChantierReturn] = useState<Phase>("home");
   const [inboxType, setInboxType] = useState<InboxQueueKey | null>(null);
+  const [decisionItem, setDecisionItem] = useState<{ type: InboxQueueKey; id: number } | null>(null);
+  const [inboxKey, setInboxKey] = useState(0);
   const [orgProvince, setOrgProvince] = useState<string | null>(null);
   const [domainKey, setDomainKey] = useState<DomainKey>("stats");
   const [domainReturn, setDomainReturn] = useState<Phase>("menu");
@@ -734,7 +738,15 @@ export default function App() {
         />
       </View>
       {phase === "inbox" && (
-        <InboxScreen initialType={inboxType} onOpenDomain={(key) => openDomain(key, "inbox")} />
+        <InboxScreen
+          key={inboxKey}
+          initialType={inboxType}
+          onOpenDomain={(key) => openDomain(key, "inbox")}
+          onOpenItem={(type, id) => {
+            setDecisionItem({ type, id });
+            requestPhase("decision");
+          }}
+        />
       )}
       {phase === "orgs" && (
         <OrganisationsScreen
@@ -746,6 +758,17 @@ export default function App() {
         />
       )}
       {phase === "menu" && <MenuScreen onOpen={(key) => openDomain(key, "menu")} onLogout={handleLogout} />}
+      {phase === "decision" && decisionItem && (
+        <DecisionScreen
+          type={decisionItem.type}
+          id={decisionItem.id}
+          onBack={() => requestPhase("inbox")}
+          onDecided={() => {
+            setInboxKey((k) => k + 1);
+            requestPhase("inbox");
+          }}
+        />
+      )}
       {phase === "domain" && <DomainScreen domain={domainKey} onBack={() => requestPhase(domainReturn)} />}
       {phase === "organisation" && orgId != null && (
         <OrganisationScreen id={orgId} onBack={() => requestPhase("orgs")} />

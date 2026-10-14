@@ -10,6 +10,7 @@ export type DomainKey =
   | "certifications"
   | "anomalies"
   | "tracabilite"
+  | "controles"
   | "fiscal"
   | "especes"
   | "profil";
@@ -27,6 +28,18 @@ export const QUEUE_DOMAIN: Record<InboxQueueKey, DomainKey> = {
   anomalies: "anomalies",
   orphans: "comptes",
 };
+
+/** Queues whose files open on the unified decision page. */
+export const DECIDABLE: InboxQueueKey[] = [
+  "declarations",
+  "documents",
+  "authorizations",
+  "pao",
+  "studies",
+  "certifications",
+  "eudr",
+  "titles",
+];
 
 /** Whole days since an ISO date (0 = today), or null. */
 export function daysSince(iso: string | null | undefined, now: Date = new Date()): number | null {

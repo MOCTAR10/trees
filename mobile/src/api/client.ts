@@ -2958,3 +2958,89 @@ export interface FellingAacOption {
 }
 
 export const listFellingAacOptions = () => getLabeled<FellingAacOption[]>("/api/felling/aac-options", "AAC options");
+
+// ---------------------------------------------------------------------------
+// Slice 21: unified decision page, field controls
+// ---------------------------------------------------------------------------
+
+export type CheckLevel = "ok" | "ko" | "warn";
+
+export interface InboxDetail extends InboxItem {
+  facts: { label: string; value: string }[];
+  checks: { level: CheckLevel; label: string }[];
+  items: { label: string; detail: string; flags: string[] }[];
+  approve_label: string;
+  blocking: boolean;
+}
+
+export const getInboxDetail = (type: InboxQueueKey, id: number) =>
+  getLabeled<InboxDetail>(`/api/admin/inbox/${type}/${id}`, "Inbox detail");
+
+export function decideInbox(type: InboxQueueKey, id: number, approve: boolean, motif?: string | null): Promise<unknown> {
+  return postJson(`/api/admin/inbox/${type}/${id}/decision`, { approve, motif: motif ?? null }, "Decision");
+}
+
+export type ControlType = "marquage" | "visa_df10" | "route" | "transformation";
+export type ControlResult = "conforme" | "reserve" | "non_conforme";
+
+export interface ControlLookup {
+  kind: "tree" | "transport" | "unknown";
+  code: string;
+  tree?: {
+    tree_code: string;
+    status: string;
+    species_scientific_name: string | null;
+    hammer_mark: string | null;
+    df10_entry_no: string | null;
+    aac_id: number | null;
+    aac_label: string | null;
+    org_id: number | null;
+    org_name: string | null;
+  };
+  transport?: { id: number; reference: string; status: string; tree_codes?: string[]; org_id?: number | null; aac_id?: number | null } | null;
+  checks: { level: CheckLevel; label: string }[];
+}
+
+export interface FieldControl {
+  id: number;
+  control_type: ControlType;
+  result: ControlResult;
+  tree_code: string | null;
+  transport_document_id: number | null;
+  aac_id: number | null;
+  aac_label: string | null;
+  org_id: number | null;
+  org_name: string | null;
+  notes: string | null;
+  pv_reference: string | null;
+  controlled_at: string;
+  controlled_by_name: string | null;
+  latitude: number | null;
+  longitude: number | null;
+}
+
+export const lookupControlCode = (code: string) =>
+  getLabeled<ControlLookup>(`/api/controls/lookup?code=${encodeURIComponent(code)}`, "Lookup");
+
+export function listFieldControls(type?: ControlType | null, result?: ControlResult | null): Promise<FieldControl[]> {
+  const params = new URLSearchParams();
+  if (type) params.set("type", type);
+  if (result) params.set("result", result);
+  const q = params.toString();
+  return getLabeled<FieldControl[]>(`/api/controls${q ? `?${q}` : ""}`, "Controls");
+}
+
+export function createFieldControl(input: {
+  control_type: ControlType;
+  result: ControlResult;
+  tree_code?: string | null;
+  transport_document_id?: number | null;
+  aac_id?: number | null;
+  org_id?: number | null;
+  notes?: string | null;
+  pv_reference?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+}): Promise<{ id: number }> {
+  return postJson("/api/controls", input, "Create control");
+}

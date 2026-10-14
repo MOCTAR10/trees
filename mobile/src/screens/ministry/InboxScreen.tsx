@@ -6,13 +6,14 @@ import { getInboxItems, getProvinces, InboxItem, InboxQueueKey, ProvinceSummary 
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
 import { EmptyState, Pill, Txt } from "../../design/ui";
 import { fr } from "../../i18n/fr";
-import { daysSince, DomainKey, QUEUE_DOMAIN } from "./shared";
+import { daysSince, DECIDABLE, DomainKey, QUEUE_DOMAIN } from "./shared";
 
 const t = fr.ministry;
 
 interface Props {
   initialType?: InboxQueueKey | null;
   onOpenDomain: (key: DomainKey) => void;
+  onOpenItem?: (type: InboxQueueKey, id: number) => void;
   now?: Date;
 }
 
@@ -35,7 +36,7 @@ function Chip({ label, on, onPress, testID }: { label: string; on: boolean; onPr
 }
 
 /** Every file waiting for a Ministry decision, filterable by type and province. */
-export default function InboxScreen({ initialType, onOpenDomain, now }: Props) {
+export default function InboxScreen({ initialType, onOpenDomain, onOpenItem, now }: Props) {
   const theme = useTheme();
   const s = useStyles();
   const [items, setItems] = useState<InboxItem[]>([]);
@@ -128,7 +129,9 @@ export default function InboxScreen({ initialType, onOpenDomain, now }: Props) {
               <Pressable
                 key={`${i.type}-${i.id}`}
                 testID={`inbox-item-${i.type}-${i.id}`}
-                onPress={() => onOpenDomain(QUEUE_DOMAIN[i.type])}
+                onPress={() =>
+                  onOpenItem && DECIDABLE.includes(i.type) ? onOpenItem(i.type, i.id) : onOpenDomain(QUEUE_DOMAIN[i.type])
+                }
                 accessibilityRole="button"
                 style={({ pressed }) => [s.row, pressed && s.pressed]}
               >

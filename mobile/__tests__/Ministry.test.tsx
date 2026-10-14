@@ -120,6 +120,10 @@ describe("Ministry space", () => {
     expect(view.queryByTestId("inbox-item-studies-3")).toBeNull();
     fireEvent.press(view.getByTestId("inbox-item-declarations-41"));
     expect(onOpenDomain).toHaveBeenCalledWith("declarations");
+    const onOpenItem = jest.fn();
+    view.rerender(<InboxScreen onOpenDomain={onOpenDomain} onOpenItem={onOpenItem} now={NOW} />);
+    fireEvent.press(view.getByTestId("inbox-item-declarations-41"));
+    expect(onOpenItem).toHaveBeenCalledWith("declarations", 41);
   });
 
   it("opens À traiter already filtered on a queue", async () => {

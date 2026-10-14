@@ -7,6 +7,7 @@ import {
   FileText,
   Landmark,
   LogOut,
+  ScanSearch,
   ScrollText,
   ShieldAlert,
   Trees,
@@ -37,7 +38,14 @@ const GROUPS: { key: string; items: { key: DomainKey; icon: Icon }[] }[] = [
       { key: "certifications", icon: FileCheck2 },
     ],
   },
-  { key: "controle", items: [{ key: "anomalies", icon: ShieldAlert }, { key: "tracabilite", icon: Truck }] },
+  {
+    key: "controle",
+    items: [
+      { key: "controles", icon: ScanSearch },
+      { key: "anomalies", icon: ShieldAlert },
+      { key: "tracabilite", icon: Truck },
+    ],
+  },
   { key: "finances", items: [{ key: "fiscal", icon: Coins }] },
   { key: "reference", items: [{ key: "especes", icon: Trees }, { key: "profil", icon: UserRound }] },
 ];
