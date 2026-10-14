@@ -280,7 +280,12 @@ through the gateway**: the end-to-end workflow tests plus the detailed regressio
 being the rule. It publishes a job summary (rule-by-rule checklist and every expected
 refusal) built by `scripts/regression_summary.py`, and uploads JUnit, step logs and
 service logs as the `regression-reports` artifact. A new workflow rule = a new
-regression test with a one-line French docstring. `concurrency.cancel-in-progress`
+regression test with a one-line French docstring.
+The Ministry is held to **100 % coverage**: `scripts/admin_coverage.py` lists every
+endpoint open to `admin` and fails the Régression job if one is not exercised by a
+Ministry account; it also maps each Ministry screen to its endpoints. A new Admin
+endpoint therefore needs a test in `tests_e2e/test_admin_0*.py`
+(see `docs/AUDIT_ADMIN_REGRESSION.md`). `concurrency.cancel-in-progress`
 cancels superseded runs, so **wait for the previous run to finish before
 pushing**.
 
