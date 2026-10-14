@@ -44,3 +44,6 @@ npm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Regression reports (tests_e2e, tools.seed_pilot --report)
+backend-python/reports/

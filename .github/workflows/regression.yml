@@ -1,0 +1,115 @@
+name: Régression
+
+# Full-workflow regression through the real gateway: the whole stack boots with
+# the API key enforced, the pilot story (176 API calls, forbidden steps must be
+# refused) and the detailed regression suite (one test per workflow rule) run
+# over HTTP through the gateway, and a readable report is published.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: regression-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    name: Régression · stack complète via la passerelle
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      COMPOSE_PROJECT_NAME: trees
+      REGRESSION_API_KEY: regression-key-5e0c2a91
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build db image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./db
+          load: true
+          tags: trees-db:latest
+          cache-from: type=gha,scope=db
+
+      - name: Build API image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend-python
+          load: true
+          tags: trees-api:latest
+          cache-from: type=gha,scope=api
+
+      - name: Build gateway image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend-node
+          load: true
+          tags: trees-gateway:latest
+          cache-from: type=gha,scope=gateway
+
+      - name: Boot the full stack (API key enforced)
+        run: |
+          cp .env.example .env
+          {
+            echo "ADMIN_EMAIL=admin@regression.forestry.local"
+            echo "ADMIN_PASSWORD=regression-admin-3b8d"
+            echo "AI_MODELS_ENABLED=false"
+            echo "GFW_API_KEY="
+          } >> .env
+          export REQUIRE_API_KEY=true API_KEY="${REGRESSION_API_KEY}" RATE_LIMIT_MAX=5000
+          docker compose up -d --no-build --wait --wait-timeout 240 db api gateway
+          docker compose ps
+          mkdir -p backend-python/reports
+
+      - name: Gateway refuses calls without the API key
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/api/company/space)
+          echo "sans clé → $code"
+          test "$code" = "401" || test "$code" = "403"
+
+      - name: Reference data (provinces) and demo seed
+        run: |
+          docker compose exec -T api python -m tools.import_provinces
+          docker compose exec -T api python -m tools.seed_demo
+
+      - name: Pilot story through the gateway
+        run: |
+          docker compose exec -T -e PILOT_API_KEY="${REGRESSION_API_KEY}" api \
+            python -m tools.seed_pilot --base-url http://gateway:3000 --report reports/pilote.json
+
+      - name: Detailed regression suite through the gateway
+        run: |
+          docker compose exec -T \
+            -e E2E_BASE_URL=http://gateway:3000 \
+            -e PILOT_API_KEY="${REGRESSION_API_KEY}" \
+            -e E2E_REPORT=reports/regression_etapes.json \
+            api python -m pytest tests_e2e -q -p no:cacheprovider \
+              --junitxml=reports/regression.xml
+
+      - name: Report
+        if: always()
+        run: |
+          python3 backend-python/scripts/regression_summary.py backend-python/reports >> "$GITHUB_STEP_SUMMARY" || true
+          docker compose logs --no-color api > backend-python/reports/api.log 2>&1 || true
+          docker compose logs --no-color gateway > backend-python/reports/gateway.log 2>&1 || true
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-reports
+          path: backend-python/reports/
+          retention-days: 30
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
