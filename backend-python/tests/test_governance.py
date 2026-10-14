@@ -295,7 +295,7 @@ def _setup(monkeypatch):
                 "created_at": "now",
             }
         if "update forest_titles set status" in s:
-            row = state["forest_titles"].get(args[5])
+            row = state["forest_titles"].get(args[-1])
             if row is None:
                 return None
             row["status"] = args[0]
@@ -520,6 +520,12 @@ def test_company_uploads_document_and_admin_verifies(client, monkeypatch):
     assert checklist.status_code == 200
     assert [d["status"] for d in checklist.json()] == ["soumis"]
 
+    unexplained = client.patch(
+        f"/api/documents/{doc_id}",
+        json={"status": "rejete"},
+        headers={"Authorization": f"Bearer {admin}"},
+    )
+    assert unexplained.status_code == 400
     verified = client.patch(
         f"/api/documents/{doc_id}",
         json={"status": "valide", "notes": "Pièce conforme"},
@@ -681,6 +687,19 @@ def test_company_requests_title_and_admin_advances(client, monkeypatch):
         headers={"Authorization": f"Bearer {admin}"},
     )
     assert invalid.status_code == 409
+
+    no_reason = client.patch(
+        f"/api/titles/{title_id}",
+        json={"decision": "rejete", "motif": "  "},
+        headers={"Authorization": f"Bearer {admin}"},
+    )
+    assert no_reason.status_code == 400
+    rejected = client.patch(
+        f"/api/titles/{title_id}",
+        json={"decision": "rejete", "motif": "Inventaire incomplet"},
+        headers={"Authorization": f"Bearer {admin}"},
+    )
+    assert rejected.status_code == 200
 
 
 def test_unknown_user_org_returns_conflict(client, monkeypatch):

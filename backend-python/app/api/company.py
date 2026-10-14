@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from app.core import profiles
 from app.core.deps import require_roles
-from app.services import db
+from app.services import company_space, db
 
 router = APIRouter()
 
@@ -152,3 +152,9 @@ async def release(
             detail="Résidu introuvable, non alloué, ou non détenu par votre compte",
         )
     return dict(updated)
+
+
+@router.get("/space")
+async def my_space(user: dict = Depends(require_roles("company"))):
+    """Actions due, Ministry decisions received, open anomalies and field controls."""
+    return await company_space.space(user)

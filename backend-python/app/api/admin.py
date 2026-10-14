@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from app.core import security
 from app.core.deps import require_roles
-from app.services import db, decisions, ministry
+from app.services import authorities, db, decisions, ministry
 
 router = APIRouter()
 
@@ -198,6 +198,14 @@ async def stats(admin: dict = Depends(require_roles("admin"))):
 async def inbox(_admin: dict = Depends(require_roles("admin"))):
     """What waits for a Ministry decision: counters per queue, oldest first, alerts."""
     return await ministry.inbox()
+
+
+@router.get("/authorities")
+async def authority_compass(_admin: dict = Depends(require_roles("admin"))):
+    """Stakeholders the Ministry acts for during the pilot, with pending files."""
+    data = await ministry.inbox()
+    pending = {q["key"]: q["count"] for q in data["queues"]}
+    return {"acting_authority": authorities.ACTING, "authorities": authorities.compass(pending)}
 
 
 @router.get("/inbox/items")

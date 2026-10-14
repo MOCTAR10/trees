@@ -5,7 +5,7 @@ decides them under Loi 016/01 (shown, not yet enforced — a single ``admin`` ro
 decides, frozen decision §10 pt 3) and the province of the title concerned.
 """
 
-from app.services import anomalies, db
+from app.services import anomalies, authorities, db
 
 #: queue key -> (label, competent authority, SQL returning id, label, org,
 #: created_at, title_id). Statuses are the real "submitted" ones of each table.
@@ -134,6 +134,7 @@ async def _queue_rows(key: str) -> list[dict]:
         item = dict(r)
         item["type"] = key
         item["authority"] = item.get("authority") or q["authority"]
+        item.update(authorities.competence(item["authority"]))
         out.append(item)
     return out
 
@@ -148,6 +149,7 @@ async def inbox() -> dict:
                 "key": key,
                 "label": q["label"],
                 "authority": q["authority"],
+                **authorities.competence(q["authority"]),
                 "count": len(rows),
                 "oldest_at": rows[0]["created_at"] if rows else None,
             }

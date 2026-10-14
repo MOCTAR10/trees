@@ -10,7 +10,14 @@ import json
 
 from fastapi import HTTPException
 
-from app.services import compliance, db
+from app.services import authorities, compliance, db
+
+CONTROL_AUTHORITY: dict[str, str] = {
+    "marquage": "Direction Provinciale",
+    "visa_df10": "Direction Provinciale",
+    "route": "DGF",
+    "transformation": "DGICBVPF",
+}
 
 CONTROL_TYPES = ("marquage", "visa_df10", "route", "transformation")
 RESULTS = ("conforme", "reserve", "non_conforme")
@@ -203,7 +210,9 @@ async def record(body: dict, admin: dict) -> dict:
     return dict(row)
 
 
-async def list_controls(kind: str | None = None, result: str | None = None) -> list[dict]:
+async def list_controls(
+    kind: str | None = None, result: str | None = None, org_id: int | None = None
+) -> list[dict]:
     rows = await db.fetch_all(
         """
         SELECT c.id, c.control_type, c.result, c.tree_code, c.transport_document_id, c.aac_id,
@@ -215,10 +224,17 @@ async def list_controls(kind: str | None = None, result: str | None = None) -> l
         LEFT JOIN organizations o ON o.id = c.org_id
         LEFT JOIN users u ON u.id = c.controlled_by
         WHERE ($1::text IS NULL OR c.control_type = $1) AND ($2::text IS NULL OR c.result = $2)
+          AND ($3::int IS NULL OR c.org_id = $3)
         ORDER BY c.controlled_at DESC
         LIMIT 300
         """,
         kind,
         result,
+        org_id,
     )
-    return [dict(r) for r in rows]
+    out = []
+    for r in rows:
+        item = dict(r)
+        item.update(authorities.competence(CONTROL_AUTHORITY.get(item["control_type"])))
+        out.append(item)
+    return out

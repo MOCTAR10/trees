@@ -191,6 +191,8 @@ async def verify(
     body: VerificationIn,
     admin: dict = Depends(require_roles("admin")),
 ):
+    if body.status == "rejete" and not (body.notes or "").strip():
+        raise HTTPException(status_code=400, detail="Motif obligatoire pour rejeter une pièce")
     row = await db.fetch_one(
         "UPDATE legal_documents SET status = $1, notes = $2, verified_by = $3, verified_at = now()"
         " WHERE id = $4 RETURNING id, scope_type, scope_id, doc_type, status, verified_by",

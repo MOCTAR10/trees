@@ -355,6 +355,8 @@ async def decide_title(
             status_code=409,
             detail=f"Transition {current['status']} → {body.decision} impossible",
         )
+    if body.decision in ("rejete", "retire") and not (body.motif or "").strip():
+        raise HTTPException(status_code=400, detail="Motif obligatoire pour un rejet ou un retrait")
 
     today = date.today()
     sets = ["status = $1", "decided_by = $2", "decided_at = now()", "decision_motif = $3"]
