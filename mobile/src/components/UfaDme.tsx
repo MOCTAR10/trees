@@ -12,7 +12,7 @@ import {
 
 import { clearUfaDme, getUfaDme, setUfaDme, UfaDmeEntry, UfaDmeView } from "../api/client";
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { type Tone } from "./Badge";
 
 function originTone(origin: UfaDmeEntry["origin"]): Tone {
@@ -30,6 +30,8 @@ function originTone(origin: UfaDmeEntry["origin"]): Tone {
  * enforced when it declares felling. Shared by CompanyTitles and AdminTitles.
  */
 export default function UfaDme({ ufaId, mode }: { ufaId: number; mode: "company" | "admin" }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [view, setView] = useState<UfaDmeView | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -72,7 +74,7 @@ export default function UfaDme({ ufaId, mode }: { ufaId: number; mode: "company"
       <Text style={styles.hint}>{fr.titles.dme.hint}</Text>
 
       {loading ? (
-        <ActivityIndicator color={colors.accent} />
+        <ActivityIndicator color={th.c.olive} />
       ) : (view?.entries.length ?? 0) === 0 ? (
         <Text style={styles.dim}>{fr.titles.dme.noEntries}</Text>
       ) : (
@@ -146,6 +148,8 @@ function EditModal({
   onClose: () => void;
   onSaved: (next: UfaDmeView) => void;
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [dmeText, setDmeText] = useState("");
   const [source, setSource] = useState("");
   const [busy, setBusy] = useState(false);
@@ -194,7 +198,7 @@ function EditModal({
             <TextInput
               style={styles.input}
               placeholder={fr.titles.dme.dmeCm}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={dmeText}
               onChangeText={setDmeText}
               keyboardType="numeric"
@@ -203,7 +207,7 @@ function EditModal({
             <TextInput
               style={styles.input}
               placeholder={fr.titles.dme.sourcePlaceholder}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={source}
               onChangeText={setSource}
               testID="dme-source"
@@ -221,7 +225,7 @@ function EditModal({
                 testID="dme-save"
               >
                 {busy ? (
-                  <ActivityIndicator color={colors.primary} />
+                  <ActivityIndicator color={th.c.onOlive} />
                 ) : (
                   <Text style={styles.submitText}>{fr.titles.dme.save}</Text>
                 )}
@@ -234,79 +238,80 @@ function EditModal({
   );
 }
 
-const styles = StyleSheet.create({
-  section: { gap: spacing.xs, marginTop: spacing.sm },
-  sectionTitle: { color: colors.accent, fontSize: type.body, fontWeight: "800" },
-  hint: { color: colors.textDim, fontSize: type.caption, marginBottom: spacing.xs },
-  dim: { color: colors.textDim, fontSize: type.caption },
+const useStyles = makeStyles((th) => ({
+  section: { gap: th.space.xs, marginTop: th.space.sm },
+  sectionTitle: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  hint: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body, marginBottom: th.space.xs },
+  dim: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: spacing.sm,
-    paddingVertical: spacing.xs,
+    gap: th.space.sm,
+    paddingVertical: th.space.xs,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: th.c.line,
   },
   info: { flex: 1, gap: 2 },
-  species: { color: colors.text, fontSize: type.caption, fontWeight: "700" },
-  meta: { color: colors.textDim, fontSize: type.caption },
-  trailing: { alignItems: "flex-end", gap: spacing.xs },
+  species: { color: th.c.ink, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  meta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  trailing: { alignItems: "flex-end", gap: th.space.xs },
   smallBtn: {
     borderRadius: 6,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.surface,
+    paddingVertical: th.space.xs,
+    paddingHorizontal: th.space.lg,
+    backgroundColor: th.c.surface,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  smallBtnText: { color: colors.text, fontSize: type.caption, fontWeight: "800" },
-  message: { color: colors.accent, fontSize: type.caption, fontWeight: "700", marginTop: spacing.xs },
-  error: { color: colors.error, fontSize: type.caption, marginBottom: spacing.sm },
+  smallBtnText: { color: th.c.ink, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  message: { color: th.c.olive, fontSize: 12, fontFamily: th.fonts.bodyBold, marginTop: th.space.xs },
+  error: { color: th.c.risk, fontSize: 12, fontFamily: th.fonts.body, marginBottom: th.space.sm },
   backdrop: { flex: 1, backgroundColor: "rgba(14,21,18,0.8)", justifyContent: "flex-end" },
   modal: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    padding: spacing.lg,
+    padding: th.space.xl,
     maxHeight: "85%",
   },
-  form: { paddingBottom: spacing.sm },
+  form: { paddingBottom: th.space.sm },
   modalTitle: {
-    color: colors.text,
-    fontSize: type.heading,
-    fontWeight: "700",
-    marginBottom: spacing.sm,
+    color: th.c.ink,
+    fontSize: 19,
+    fontFamily: th.fonts.bodyBold,
+    marginBottom: th.space.sm,
   },
-  fieldLabel: { color: colors.text, fontSize: type.body, fontWeight: "700", marginBottom: spacing.sm },
+  fieldLabel: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold, marginBottom: th.space.sm },
   input: {
-    backgroundColor: colors.background,
+    backgroundColor: th.c.bg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: type.body,
-    marginBottom: spacing.sm,
+    borderColor: th.c.line,
+    color: th.c.ink,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    fontSize: 15,
+    fontFamily: th.fonts.body,
+    marginBottom: th.space.sm,
   },
-  actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.sm },
+  actions: { flexDirection: "row", gap: th.space.sm, marginTop: th.space.sm },
   cancelBtn: {
     flex: 1,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  cancelText: { color: colors.text, fontSize: type.body, fontWeight: "700" },
+  cancelText: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
   submitBtn: {
     flex: 2,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
   },
-  submitText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
+  submitText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   submitDisabled: { opacity: 0.6 },
-});
+}));

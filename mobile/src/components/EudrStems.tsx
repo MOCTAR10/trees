@@ -3,7 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "rea
 
 import { DiligenceStem, listDiligenceStems } from "../api/client";
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { Tone } from "./Badge";
 
 function stemTone(inside: boolean | null): Tone {
@@ -29,6 +29,8 @@ function coords(stem: DiligenceStem): string | null {
  * declared parcel polygon. Read-only, shared by the company and the Ministry.
  */
 export default function EudrStems({ diligenceId }: { diligenceId: number }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [open, setOpen] = useState(false);
   const [stems, setStems] = useState<DiligenceStem[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -66,7 +68,7 @@ export default function EudrStems({ diligenceId }: { diligenceId: number }) {
         </Text>
       </TouchableOpacity>
 
-      {open && loading ? <ActivityIndicator color={colors.accent} /> : null}
+      {open && loading ? <ActivityIndicator color={th.c.olive} /> : null}
       {open && !loading && error ? <Text style={styles.error}>{error}</Text> : null}
       {open && !loading && !error && stems.length === 0 ? (
         <Text style={styles.dim}>{fr.fiscal.noGeolocatedStems}</Text>
@@ -89,28 +91,28 @@ export default function EudrStems({ diligenceId }: { diligenceId: number }) {
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: { marginTop: spacing.sm },
+const useStyles = makeStyles((th) => ({
+  wrap: { marginTop: th.space.sm },
   smallBtn: {
     alignSelf: "flex-start",
-    borderColor: colors.border,
+    borderColor: th.c.line,
     borderRadius: 8,
     borderWidth: 1,
-    marginBottom: spacing.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    marginBottom: th.space.sm,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.xs,
   },
-  smallBtnText: { color: colors.accent, fontSize: type.caption, fontWeight: "800" },
+  smallBtnText: { color: th.c.olive, fontSize: 12, fontFamily: th.fonts.bodyBold },
   row: {
     alignItems: "center",
-    borderTopColor: colors.border,
+    borderTopColor: th.c.line,
     borderTopWidth: 1,
     flexDirection: "row",
-    paddingVertical: spacing.sm,
+    paddingVertical: th.space.sm,
   },
   main: { flex: 1 },
-  code: { color: colors.text, fontSize: type.body, fontWeight: "700" },
-  meta: { color: colors.textDim, fontSize: type.caption },
-  dim: { color: colors.textDim, fontSize: type.body },
-  error: { color: colors.error, fontSize: type.caption, fontWeight: "700" },
-});
+  code: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  meta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  dim: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body },
+  error: { color: th.c.risk, fontSize: 12, fontFamily: th.fonts.bodyBold },
+}));

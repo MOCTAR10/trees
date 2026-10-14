@@ -22,13 +22,15 @@ import {
   setUserActive,
 } from "../api/client";
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 const ROLES: Role[] = ["operator", "company", "cooperative", "admin"];
 
 const roleLabel = (role: Role) => fr.roles[role];
 
 export default function AdminUsers() {
+  const th = useTheme();
+  const styles = useStyles();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [coops, setCoops] = useState<Cooperation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,7 +76,7 @@ export default function AdminUsers() {
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       {loading ? (
-        <ActivityIndicator style={styles.center} color={colors.accent} />
+        <ActivityIndicator style={styles.center} color={th.c.olive} />
       ) : (
         <FlatList
           data={users}
@@ -93,7 +95,7 @@ export default function AdminUsers() {
                   <Switch
                     value={item.is_active}
                     onValueChange={(v) => toggle(item, v)}
-                    trackColor={{ true: colors.accent, false: colors.border }}
+                    trackColor={{ true: th.c.olive, false: th.c.line }}
                   />
                   <Text style={styles.activeText}>
                     {item.is_active ? fr.admin.active : fr.admin.inactive}
@@ -129,6 +131,8 @@ function CreateUserModal({
   onClose: () => void;
   onCreated: () => void;
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -198,7 +202,7 @@ function CreateUserModal({
                   testID="admin-first-name"
                   style={styles.input}
                   placeholder={fr.profile.firstName}
-                  placeholderTextColor={colors.textDim}
+                  placeholderTextColor={th.c.muted}
                   autoCapitalize="words"
                   value={firstName}
                   onChangeText={setFirstName}
@@ -207,7 +211,7 @@ function CreateUserModal({
                   testID="admin-last-name"
                   style={styles.input}
                   placeholder={fr.profile.lastName}
-                  placeholderTextColor={colors.textDim}
+                  placeholderTextColor={th.c.muted}
                   autoCapitalize="words"
                   value={lastName}
                   onChangeText={setLastName}
@@ -216,7 +220,7 @@ function CreateUserModal({
                   testID="admin-matricule"
                   style={styles.input}
                   placeholder={fr.admin.matriculeField}
-                  placeholderTextColor={colors.textDim}
+                  placeholderTextColor={th.c.muted}
                   autoCapitalize="characters"
                   value={matricule}
                   onChangeText={setMatricule}
@@ -226,7 +230,7 @@ function CreateUserModal({
               <TextInput
                 style={styles.input}
                 placeholder={fr.admin.nameField}
-                placeholderTextColor={colors.textDim}
+                placeholderTextColor={th.c.muted}
                 value={name}
                 onChangeText={setName}
               />
@@ -234,7 +238,7 @@ function CreateUserModal({
             <TextInput
               style={styles.input}
               placeholder={fr.admin.emailField}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               autoCapitalize="none"
               keyboardType="email-address"
               value={email}
@@ -243,7 +247,7 @@ function CreateUserModal({
             <TextInput
               style={styles.input}
               placeholder={fr.admin.passwordField}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               secureTextEntry
               value={password}
               onChangeText={setPassword}
@@ -298,7 +302,7 @@ function CreateUserModal({
                 disabled={busy}
               >
                 {busy ? (
-                  <ActivityIndicator color={colors.primary} />
+                  <ActivityIndicator color={th.c.onOlive} />
                 ) : (
                   <Text style={styles.submitText}>{fr.admin.createBtn}</Text>
                 )}
@@ -311,97 +315,98 @@ function CreateUserModal({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((th) => ({
   container: { flex: 1 },
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
   newBtn: {
-    margin: spacing.md,
-    backgroundColor: colors.accent,
+    margin: th.space.lg,
+    backgroundColor: th.c.olive,
     borderRadius: 10,
-    paddingVertical: spacing.sm,
+    paddingVertical: th.space.sm,
     alignItems: "center",
   },
-  newBtnText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
-  error: { color: colors.error, fontSize: type.caption, paddingHorizontal: spacing.md },
-  list: { paddingHorizontal: spacing.md, paddingBottom: spacing.lg, gap: spacing.sm },
+  newBtnText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  error: { color: th.c.risk, fontSize: 12, fontFamily: th.fonts.body, paddingHorizontal: th.space.lg },
+  list: { paddingHorizontal: th.space.lg, paddingBottom: th.space.xl, gap: th.space.sm },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
+    borderColor: th.c.line,
+    padding: th.space.lg,
   },
   cardTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   cardTexts: { flex: 1, minWidth: 0 },
-  name: { color: colors.text, fontSize: type.body, fontWeight: "700" },
-  email: { color: colors.textDim, fontSize: type.caption },
-  role: { color: colors.accent, fontSize: type.caption, fontWeight: "700", marginTop: 2 },
+  name: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  email: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  role: { color: th.c.olive, fontSize: 12, fontFamily: th.fonts.bodyBold, marginTop: 2 },
   switchCol: { alignItems: "center", gap: 2 },
-  activeText: { color: colors.textDim, fontSize: type.caption },
+  activeText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
   backdrop: { flex: 1, backgroundColor: "rgba(14,21,18,0.8)", justifyContent: "flex-end" },
   modal: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    padding: spacing.lg,
+    padding: th.space.xl,
     maxHeight: "85%",
   },
   modalTitle: {
-    color: colors.text,
-    fontSize: type.heading,
-    fontWeight: "700",
-    marginBottom: spacing.sm,
+    color: th.c.ink,
+    fontSize: 19,
+    fontFamily: th.fonts.bodyBold,
+    marginBottom: th.space.sm,
   },
-  form: { paddingBottom: spacing.sm },
+  form: { paddingBottom: th.space.sm },
   input: {
-    backgroundColor: colors.background,
+    backgroundColor: th.c.bg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: type.body,
-    marginBottom: spacing.sm,
+    borderColor: th.c.line,
+    color: th.c.ink,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    fontSize: 15,
+    fontFamily: th.fonts.body,
+    marginBottom: th.space.sm,
   },
-  fieldLabel: { color: colors.textDim, fontSize: type.caption, marginBottom: spacing.xs },
+  fieldLabel: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body, marginBottom: th.space.xs },
   roleRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacing.xs,
-    marginBottom: spacing.sm,
+    gap: th.space.xs,
+    marginBottom: th.space.sm,
   },
   roleChip: {
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
     borderRadius: 20,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.xs,
   },
-  roleChipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
-  roleChipText: { color: colors.textDim, fontSize: type.caption, fontWeight: "600" },
-  roleChipTextActive: { color: colors.primary },
-  coopList: { maxHeight: 160, marginBottom: spacing.sm },
-  coopRow: { paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.border },
-  coopName: { color: colors.text, fontSize: type.caption },
-  coopNameActive: { color: colors.accent, fontWeight: "700" },
-  actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.sm },
+  roleChipActive: { backgroundColor: th.c.olive, borderColor: th.c.olive },
+  roleChipText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  roleChipTextActive: { color: th.c.onOlive },
+  coopList: { maxHeight: 160, marginBottom: th.space.sm },
+  coopRow: { paddingVertical: th.space.sm, borderBottomWidth: 1, borderBottomColor: th.c.line },
+  coopName: { color: th.c.ink, fontSize: 12, fontFamily: th.fonts.body },
+  coopNameActive: { color: th.c.olive, fontFamily: th.fonts.bodyBold },
+  actions: { flexDirection: "row", gap: th.space.sm, marginTop: th.space.sm },
   cancelBtn: {
     flex: 1,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  cancelText: { color: colors.text, fontSize: type.body, fontWeight: "700" },
+  cancelText: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
   submitBtn: {
     flex: 2,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
   },
   submitDisabled: { opacity: 0.6 },
-  submitText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
-});
+  submitText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+}));

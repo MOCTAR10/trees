@@ -28,7 +28,7 @@ import {
   TitleStatus,
 } from "../api/client";
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 import AacAuthorizations from "./AacAuthorizations";
 import OrgBackfill from "./OrgBackfill";
 import TitleConventions from "./TitleConventions";
@@ -64,6 +64,8 @@ const fmtSurface = (ha: number | null) =>
 
 /** Ministry view: title decisions, UFA/AAC delineation and annual authorizations. */
 export default function AdminTitles() {
+  const th = useTheme();
+  const styles = useStyles();
   const [titles, setTitles] = useState<ForestTitle[]>([]);
   const [orgs, setOrgs] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
@@ -188,7 +190,7 @@ export default function AdminTitles() {
   };
 
   if (loading) {
-    return <ActivityIndicator style={styles.center} color={colors.accent} />;
+    return <ActivityIndicator style={styles.center} color={th.c.olive} />;
   }
   if (error) {
     return (
@@ -266,7 +268,7 @@ export default function AdminTitles() {
                     </TouchableOpacity>
                   </View>
                   {unitsLoading === title.id ? (
-                    <ActivityIndicator color={colors.accent} />
+                    <ActivityIndicator color={th.c.olive} />
                   ) : (units[title.id] ?? []).length === 0 ? (
                     <Text style={styles.dim}>{fr.titles.noUnits}</Text>
                   ) : (
@@ -297,7 +299,7 @@ export default function AdminTitles() {
                               </TouchableOpacity>
                             </View>
                             {aacsLoading === unit.id ? (
-                              <ActivityIndicator color={colors.accent} />
+                              <ActivityIndicator color={th.c.olive} />
                             ) : (aacs[unit.id] ?? []).length === 0 ? (
                               <Text style={styles.dim}>{fr.titles.noAacs}</Text>
                             ) : (
@@ -394,6 +396,8 @@ function AddUnitModal({
   onClose: () => void;
   onSaved: (titleId: number) => void;
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [label, setLabel] = useState("");
   const [surface, setSurface] = useState("");
   const [planRef, setPlanRef] = useState("");
@@ -440,14 +444,14 @@ function AddUnitModal({
             <TextInput
               style={styles.input}
               placeholder={fr.titles.unitLabel}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={label}
               onChangeText={setLabel}
             />
             <TextInput
               style={styles.input}
               placeholder={fr.titles.surface}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={surface}
               onChangeText={setSurface}
               keyboardType="numeric"
@@ -455,7 +459,7 @@ function AddUnitModal({
             <TextInput
               style={styles.input}
               placeholder={fr.titles.reference}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={planRef}
               onChangeText={setPlanRef}
             />
@@ -471,7 +475,7 @@ function AddUnitModal({
                 testID="unit-submit"
               >
                 {busy ? (
-                  <ActivityIndicator color={colors.primary} />
+                  <ActivityIndicator color={th.c.onOlive} />
                 ) : (
                   <Text style={styles.submitText}>{fr.titles.addUnit}</Text>
                 )}
@@ -493,6 +497,8 @@ function AddAacModal({
   onClose: () => void;
   onSaved: (ufaId: number) => void;
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [label, setLabel] = useState("");
   const [campaign, setCampaign] = useState(String(new Date().getFullYear()));
   const [surface, setSurface] = useState("");
@@ -544,14 +550,14 @@ function AddAacModal({
             <TextInput
               style={styles.input}
               placeholder={fr.titles.aacLabel}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={label}
               onChangeText={setLabel}
             />
             <TextInput
               style={styles.input}
               placeholder={fr.titles.campaign}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={campaign}
               onChangeText={setCampaign}
               keyboardType="numeric"
@@ -559,7 +565,7 @@ function AddAacModal({
             <TextInput
               style={styles.input}
               placeholder={fr.titles.surface}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={surface}
               onChangeText={setSurface}
               keyboardType="numeric"
@@ -567,7 +573,7 @@ function AddAacModal({
             <TextInput
               style={styles.input}
               placeholder={`${fr.titles.possibility} (${fr.titles.m3})`}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={possibility}
               onChangeText={setPossibility}
               keyboardType="numeric"
@@ -584,7 +590,7 @@ function AddAacModal({
                 testID="aac-submit"
               >
                 {busy ? (
-                  <ActivityIndicator color={colors.primary} />
+                  <ActivityIndicator color={th.c.onOlive} />
                 ) : (
                   <Text style={styles.submitText}>{fr.titles.addAac}</Text>
                 )}
@@ -606,6 +612,8 @@ function MotifModal({
   onClose: () => void;
   onConfirm: (title: ForestTitle, decision: TitleDecision, motif: string) => void;
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [motif, setMotif] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -631,7 +639,7 @@ function MotifModal({
           <TextInput
             style={styles.input}
             placeholder={fr.titles.motif}
-            placeholderTextColor={colors.textDim}
+            placeholderTextColor={th.c.muted}
             value={motif}
             onChangeText={setMotif}
             multiline
@@ -655,118 +663,119 @@ function MotifModal({
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+const useStyles = makeStyles((th) => ({
+  container: { flex: 1, backgroundColor: th.c.bg },
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    gap: spacing.md,
-    padding: spacing.lg,
+    gap: th.space.lg,
+    padding: th.space.xl,
   },
-  error: { color: colors.error, fontSize: type.body, textAlign: "center" },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
+  error: { color: th.c.risk, fontSize: 15, fontFamily: th.fonts.body, textAlign: "center" },
+  link: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   message: {
-    color: colors.success,
-    fontSize: type.caption,
-    fontWeight: "700",
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
+    color: th.c.ok,
+    fontSize: 12,
+    fontFamily: th.fonts.bodyBold,
+    paddingHorizontal: th.space.lg,
+    paddingTop: th.space.sm,
   },
-  list: { padding: spacing.md, gap: spacing.sm, paddingBottom: spacing.xl },
+  list: { padding: th.space.lg, gap: th.space.sm, paddingBottom: th.space.xxl },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
   cardTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: th.space.sm,
   },
-  cardTitle: { color: colors.text, fontSize: type.body, fontWeight: "800", flex: 1 },
-  meta: { color: colors.textDim, fontSize: type.caption },
-  dim: { color: colors.textDim, fontSize: type.body, marginTop: spacing.xs },
-  detail: { gap: spacing.sm, marginTop: spacing.sm },
+  cardTitle: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold, flex: 1 },
+  meta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  dim: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body, marginTop: th.space.xs },
+  detail: { gap: th.space.sm, marginTop: th.space.sm },
   sectionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  section: { color: colors.accent, fontSize: type.body, fontWeight: "800" },
+  section: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   subCard: {
-    backgroundColor: colors.background,
+    backgroundColor: th.c.bg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.sm,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.sm,
+    gap: th.space.xs,
   },
-  subTitle: { color: colors.text, fontSize: type.body, fontWeight: "700" },
+  subTitle: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
   aacCard: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: th.c.surface2,
     borderRadius: 8,
-    padding: spacing.sm,
-    gap: spacing.xs,
+    padding: th.space.sm,
+    gap: th.space.xs,
   },
-  aacTitle: { color: colors.text, fontSize: type.body, fontWeight: "700", flex: 1 },
+  aacTitle: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold, flex: 1 },
   decideRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacing.sm,
-    marginTop: spacing.sm,
+    gap: th.space.sm,
+    marginTop: th.space.sm,
   },
-  decide: { borderRadius: 8, paddingVertical: spacing.sm, paddingHorizontal: spacing.md },
-  approve: { backgroundColor: colors.success },
-  reject: { backgroundColor: colors.error },
-  decideText: { color: "#FFFFFF", fontSize: type.caption, fontWeight: "800" },
+  decide: { borderRadius: 8, paddingVertical: th.space.sm, paddingHorizontal: th.space.lg },
+  approve: { backgroundColor: th.c.ok },
+  reject: { backgroundColor: th.c.risk },
+  decideText: { color: "#FFFFFF", fontSize: 12, fontFamily: th.fonts.bodyBold },
   backdrop: { flex: 1, backgroundColor: "rgba(14,21,18,0.8)", justifyContent: "flex-end" },
   modal: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    padding: spacing.lg,
+    padding: th.space.xl,
     maxHeight: "85%",
   },
   modalTitle: {
-    color: colors.text,
-    fontSize: type.heading,
-    fontWeight: "700",
-    marginBottom: spacing.sm,
+    color: th.c.ink,
+    fontSize: 19,
+    fontFamily: th.fonts.bodyBold,
+    marginBottom: th.space.sm,
   },
-  form: { paddingBottom: spacing.sm },
+  form: { paddingBottom: th.space.sm },
   input: {
-    backgroundColor: colors.background,
+    backgroundColor: th.c.bg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: type.body,
-    marginBottom: spacing.sm,
+    borderColor: th.c.line,
+    color: th.c.ink,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    fontSize: 15,
+    fontFamily: th.fonts.body,
+    marginBottom: th.space.sm,
   },
-  actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.sm },
+  actions: { flexDirection: "row", gap: th.space.sm, marginTop: th.space.sm },
   cancelBtn: {
     flex: 1,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  cancelText: { color: colors.text, fontSize: type.body, fontWeight: "700" },
+  cancelText: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
   submitBtn: {
     flex: 2,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
   },
-  submitText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
+  submitText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   submitDisabled: { opacity: 0.6 },
-});
+}));

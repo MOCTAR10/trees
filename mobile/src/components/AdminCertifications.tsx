@@ -20,7 +20,7 @@ import {
 } from "../api/client";
 import { fr } from "../i18n/fr";
 import { exportCertificationPdf, sharePdf } from "../pdf";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { certTone } from "./Badge";
 
 type PendingDecision = { cert: Certification; action: "rejete" | "suspendu" };
@@ -29,6 +29,8 @@ const FILTERS: (CertStatus | "all")[] = ["all", "soumis", "actif", "suspendu", "
 
 /** Ministry view: verify, reject or suspend third-party certifications. */
 export default function AdminCertifications() {
+  const th = useTheme();
+  const styles = useStyles();
   const [certs, setCerts] = useState<Certification[]>([]);
   const [summary, setSummary] = useState<CertificationSummary | null>(null);
   const [filter, setFilter] = useState<CertStatus | "all">("all");
@@ -136,7 +138,7 @@ export default function AdminCertifications() {
       {message ? <Text style={styles.success}>{message}</Text> : null}
 
       {loading ? (
-        <ActivityIndicator style={styles.center} color={colors.accent} />
+        <ActivityIndicator style={styles.center} color={th.c.olive} />
       ) : visible.length === 0 ? (
         <View style={styles.center}>
           <Text style={styles.dim}>{fr.cert.noCerts}</Text>
@@ -236,6 +238,8 @@ function MotifModal({
   onClose: () => void;
   onConfirm: (pending: PendingDecision, motif: string) => void;
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [motif, setMotif] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -263,7 +267,7 @@ function MotifModal({
           <TextInput
             style={styles.input}
             placeholder={fr.cert.motif}
-            placeholderTextColor={colors.textDim}
+            placeholderTextColor={th.c.muted}
             value={motif}
             onChangeText={setMotif}
             multiline
@@ -289,121 +293,122 @@ function MotifModal({
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+const useStyles = makeStyles((th) => ({
+  container: { flex: 1, backgroundColor: th.c.bg },
   summary: {
-    margin: spacing.md,
+    margin: th.space.lg,
     marginBottom: 0,
-    padding: spacing.md,
+    padding: th.space.lg,
     borderRadius: 12,
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
     alignItems: "center",
-    gap: spacing.xs,
+    gap: th.space.xs,
   },
-  summaryValue: { color: colors.accent, fontSize: type.heading, fontWeight: "800" },
-  summaryLabel: { color: colors.textDim, fontSize: type.caption },
-  summaryRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs },
+  summaryValue: { color: th.c.olive, fontSize: 19, fontFamily: th.fonts.bodyBold },
+  summaryLabel: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  summaryRow: { flexDirection: "row", flexWrap: "wrap", gap: th.space.xs },
   summaryChip: {
-    color: colors.text,
-    fontSize: type.caption,
-    fontWeight: "700",
-    backgroundColor: colors.surfaceAlt,
+    color: th.c.ink,
+    fontSize: 12,
+    fontFamily: th.fonts.bodyBold,
+    backgroundColor: th.c.surface2,
     borderRadius: 8,
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: th.space.sm,
     paddingVertical: 2,
   },
-  filters: { flexGrow: 0, marginTop: spacing.sm },
+  filters: { flexGrow: 0, marginTop: th.space.sm },
   filtersContent: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
-    paddingHorizontal: spacing.md,
+    gap: th.space.sm,
+    paddingHorizontal: th.space.lg,
   },
   filter: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.xs,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  filterOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  filterText: { color: colors.textDim, fontSize: type.caption, fontWeight: "700" },
-  filterTextOn: { color: colors.primary },
-  success: { color: colors.success, fontSize: type.caption, fontWeight: "700", margin: spacing.sm },
+  filterOn: { backgroundColor: th.c.olive, borderColor: th.c.olive },
+  filterText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  filterTextOn: { color: th.c.onOlive },
+  success: { color: th.c.ok, fontSize: 12, fontFamily: th.fonts.bodyBold, margin: th.space.sm },
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  dim: { color: colors.textDim, fontSize: type.body },
-  error: { color: colors.error, fontSize: type.body, textAlign: "center" },
-  list: { padding: spacing.md, gap: spacing.sm },
+  dim: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body },
+  error: { color: th.c.risk, fontSize: 15, fontFamily: th.fonts.body, textAlign: "center" },
+  list: { padding: th.space.lg, gap: th.space.sm },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
   cardTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: th.space.sm,
   },
-  scheme: { color: colors.text, fontSize: type.body, fontWeight: "700", flex: 1 },
-  meta: { color: colors.textDim, fontSize: type.caption },
-  actionsRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm, marginTop: spacing.xs },
+  scheme: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold, flex: 1 },
+  meta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  actionsRow: { flexDirection: "row", flexWrap: "wrap", gap: th.space.sm, marginTop: th.space.xs },
   smallBtn: {
     borderRadius: 8,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.surfaceAlt,
+    paddingVertical: th.space.xs,
+    paddingHorizontal: th.space.lg,
+    backgroundColor: th.c.surface2,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  approve: { backgroundColor: colors.success, borderColor: colors.success },
-  reject: { backgroundColor: colors.error, borderColor: colors.error },
-  smallBtnText: { color: colors.text, fontSize: type.caption, fontWeight: "800" },
+  approve: { backgroundColor: th.c.ok, borderColor: th.c.ok },
+  reject: { backgroundColor: th.c.risk, borderColor: th.c.risk },
+  smallBtnText: { color: th.c.ink, fontSize: 12, fontFamily: th.fonts.bodyBold },
   backdrop: { flex: 1, backgroundColor: "rgba(14,21,18,0.8)", justifyContent: "flex-end" },
   modal: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    padding: spacing.lg,
+    padding: th.space.xl,
   },
   modalTitle: {
-    color: colors.text,
-    fontSize: type.heading,
-    fontWeight: "700",
-    marginBottom: spacing.sm,
+    color: th.c.ink,
+    fontSize: 19,
+    fontFamily: th.fonts.bodyBold,
+    marginBottom: th.space.sm,
   },
   input: {
-    backgroundColor: colors.background,
+    backgroundColor: th.c.bg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: type.body,
-    marginBottom: spacing.sm,
+    borderColor: th.c.line,
+    color: th.c.ink,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    fontSize: 15,
+    fontFamily: th.fonts.body,
+    marginBottom: th.space.sm,
   },
-  actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.sm },
+  actions: { flexDirection: "row", gap: th.space.sm, marginTop: th.space.sm },
   cancelBtn: {
     flex: 1,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  cancelText: { color: colors.text, fontSize: type.body, fontWeight: "700" },
+  cancelText: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
   submitBtn: {
     flex: 2,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
   },
-  submitText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
-});
+  submitText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+}));

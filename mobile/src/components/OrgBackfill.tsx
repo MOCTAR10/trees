@@ -3,7 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "rea
 
 import { backfillAccounts, listOrphanAccounts, OrphanAccount } from "../api/client";
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 /**
  * Ministry view (Slice 13): accounts created before the organization registry
@@ -12,6 +12,8 @@ import { colors, spacing, type } from "../theme";
  * backfill is idempotent and traces the source account (``legacy_user_id``).
  */
 export default function OrgBackfill({ onBackfilled }: { onBackfilled?: () => void }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [orphans, setOrphans] = useState<OrphanAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -56,7 +58,7 @@ export default function OrgBackfill({ onBackfilled }: { onBackfilled?: () => voi
     <View style={styles.section}>
       <Text style={styles.title}>{fr.org.legacyTitle}</Text>
       {loading ? (
-        <ActivityIndicator color={colors.accent} />
+        <ActivityIndicator color={th.c.olive} />
       ) : error ? (
         <Text style={styles.error} testID="backfill-error">
           {error}
@@ -93,31 +95,31 @@ export default function OrgBackfill({ onBackfilled }: { onBackfilled?: () => voi
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((th) => ({
   section: {
-    borderColor: colors.border,
+    borderColor: th.c.line,
     borderRadius: 10,
     borderWidth: 1,
-    marginBottom: spacing.md,
-    padding: spacing.md,
+    marginBottom: th.space.lg,
+    padding: th.space.lg,
   },
   title: {
-    color: colors.text,
-    fontSize: type.body,
-    fontWeight: "700",
-    marginBottom: spacing.sm,
+    color: th.c.ink,
+    fontSize: 15,
+    fontFamily: th.fonts.bodyBold,
+    marginBottom: th.space.sm,
   },
-  meta: { color: colors.textDim, fontSize: type.caption, marginBottom: spacing.xs },
-  dim: { color: colors.textDim, fontSize: type.body },
-  error: { color: colors.error, fontSize: type.caption, fontWeight: "700" },
-  message: { color: colors.success, fontSize: type.caption, fontWeight: "700", marginTop: spacing.sm },
+  meta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body, marginBottom: th.space.xs },
+  dim: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body },
+  error: { color: th.c.risk, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  message: { color: th.c.ok, fontSize: 12, fontFamily: th.fonts.bodyBold, marginTop: th.space.sm },
   action: {
     alignSelf: "flex-start",
-    backgroundColor: colors.primary,
+    backgroundColor: th.c.forest,
     borderRadius: 8,
-    marginTop: spacing.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    marginTop: th.space.sm,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
   },
-  actionText: { color: colors.accent, fontSize: type.caption, fontWeight: "800" },
-});
+  actionText: { color: th.c.olive, fontSize: 12, fontFamily: th.fonts.bodyBold },
+}));

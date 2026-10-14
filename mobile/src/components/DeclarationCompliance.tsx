@@ -8,7 +8,7 @@ import {
   listDocumentTypes,
 } from "../api/client";
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge from "./Badge";
 
 function warningLabel(w: ComplianceWarning, docLabels: Record<string, string>): string {
@@ -28,6 +28,8 @@ function warningLabel(w: ComplianceWarning, docLabels: Record<string, string>): 
 
 /** Two-tier compliance verdict for a felling declaration (Ministry view). */
 export default function DeclarationCompliance({ declarationId }: { declarationId: number }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [assessment, setAssessment] = useState<ComplianceAssessment | null>(null);
   const [docLabels, setDocLabels] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -56,7 +58,7 @@ export default function DeclarationCompliance({ declarationId }: { declarationId
   }, [load]);
 
   if (loading) {
-    return <ActivityIndicator color={colors.accent} />;
+    return <ActivityIndicator color={th.c.olive} />;
   }
   if (error || !assessment) {
     return <Text style={styles.error}>{error ?? fr.docs.verifyError}</Text>;
@@ -98,16 +100,16 @@ export default function DeclarationCompliance({ declarationId }: { declarationId
   );
 }
 
-const styles = StyleSheet.create({
-  container: { gap: spacing.xs, marginTop: spacing.sm },
+const useStyles = makeStyles((th) => ({
+  container: { gap: th.space.xs, marginTop: th.space.sm },
   head: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  section: { color: colors.accent, fontSize: type.body, fontWeight: "800" },
-  groupTitle: { color: colors.text, fontSize: type.caption, fontWeight: "800", marginTop: spacing.xs },
-  blocker: { color: colors.error, fontSize: type.caption, fontWeight: "700" },
-  warning: { color: colors.warning, fontSize: type.caption, fontWeight: "600" },
-  error: { color: colors.error, fontSize: type.caption },
-});
+  section: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  groupTitle: { color: th.c.ink, fontSize: 12, fontFamily: th.fonts.bodyBold, marginTop: th.space.xs },
+  blocker: { color: th.c.risk, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  warning: { color: th.c.warn, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  error: { color: th.c.risk, fontSize: 12, fontFamily: th.fonts.body },
+}));

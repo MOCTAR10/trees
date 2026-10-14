@@ -11,7 +11,7 @@ import {
 import { dashboardOverview, DashboardOverview } from "../api/client";
 import { fr } from "../i18n/fr";
 import { exportDashboardPdf, sharePdf } from "../pdf";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 function fmtInt(value: number | null | undefined): string {
   const n = Math.round(Number(value ?? 0));
@@ -26,6 +26,8 @@ function fmtNum(value: number | null | undefined, digits: number): string {
 
 /** Ministry view: cross-cutting operational rollup (workflow analysis §7.2 pt 7). */
 export default function AdminDashboard() {
+  const th = useTheme();
+  const styles = useStyles();
   const [data, setData] = useState<DashboardOverview | null>(null);
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +61,7 @@ export default function AdminDashboard() {
   if (!data) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color={colors.accent} />
+        <ActivityIndicator color={th.c.olive} />
       </View>
     );
   }
@@ -190,6 +192,8 @@ export default function AdminDashboard() {
 }
 
 function Row({ label, value }: { label: string; value: string }) {
+  const th = useTheme();
+  const styles = useStyles();
   return (
     <View style={styles.kvRow}>
       <Text style={styles.kvLabel}>{label}</Text>
@@ -198,67 +202,67 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.sm },
-  list: { padding: spacing.md, gap: spacing.xs },
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+const useStyles = makeStyles((th) => ({
+  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: th.space.sm },
+  list: { padding: th.space.lg, gap: th.space.xs },
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: th.space.sm },
   cell: {
     width: "48%",
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
-  cellValue: { color: colors.text, fontSize: type.heading, fontWeight: "800" },
-  cellLabel: { color: colors.textDim, fontSize: type.caption },
+  cellValue: { color: th.c.ink, fontSize: 19, fontFamily: th.fonts.bodyBold },
+  cellLabel: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: spacing.md,
+    marginTop: th.space.lg,
   },
-  section: { color: colors.accent, fontSize: type.body, fontWeight: "800", marginTop: spacing.sm },
+  section: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold, marginTop: th.space.sm },
   exportBtn: {
     borderRadius: 8,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.surfaceAlt,
+    paddingVertical: th.space.xs,
+    paddingHorizontal: th.space.lg,
+    backgroundColor: th.c.surface2,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  exportText: { color: colors.text, fontSize: type.caption, fontWeight: "800" },
-  error: { color: colors.error, fontSize: type.body },
+  exportText: { color: th.c.ink, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  error: { color: th.c.risk, fontSize: 15, fontFamily: th.fonts.body },
   table: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
   tableHead: { flexDirection: "row", alignItems: "center" },
-  th: { color: colors.textDim, fontSize: type.caption, fontWeight: "800" },
+  th: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.bodyBold },
   tr: {
     flexDirection: "row",
     alignItems: "center",
     borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: spacing.xs,
+    borderTopColor: th.c.line,
+    paddingTop: th.space.xs,
   },
-  td: { color: colors.text, fontSize: type.body },
+  td: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.body },
   colSpecies: { flex: 1 },
   colNum: { width: 70, textAlign: "right" },
-  dim: { color: colors.textDim, fontSize: type.body, paddingVertical: spacing.sm },
+  dim: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body, paddingVertical: th.space.sm },
   kvRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: spacing.sm,
+    paddingVertical: th.space.sm,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: th.c.line,
   },
-  kvLabel: { color: colors.textDim, fontSize: type.body, flex: 1 },
-  kvValue: { color: colors.text, fontSize: type.body, fontWeight: "800" },
-});
+  kvLabel: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body, flex: 1 },
+  kvValue: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
+}));

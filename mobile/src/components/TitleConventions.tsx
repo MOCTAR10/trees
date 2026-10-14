@@ -21,7 +21,7 @@ import {
 } from "../api/client";
 import { fr } from "../i18n/fr";
 import { exportConventionPdf, sharePdf } from "../pdf";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { conventionTone } from "./Badge";
 
 /** Conventions (provisoire / définitive) + attestation de conformité of a
@@ -39,6 +39,8 @@ export default function TitleConventions({
   titleId: number;
   mode: "company" | "admin";
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [conventions, setConventions] = useState<TitleConvention[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -139,7 +141,7 @@ export default function TitleConventions({
       {message ? <Text style={styles.success}>{message}</Text> : null}
 
       {loading ? (
-        <ActivityIndicator color={colors.accent} />
+        <ActivityIndicator color={th.c.olive} />
       ) : conventions.length === 0 ? (
         <Text style={styles.dim}>{fr.titles.convention.none}</Text>
       ) : (
@@ -263,6 +265,8 @@ function CreateModal({
   onClose: () => void;
   onCreated: () => void;
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [reference, setReference] = useState("");
   const [signedAt, setSignedAt] = useState("");
   const [start, setStart] = useState("");
@@ -319,7 +323,7 @@ function CreateModal({
             <TextInput
               style={styles.input}
               placeholder={fr.titles.convention.reference}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={reference}
               onChangeText={setReference}
               autoCapitalize="characters"
@@ -328,7 +332,7 @@ function CreateModal({
             <TextInput
               style={styles.input}
               placeholder={`${fr.titles.convention.signedAt} (AAAA-MM-JJ)`}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={signedAt}
               onChangeText={setSignedAt}
               testID="conv-signed"
@@ -336,7 +340,7 @@ function CreateModal({
             <TextInput
               style={styles.input}
               placeholder="Début (AAAA-MM-JJ)"
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={start}
               onChangeText={setStart}
               testID="conv-start"
@@ -344,7 +348,7 @@ function CreateModal({
             <TextInput
               style={styles.input}
               placeholder="Fin (AAAA-MM-JJ)"
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={end}
               onChangeText={setEnd}
               testID="conv-end"
@@ -352,7 +356,7 @@ function CreateModal({
             <TextInput
               style={styles.input}
               placeholder={fr.titles.convention.surface}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={surface}
               onChangeText={setSurface}
               keyboardType="numeric"
@@ -371,7 +375,7 @@ function CreateModal({
                 testID="conv-submit"
               >
                 {busy ? (
-                  <ActivityIndicator color={colors.primary} />
+                  <ActivityIndicator color={th.c.onOlive} />
                 ) : (
                   <Text style={styles.submitText}>{fr.titles.convention.requested}</Text>
                 )}
@@ -393,6 +397,8 @@ function AttestationModal({
   onClose: () => void;
   onConfirm: (conv: TitleConvention, reference: string) => void;
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [reference, setReference] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -418,7 +424,7 @@ function AttestationModal({
           <TextInput
             style={styles.input}
             placeholder={fr.titles.convention.attestationRef}
-            placeholderTextColor={colors.textDim}
+            placeholderTextColor={th.c.muted}
             value={reference}
             onChangeText={setReference}
             autoCapitalize="characters"
@@ -452,6 +458,8 @@ function TerminateModal({
   onClose: () => void;
   onConfirm: (conv: TitleConvention, status: ConventionStatus, motif: string) => void;
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [status, setStatus] = useState<ConventionStatus>("resiliee");
   const [motif, setMotif] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -493,7 +501,7 @@ function TerminateModal({
           <TextInput
             style={styles.input}
             placeholder={fr.titles.convention.motif}
-            placeholderTextColor={colors.textDim}
+            placeholderTextColor={th.c.muted}
             value={motif}
             onChangeText={setMotif}
             testID="conv-terminate-motif"
@@ -517,104 +525,105 @@ function TerminateModal({
   );
 }
 
-const styles = StyleSheet.create({
-  section: { gap: spacing.sm, marginTop: spacing.sm },
+const useStyles = makeStyles((th) => ({
+  section: { gap: th.space.sm, marginTop: th.space.sm },
   sectionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     flexWrap: "wrap",
-    gap: spacing.sm,
+    gap: th.space.sm,
   },
-  sectionTitle: { color: colors.accent, fontSize: type.body, fontWeight: "800" },
-  links: { flexDirection: "row", gap: spacing.md },
-  link: { color: colors.accent, fontSize: type.caption, fontWeight: "800" },
-  success: { color: colors.success, fontSize: type.caption, fontWeight: "700" },
-  dim: { color: colors.textDim, fontSize: type.caption },
+  sectionTitle: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  links: { flexDirection: "row", gap: th.space.lg },
+  link: { color: th.c.olive, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  success: { color: th.c.ok, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  dim: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
   card: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: th.c.surface2,
     borderRadius: 8,
-    padding: spacing.sm,
-    gap: spacing.xs,
+    padding: th.space.sm,
+    gap: th.space.xs,
   },
   cardTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     flexWrap: "wrap",
-    gap: spacing.sm,
+    gap: th.space.sm,
   },
-  cardTitle: { color: colors.text, fontSize: type.body, fontWeight: "700", flexShrink: 1 },
-  meta: { color: colors.textDim, fontSize: type.caption },
+  cardTitle: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold, flexShrink: 1 },
+  meta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
   actionsRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacing.sm,
-    marginTop: spacing.xs,
+    gap: th.space.sm,
+    marginTop: th.space.xs,
   },
   smallBtn: {
     borderRadius: 8,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.surface,
+    paddingVertical: th.space.xs,
+    paddingHorizontal: th.space.lg,
+    backgroundColor: th.c.surface,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  approve: { backgroundColor: colors.success, borderColor: colors.success },
-  reject: { backgroundColor: colors.error, borderColor: colors.error },
-  smallBtnText: { color: colors.text, fontSize: type.caption, fontWeight: "800" },
+  approve: { backgroundColor: th.c.ok, borderColor: th.c.ok },
+  reject: { backgroundColor: th.c.risk, borderColor: th.c.risk },
+  smallBtnText: { color: th.c.ink, fontSize: 12, fontFamily: th.fonts.bodyBold },
   backdrop: { flex: 1, backgroundColor: "rgba(14,21,18,0.8)", justifyContent: "flex-end" },
   modal: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    padding: spacing.lg,
+    padding: th.space.xl,
     maxHeight: "85%",
   },
   modalTitle: {
-    color: colors.text,
-    fontSize: type.heading,
-    fontWeight: "700",
-    marginBottom: spacing.sm,
+    color: th.c.ink,
+    fontSize: 19,
+    fontFamily: th.fonts.bodyBold,
+    marginBottom: th.space.sm,
   },
   form: { gap: 0 },
-  chips: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.sm },
+  chips: { flexDirection: "row", gap: th.space.sm, marginBottom: th.space.sm },
   chip: {
     borderRadius: 8,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.surfaceAlt,
+    paddingVertical: th.space.xs,
+    paddingHorizontal: th.space.lg,
+    backgroundColor: th.c.surface2,
   },
-  chipOn: { backgroundColor: colors.accent },
-  chipText: { color: colors.textDim, fontSize: type.caption, fontWeight: "800" },
-  chipTextOn: { color: colors.primary },
+  chipOn: { backgroundColor: th.c.olive },
+  chipText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  chipTextOn: { color: th.c.onOlive },
   input: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: th.c.surface2,
     borderRadius: 8,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    color: colors.text,
-    fontSize: type.body,
-    marginBottom: spacing.sm,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    color: th.c.ink,
+    fontSize: 15,
+    fontFamily: th.fonts.body,
+    marginBottom: th.space.sm,
   },
-  error: { color: colors.error, fontSize: type.caption },
-  actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.sm },
+  error: { color: th.c.risk, fontSize: 12, fontFamily: th.fonts.body },
+  actions: { flexDirection: "row", gap: th.space.sm, marginTop: th.space.sm },
   cancelBtn: {
     flex: 1,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  cancelText: { color: colors.text, fontSize: type.body, fontWeight: "700" },
+  cancelText: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
   submitBtn: {
     flex: 2,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
   },
-  submitText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
+  submitText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   submitDisabled: { opacity: 0.6 },
-});
+}));

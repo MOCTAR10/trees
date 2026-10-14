@@ -12,13 +12,15 @@ import {
 import { Df10Entry, getStatement, listDf10, Statement } from "../api/client";
 import { exportDf10Pdf, exportStatementPdf, sharePdf } from "../pdf";
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge from "./Badge";
 
 const QUARTERS: (number | null)[] = [null, 1, 2, 3, 4];
 
 /** Ministry view: national DF10 register + periodic statements (read-only). */
 export default function AdminTraceability() {
+  const th = useTheme();
+  const styles = useStyles();
   const [mode, setMode] = useState<"df10" | "statements">("df10");
   const [message, setMessage] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
@@ -128,7 +130,7 @@ export default function AdminTraceability() {
 
       {mode === "df10" ? (
         loading ? (
-          <ActivityIndicator style={styles.center} color={colors.accent} />
+          <ActivityIndicator style={styles.center} color={th.c.olive} />
         ) : error ? (
           <View style={styles.center}>
             <Text style={styles.error}>{error}</Text>
@@ -185,7 +187,7 @@ export default function AdminTraceability() {
             <TextInput
               style={[styles.input, styles.yearInput]}
               placeholder={fr.traceability.year}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={year}
               onChangeText={setYear}
               keyboardType="numeric"
@@ -210,7 +212,7 @@ export default function AdminTraceability() {
           </View>
 
           {stLoading ? (
-            <ActivityIndicator color={colors.accent} />
+            <ActivityIndicator color={th.c.olive} />
           ) : stError ? (
             <Text style={styles.error}>{stError}</Text>
           ) : statement ? (
@@ -291,104 +293,105 @@ export default function AdminTraceability() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((th) => ({
   container: { flex: 1 },
   segment: {
     flexDirection: "row",
-    gap: spacing.xs,
-    padding: spacing.sm,
+    gap: th.space.xs,
+    padding: th.space.sm,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: th.c.line,
   },
   segBtn: {
     flex: 1,
     alignItems: "center",
-    paddingVertical: spacing.sm,
+    paddingVertical: th.space.sm,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  segOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  segText: { color: colors.textDim, fontSize: type.caption, fontWeight: "700" },
-  segTextOn: { color: colors.primary },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.md },
-  error: { color: colors.error, fontSize: type.body, textAlign: "center" },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  list: { padding: spacing.md, gap: spacing.sm, paddingBottom: spacing.xl },
-  note: { color: colors.textDim, fontSize: type.caption, fontStyle: "italic" },
+  segOn: { backgroundColor: th.c.olive, borderColor: th.c.olive },
+  segText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  segTextOn: { color: th.c.onOlive },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: th.space.lg },
+  error: { color: th.c.risk, fontSize: 15, fontFamily: th.fonts.body, textAlign: "center" },
+  link: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  list: { padding: th.space.lg, gap: th.space.sm, paddingBottom: th.space.xxl },
+  note: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body, fontStyle: "italic" },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
   cardTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: th.space.sm,
   },
-  title: { color: colors.text, fontSize: type.body, fontWeight: "700", flex: 1 },
-  meta: { color: colors.textDim, fontSize: type.caption },
-  abandon: { color: colors.warning, fontSize: type.caption, fontWeight: "700" },
-  dim: { color: colors.textDim, fontSize: type.body, marginTop: spacing.sm, textAlign: "center" },
+  title: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold, flex: 1 },
+  meta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  abandon: { color: th.c.warn, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  dim: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body, marginTop: th.space.sm, textAlign: "center" },
   success: {
-    color: colors.success,
-    fontSize: type.body,
-    fontWeight: "700",
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
+    color: th.c.ok,
+    fontSize: 15,
+    fontFamily: th.fonts.bodyBold,
+    paddingHorizontal: th.space.lg,
+    paddingTop: th.space.sm,
   },
   action: {
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
     borderRadius: 10,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
+    paddingVertical: th.space.sm,
+    paddingHorizontal: th.space.lg,
     alignItems: "center",
   },
-  actionText: { color: colors.primary, fontSize: type.caption, fontWeight: "800" },
-  filters: { flexDirection: "row", gap: spacing.sm, alignItems: "center" },
+  actionText: { color: th.c.onOlive, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  filters: { flexDirection: "row", gap: th.space.sm, alignItems: "center" },
   yearInput: { flex: 1, marginBottom: 0 },
   input: {
-    backgroundColor: colors.background,
+    backgroundColor: th.c.bg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: type.body,
+    borderColor: th.c.line,
+    color: th.c.ink,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    fontSize: 15,
+    fontFamily: th.fonts.body,
   },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: th.space.xs },
   chip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.xs,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.background,
+    borderColor: th.c.line,
+    backgroundColor: th.c.bg,
   },
-  chipOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  chipText: { color: colors.textDim, fontSize: type.caption, fontWeight: "700" },
-  chipTextOn: { color: colors.primary },
-  cellRow: { flexDirection: "row", gap: spacing.sm },
+  chipOn: { backgroundColor: th.c.olive, borderColor: th.c.olive },
+  chipText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  chipTextOn: { color: th.c.onOlive },
+  cellRow: { flexDirection: "row", gap: th.space.sm },
   cell: {
     flex: 1,
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
-  cellValue: { color: colors.text, fontSize: type.heading, fontWeight: "800" },
-  cellLabel: { color: colors.textDim, fontSize: type.caption },
+  cellValue: { color: th.c.ink, fontSize: 19, fontFamily: th.fonts.bodyBold },
+  cellLabel: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
   section: {
-    color: colors.accent,
-    fontSize: type.body,
-    fontWeight: "800",
-    marginTop: spacing.sm,
+    color: th.c.olive,
+    fontSize: 15,
+    fontFamily: th.fonts.bodyBold,
+    marginTop: th.space.sm,
   },
-});
+}));

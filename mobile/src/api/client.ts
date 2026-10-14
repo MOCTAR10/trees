@@ -572,6 +572,8 @@ export interface DeclarationInput {
   permit_number: string;
   ufa_label?: string | null;
   aac_label?: string | null;
+  title_id?: number | null;
+  aac_id?: number | null;
   campaign_year?: number | null;
   lines: DeclarationLineInput[];
 }
@@ -2733,3 +2735,226 @@ export async function dashboardOverview(): Promise<DashboardOverview> {
   if (!resp.ok) throw new Error(`Dashboard ${resp.status}`);
   return resp.json();
 }
+
+// ---------------------------------------------------------------------------
+// Espace Ministère (Slice 20): inbox, provinces, organisations, titles
+// ---------------------------------------------------------------------------
+
+export type InboxQueueKey =
+  | "declarations"
+  | "documents"
+  | "authorizations"
+  | "pao"
+  | "studies"
+  | "certifications"
+  | "eudr"
+  | "titles"
+  | "anomalies"
+  | "orphans";
+
+export interface InboxQueue {
+  key: InboxQueueKey;
+  label: string;
+  authority: string;
+  count: number;
+  oldest_at: string | null;
+}
+
+export interface InboxAlert {
+  level: "risk" | "warn";
+  kind: "anomalies_hard" | "documents_expired" | "taxes_overdue";
+  count: number;
+  amount_fcfa?: number;
+}
+
+export interface AdminInbox {
+  total: number;
+  queues: InboxQueue[];
+  alerts: InboxAlert[];
+}
+
+export interface InboxItem {
+  id: number;
+  type: InboxQueueKey;
+  label: string;
+  org_name: string | null;
+  created_at: string | null;
+  authority: string;
+  province_code: string | null;
+  province_name: string | null;
+}
+
+export interface ProvinceSummary {
+  code: string;
+  name: string;
+  organisations: number;
+  titles: number;
+  surface_ha: number;
+}
+
+export interface OrganisationEntry {
+  id: number;
+  org_type: OrgType;
+  name: string;
+  profile_code: string | null;
+  profile_label: string | null;
+  is_active: boolean;
+  tax_id: string | null;
+  email: string | null;
+  phone: string | null;
+  titles: number;
+  surface_ha: number;
+  provinces: string[];
+  accounts: number;
+  documents_missing: number;
+  documents_pending: number;
+  taxes_overdue: number;
+}
+
+export interface OrganisationSheetFull {
+  entry: OrganisationEntry;
+  titles: {
+    id: number;
+    title_type: string;
+    reference: string | null;
+    status: string;
+    zone: string;
+    surface_ha: number | null;
+    province_code: string | null;
+    province_source: "manuel" | "geometrie" | null;
+    province_name: string | null;
+  }[];
+  accounts: {
+    id: number;
+    email: string;
+    display_name: string;
+    first_name: string | null;
+    last_name: string | null;
+    matricule: string | null;
+    role: Role;
+    is_active: boolean;
+  }[];
+  certifications: { id: number; scheme: string; cert_type: string; status: string; valid_to: string | null }[];
+  warnings: { kind: string; doc_type?: string; status?: string; tax_type?: string; period_year?: number }[];
+}
+
+async function getLabeled<T>(path: string, label: string): Promise<T> {
+  const resp = await timedFetch(`${API_BASE}${path}`, { headers: headers() });
+  if (!resp.ok) throw new Error(`${label} ${resp.status}`);
+  return resp.json();
+}
+
+async function postJson<T>(path: string, body: unknown, label: string): Promise<T> {
+  const resp = await timedFetch(`${API_BASE}${path}`, {
+    method: "POST",
+    headers: headers(true),
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) {
+    let detail = "";
+    try {
+      const data = await resp.json();
+      detail = typeof data?.detail === "string" ? data.detail : "";
+    } catch {
+      detail = "";
+    }
+    throw new Error(detail || `${label} ${resp.status}`);
+  }
+  return resp.json();
+}
+
+export const getAdminInbox = () => getLabeled<AdminInbox>("/api/admin/inbox", "Inbox");
+
+export function getInboxItems(type?: InboxQueueKey | null, province?: string | null): Promise<InboxItem[]> {
+  const params = new URLSearchParams();
+  if (type) params.set("type", type);
+  if (province) params.set("province", province);
+  const q = params.toString();
+  return getLabeled<InboxItem[]>(`/api/admin/inbox/items${q ? `?${q}` : ""}`, "Inbox items");
+}
+
+export const getProvinces = () => getLabeled<ProvinceSummary[]>("/api/admin/provinces", "Provinces");
+
+export function getOrganisationDirectory(province?: string | null, type?: OrgType | null): Promise<OrganisationEntry[]> {
+  const params = new URLSearchParams();
+  if (province) params.set("province", province);
+  if (type) params.set("type", type);
+  const q = params.toString();
+  return getLabeled<OrganisationEntry[]>(`/api/organizations/directory${q ? `?${q}` : ""}`, "Directory");
+}
+
+export async function getOrganisationSheet(id: number): Promise<OrganisationSheetFull> {
+  const raw = await getLabeled<
+    OrganisationEntry & {
+      titles: OrganisationSheetFull["titles"];
+      accounts: OrganisationSheetFull["accounts"];
+      certifications: OrganisationSheetFull["certifications"];
+      warnings: OrganisationSheetFull["warnings"];
+    }
+  >(`/api/organizations/${id}/sheet`, "Sheet");
+  const { titles, accounts, certifications, warnings, ...entry } = raw;
+  return {
+    entry: { ...(entry as unknown as OrganisationEntry), titles: titles.length, accounts: accounts.length },
+    titles,
+    accounts,
+    certifications,
+    warnings,
+  };
+}
+
+export function createOrganisation(input: {
+  name: string;
+  profile_code?: string | null;
+  org_type?: OrgType | null;
+  tax_id?: string | null;
+  email?: string | null;
+  phone?: string | null;
+}): Promise<{ organization: { id: number; org_type: OrgType; profile_code: string | null } }> {
+  return postJson("/api/organizations", input, "Create organisation");
+}
+
+export function createOrganisationAccount(
+  orgId: number,
+  input: {
+    email: string;
+    password: string;
+    role: "company" | "operator" | "cooperative";
+    first_name?: string;
+    last_name?: string;
+    matricule?: string;
+  },
+): Promise<{ id: number; email: string; display_name: string }> {
+  return postJson(`/api/organizations/${orgId}/accounts`, input, "Create account");
+}
+
+export function registerTitle(input: {
+  holder_org_id: number;
+  title_type: "CFAD" | "PFA" | "PGG" | "FC";
+  reference?: string | null;
+  zone?: "permanent" | "rural";
+  surface_ha?: number | null;
+  status?: "demande" | "exploration" | "provisoire" | "actif";
+  province_code?: string | null;
+}): Promise<{ id: number; status: string; province_code: string | null }> {
+  return postJson("/api/titles/register", input, "Register title");
+}
+
+export function setTitleProvince(titleId: number, provinceCode: string | null): Promise<{ id: number; province_code: string | null }> {
+  return postJson(`/api/titles/${titleId}/province`, { province_code: provinceCode }, "Title province");
+}
+
+export type AacBlocker = "no_aac" | "aac_not_held" | "no_authorization" | "authorization_pending" | "startup_not_notified";
+
+export interface FellingAacOption {
+  id: number;
+  label: string;
+  status: string;
+  campaign_year: number | null;
+  ufa_label: string;
+  title_id: number;
+  title_type: string;
+  title_reference: string | null;
+  blocker: AacBlocker | null;
+}
+
+export const listFellingAacOptions = () => getLabeled<FellingAacOption[]>("/api/felling/aac-options", "AAC options");

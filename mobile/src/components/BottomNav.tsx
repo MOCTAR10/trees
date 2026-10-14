@@ -1,6 +1,10 @@
 import {
+  Building2,
+  Inbox,
+  LayoutDashboard,
   House,
   Map,
+  Menu,
   ScanLine,
   TreeDeciduous,
   Trees,
@@ -37,6 +41,9 @@ const ICONS: Record<TabKey, IconComponent> = {
   identify: ScanLine,
   map: Map,
   history: Trees,
+  inbox: Inbox,
+  orgs: Building2,
+  menu: Menu,
 };
 
 const SPRING = {
@@ -56,7 +63,7 @@ export default function BottomNav({ user, active, onChange }: Props) {
         <TabItem
           key={tab.key}
           tab={tab}
-          icon={ICONS[tab.key]}
+          icon={user.role === "admin" && tab.key === "home" ? LayoutDashboard : ICONS[tab.key]}
           isCenter={!!tab.centerFor?.includes(user.role)}
           isActive={active === tab.key}
           onPress={() => onChange(tab.key)}
@@ -112,7 +119,14 @@ function TabItem({
           <Icon size={22} color={isActive ? t.c.olive : t.c.muted} strokeWidth={isActive ? 2.3 : 1.8} />
         </View>
       )}
-      <Text style={[s.label, isActive && s.labelActive, isCenter && s.labelCenter]}>{tab.label}</Text>
+      <Text
+        style={[s.label, isActive && s.labelActive, isCenter && s.labelCenter]}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.8}
+      >
+        {tab.label}
+      </Text>
     </Pressable>
   );
 }
@@ -166,7 +180,7 @@ const useStyles = makeStyles((t) => ({
     shadowOffset: { width: 0, height: 4 },
     elevation: 8,
   },
-  label: { color: t.c.muted, fontFamily: t.fonts.body, fontSize: 12 },
+  label: { color: t.c.muted, fontFamily: t.fonts.body, fontSize: 12, textAlign: "center", paddingHorizontal: 2 },
   labelActive: { color: t.c.olive, fontFamily: t.fonts.bodyBold },
   labelCenter: { color: t.c.ink, fontFamily: t.fonts.bodyBold },
 }));

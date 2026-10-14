@@ -29,7 +29,7 @@ import {
 } from "../api/client";
 import { exportDiligencePdf, sharePdf } from "../pdf";
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { taxTone, Tone } from "./Badge";
 import EudrStems from "./EudrStems";
 
@@ -61,6 +61,8 @@ const fcfa = (value: number | null | undefined): string =>
 
 /** Ministry view: tax dues, CCC/FDL agreements and EUDR diligence to decide. */
 export default function AdminFiscal() {
+  const th = useTheme();
+  const styles = useStyles();
   const [mode, setMode] = useState<"dues" | "ccc" | "eudr">("dues");
   const [message, setMessage] = useState<string | null>(null);
   const [titles, setTitles] = useState<ForestTitle[]>([]);
@@ -171,7 +173,7 @@ export default function AdminFiscal() {
 
       {mode === "dues" ? (
         dueLoading ? (
-          <ActivityIndicator style={styles.center} color={colors.accent} />
+          <ActivityIndicator style={styles.center} color={th.c.olive} />
         ) : dueError ? (
           <View style={styles.center}>
             <Text style={styles.error}>{dueError}</Text>
@@ -216,7 +218,7 @@ export default function AdminFiscal() {
         )
       ) : mode === "ccc" ? (
         cccLoading ? (
-          <ActivityIndicator style={styles.center} color={colors.accent} />
+          <ActivityIndicator style={styles.center} color={th.c.olive} />
         ) : cccError ? (
           <View style={styles.center}>
             <Text style={styles.error}>{cccError}</Text>
@@ -271,7 +273,7 @@ export default function AdminFiscal() {
           </ScrollView>
         )
       ) : eudrLoading ? (
-        <ActivityIndicator style={styles.center} color={colors.accent} />
+        <ActivityIndicator style={styles.center} color={th.c.olive} />
       ) : eudrError ? (
         <View style={styles.center}>
           <Text style={styles.error}>{eudrError}</Text>
@@ -370,6 +372,8 @@ function DueModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [titleId, setTitleId] = useState<number | null>(null);
   const [taxType, setTaxType] = useState<TaxType>("superficie");
   const [year, setYear] = useState(String(new Date().getFullYear()));
@@ -465,7 +469,7 @@ function DueModal({
             <TextInput
               style={styles.input}
               placeholder={fr.taxes.period}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={year}
               onChangeText={setYear}
               keyboardType="numeric"
@@ -473,7 +477,7 @@ function DueModal({
             <TextInput
               style={styles.input}
               placeholder={fr.taxes.amount}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={amount}
               onChangeText={setAmount}
               keyboardType="numeric"
@@ -481,7 +485,7 @@ function DueModal({
             <TextInput
               style={styles.input}
               placeholder={fr.fiscal.dueAt}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={dueAt}
               onChangeText={setDueAt}
               autoCapitalize="none"
@@ -489,7 +493,7 @@ function DueModal({
             <TextInput
               style={styles.input}
               placeholder={fr.traceability.notes}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={notes}
               onChangeText={setNotes}
             />
@@ -505,7 +509,7 @@ function DueModal({
                 testID="due-submit"
               >
                 {busy ? (
-                  <ActivityIndicator color={colors.primary} />
+                  <ActivityIndicator color={th.c.onOlive} />
                 ) : (
                   <Text style={styles.submitText}>{fr.fiscal.newDue}</Text>
                 )}
@@ -527,6 +531,8 @@ function AgreementDecisionModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [status, setStatus] = useState<AgreementStatus>("actif");
   const [cgsp, setCgsp] = useState("");
   const [busy, setBusy] = useState(false);
@@ -583,7 +589,7 @@ function AgreementDecisionModal({
             <TextInput
               style={styles.input}
               placeholder={fr.fiscal.cgsp}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={cgsp}
               onChangeText={setCgsp}
               keyboardType="numeric"
@@ -600,7 +606,7 @@ function AgreementDecisionModal({
                 testID="agreement-decision-submit"
               >
                 {busy ? (
-                  <ActivityIndicator color={colors.primary} />
+                  <ActivityIndicator color={th.c.onOlive} />
                 ) : (
                   <Text style={styles.submitText}>{fr.fiscal.decide}</Text>
                 )}
@@ -622,6 +628,8 @@ function EudrDecisionModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const th = useTheme();
+  const styles = useStyles();
   const [status, setStatus] = useState<"valide" | "rejete">("valide");
   const [motif, setMotif] = useState("");
   const [busy, setBusy] = useState(false);
@@ -680,7 +688,7 @@ function EudrDecisionModal({
             <TextInput
               style={styles.input}
               placeholder={fr.fiscal.motif}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={th.c.muted}
               value={motif}
               onChangeText={setMotif}
             />
@@ -696,7 +704,7 @@ function EudrDecisionModal({
                 testID="eudr-decision-submit"
               >
                 {busy ? (
-                  <ActivityIndicator color={colors.primary} />
+                  <ActivityIndicator color={th.c.onOlive} />
                 ) : (
                   <Text style={styles.submitText}>{fr.fiscal.decide}</Text>
                 )}
@@ -709,143 +717,144 @@ function EudrDecisionModal({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((th) => ({
   container: { flex: 1 },
   segment: {
     flexDirection: "row",
-    gap: spacing.xs,
-    padding: spacing.sm,
+    gap: th.space.xs,
+    padding: th.space.sm,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: th.c.line,
   },
   segBtn: {
     flex: 1,
     alignItems: "center",
-    paddingVertical: spacing.sm,
+    paddingVertical: th.space.sm,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  segOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  segText: { color: colors.textDim, fontSize: type.caption, fontWeight: "700" },
-  segTextOn: { color: colors.primary },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.md },
-  error: { color: colors.error, fontSize: type.body, textAlign: "center" },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  list: { padding: spacing.md, gap: spacing.sm, paddingBottom: spacing.xl },
+  segOn: { backgroundColor: th.c.olive, borderColor: th.c.olive },
+  segText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  segTextOn: { color: th.c.onOlive },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: th.space.lg },
+  error: { color: th.c.risk, fontSize: 15, fontFamily: th.fonts.body, textAlign: "center" },
+  link: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  list: { padding: th.space.lg, gap: th.space.sm, paddingBottom: th.space.xxl },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
   cardTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: th.space.sm,
   },
-  title: { color: colors.text, fontSize: type.body, fontWeight: "700", flex: 1 },
-  meta: { color: colors.textDim, fontSize: type.caption },
-  warn: { color: colors.warning, fontSize: type.caption, fontWeight: "700" },
-  dim: { color: colors.textDim, fontSize: type.body, marginTop: spacing.sm },
+  title: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold, flex: 1 },
+  meta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  warn: { color: th.c.warn, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  dim: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body, marginTop: th.space.sm },
   success: {
-    color: colors.success,
-    fontSize: type.body,
-    fontWeight: "700",
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
+    color: th.c.ok,
+    fontSize: 15,
+    fontFamily: th.fonts.bodyBold,
+    paddingHorizontal: th.space.lg,
+    paddingTop: th.space.sm,
   },
   action: {
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
     borderRadius: 10,
-    paddingVertical: spacing.sm,
+    paddingVertical: th.space.sm,
     alignItems: "center",
   },
-  actionText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
-  actionsRow: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.xs },
+  actionText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  actionsRow: { flexDirection: "row", gap: th.space.sm, marginTop: th.space.xs },
   smallBtn: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: th.c.surface2,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
     borderRadius: 8,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
+    paddingVertical: th.space.sm,
+    paddingHorizontal: th.space.lg,
     alignItems: "center",
-    marginTop: spacing.xs,
+    marginTop: th.space.xs,
   },
   smallBtnFlex: { flex: 1, marginTop: 0 },
-  smallBtnText: { color: colors.accent, fontSize: type.caption, fontWeight: "800" },
-  cellRow: { flexDirection: "row", gap: spacing.sm },
+  smallBtnText: { color: th.c.olive, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  cellRow: { flexDirection: "row", gap: th.space.sm },
   cell: {
     flex: 1,
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
-  cellValue: { color: colors.text, fontSize: type.heading, fontWeight: "800" },
-  cellLabel: { color: colors.textDim, fontSize: type.caption },
+  cellValue: { color: th.c.ink, fontSize: 19, fontFamily: th.fonts.bodyBold },
+  cellLabel: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
   backdrop: { flex: 1, backgroundColor: "rgba(14,21,18,0.8)", justifyContent: "flex-end" },
   modal: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    padding: spacing.lg,
+    padding: th.space.xl,
     maxHeight: "85%",
   },
   modalTitle: {
-    color: colors.text,
-    fontSize: type.heading,
-    fontWeight: "700",
-    marginBottom: spacing.sm,
+    color: th.c.ink,
+    fontSize: 19,
+    fontFamily: th.fonts.bodyBold,
+    marginBottom: th.space.sm,
   },
-  form: { paddingBottom: spacing.sm },
-  fieldLabel: { color: colors.textDim, fontSize: type.caption, marginBottom: spacing.xs },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs, marginBottom: spacing.sm },
+  form: { paddingBottom: th.space.sm },
+  fieldLabel: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body, marginBottom: th.space.xs },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: th.space.xs, marginBottom: th.space.sm },
   chip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.xs,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.background,
+    borderColor: th.c.line,
+    backgroundColor: th.c.bg,
   },
-  chipOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  chipText: { color: colors.textDim, fontSize: type.caption, fontWeight: "700" },
-  chipTextOn: { color: colors.primary },
+  chipOn: { backgroundColor: th.c.olive, borderColor: th.c.olive },
+  chipText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  chipTextOn: { color: th.c.onOlive },
   input: {
-    backgroundColor: colors.background,
+    backgroundColor: th.c.bg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: type.body,
-    marginBottom: spacing.sm,
+    borderColor: th.c.line,
+    color: th.c.ink,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    fontSize: 15,
+    fontFamily: th.fonts.body,
+    marginBottom: th.space.sm,
   },
-  modalActions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.sm },
+  modalActions: { flexDirection: "row", gap: th.space.sm, marginTop: th.space.sm },
   cancelBtn: {
     flex: 1,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  cancelText: { color: colors.text, fontSize: type.body, fontWeight: "700" },
+  cancelText: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
   submitBtn: {
     flex: 2,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
   },
-  submitText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
+  submitText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   disabled: { opacity: 0.6 },
-});
+}));

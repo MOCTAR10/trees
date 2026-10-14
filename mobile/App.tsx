@@ -18,7 +18,7 @@ import { EmptyState } from './src/design/ui';
 import { fr } from './src/i18n/fr';
 import { colors, spacing, type } from './src/theme';
 import { sharePdf, exportPlanPdf, exportReportPdf } from './src/pdf';
-import { acceptProjectInvitation, AuthUser, companyProfile, cooperativeProfile, declineProjectInvitation, getHomeSummary, getMe, HomeProject, HomeSummary, joinProject, pingGateway, processScanV1, processScanV2, setUnauthorizedHandler, V1Report, V2Response } from './src/api/client';
+import { acceptProjectInvitation, AuthUser, companyProfile, cooperativeProfile, declineProjectInvitation, getHomeSummary, getMe, HomeProject, HomeSummary, InboxQueueKey, joinProject, pingGateway, processScanV1, processScanV2, setUnauthorizedHandler, V1Report, V2Response } from './src/api/client';
 import type { CaptureResult } from './src/screens/CaptureScreen';
 import CompanyScreen from './src/screens/CompanyScreen';
 import CooperativeScreen from './src/screens/CooperativeScreen';
@@ -26,7 +26,6 @@ import HistoryScreen from './src/screens/HistoryScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import ReportScreen from './src/screens/ReportScreen';
-import AdminScreen from './src/screens/AdminScreen';
 import BottomNav from './src/components/BottomNav';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import LoadingScreen from './src/components/LoadingScreen';
@@ -45,6 +44,13 @@ const ChantierScreen = React.lazy(() => import('./src/screens/ChantierScreen'));
 import CreateProjectScreen from './src/screens/CreateProjectScreen';
 import ProjetsScreen from './src/screens/ProjetsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import MinistryHomeScreen from './src/screens/ministry/MinistryHomeScreen';
+import InboxScreen from './src/screens/ministry/InboxScreen';
+import OrganisationsScreen from './src/screens/ministry/OrganisationsScreen';
+import OrganisationScreen from './src/screens/ministry/OrganisationScreen';
+import MenuScreen from './src/screens/ministry/MenuScreen';
+import DomainScreen from './src/screens/ministry/DomainScreen';
+import type { DomainKey } from './src/screens/ministry/shared';
 import { applySession, clearSession, loadSession, saveSession, Session } from './src/storage/session';
 import { clearScans, deleteScan, loadScans, newScanId, saveScan, StoredScan, updateScanValorization } from './src/storage/history';
 import { copyToOutbox, enqueue, flushQueue, isNetworkError, loadQueue } from './src/storage/queue';
@@ -66,10 +72,15 @@ type Phase =
   | 'projectDetail'
   | 'projectCreate'
   | 'capture'
-  | 'chantier';
+  | 'chantier'
+  | 'inbox'
+  | 'orgs'
+  | 'menu'
+  | 'domain'
+  | 'organisation';
 
-const TAB_PHASES: Phase[] = ['home', 'species', 'map', 'history'];
-const DESIGNED_PHASES: Phase[] = ['report', 'profile', 'valorization', 'analyzing', 'valorizing', 'error', 'capture', 'chantier'];
+const TAB_PHASES: Phase[] = ['home', 'species', 'map', 'history', 'inbox', 'orgs', 'menu'];
+const DESIGNED_PHASES: Phase[] = ['report', 'profile', 'valorization', 'analyzing', 'valorizing', 'error', 'capture', 'chantier', 'domain', 'organisation'];
 
 
 function Shell({ band, children }: { band: boolean; children: React.ReactNode }) {
@@ -105,6 +116,11 @@ export default function App() {
   const [busyProjectId, setBusyProjectId] = useState<number | null>(null);
   const [scanProject, setScanProject] = useState<Pick<HomeProject, "id" | "title" | "kind"> | null>(null);
   const [chantierReturn, setChantierReturn] = useState<Phase>("home");
+  const [inboxType, setInboxType] = useState<InboxQueueKey | null>(null);
+  const [orgProvince, setOrgProvince] = useState<string | null>(null);
+  const [domainKey, setDomainKey] = useState<DomainKey>("stats");
+  const [domainReturn, setDomainReturn] = useState<Phase>("menu");
+  const [orgId, setOrgId] = useState<number | null>(null);
   const [historyReturn, setHistoryReturn] = useState(false);
   const [scans, setScans] = useState<StoredScan[]>([]);
   const [queueCount, setQueueCount] = useState(0);
@@ -588,6 +604,16 @@ export default function App() {
   const isTab = TAB_PHASES.includes(phase);
   const designed = isTab || DESIGNED_PHASES.includes(phase);
 
+  const openDomain = (key: DomainKey, from: Phase) => {
+    if (key === "profil") {
+      requestPhase("profile");
+      return;
+    }
+    setDomainKey(key);
+    setDomainReturn(from);
+    requestPhase("domain");
+  };
+
   const renderHome = () => {
     switch (user.role) {
       case "operator":
@@ -629,13 +655,26 @@ export default function App() {
       case "cooperative":
         return <CooperativeScreen user={user} onLogout={handleLogout} showHeader={false} />;
       default:
-        return <AdminScreen user={user} onLogout={handleLogout} showHeader={false} />;
+        return (
+          <MinistryHomeScreen
+            firstName={user.first_name}
+            onOpenInbox={(type) => {
+              setInboxType(type ?? null);
+              requestPhase("inbox");
+            }}
+            onOpenOrgs={(province) => {
+              setOrgProvince(province ?? null);
+              requestPhase("orgs");
+            }}
+            onOpenDomain={(key) => openDomain(key, "home")}
+          />
+        );
     }
   };
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider force={user.role === 'operator' ? undefined : 'dark'}>
+      <ThemeProvider force={user.role === 'operator' || user.role === 'admin' ? undefined : 'dark'}>
       <Shell band={designed}>
         <ErrorBoundary onHome={goHome}>
         {isTab && (
@@ -694,6 +733,23 @@ export default function App() {
           onClear={handleClear}
         />
       </View>
+      {phase === "inbox" && (
+        <InboxScreen initialType={inboxType} onOpenDomain={(key) => openDomain(key, "inbox")} />
+      )}
+      {phase === "orgs" && (
+        <OrganisationsScreen
+          initialProvince={orgProvince}
+          onOpen={(org) => {
+            setOrgId(org.id);
+            requestPhase("organisation");
+          }}
+        />
+      )}
+      {phase === "menu" && <MenuScreen onOpen={(key) => openDomain(key, "menu")} onLogout={handleLogout} />}
+      {phase === "domain" && <DomainScreen domain={domainKey} onBack={() => requestPhase(domainReturn)} />}
+      {phase === "organisation" && orgId != null && (
+        <OrganisationScreen id={orgId} onBack={() => requestPhase("orgs")} />
+      )}
       {phase === "map" && (
         <Suspense fallback={<RouteLoader message={fr.common.openingMap} />}>
           <MapScreen />

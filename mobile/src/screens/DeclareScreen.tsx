@@ -13,6 +13,8 @@ import {
   createDeclaration,
   DeclarationCreated,
   DeclarationLineInput,
+  FellingAacOption,
+  listFellingAacOptions,
   MarkingType,
   PermitType,
 } from "../api/client";
@@ -43,17 +45,42 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
   const [permitType, setPermitType] = React.useState<PermitType>("PFA");
   const [permitNumber, setPermitNumber] = React.useState("");
   const [ufa, setUfa] = React.useState("");
-  const [aac, setAac] = React.useState("");
+  const [aacOptions, setAacOptions] = React.useState<FellingAacOption[] | null>(null);
+  const [aacId, setAacId] = React.useState<number | null>(null);
   const [campaign, setCampaign] = React.useState(String(new Date().getFullYear()));
   const [lines, setLines] = React.useState<LineDraft[]>([newLine()]);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [result, setResult] = React.useState<DeclarationCreated | null>(null);
 
+  React.useEffect(() => {
+    listFellingAacOptions()
+      .then(setAacOptions)
+      .catch(() => setAacOptions([]));
+  }, []);
+
+  const selectedAac = aacOptions?.find((a) => a.id === aacId) ?? null;
+
+  const chooseAac = (option: FellingAacOption) => {
+    setAacId(option.id);
+    setUfa(option.ufa_label);
+    if ((PERMIT_TYPES as string[]).includes(option.title_type)) setPermitType(option.title_type as PermitType);
+    if (option.title_reference) setPermitNumber((current) => current.trim() || option.title_reference || "");
+    if (option.campaign_year) setCampaign(String(option.campaign_year));
+  };
+
   const patchLine = (key: string, patch: Partial<LineDraft>) =>
     setLines((prev) => prev.map((l) => (l.key === key ? { ...l, ...patch } : l)));
 
   const submit = async () => {
+    if (!selectedAac) {
+      setError(t.aacRequired);
+      return;
+    }
+    if (selectedAac.blocker) {
+      setError(t.blockers[selectedAac.blocker] ?? selectedAac.blocker);
+      return;
+    }
     if (!permitNumber.trim()) {
       setError(t.permitRequired);
       return;
@@ -72,7 +99,9 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
         permit_type: permitType,
         permit_number: permitNumber.trim(),
         ufa_label: ufa.trim() || null,
-        aac_label: aac.trim() || null,
+        aac_label: selectedAac.label,
+        title_id: selectedAac.title_id,
+        aac_id: selectedAac.id,
         campaign_year: parseInt(campaign, 10) || null,
         lines: clean.map((l) => ({
           tree_code: l.tree_code,
@@ -86,7 +115,8 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
       setResult(created);
     } catch (err) {
       console.error("declaration failed", err);
-      setError(t.error);
+      const code = /"code":"([a-z_]+)"/.exec(err instanceof Error ? err.message : "")?.[1];
+      setError(code && t.blockers[code] ? t.blockers[code] : t.error);
     } finally {
       setBusy(false);
     }
@@ -178,14 +208,31 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
           />
         </View>
       </View>
-      <Text style={styles.label}>{t.aac}</Text>
-      <TextInput
-        style={styles.input}
-        value={aac}
-        onChangeText={setAac}
-        placeholder="AAC-2026"
-        placeholderTextColor={colors.textDim}
-      />
+      <Text style={styles.label}>{t.aacPick}</Text>
+      <Text style={styles.meta}>{t.aacPickHint}</Text>
+      {aacOptions == null ? (
+        <ActivityIndicator color={colors.accent} />
+      ) : aacOptions.length === 0 ? (
+        <Text style={styles.meta} testID="aac-none">
+          {t.aacNone}
+        </Text>
+      ) : (
+        aacOptions.map((a) => (
+          <TouchableOpacity
+            key={a.id}
+            testID={`aac-option-${a.id}`}
+            style={[styles.card, aacId === a.id && styles.aacOn]}
+            onPress={() => chooseAac(a)}
+            accessibilityRole="button"
+            accessibilityState={{ selected: aacId === a.id }}
+          >
+            <Text style={styles.cardTitle}>{`${a.label} · ${a.ufa_label}`}</Text>
+            <Text style={a.blocker ? styles.aacBlocked : styles.aacOk}>
+              {a.blocker ? (t.blockers[a.blocker] ?? a.blocker) : t.aacAllowed}
+            </Text>
+          </TouchableOpacity>
+        ))
+      )}
 
       <Text style={styles.section}>
         {t.trees} ({lines.length})
@@ -361,4 +408,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     overflow: "hidden",
   },
+  aacOn: { borderColor: colors.accent, borderWidth: 2 },
+  aacOk: { color: colors.success, fontSize: type.caption, fontWeight: "700" },
+  aacBlocked: { color: colors.warning, fontSize: type.caption, fontWeight: "700" },
 });

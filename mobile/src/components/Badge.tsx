@@ -1,26 +1,20 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
 
 import type { AacStatus, AuthorizationStatus, CertStatus, ConventionStatus, DocStatus, StudyStatus, TaxStatus, TitleStatus } from "../api/client";
-import { colors, spacing, type } from "../theme";
+import { Pill, PillTone } from "../design/ui";
 
 export type Tone = "neutral" | "success" | "warning" | "danger" | "accent";
 
-const TONES: Record<Tone, { bg: string; fg: string }> = {
-  neutral: { bg: colors.surfaceAlt, fg: colors.textDim },
-  success: { bg: colors.success, fg: "#FFFFFF" },
-  warning: { bg: colors.warning, fg: colors.primary },
-  danger: { bg: colors.error, fg: "#FFFFFF" },
-  accent: { bg: colors.accent, fg: colors.primary },
+const TONES: Record<Tone, PillTone> = {
+  neutral: "neutral",
+  success: "ok",
+  warning: "warn",
+  danger: "risk",
+  accent: "gold",
 };
 
 export default function Badge({ label, tone = "neutral" }: { label: string; tone?: Tone }) {
-  const c = TONES[tone];
-  return (
-    <View style={[styles.pill, { backgroundColor: c.bg }]}>
-      <Text style={[styles.text, { color: c.fg }]}>{label}</Text>
-    </View>
-  );
+  return <Pill label={label} tone={TONES[tone]} />;
 }
 
 export function docTone(status: DocStatus): Tone {
@@ -80,13 +74,3 @@ export function conventionTone(status: ConventionStatus): Tone {
   if (status === "resiliee") return "danger";
   return "warning";
 }
-
-const styles = StyleSheet.create({
-  pill: {
-    borderRadius: 6,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    alignSelf: "flex-start",
-  },
-  text: { fontSize: type.caption, fontWeight: "800" },
-});
