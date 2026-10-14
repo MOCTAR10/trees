@@ -270,7 +270,17 @@ is the whole-workflow regression on a fresh PostgreSQL/PostGIS volume: every
 migration, the bundled provinces, `tools.seed_demo` twice (idempotency),
 `tools.seed_pilot` built then rebuilt after `--reset` (176 API steps, forbidden steps
 must be refused) and `pytest tests_e2e`. A change to a workflow rule must keep the
-pilot story and `tests_e2e/` in step, or this job fails. `concurrency.cancel-in-progress`
+pilot story and `tests_e2e/` in step, or this job fails.
+
+`.github/workflows/regression.yml` (**Régression**: on push to `main`, nightly at
+02:00 UTC, and on demand) boots the **full stack with the gateway and the API key
+enforced**, then runs the pilot story and the whole `tests_e2e/` suite **over HTTP
+through the gateway**: the end-to-end workflow tests plus the detailed regression suite
+`tests_e2e/test_regression_0*.py` — one test per workflow rule, its French docstring
+being the rule. It publishes a job summary (rule-by-rule checklist and every expected
+refusal) built by `scripts/regression_summary.py`, and uploads JUnit, step logs and
+service logs as the `regression-reports` artifact. A new workflow rule = a new
+regression test with a one-line French docstring. `concurrency.cancel-in-progress`
 cancels superseded runs, so **wait for the previous run to finish before
 pushing**.
 
@@ -334,6 +344,10 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
 - Never let an upstream error message reach the logs verbatim when the request
   URL carries a key (Pl@ntNet passes `api-key` as a query parameter).
 - IUCN enrichment is blocked until `IUCN_API_TOKEN` is provided.
+- The gateway rate limit (`RATE_LIMIT_MAX`, default **60 requests/min per IP**) is too
+  low for a deployment where many users share one public IP (a Ministry office behind
+  NAT): the pilot story alone hits 429. The regression workflow raises it to 5000;
+  decide the production policy before deploying (see roadmap §10).
 - Pilot authority model: the Ministère des Eaux et Forêts (`admin`) performs every
   administrative action; each one carries `acting_authority` + `competent_codes` +
   `competence_note` from `services/authorities.py`. Keep that on any new Ministry action
