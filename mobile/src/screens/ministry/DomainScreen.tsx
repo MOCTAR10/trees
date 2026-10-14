@@ -16,6 +16,7 @@ import { ScreenHeader } from "../../design/ui";
 import { fr } from "../../i18n/fr";
 import SpeciesDetailScreen from "../SpeciesDetailScreen";
 import SpeciesScreen from "../SpeciesScreen";
+import AuthoritiesScreen from "./AuthoritiesScreen";
 import ControlsScreen from "./ControlsScreen";
 import { DomainKey } from "./shared";
 
@@ -75,6 +76,8 @@ export default function DomainScreen({ domain, onBack }: Props) {
         return <Species />;
       case "controles":
         return <ControlsScreen />;
+      case "autorites":
+        return <AuthoritiesScreen />;
       default:
         return null;
     }

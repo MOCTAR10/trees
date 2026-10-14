@@ -90,7 +90,7 @@ describe("Ministry space", () => {
     expect(view.getByTestId("kpi-revenue")).toHaveTextContent(/38,2 M/);
     expect(view.getByTestId("alert-anomalies_hard")).toHaveTextContent(/1 anomalie grave ouverte/);
     expect(view.getByText("À traiter · 5")).toBeTruthy();
-    expect(view.getByTestId("queue-declarations")).toHaveTextContent(/Autorité : Direction Provinciale · plus ancien : il y a 10 j/);
+    expect(view.getByTestId("queue-declarations")).toHaveTextContent(/Compétence : Direction Provinciale · via le Ministère · plus ancien : il y a 10 j/);
     expect(view.queryByTestId("queue-titles")).toBeNull();
 
     fireEvent.press(view.getByTestId("queue-declarations"));
@@ -111,7 +111,7 @@ describe("Ministry space", () => {
     const view = render(<InboxScreen onOpenDomain={onOpenDomain} now={NOW} />);
     await flush();
     expect(view.getByText("À traiter · 2")).toBeTruthy();
-    expect(view.getByTestId("inbox-item-declarations-41")).toHaveTextContent(/SFD · Ogooué-Ivindo · Autorité : Direction Provinciale/);
+    expect(view.getByTestId("inbox-item-declarations-41")).toHaveTextContent(/SFD · Ogooué-Ivindo · Compétence : Direction Provinciale · via le Ministère/);
     expect(view.getByTestId("inbox-item-declarations-41")).toHaveTextContent(/il y a 10 j/);
     fireEvent.press(view.getByTestId("inbox-type-studies"));
     expect(view.queryByTestId("inbox-item-declarations-41")).toBeNull();

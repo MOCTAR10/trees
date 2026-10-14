@@ -11,6 +11,7 @@ export type DomainKey =
   | "anomalies"
   | "tracabilite"
   | "controles"
+  | "autorites"
   | "fiscal"
   | "especes"
   | "profil";

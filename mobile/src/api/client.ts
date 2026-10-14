@@ -2860,7 +2860,7 @@ export interface AdminInbox {
   alerts: InboxAlert[];
 }
 
-export interface InboxItem {
+export interface InboxItem extends Partial<Competence> {
   id: number;
   type: InboxQueueKey;
   label: string;
@@ -3088,7 +3088,7 @@ export interface ControlLookup {
   checks: { level: CheckLevel; label: string }[];
 }
 
-export interface FieldControl {
+export interface FieldControl extends Partial<Competence> {
   id: number;
   control_type: ControlType;
   result: ControlResult;
@@ -3131,3 +3131,63 @@ export function createFieldControl(input: {
 }): Promise<{ id: number }> {
   return postJson("/api/controls", input, "Create control");
 }
+
+export interface Competence {
+  acting_authority: string;
+  competent_codes: string[];
+  competent_names: string[];
+  competence_note: string;
+}
+
+export interface CompanyTodo {
+  kind: string;
+  level: "risk" | "warn" | "info";
+  label: string;
+  target: string;
+  count?: number;
+}
+
+export interface CompanyDecision extends Competence {
+  kind: string;
+  id: number;
+  label: string;
+  status: string;
+  outcome: "accord" | "rejet";
+  motif: string | null;
+  decided_at: string | null;
+}
+
+export interface CompanyAnomaly {
+  type: string;
+  severity: "hard" | "warning" | string;
+  label: string;
+  subject: string;
+  detail: string;
+  aac_label: string | null;
+  detected_at: string | null;
+}
+
+export interface CompanySpace {
+  organization: { id: number; name: string; org_type: string; profile_code: string | null } | null;
+  todo: CompanyTodo[];
+  decisions: CompanyDecision[];
+  anomalies: CompanyAnomaly[];
+  controls: (FieldControl & Partial<Competence>)[];
+  acting_authority?: string;
+}
+
+export const getCompanySpace = () => getLabeled<CompanySpace>("/api/company/space", "Space");
+
+export interface AuthorityEntry {
+  code: string;
+  name: string;
+  mission: string;
+  actions: string[];
+  controls: string[];
+  pending: number;
+  interface: "a_venir" | "active";
+  acting_authority: string;
+}
+
+export const getAuthorityCompass = () =>
+  getLabeled<{ acting_authority: string; authorities: AuthorityEntry[] }>("/api/admin/authorities", "Authorities");

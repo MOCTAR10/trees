@@ -121,6 +121,11 @@ export default function ControlsScreen() {
               <Pill tone={RESULT_TONE[c.result]} label={t.results[c.result]} />
             </View>
             {c.notes ? <Txt variant="small">{c.notes}</Txt> : null}
+            {c.competent_codes?.length ? (
+              <Txt variant="caption" tone="muted">
+                {t.authorityLine(c.competent_codes.join(" / "))}
+              </Txt>
+            ) : null}
           </Card>
         ))}
       </ScrollView>

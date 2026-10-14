@@ -1,4 +1,4 @@
-import { Check, CircleAlert, X } from "lucide-react-native";
+import { Check, CircleAlert, Landmark, X } from "lucide-react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, TextInput, View } from "react-native";
 
@@ -107,6 +107,19 @@ export default function DecisionScreen({ type, id, onBack, onDecided, now }: Pro
     <KeyboardAvoidingView style={s.screen} behavior={Platform.OS === "ios" ? "padding" : undefined} testID="decision-screen">
       {header}
       <ScrollView contentContainerStyle={s.content}>
+        {data.competence_note ? (
+          <View style={s.banner} testID="decision-competence">
+            <Landmark size={18} color={theme.c.goldInk} />
+            <View style={s.flex}>
+              <Txt variant="small" bold>
+                {fr.authorities.banner}
+              </Txt>
+              <Txt variant="caption" tone="muted">
+                {data.competence_note}
+              </Txt>
+            </View>
+          </View>
+        ) : null}
         <Card raised>
           <Txt variant="label" tone="gold">
             {t.factsTitle}
@@ -216,6 +229,16 @@ const useStyles = makeStyles((th) => ({
   content: { padding: th.space.lg, gap: th.space.md, paddingBottom: th.space.xl },
   flex: { flex: 1 },
   check: { flexDirection: "row", alignItems: "flex-start", gap: th.space.sm, paddingVertical: 3 },
+  banner: {
+    flexDirection: "row",
+    gap: th.space.sm,
+    alignItems: "flex-start",
+    backgroundColor: th.c.goldSoft,
+    borderColor: th.c.gold,
+    borderWidth: 1,
+    borderRadius: th.radius.md,
+    padding: th.space.md,
+  },
   checkIcon: { width: 18, height: 18, borderRadius: 9, alignItems: "center", justifyContent: "center", marginTop: 1 },
   item: { flexDirection: "row", alignItems: "center", gap: th.space.sm, paddingVertical: th.space.sm },
   bar: {

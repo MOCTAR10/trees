@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   FlatList,
   Modal,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -31,6 +30,8 @@ import CompanyFiscal from "../components/CompanyFiscal";
 import CompanyCertifications from "../components/CompanyCertifications";
 import OrgDocuments from "../components/OrgDocuments";
 import OrgTaxes from "../components/OrgTaxes";
+import CompanyNav, { CompanyTab } from "../components/CompanyNav";
+import CompanyHomeScreen from "./CompanyHomeScreen";
 import CustodyScreen from "./CustodyScreen";
 import DeclareScreen from "./DeclareScreen";
 
@@ -40,7 +41,6 @@ interface Props {
   showHeader?: boolean;
 }
 
-type CompanyTab = "residues" | "abattage" | "grumes" | "documents" | "titres" | "taxes" | "tracabilite" | "fiscal" | "cert";
 
 export default function CompanyScreen({ user, onLogout, showHeader = true }: Props) {
   const [residues, setResidues] = useState<CompanyResidue[]>([]);
@@ -48,7 +48,7 @@ export default function CompanyScreen({ user, onLogout, showHeader = true }: Pro
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [picking, setPicking] = useState<CompanyResidue | null>(null);
-  const [tab, setTab] = useState<CompanyTab>("residues");
+  const [tab, setTab] = useState<CompanyTab>("accueil");
   const [declarations, setDeclarations] = useState<Declaration[]>([]);
   const [platesBusy, setPlatesBusy] = useState<number | null>(null);
 
@@ -139,40 +139,28 @@ export default function CompanyScreen({ user, onLogout, showHeader = true }: Pro
 
   const coopName = (id: number | null) => cooperatives.find((c) => c.id === id)?.cooperative_name;
 
-  const TABS: { key: CompanyTab; label: string }[] = [
-    { key: "residues", label: fr.felling.tabResidues },
-    { key: "abattage", label: `${fr.felling.tabFelling} (${declarations.length})` },
-    { key: "grumes", label: fr.custody.tab },
-    { key: "documents", label: fr.docs.tab },
-    { key: "titres", label: fr.titles.tab },
-    { key: "taxes", label: fr.taxes.tab },
-    { key: "tracabilite", label: fr.traceability.tab },
-    { key: "fiscal", label: fr.fiscal.tab },
-    { key: "cert", label: fr.cert.tab },
-  ];
+  const LABELS: Record<CompanyTab, string> = {
+    accueil: fr.companySpace.groups.accueil,
+    abattage: `${fr.felling.tabFelling} (${declarations.length})`,
+    grumes: fr.custody.tab,
+    tracabilite: fr.traceability.tab,
+    documents: fr.docs.tab,
+    titres: fr.titles.tab,
+    cert: fr.cert.tab,
+    taxes: fr.taxes.tab,
+    fiscal: fr.fiscal.tab,
+    residues: fr.felling.tabResidues,
+  };
 
   return (
     <View style={styles.container}>
       {showHeader && <RoleHeader title={fr.company.title} subtitle={fr.company.subtitle} />}
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.tabs}
-        contentContainerStyle={styles.tabsContent}
-      >
-        {TABS.map(({ key, label }) => (
-          <TouchableOpacity
-            key={key}
-            style={[styles.tab, tab === key && styles.tabActive]}
-            onPress={() => setTab(key)}
-          >
-            <Text style={[styles.tabText, tab === key && styles.tabTextActive]}>{label}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      <CompanyNav tab={tab} labels={LABELS} onChange={setTab} />
 
-      {tab === "grumes" ? (
+      {tab === "accueil" ? (
+        <CompanyHomeScreen onOpen={(target) => setTab(target as CompanyTab)} />
+      ) : tab === "grumes" ? (
         <CustodyScreen />
       ) : tab === "documents" ? (
         <OrgDocuments />
@@ -349,26 +337,6 @@ export default function CompanyScreen({ user, onLogout, showHeader = true }: Pro
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   flex1: { flex: 1 },
-  tabs: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    flexGrow: 0,
-  },
-  tabsContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-    paddingHorizontal: spacing.sm,
-  },
-  tab: {
-    alignItems: "center",
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: 8,
-  },
-  tabActive: { backgroundColor: colors.surface },
-  tabText: { color: colors.textDim, fontSize: type.body, fontWeight: "600" },
-  tabTextActive: { color: colors.accent, fontWeight: "800" },
   declareBtn: {
     margin: spacing.md,
     marginBottom: 0,

@@ -2,6 +2,7 @@ import {
   BarChart3,
   BookOpen,
   ClipboardCheck,
+  Compass,
   Coins,
   FileCheck2,
   FileText,
@@ -47,7 +48,14 @@ const GROUPS: { key: string; items: { key: DomainKey; icon: Icon }[] }[] = [
     ],
   },
   { key: "finances", items: [{ key: "fiscal", icon: Coins }] },
-  { key: "reference", items: [{ key: "especes", icon: Trees }, { key: "profil", icon: UserRound }] },
+  {
+    key: "reference",
+    items: [
+      { key: "autorites", icon: Compass },
+      { key: "especes", icon: Trees },
+      { key: "profil", icon: UserRound },
+    ],
+  },
 ];
 
 interface Props {
