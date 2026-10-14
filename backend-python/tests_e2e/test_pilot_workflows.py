@@ -7,6 +7,7 @@ def _mine(world, rows, key="org_name"):
 
 
 def test_every_step_behaved_and_forbidden_steps_were_refused(world):
+    """Toute l'histoire pilote s'est déroulée : étapes permises réussies, étapes interdites refusées."""
     summary = world.p.summary()
     assert all(s.ok for s in world.p.steps)
     assert summary["steps"] >= 150
@@ -14,6 +15,7 @@ def test_every_step_behaved_and_forbidden_steps_were_refused(world):
 
 
 def test_integrated_company_space(world, p):
+    """L'exploitant intégré voit ses actions dues, ses décisions motivées et ses PV."""
     space = p.get("hob.dg", "/api/company/space")
     kinds = {t["kind"] for t in space["todo"]}
     assert {"to_ship", "slip_draft", "certification"} <= kinds
@@ -35,6 +37,7 @@ def test_integrated_company_space(world, p):
 
 
 def test_sawmill_space_and_custody(world, p):
+    """La scierie voit ses bordereaux entrants, ses grumes à transformer et l'historique complet."""
     space = p.get("sdl.dg", "/api/company/space")
     todo = {t["kind"]: t for t in space["todo"]}
     assert todo["slip_incoming"]["count"] == 1
@@ -58,6 +61,7 @@ def test_sawmill_space_and_custody(world, p):
 
 
 def test_logger_under_provisional_convention(world, p):
+    """L'exploitant en convention provisoire voit ses retards fiscaux, pièces manquantes et son EIE rejetée."""
     space = p.get("cfn.dg", "/api/company/space")
     kinds = [t["kind"] for t in space["todo"]]
     assert "tax" in kinds and "document" in kinds
@@ -65,6 +69,7 @@ def test_logger_under_provisional_convention(world, p):
 
 
 def test_field_agent_sees_felled_log_and_no_further_action(world, p):
+    """L'agent voit la grume abattue (n° DF10) et qu'aucune action ne lui revient ensuite."""
     log = p.get("hob.agent1", f"/api/felling/trees/{world.trees['d1'][6]}")
     assert log["status"] == "abattu" and log["is_holder"]
     assert log["next_event"] is None and log["df10_entry_no"]
@@ -73,6 +78,7 @@ def test_field_agent_sees_felled_log_and_no_further_action(world, p):
 
 
 def test_roles_are_isolated(world, p):
+    """Chaque rôle est cantonné à son espace."""
     code = world.trees["d1"][6]
     p.call("cfn.dg", "GET", f"/api/felling/trees/{code}", expect=403)
     p.call("can.pres", "GET", "/api/company/space", expect=403)
@@ -81,6 +87,7 @@ def test_roles_are_isolated(world, p):
 
 
 def test_ministry_inbox_shows_pending_files_with_competence(world, p):
+    """Toutes les files du Ministère sont alimentées, chaque dossier porte sa note de compétence."""
     items = _mine(world, p.get("admin", "/api/admin/inbox/items"))
     by_type = {}
     for i in items:
@@ -105,6 +112,7 @@ def test_ministry_inbox_shows_pending_files_with_competence(world, p):
 
 
 def test_authority_compass_counts_pending_files(world, p):
+    """La boussole compte les dossiers en attente par autorité compétente."""
     compass = p.get("admin", "/api/admin/authorities")
     by = {a["code"]: a for a in compass["authorities"]}
     assert by["DGF"]["pending"] >= 2 and by["DP"]["pending"] >= 3
@@ -112,6 +120,7 @@ def test_authority_compass_counts_pending_files(world, p):
 
 
 def test_anomaly_register_covers_the_pilot_irregularities(world, p):
+    """Le registre des anomalies relève les irrégularités du pilote et leurs revues."""
     rows = _mine(world, p.get("admin", "/api/anomalies"))
     types = {a["type"] for a in rows}
     assert {"controle_non_conforme", "taxes_impayees", "documents_expires"} <= types
@@ -120,6 +129,7 @@ def test_anomaly_register_covers_the_pilot_irregularities(world, p):
 
 
 def test_eudr_stems_are_located_in_the_parcel(world, p):
+    """La diligence RDUE localise les grumes dans la parcelle."""
     dil = p.get("admin", f"/api/eudr/diligence/{world.slip['eudr']}")
     inside = dil.get("inside_parcel_stem_count") or dil.get("diligence", {}).get(
         "inside_parcel_stem_count"
@@ -128,6 +138,7 @@ def test_eudr_stems_are_located_in_the_parcel(world, p):
 
 
 def test_chantier_progress_counts_the_aac_registry(world, p):
+    """L'avancement du chantier compte les tiges du registre de l'AAC."""
     projects = p.get("hob.agent1", "/api/projects")
     chantier = next(x for x in projects if x["id"] == world.project["chantier"])
     assert chantier["registry_trees"] >= 9
@@ -136,6 +147,7 @@ def test_chantier_progress_counts_the_aac_registry(world, p):
 
 
 def test_map_and_dashboard_include_the_pilot_aac(world, p):
+    """La carte et le tableau de bord intègrent l'AAC du pilote."""
     lon, lat = 13.60, -0.78
     layers = p.get(
         "admin", f"/api/map/layers?zoom=12&bbox={lon - 0.05},{lat - 0.05},{lon + 0.1},{lat + 0.1}"
@@ -148,6 +160,7 @@ def test_map_and_dashboard_include_the_pilot_aac(world, p):
 
 
 def test_deadlines_reach_companies_ministry_and_register(world, p):
+    """Les échéances (état annuel, AAC 3 ans) atteignent entreprises, Ministère et registre."""
     hob = p.get("hob.dg", "/api/company/space")
     assert "statement" not in {t["kind"] for t in hob["todo"]}
     mas = {t["kind"]: t for t in p.get("mas.chef", "/api/company/space")["todo"]}
