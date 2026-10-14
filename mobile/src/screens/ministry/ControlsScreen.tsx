@@ -13,6 +13,7 @@ import {
   lookupControlCode,
 } from "../../api/client";
 import QrScanner from "../../components/QrScanner";
+import { exportControlPdf, sharePdf } from "../../pdf";
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
 import { Button, Card, EmptyState, Pill, PillTone, Txt } from "../../design/ui";
 import { fr } from "../../i18n/fr";
@@ -121,6 +122,17 @@ export default function ControlsScreen() {
               <Pill tone={RESULT_TONE[c.result]} label={t.results[c.result]} />
             </View>
             {c.notes ? <Txt variant="small">{c.notes}</Txt> : null}
+            <Button
+              testID={`control-pdf-${c.id}`}
+              label={t.pvPdf}
+              variant="secondary"
+              compact
+              onPress={() => {
+                exportControlPdf(c.id, c.pv_reference)
+                  .then(sharePdf)
+                  .catch(() => setError(true));
+              }}
+            />
             {c.competent_codes?.length ? (
               <Txt variant="caption" tone="muted">
                 {t.authorityLine(c.competent_codes.join(" / "))}

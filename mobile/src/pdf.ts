@@ -77,6 +77,12 @@ export async function exportTransportPdf(id: number): Promise<string> {
   return getPdfToCache(`/api/transport/documents/${id}/pdf`, `transport_${id}.pdf`);
 }
 
+/** Field-control procès-verbal (template to be validated by the Ministry). */
+export async function exportControlPdf(id: number, reference?: string | null): Promise<string> {
+  const name = (reference ?? `controle_${id}`).replace(/[^A-Za-z0-9_-]/g, "-");
+  return getPdfToCache(`/api/controls/${id}/pdf`, `PV_${name}.pdf`);
+}
+
 /** EUDR due-diligence statement PDF. */
 export async function exportDiligencePdf(id: number): Promise<string> {
   return getPdfToCache(`/api/eudr/diligence/${id}/pdf`, `diligence_eudr_${id}.pdf`);

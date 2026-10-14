@@ -13,6 +13,7 @@ jest.mock("../src/api/client", () => ({
     alerts: [
       { level: "risk", kind: "anomalies_hard", count: 1 },
       { level: "warn", kind: "taxes_overdue", count: 1, amount_fcfa: 3500000 },
+      { level: "warn", kind: "statements_overdue", count: 2 },
     ],
   })),
   dashboardOverview: jest.fn(async () => ({
@@ -98,6 +99,9 @@ describe("Ministry space", () => {
     fireEvent.press(view.getByTestId("queue-anomalies"));
     expect(onOpenDomain).toHaveBeenCalledWith("anomalies");
     fireEvent.press(view.getByTestId("alert-taxes_overdue"));
+    fireEvent.press(view.getByTestId("alert-statements_overdue"));
+    expect(onOpenDomain).toHaveBeenCalledWith("anomalies");
+    expect(view.getByTestId("alert-statements_overdue")).toHaveTextContent(/2 états annuels non transmis au 31 mars/);
     expect(onOpenDomain).toHaveBeenCalledWith("fiscal");
     fireEvent.press(view.getByTestId("province-GA-6"));
     expect(onOpenOrgs).toHaveBeenCalledWith("GA-6");

@@ -1029,6 +1029,11 @@ export const fr = {
     anomaliesHint: "Relevées automatiquement ; le Ministère les examine. Vous pouvez y répondre auprès de la Direction Provinciale.",
     controlsTitle: "Contrôles terrain (PV)",
     controlsEmpty: "Aucun contrôle enregistré.",
+    pvPdf: "PV (PDF)",
+    fileStatement: (year: number) => `Transmettre l'état annuel ${year}`,
+    filed: (ref: string) => `État annuel transmis · ${ref}`,
+    filedLate: (ref: string) => `État annuel transmis hors délai · ${ref}`,
+    fileError: "Transmission impossible.",
     open: "Ouvrir",
     noOrg: "Votre compte n'est rattaché à aucune organisation : contactez le Ministère.",
     kinds: {
@@ -1120,7 +1125,11 @@ export const fr = {
       anomalies_hard: (n: number) => `${n} anomalie${n > 1 ? "s" : ""} grave${n > 1 ? "s" : ""} ouverte${n > 1 ? "s" : ""} (illicite)`,
       documents_expired: (n: number) => `${n} pièce${n > 1 ? "s" : ""} légale${n > 1 ? "s" : ""} expirée${n > 1 ? "s" : ""}`,
       taxes_overdue: (n: number, amount: string) => `${n} échéance${n > 1 ? "s" : ""} fiscale${n > 1 ? "s" : ""} en retard · ${amount} FCFA`,
+      statements_overdue: (n: number) => `${n} état${n > 1 ? "s" : ""} annuel${n > 1 ? "s" : ""} non transmis au 31 mars (art. 244)`,
+      aac_open_too_long: (n: number) => `${n} AAC ouverte${n > 1 ? "s" : ""} au-delà de 3 ans (art. 121)`,
     },
+    pvPdf: "PV (PDF)",
+    pvError: "PV indisponible.",
     types: {
       declarations: "Déclarations",
       documents: "Pièces",

@@ -2849,7 +2849,7 @@ export interface InboxQueue {
 
 export interface InboxAlert {
   level: "risk" | "warn";
-  kind: "anomalies_hard" | "documents_expired" | "taxes_overdue";
+  kind: "anomalies_hard" | "documents_expired" | "taxes_overdue" | "statements_overdue" | "aac_open_too_long";
   count: number;
   amount_fcfa?: number;
 }
@@ -3145,6 +3145,7 @@ export interface CompanyTodo {
   label: string;
   target: string;
   count?: number;
+  year?: number;
 }
 
 export interface CompanyDecision extends Competence {
@@ -3191,3 +3192,21 @@ export interface AuthorityEntry {
 
 export const getAuthorityCompass = () =>
   getLabeled<{ acting_authority: string; authorities: AuthorityEntry[] }>("/api/admin/authorities", "Authorities");
+
+export interface StatementFiling {
+  id: number;
+  period_year: number;
+  stems_felled: number | null;
+  volume_m3: number | null;
+  reference: string;
+  filed_at: string;
+  due: string;
+  late: boolean;
+  org_name?: string;
+}
+
+export function fileAnnualStatement(year: number): Promise<StatementFiling> {
+  return postJson("/api/traceability/statements/file", { year }, "Filing");
+}
+
+export const listStatementFilings = () => getLabeled<StatementFiling[]>("/api/traceability/filings", "Filings");

@@ -112,7 +112,13 @@ export default function MinistryHomeScreen({ firstName, onOpenInbox, onOpenOrgs,
           key={a.kind}
           testID={`alert-${a.kind}`}
           onPress={() =>
-            onOpenDomain(a.kind === "anomalies_hard" ? "anomalies" : a.kind === "taxes_overdue" ? "fiscal" : "documents")
+            onOpenDomain(
+              a.kind === "taxes_overdue"
+                ? "fiscal"
+                : a.kind === "documents_expired"
+                  ? "documents"
+                  : "anomalies",
+            )
           }
           accessibilityRole="button"
           style={[s.alert, a.level === "risk" ? s.alertRisk : s.alertWarn]}

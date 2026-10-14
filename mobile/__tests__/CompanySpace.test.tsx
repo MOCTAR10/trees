@@ -1,12 +1,22 @@
 import { act, fireEvent, render } from "@testing-library/react-native";
 import React from "react";
 
+jest.mock("../src/pdf", () => ({
+  exportControlPdf: jest.fn(async () => "file://pv.pdf"),
+  sharePdf: jest.fn(async () => undefined),
+}));
+
 jest.mock("../src/api/client", () => ({
+  fileAnnualStatement: jest.fn(async (year: number) => ({
+    id: 1, period_year: year, stems_felled: 12, volume_m3: 96.5, reference: `EA-${year}-0010`,
+    filed_at: "2026-10-14T10:00:00Z", due: `${year + 1}-03-31`, late: true,
+  })),
   getCompanySpace: jest.fn(async () => ({
     organization: { id: 10, name: "Société Forestière Démo", org_type: "entreprise", profile_code: "integre" },
     todo: [
       { kind: "document", level: "risk", label: "Agrément professionnel : manquant", target: "documents" },
       { kind: "to_fell", level: "info", label: "1 arbre(s) autorisé(s) à abattre", target: "grumes", count: 1 },
+      { kind: "statement", level: "risk", label: "État annuel 2025 à transmettre", target: "tracabilite", year: 2025 },
     ],
     decisions: [
       {
@@ -52,7 +62,9 @@ jest.mock("../src/api/client", () => ({
   })),
 }));
 
+import * as client from "../src/api/client";
 import CompanyNav, { groupOf } from "../src/components/CompanyNav";
+import * as pdf from "../src/pdf";
 import CompanyHomeScreen from "../src/screens/CompanyHomeScreen";
 import AuthoritiesScreen from "../src/screens/ministry/AuthoritiesScreen";
 
@@ -75,6 +87,19 @@ describe("Company space and authority compass", () => {
     expect(view.getByTestId("decision-studies-3")).toHaveTextContent(/Accordé/);
     expect(view.getByTestId("company-anomalies")).toHaveTextContent(/GA-DEMO-001/);
     expect(view.getByTestId("company-control-2")).toHaveTextContent(/PV PV-DEMO-002/);
+    fireEvent.press(view.getByTestId("company-control-pdf-2"));
+    await flush();
+    expect(pdf.exportControlPdf).toHaveBeenCalledWith(2, "PV-DEMO-002");
+    expect(pdf.sharePdf).toHaveBeenCalledWith("file://pv.pdf");
+  });
+
+  it("transmits the annual statement from the to-do list", async () => {
+    const view = render(<CompanyHomeScreen onOpen={jest.fn()} />);
+    await flush();
+    fireEvent.press(view.getByTestId("file-statement-2025"));
+    await flush();
+    expect(client.fileAnnualStatement).toHaveBeenCalledWith(2025);
+    expect(view.getByTestId("company-notice")).toHaveTextContent("État annuel transmis hors délai · EA-2025-0010");
   });
 
   it("groups the company screens into work areas", () => {

@@ -12,6 +12,11 @@ jest.mock("expo-location", () => ({
   getCurrentPositionAsync: jest.fn(async () => ({ coords: { latitude: -0.5, longitude: 11.2 } })),
 }));
 
+jest.mock("../src/pdf", () => ({
+  exportControlPdf: jest.fn(async () => "file://pv.pdf"),
+  sharePdf: jest.fn(async () => undefined),
+}));
+
 jest.mock("../src/api/client", () => ({
   getInboxDetail: jest.fn(async () => ({
     id: 41,
@@ -85,6 +90,7 @@ jest.mock("../src/api/client", () => ({
 }));
 
 import * as client from "../src/api/client";
+import * as pdf from "../src/pdf";
 import ControlsScreen from "../src/screens/ministry/ControlsScreen";
 import DecisionScreen from "../src/screens/ministry/DecisionScreen";
 
@@ -141,6 +147,9 @@ describe("Ministry decisions and field controls", () => {
     fireEvent.press(view.getByTestId("control-result-non_conforme"));
     expect(view.queryByTestId("control-2")).toBeNull();
     expect(view.getByTestId("control-1")).toBeTruthy();
+    fireEvent.press(view.getByTestId("control-pdf-1"));
+    await flush();
+    expect(pdf.exportControlPdf).toHaveBeenCalledWith(1, "PV-DEMO-002");
   });
 
   it("records a control from a looked-up code with findings and GPS", async () => {
