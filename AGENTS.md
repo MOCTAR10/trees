@@ -44,14 +44,14 @@ only (`mobile/src/i18n/fr.ts`). There is **no navigation library**: `App.tsx`
 routes with a `phase` state machine plus role checks; screens are mounted from
 per-role containers (`CompanyScreen`, `AdminScreen`, …) that expose tabs.
 
-## 2. Where we are (as of Slice 21)
+## 2. Where we are (as of Slice 22)
 
 The product is built as **vertical slices**: each slice ships a DB migration, the
 backend, optionally an operational CLI under `tools/`, the mobile UI, and the
 doc update — as separate logical commits. The full history lives in
 `docs/GABON_WORKFLOW_ANALYSIS.md` **§9**.
 
-**Slices 1–20 are DONE, committed on `main`, and pushed (CI green). Slice 21 is implemented and verified locally.** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
+**Slices 1–21 are DONE, committed on `main`, and pushed (CI green). Slice 22 is implemented and verified locally.** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
 
 | # | Domaine | Migration | Backend | Mobile | Docs §9 |
 | --- | --- | --- | --- | --- | --- |
@@ -76,9 +76,10 @@ doc update — as separate logical commits. The full history lives in
 | 19 | Accueil agent (prénom, activité, groupe), chantiers d'AAC et projets participatifs, scan libre ou pour un projet | `024_slice19.sql` | `/api/home/summary`, `/api/home/me`, `/api/projects` (join/accept/decline/invite/aac-options, `/{id}/chantier`), `/api/v1/process-scan` (`project_id`) | `HomeScreen`, `ChantierScreen`, `ProfileScreen`, `CaptureScreen`, `CreateProjectScreen`, `ProjectDetailScreen`, `AdminUsers`, `RoleHeader` (badge en ligne) | pt 19 |
 | 20 | Espace Ministère (Tableau de bord, À traiter, Organisations, Menu), provinces, titre enregistré par le Ministère ; art. 14 bloquant à la déclaration | `025_slice20.sql` | `/api/admin/inbox(/items)`, `/api/admin/provinces`, `/api/organizations/directory`, `/{id}/sheet`, `/{id}/accounts`, `/api/titles/register`, `/api/titles/{id}/province`, `/api/felling/aac-options`, `tools.import_provinces` | `ministry/*` (MinistryHome, Inbox, Organisations, Organisation, Menu, Domain), `AdminDeclarations`, `DeclareScreen` (AAC), admin components restylés | pt 20 |
 | 21 | Espace Ministère (étape B) : page de décision unique par dossier, contrôles terrain (marquage, visa DF10, route + PV, transformation), avertissements carnet non tenu / CITES sans permis | `026_slice21.sql` | `/api/admin/inbox/{type}/{id}` (+ `/decision`), `/api/controls` (`lookup`, création, liste), anomalie `controle_non_conforme` | `ministry/DecisionScreen`, `ministry/ControlsScreen` | pt 21 |
+| 22 | Cycle de vie de la grume : AAC + détenteur à la déclaration, abattage / transformation par le détenteur, bordereau ⇒ transport, réception par le destinataire, écran Suivi des grumes | `027_slice22.sql` | `services/custody.py`, `GET /api/felling/trees/{code}`, `POST /api/felling/events`, `/api/transport/destinations`, `/api/transport/documents` (destinataire, réception) | `CustodyScreen`, `QrScanner`, `CompanyTraceability`, `HomeScreen` | pt 22 |
 
-Latest verified suite counts (Slice 21): **`pytest` 475 passed** (+ the AI-capabilities
-test, which needs ≥ 3 GB for Docker) · **`jest` 184 passed / 49 suites** · `ruff` and `tsc` clean.
+Latest verified suite counts (Slice 22): **`pytest` 482 passed** (+ the AI-capabilities
+test, which needs ≥ 3 GB for Docker) · **`jest` 189 passed / 50 suites** · `ruff` and `tsc` clean.
 
 ### What is left (next candidates)
 
@@ -313,6 +314,11 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
 - Never let an upstream error message reach the logs verbatim when the request
   URL carries a key (Pl@ntNet passes `api-key` as a query parameter).
 - IUCN enrichment is blocked until `IUCN_API_TOKEN` is provided.
+- Chain of custody: a log moves `autorise → abattu` (event, holder only) →
+  `transporte` (only by **issuing** a transport document) → `receptionne` (only by the
+  **destination** org receiving it; custody moves to that org) → `transforme` (event,
+  holder only). Holder = `tree_registry.custodian_org_id`; field agents act for their
+  employer's org (`custody.acting_user`). Never set statuses directly outside the seed.
 
 ## 8. Golden rules
 

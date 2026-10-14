@@ -1,6 +1,6 @@
 # Audit — parcours complet de l'application
 
-Date : 14 octobre 2026 · état après Slice 21 (non poussé).
+Date : 14 octobre 2026 · état après Slice 21, **mis à jour après Slice 22** (✔ = corrigé).
 Complète `AUDIT_WORKFLOW_MINISTERE.md` (planches du guide Ministère) : ici, le parcours **de bout en bout**
 par rôle et le cycle de vie de la grume, vérifiés dans le code **et en conditions réelles** (Postgres live,
 données de test supprimées).
@@ -16,18 +16,18 @@ réception → transformation → contrôle terrain.
 ⚠️ Mais **deux fonctions client n'ont aucun écran** : `recordCustodyEvent` (`POST /api/felling/events`) et
 `listRegistryTrees` (`GET /api/felling/trees`) — voir § 2.
 
-## 2. Cycle de vie de la grume — **rompu hors données de démonstration**
+## 2. Cycle de vie de la grume — rompu hors démonstration → ✔ **corrigé par Slice 22**
 
 | Étape | Attendu | Constat (live) | Gravité |
 | --- | --- | --- | --- |
-| Déclaration → registre | La tige entre au registre rattachée à son AAC | `tree_registry` reçoit `aac_label` mais **jamais `aac_id`** (seul le jeu de démo le renseigne) | 🔴 |
-| Abattage, transport, réception, transformation | L'agent / l'entreprise enregistre chaque événement | **Aucun écran** n'appelle `POST /api/felling/events` : une tige approuvée reste `autorise` pour toujours dans l'application | 🔴 |
-| Réception | Statut `receptionne` | Le registre **n'a pas** de statut `receptionne` (contrainte CHECK) ; l'événement laisse `transporte` | 🔴 |
-| Transformation | `transforme` après réception | Exige `receptionne`, jamais atteint → **409 systématique** (testé). Le message cite à tort l'« art. 14 » pour toute transition | 🔴 |
-| Transport | Bordereau ⇄ statut des grumes | Émettre / réceptionner un bordereau **ne change pas** le statut des grumes ; l'événement `transporte` est accepté **sans bordereau** (le contrôle terrain le détecte après coup) | 🟠 |
-| Réception par l'usine | Le destinataire (autre organisation) réceptionne | Seule l'**organisation émettrice** (ou le Ministère) peut passer le bordereau à `receptionne` | 🟠 |
+| Déclaration → registre | La tige entre au registre rattachée à son AAC | ✔ `aac_id`, `title_id` et détenteur renseignés ; tiges existantes rattrapées | — |
+| Abattage, transport, réception, transformation | L'agent / l'entreprise enregistre chaque événement | ✔ Écran **Suivi des grumes** (agent et entreprise) : abattage, transformation, réception | — |
+| Réception | Statut `receptionne` | ✔ Statut ajouté ; posé par la réception du bordereau | — |
+| Transformation | `transforme` après réception | ✔ Par le détenteur après réception ; messages de refus propres à chaque étape | — |
+| Transport | Bordereau ⇄ statut des grumes | ✔ Émettre ⇒ `transporte` ; transport grume par grume refusé (art. 135) | — |
+| Réception par l'usine | Le destinataire (autre organisation) réceptionne | ✔ Organisation destinataire choisie à l'émission ; elle seule réceptionne et devient détentrice | — |
 
-**Conséquences de l'`aac_id` manquant** (tout fonctionne sur la démo, rien sur des données réelles) :
+✔ Corrigé par Slice 22. **Conséquences qu'avait l'`aac_id` manquant** (tout fonctionne sur la démo, rien sur des données réelles) :
 avancement des **chantiers** (Slice 19), **carbone par AAC** (tableau de bord), avertissement **« carnet non
 tenu »** et **lookup des contrôles terrain** (Slice 21) — testé : une tige déclarée normalement est signalée
 ✗ « Arbre sans AAC enregistrée » et sans organisation.
@@ -36,7 +36,7 @@ tenu »** et **lookup des contrôles terrain** (Slice 21) — testé : une tige 
 
 ### Agent de terrain (`operator`)
 ✅ Accueil, scan guidé hors-ligne, rapport, chantiers / projets, carte, espèces.
-❌ Ne peut enregistrer **ni l'abattage ni le transport** d'une tige qu'il a mesurée (§ 2).
+✔ Enregistre l'**abattage** depuis « Suivi des grumes » (Accueil), pour l'organisation de son employeur (Slice 22).
 ⚠️ Inventaire avant abattage : un scan lié par QR n'alimente pas le registre (`inventorie` n'est jamais posé).
 
 ### Entreprise (`company`)
@@ -66,7 +66,7 @@ plan d'aménagement, grille des **30 AAC** générée depuis le PA.
 
 ## 5. Proposition de priorités
 
-1. 🔴 **Cycle de vie de la grume (Slice 22)** : `aac_id` à la déclaration (+ rattrapage des lignes existantes
+1. ✔ **Cycle de vie de la grume (Slice 22)** — fait. : `aac_id` à la déclaration (+ rattrapage des lignes existantes
    par `aac_label`/titre), statut `receptionne` au registre, messages de transition corrects ; écran
    **Abattage / Transport** pour l'agent et l'entreprise (lecture QR → abattu, avec GPS/photo) ; émission
    d'un bordereau = grumes `transporte`, réception (par le destinataire) = `receptionne`.
