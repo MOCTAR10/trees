@@ -31,6 +31,7 @@ TYPES: dict[str, str] = {
     "taxes_impayees": WARNING,
     "cites_sans_permis": WARNING,
     "transport_sans_bordereau": WARNING,
+    "controle_non_conforme": HARD,
 }
 
 LABELS: dict[str, str] = {
@@ -43,6 +44,7 @@ LABELS: dict[str, str] = {
     "taxes_impayees": "Échéance fiscale impayée",
     "cites_sans_permis": "Essence CITES sans permis d'exportation",
     "transport_sans_bordereau": "Transport sans bordereau / feuille de route",
+    "controle_non_conforme": "Contrôle terrain non conforme",
 }
 
 REVIEW_STATUSES = ("ouverte", "traitee", "ecartee")
@@ -350,6 +352,34 @@ async def _transport_sans_bordereau() -> list[dict]:
     ]
 
 
+async def _controle_non_conforme() -> list[dict]:
+    rows = await db.fetch_all(
+        """
+        SELECT c.id, c.control_type, c.tree_code, c.notes, c.controlled_at, c.org_id, o.name AS org_name,
+               c.aac_id, b.label AS aac_label
+        FROM field_controls c
+        LEFT JOIN organizations o ON o.id = c.org_id
+        LEFT JOIN annual_cut_blocks b ON b.id = c.aac_id
+        WHERE c.result = 'non_conforme'
+        ORDER BY c.controlled_at DESC LIMIT 200
+        """
+    )
+    return [
+        _item(
+            "controle_non_conforme",
+            f"control-{r['id']}",
+            r.get("tree_code") or r.get("aac_label") or f"Contrôle {r['id']}",
+            f"{r['control_type']} — {r.get('notes') or 'non conforme'}",
+            org_id=r.get("org_id"),
+            org_name=r.get("org_name"),
+            aac_id=r.get("aac_id"),
+            aac_label=r.get("aac_label"),
+            detected_at=r.get("controlled_at"),
+        )
+        for r in rows
+    ]
+
+
 _DETECTORS = (
     _below_dme,
     _felled_without_authorization,
@@ -360,6 +390,7 @@ _DETECTORS = (
     _taxes_impayees,
     _cites_sans_permis,
     _transport_sans_bordereau,
+    _controle_non_conforme,
 )
 
 

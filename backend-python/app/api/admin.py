@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from app.core import security
 from app.core.deps import require_roles
-from app.services import db, ministry
+from app.services import db, decisions, ministry
 
 router = APIRouter()
 
@@ -214,3 +214,22 @@ async def inbox_items(
 async def provinces(_admin: dict = Depends(require_roles("admin"))):
     """The 9 provinces with the organisations holding titles there."""
     return await ministry.provinces_summary()
+
+
+class DecisionRequest(BaseModel):
+    approve: bool
+    motif: str | None = None
+
+
+@router.get("/inbox/{kind}/{item_id}")
+async def inbox_detail(kind: str, item_id: int, _admin: dict = Depends(require_roles("admin"))):
+    """One pending file: facts, automatic checks (ok / ko / warn), items."""
+    return await decisions.detail(kind, item_id)
+
+
+@router.post("/inbox/{kind}/{item_id}/decision")
+async def inbox_decision(
+    kind: str, item_id: int, body: DecisionRequest, admin: dict = Depends(require_roles("admin"))
+):
+    """Approve or reject (reason required) through the domain's own rules."""
+    return await decisions.decide(kind, item_id, body.approve, body.motif, admin)

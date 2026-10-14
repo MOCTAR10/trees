@@ -231,6 +231,40 @@ async def lines_spatial_context(points: list[tuple[str, float, float]]) -> dict[
     return out
 
 
+async def assess_traceability_warnings(
+    org_id: int | None, aac_id: int | None, lines: list
+) -> list[dict]:
+    """CITES stems without a valid export permit; felled stems missing from the DF10."""
+    warnings: list[dict] = []
+    cites = [ln["tree_code"] for ln in lines if "cites_listed" in (_violations(ln["violations"]))]
+    if cites and org_id is not None:
+        permit = await db.fetch_one(
+            "SELECT id FROM legal_documents WHERE scope_id = $1 AND doc_type = 'permis_cites_export'"
+            " AND status = 'valide' AND (expires_at IS NULL OR expires_at >= CURRENT_DATE)",
+            org_id,
+        )
+        if permit is None:
+            warnings.extend({"kind": "cites_without_permit", "tree_code": code} for code in cites)
+    if aac_id is not None:
+        missing = await db.fetch_one(
+            "SELECT count(*) AS n FROM tree_registry WHERE aac_id = $1"
+            " AND status IN ('abattu', 'transporte', 'receptionne', 'transforme')"
+            " AND (df10_entry_no IS NULL OR df10_entry_no = '')",
+            aac_id,
+        )
+        if missing and missing.get("n"):
+            warnings.append(
+                {"kind": "logbook_not_kept", "status": f"{missing['n']} tige(s) hors DF10"}
+            )
+    return warnings
+
+
+def _violations(raw) -> list[str]:
+    if isinstance(raw, str):
+        raw = json.loads(raw)
+    return list(raw or [])
+
+
 async def evaluate(declaration_id: int) -> dict | None:
     """Full two-tier assessment of a felling declaration. None when missing."""
     decl = await db.fetch_one("SELECT * FROM felling_declarations WHERE id = $1", declaration_id)
@@ -253,6 +287,7 @@ async def evaluate(declaration_id: int) -> dict | None:
         warnings.extend({"tree_code": line["tree_code"], "code": code} for code in warned)
     warnings.extend(await assess_org_warnings(org_id))
     warnings.extend(await assess_allocation_warnings(decl.get("title_id"), decl.get("aac_id")))
+    warnings.extend(await assess_traceability_warnings(org_id, decl.get("aac_id"), lines))
     return {
         "declaration_id": declaration_id,
         "blockers": blockers,

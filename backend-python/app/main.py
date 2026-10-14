@@ -12,6 +12,7 @@ from app.api import (
     community,
     company,
     compliance,
+    controls,
     cooperative,
     dashboard,
     diagnostics,
@@ -89,6 +90,7 @@ app.include_router(group.router, prefix="/api/group", tags=["group"])
 app.include_router(diagnostics.router, prefix="/api/diagnostics", tags=["diagnostics"])
 app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
 app.include_router(home.router, prefix="/api/home", tags=["home"])
+app.include_router(controls.router, prefix="/api/controls", tags=["controls"])
 
 
 @app.get("/health")
