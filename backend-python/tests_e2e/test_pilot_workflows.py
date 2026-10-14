@@ -145,3 +145,23 @@ def test_map_and_dashboard_include_the_pilot_aac(world, p):
     assert any(world.ns in str(f.get("properties", {})) for f in features)
     dashboard = p.get("admin", "/api/dashboard")
     assert dashboard["harvest"] and dashboard["carbon"]
+
+
+def test_deadlines_reach_companies_ministry_and_register(world, p):
+    hob = p.get("hob.dg", "/api/company/space")
+    assert "statement" not in {t["kind"] for t in hob["todo"]}
+    mas = {t["kind"]: t for t in p.get("mas.chef", "/api/company/space")["todo"]}
+    assert mas["statement"]["level"] == "risk" and "art. 244" in mas["statement"]["label"]
+    assert mas["aac_deadline"]["level"] == "risk"
+    types = {a["type"] for a in _mine(world, p.get("admin", "/api/anomalies"))}
+    assert {"etat_annuel_non_transmis", "aac_ouverture_depassee"} <= types
+    alerts = {a["kind"] for a in p.get("admin", "/api/admin/inbox")["alerts"]}
+    assert {"statements_overdue", "aac_open_too_long"} <= alerts
+    filings = p.get("hob.dg", "/api/traceability/filings")
+    assert [f["period_year"] for f in filings] == [p_year(world)]
+
+
+def p_year(world) -> int:
+    from datetime import date
+
+    return date.today().year - 1

@@ -165,6 +165,8 @@ SEEDED_ANOMALY_TYPES = frozenset(
         "cites_sans_permis",
         "transport_sans_bordereau",
         "controle_non_conforme",
+        "aac_ouverture_depassee",
+        "etat_annuel_non_transmis",
     }
 )
 PV_PREFIX = "PV-DEMO-"
@@ -232,6 +234,7 @@ async def _reset(company_id: int, org_ids: list[int]) -> None:
     await db.execute("DELETE FROM transport_documents WHERE org_id = ANY($1::int[])", org_ids)
     await db.execute("DELETE FROM tax_dues WHERE org_id = ANY($1::int[])", org_ids)
     await db.execute("DELETE FROM tax_receipts WHERE org_id = ANY($1::int[])", org_ids)
+    await db.execute("DELETE FROM statement_filings WHERE org_id = ANY($1::int[])", org_ids)
     await db.execute("DELETE FROM eudr_diligence WHERE org_id = ANY($1::int[])", org_ids)
     await db.execute("DELETE FROM certifications WHERE org_id = ANY($1::int[])", org_ids)
     await db.execute(
@@ -410,7 +413,7 @@ async def _insert_title(
         holder,
         zone,
         surface,
-        TODAY - timedelta(days=200),
+        TODAY - timedelta(days=900),
         f"{reference}-G",
         admin_id,
     )
@@ -545,6 +548,18 @@ async def seed() -> None:
     )
     aac_closed = await _insert_aac(
         ufa["id"], AAC_CLOSED_LABEL, 4_500.0, 12_000.0, "ferme", AAC_CLOSED_WKT
+    )
+    # Opened 3 years and a month ago: past the art. 121 limit (warning only).
+    await db.execute(
+        "UPDATE annual_cut_blocks SET opened_at = $2 WHERE id = $1",
+        aac_open,
+        datetime.now(UTC) - timedelta(days=365 * 3 + 30),
+    )
+    await db.execute(
+        "UPDATE annual_cut_blocks SET opened_at = $2, closed_at = $3 WHERE id = $1",
+        aac_closed,
+        datetime.now(UTC) - timedelta(days=500),
+        datetime.now(UTC) - timedelta(days=30),
     )
 
     # Official DME/UFA (Loi 016/01 art. 124): overrides the provisional default

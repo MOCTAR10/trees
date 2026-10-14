@@ -363,6 +363,8 @@ def titles(ctx: Ctx) -> None:
             "holder_org_id": ctx.org["mas"],
             "status": "actif",
             "province_code": "GA-6",
+            "grant_ref": "Arrêté d'attribution n° 004/MEF",
+            "grant_date": _d(-1500),
         },
         expect=201,
     )
@@ -559,6 +561,15 @@ def aacs(ctx: Ctx) -> None:
         if a["status"] == "delivre" and not a.get("startup_notified_at"):
             p.post("mas.chef", f"/api/titles/authorizations/{a['id']}/notify-startup", expect=200)
     p.patch("admin", f"/api/titles/aacs/{ctx.aac['mas1']}", {"action": "ouvrir"}, expect=200)
+    sql(
+        [
+            (
+                "UPDATE annual_cut_blocks SET opened_at = now() - interval '3 years 20 days'"
+                " WHERE id = $1",
+                (ctx.aac["mas1"],),
+            )
+        ]
+    )
     ctx.note(
         "5 AAC géoréférencées : ouverte, PAO en attente, fermée, CPAET sans notification, FC (CAE)"
     )
@@ -1215,7 +1226,7 @@ def controls(ctx: Ctx) -> None:
         400,
         "constat obligatoire",
     )
-    p.post(
+    ctx.slip["pv_marquage"] = p.post(
         "mef.dp2",
         "/api/controls",
         {
@@ -1381,6 +1392,44 @@ def projects(ctx: Ctx) -> None:
     ctx.note("chantier (1 accepté, 1 refusé), projet Moabi (2 participants), 7 scans terrain")
 
 
+def deadlines_and_reports(ctx: Ctx) -> None:
+    """Annual statement (31 March, art. 244), AAC 3-year limit (art. 121), control PV."""
+    p = ctx.p
+    last = TODAY.year - 1
+    p.refused(
+        "hob.dg",
+        "POST",
+        "/api/traceability/statements/file",
+        {"year": TODAY.year},
+        400,
+        "état annuel d'une année non close",
+    )
+    filing = p.post(
+        "hob.dg",
+        "/api/traceability/statements/file",
+        {"year": last},
+        expect=201,
+        note="état annuel transmis",
+    )
+    ctx.slip["filing"] = filing["id"]
+    p.refused(
+        "hob.dg",
+        "POST",
+        "/api/traceability/statements/file",
+        {"year": last},
+        409,
+        "état annuel déjà transmis",
+    )
+    pv = ctx.slip["pv_marquage"]["id"]
+    for actor in ("admin", "hob.dg"):
+        pdf = p.call(actor, "GET", f"/api/controls/{pv}/pdf", expect=200, note="PV du contrôle")
+        assert bytes(pdf).startswith(b"%PDF"), "PV non PDF"
+    p.refused("sdl.dg", "GET", f"/api/controls/{pv}/pdf", None, 403, "PV d'une autre organisation")
+    ctx.note(
+        f"échéances : état annuel {last} transmis (HOB), FC en retard ; AAC FC ouverte > 3 ans ; PV PDF"
+    )
+
+
 STAGES = [
     people,
     titles,
@@ -1391,6 +1440,7 @@ STAGES = [
     custody,
     finances_and_compliance,
     controls,
+    deadlines_and_reports,
     projects,
 ]
 
