@@ -177,7 +177,7 @@ STEMS: tuple[tuple[str, str, float, str], ...] = (
     ("001", "Aucoumea klaineana", 55.0, "abattu"),  # below DME (70)
     ("002", "Baillonella toxisperma", 110.0, "abattu"),  # reserved species
     ("003", "Pterocarpus soyauxii", 90.0, "abattu"),  # outside AAC
-    ("004", "Entandrophragma cylindricum", 95.0, "abattu"),  # CITES, no permit
+    ("004", "Afzelia bipindensis", 95.0, "abattu"),  # CITES II (doussié), no permit
     ("005", "Aucoumea klaineana", 110.0, "abattu"),  # compliant
     ("006", "Terminalia superba", 100.0, "abattu"),  # declared on a closed AAC
     ("007", "Entandrophragma utile", 85.0, "transforme"),  # no bordereau
@@ -691,7 +691,7 @@ async def seed() -> None:
             ("001", "Aucoumea klaineana", 55.0, ["below_dme"]),
             ("002", "Baillonella toxisperma", 110.0, ["reserved_species"]),
             ("003", "Pterocarpus soyauxii", 90.0, []),  # outside_aac via PostGIS
-            ("004", "Entandrophragma cylindricum", 95.0, ["cites_listed"]),
+            ("004", "Afzelia bipindensis", 95.0, ["cites_listed"]),
             ("005", "Aucoumea klaineana", 110.0, []),
         ],
         admin_id,

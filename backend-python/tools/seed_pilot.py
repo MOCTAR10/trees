@@ -787,7 +787,7 @@ def declarations(ctx: Ctx) -> None:
     d3_lines = _lines(
         ctx,
         "hob1",
-        [("Entandrophragma cylindricum", 96), ("Aucoumea klaineana", 90), ("Lophira alata", 99)],
+        [("Afzelia bipindensis", 96), ("Aucoumea klaineana", 90), ("Lophira alata", 99)],
         14,
     )
     ctx.decl["d3"] = _declare(
@@ -1459,6 +1459,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--reset", action="store_true")
     ap.add_argument("--only-reset", action="store_true")
     ap.add_argument("--base-url", default=None)
+    ap.add_argument("--report", default=None, help="fichier JSON (+ .md) du déroulé")
     args = ap.parse_args(argv)
     ns = args.ns.upper()
     if args.reset or args.only_reset:
@@ -1474,9 +1475,13 @@ def main(argv: list[str] | None = None) -> int:
         ctx = build(p, ns)
     except ScenarioError as err:
         print(f"ÉCHEC du scénario : {err}", file=sys.stderr)
+        if args.report:
+            p.report(args.report, f"Jeu pilote « {ns} » — ÉCHEC", [str(err)])
         return 1
     finally:
         p.close()
+    if args.report:
+        p.report(args.report, f"Jeu pilote « {ns} »", ctx.log)
     s = p.summary()
     print(
         f"Jeu pilote « {ns} » construit : {s['steps']} appels API, {s['refused_as_expected']} refus attendus."

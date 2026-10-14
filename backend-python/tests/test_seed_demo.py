@@ -140,3 +140,11 @@ def test_reserved_stem_is_a_reserved_species():
 def test_every_stem_yields_a_positive_volume():
     for _, species, dbh, _ in seed_demo.STEMS:
         assert merchantable_volume_m3(dbh, species) > 0
+
+
+def test_cites_stem_is_really_cites_listed():
+    from app.core.species_data import resolve_species
+
+    species, _, _ = _BY_SUFFIX["004"]
+    profile = resolve_species(species)
+    assert profile is not None and profile.cites_appendix
