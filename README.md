@@ -67,6 +67,8 @@ Health checks: `GET http://localhost:3000/health` (gateway + upstream) and
   `cd backend-python; .\.venv\Scripts\python.exe -m tools.gfw_api_key --email <you> --organization MEF --alias trees`
   (masked password, writes `GFW_API_KEY` to `.env`), then `docker compose up -d api`
   and import the Gabon layers: `docker exec forestry_fastapi python -m tools.import_gfw_layers`.
+- Import the 9 provinces (geoBoundaries ADM1, CC BY-SA 3.0) once:
+  `docker exec forestry_fastapi python -m tools.import_provinces`.
 - QR plates (traceability + measuring ruler): print/engrave in-house with
   `docker exec forestry_fastapi python -m tools.print_qr_plates --registry-prefix GA- --out /media/scans/plaques`
   (A4 PDF at 100 % + 1:1 SVG for laser engravers).

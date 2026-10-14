@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Espace Ministère — Maquette v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Couleurs issues de l'uniforme du Ministère des Eaux et Forêts */
+  --olive: #4F5F2A;        /* vert olive — tenue de service, couleur dominante */
+  --olive-soft: #E8ECD9;
+  --forest: #1E4429;       /* vert forêt — bandes de commandement, structure */
+  --gold: #C99A1E;         /* or — épaulettes, insignes : autorité, en touches */
+  --gold-ink: #8A6A0E;     /* or lisible en texte sur fond clair */
+  --gold-soft: #F5E9C4;
+  --bg: #F5F6F0;           /* blanc de cérémonie, légèrement teinté olive */
+  --surface: #FFFFFF;
+  --surface-2: #EEF0E6;
+  --line: #D9DECB;
+  --ink: #1B2114;
+  --muted: #5C6650;
+  --on-olive: #FFFFFF;
+  --on-forest: #FFFFFF;
+  --ok: #2F7D4A; --ok-soft: #E1F0E5;
+  --warn: #9A5F0C; --warn-soft: #F8EBD4;
+  --risk: #B3362F; --risk-soft: #F7E1DF;
+  --info: #2C64A6; --info-soft: #E0EAF6;
+  --shadow: 0 1px 2px rgba(27,33,20,.06), 0 6px 18px rgba(27,33,20,.07);
+
+  --f-display: "Barlow Semi Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", Roboto, Arial, sans-serif;
+
+  --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-pill: 999px;
+  color-scheme: light;
+}
+.dark, :root[data-theme="dark"] {
+  --olive: #A3B86A; --olive-soft: #263019;
+  --forest: #173A22;
+  --gold: #D9B44A; --gold-ink: #D9B44A; --gold-soft: #3A3114;
+  --bg: #0F130C; --surface: #182014; --surface-2: #1F2919; --line: #2E3A26;
+  --ink: #EDF0E6; --muted: #A1AB93;
+  --on-olive: #10150B; --on-forest: #EDF0E6;
+  --ok: #5DBE7E; --ok-soft: #1C3324;
+  --warn: #E0A53A; --warn-soft: #3A2C12;
+  --risk: #E8786F; --risk-soft: #3D1E1B;
+  --info: #6FA3E0; --info-soft: #172B42;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 22px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --olive: #A3B86A; --olive-soft: #263019; --forest: #173A22;
+    --gold: #D9B44A; --gold-ink: #D9B44A; --gold-soft: #3A3114;
+    --bg: #0F130C; --surface: #182014; --surface-2: #1F2919; --line: #2E3A26;
+    --ink: #EDF0E6; --muted: #A1AB93; --on-olive: #10150B; --on-forest: #EDF0E6;
+    --ok: #5DBE7E; --ok-soft: #1C3324; --warn: #E0A53A; --warn-soft: #3A2C12;
+    --risk: #E8786F; --risk-soft: #3D1E1B; --info: #6FA3E0; --info-soft: #172B42;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 22px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+/* A light frame stays light even when the page is dark. */
+.light {
+  --olive: #4F5F2A; --olive-soft: #E8ECD9; --forest: #1E4429;
+  --gold: #C99A1E; --gold-ink: #8A6A0E; --gold-soft: #F5E9C4;
+  --bg: #F5F6F0; --surface: #FFFFFF; --surface-2: #EEF0E6; --line: #D9DECB;
+  --ink: #1B2114; --muted: #5C6650; --on-olive: #FFFFFF; --on-forest: #FFFFFF;
+  --ok: #2F7D4A; --ok-soft: #E1F0E5; --warn: #9A5F0C; --warn-soft: #F8EBD4;
+  --risk: #B3362F; --risk-soft: #F7E1DF; --info: #2C64A6; --info-soft: #E0EAF6;
+  --shadow: 0 1px 2px rgba(27,33,20,.06), 0 6px 18px rgba(27,33,20,.07);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 16px/1.5 var(--f-body);
+  padding-block: 0 64px; padding-inline: max(16px, 4vw);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; letter-spacing: .01em; }
+h1 { font-size: clamp(2rem, 4.4vw, 3.1rem); font-weight: 700; line-height: 1.05; }
+h2 { font-size: 1.6rem; font-weight: 700; }
+h3 { font-size: 1.15rem; font-weight: 600; }
+p { margin: 0; max-width: 66ch; }
+.eyebrow { font: 600 .78rem/1 var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: var(--gold-ink); }
+.muted { color: var(--muted); }
+.num { font-family: var(--f-display); font-variant-numeric: tabular-nums; }
+
+/* ---- Page header: the forest command band ---- */
+.masthead {
+  margin-inline: calc(-1 * max(16px, 4vw));
+  padding: 40px max(16px, 4vw) 32px;
+  background: var(--forest); color: var(--on-forest);
+  position: relative;
+}
+.masthead::after {           /* deux bandes latérales : officier supérieur */
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 6px;
+  background: linear-gradient(var(--gold) 0 2px, transparent 2px 4px, var(--gold) 4px 6px);
+  opacity: .9;
+}
+.masthead .eyebrow { color: var(--gold); }
+.masthead-row { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+.emblem {
+  width: 64px; height: 64px; border-radius: 50%; flex: none;
+  border: 2px dashed color-mix(in srgb, var(--on-forest) 55%, transparent);
+  display: grid; place-items: center; text-align: center;
+  font: 600 .6rem/1.1 var(--f-display); letter-spacing: .06em; text-transform: uppercase;
+}
+.masthead p { color: color-mix(in srgb, var(--on-forest) 82%, transparent); margin-top: 10px; }
+
+main { display: grid; gap: 56px; margin-top: 40px; }
+section { display: grid; gap: 20px; }
+.section-head { display: grid; gap: 6px; }
+
+/* ---- Identity ---- */
+.swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+.swatch { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+.swatch .chip { height: 92px; display: flex; align-items: flex-end; padding: 10px 12px; font: 600 .82rem var(--f-display); letter-spacing: .04em; }
+.swatch .body { padding: 12px; display: grid; gap: 4px; font-size: .9rem; }
+.swatch strong { font-family: var(--f-display); font-size: 1.05rem; }
+.semantic { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* ---- Type ---- */
+.type-scale { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 8px 20px; }
+.type-row { display: grid; grid-template-columns: 150px 1fr; gap: 16px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.type-row:last-child { border-bottom: 0; }
+.type-row .meta { font-size: .78rem; color: var(--muted); }
+@media (max-width: 560px) { .type-row { grid-template-columns: 1fr; gap: 4px; } }
+
+/* ---- Components ---- */
+.comp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px; display: grid; gap: 14px; align-content: start; }
+.panel h3 { font-size: .95rem; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+.btn { font: 700 .95rem var(--f-body); border-radius: var(--r-md); padding: 12px 18px; border: 1.5px solid transparent; cursor: pointer; min-height: 48px; }
+.btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.btn-primary { background: var(--olive); color: var(--on-olive); }
+.btn-secondary { background: transparent; color: var(--olive); border-color: var(--olive); }
+.btn-ghost { background: transparent; color: var(--ink); }
+.btn-danger { background: var(--risk); color: #fff; }
+.btn-block { width: 100%; }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; font: 600 .8rem var(--f-display); letter-spacing: .03em; padding: 5px 10px; border-radius: var(--r-pill); }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill-ok { background: var(--ok-soft); color: var(--ok); }
+.pill-warn { background: var(--warn-soft); color: var(--warn); }
+.pill-risk { background: var(--risk-soft); color: var(--risk); }
+.pill-info { background: var(--info-soft); color: var(--info); }
+.pill-gold { background: var(--gold-soft); color: var(--gold-ink); }
+
+.chip-f { font: 600 .85rem var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 7px 12px; border-radius: var(--r-pill); }
+.chip-f.on { background: var(--olive); border-color: var(--olive); color: var(--on-olive); }
+
+.field { display: grid; gap: 6px; }
+.field label { font-size: .85rem; color: var(--muted); }
+.input { font: 400 1rem var(--f-body); background: var(--surface-2); color: var(--ink); border: 1.5px solid var(--line); border-radius: var(--r-md); padding: 12px 14px; }
+.input:focus { outline: none; border-color: var(--olive); }
+.input-suffix { display: flex; align-items: center; gap: 8px; }
+
+.seg { display: flex; background: var(--surface-2); border-radius: var(--r-md); padding: 4px; gap: 4px; }
+.seg span { flex: 1; text-align: center; padding: 8px; border-radius: 7px; font: 600 .9rem var(--f-body); color: var(--muted); }
+.seg span.on { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+
+.kv { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: .95rem; }
+.kv:last-child { border-bottom: 0; }
+.kv span:first-child { color: var(--muted); }
+.kv span:last-child { font-weight: 700; text-align: right; }
+
+/* Rank stripes: role is told by stripes, like the uniform. */
+.rank { display: grid; gap: 10px; }
+.rank-item { display: flex; align-items: center; gap: 12px; font-size: .92rem; }
+.stripes { display: flex; gap: 3px; width: 28px; height: 28px; align-items: stretch; justify-content: center; background: var(--surface-2); border-radius: 6px; padding: 5px 0; }
+.stripes i { width: 4px; background: var(--forest); border-radius: 2px; }
+.dark .stripes i { background: var(--olive); }
+
+/* ---- Phone frames ---- */
+.screens { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 28px 20px; justify-items: center; }
+.screen-cap { display: grid; gap: 10px; justify-items: center; width: 100%; max-width: 320px; }
+.screen-cap figcaption { font-size: .85rem; color: var(--muted); text-align: center; }
+.phone {
+  width: 100%; max-width: 300px; aspect-ratio: 9 / 19.2;
+  background: var(--bg); color: var(--ink);
+  border-radius: 34px; border: 9px solid #121610;
+  box-shadow: 0 18px 40px rgba(20,25,15,.28);
+  overflow: hidden; display: flex; flex-direction: column; position: relative;
+  font-size: 13px;
+}
+.status { display: flex; justify-content: space-between; padding: 8px 18px 4px; font: 600 11px var(--f-display); color: var(--on-forest); background: var(--forest); }
+.appbar { background: var(--forest); color: var(--on-forest); padding: 6px 16px 14px; position: relative; }
+.appbar.band::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: linear-gradient(var(--gold) 0 1.5px, transparent 1.5px 2.5px, var(--gold) 2.5px 4px); }
+.appbar small { display: block; font: 600 10px var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+.appbar b { font: 700 18px var(--f-display); letter-spacing: .01em; }
+.p-body { flex: 1; padding: 12px; display: grid; gap: 10px; align-content: start; overflow: hidden; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 8px; }
+.card.raised { box-shadow: var(--shadow); border-color: transparent; }
+.card h4 { margin: 0; font: 700 14px var(--f-display); letter-spacing: .02em; }
+.big { font: 700 30px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.big small { font-size: 14px; font-weight: 600; color: var(--muted); }
+.tabbar { display: flex; justify-content: space-around; border-top: 1px solid var(--line); background: var(--surface); padding: 8px 4px 12px; }
+.tab { display: grid; justify-items: center; gap: 3px; font: 600 8.5px var(--f-body); color: var(--muted); text-align: center; }
+.tab i { width: 18px; height: 18px; border-radius: 5px; border: 2px solid currentColor; }
+.tab.on { color: var(--olive); }
+.tab.scan i { width: 40px; height: 40px; border-radius: 50%; background: var(--olive); border: 3px solid var(--gold); margin-top: -22px; }
+.mini-kv { display: flex; justify-content: space-between; font-size: 12px; }
+.mini-kv span:first-child { color: var(--muted); }
+.mini-kv span:last-child { font-weight: 700; }
+.list-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.list-row:last-child { border-bottom: 0; }
+.thumb { width: 34px; height: 34px; border-radius: 9px; background: var(--olive-soft); flex: none; display: grid; place-items: center; font: 700 11px var(--f-display); color: var(--olive); }
+.grow { flex: 1; min-width: 0; }
+.grow b { display: block; font-size: 12.5px; }
+.grow span { font-size: 11px; color: var(--muted); }
+
+/* capture screen */
+.viewfinder { flex: 1; position: relative; background:
+  radial-gradient(120% 70% at 50% 0%, #3d4a2a 0%, #1d2416 55%, #121610 100%); overflow: hidden; }
+.trunk { position: absolute; top: 0; bottom: 0; left: 38%; width: 26%;
+  background: linear-gradient(90deg, #3a2e22, #6b5641 30%, #7a634b 52%, #5a4735 78%, #33281e);
+}
+.trunk::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(0,0,0,.18) 9px 11px); }
+.plate { position: absolute; left: 47%; top: 46%; width: 9%; aspect-ratio: 1; background:
+  conic-gradient(#000 25%, #fff 0 50%, #000 0 75%, #fff 0) 0 0 / 40% 40%, #fff; border: 2px solid #fff; border-radius: 2px; }
+.edge { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--gold); }
+.edge::after { content: "◀▶"; position: absolute; top: 44%; left: -15px; width: 32px; height: 32px; border-radius: 50%; background: var(--gold); color: #1B2114; font: 700 9px/32px var(--f-display); text-align: center; border: 2px solid #fff; }
+.edge.l { left: 38%; } .edge.r { left: 64%; }
+.shade { position: absolute; top: 0; bottom: 0; left: 38%; width: 26%; background: rgba(201,154,30,.14); }
+.hline { position: absolute; left: 0; right: 0; top: 56%; height: 0; border-top: 1.5px dashed rgba(255,255,255,.75); }
+.readout { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); background: rgba(10,13,8,.78); color: #fff; padding: 6px 12px; border-radius: 10px; text-align: center; white-space: nowrap; }
+.readout b { display: block; font: 700 20px var(--f-display); font-variant-numeric: tabular-nums; }
+.readout span { font-size: 10px; color: #d8dccf; }
+.level { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); background: var(--ok); color: #fff; font: 700 11px var(--f-body); padding: 4px 10px; border-radius: 999px; }
+.sheet { background: var(--surface); border-top: 1px solid var(--line); padding: 10px 12px 12px; display: grid; gap: 8px; border-radius: 16px 16px 0 0; margin-top: -14px; position: relative; }
+.p-seg { display: flex; background: var(--surface-2); border-radius: 9px; padding: 3px; gap: 3px; }
+.p-seg span { flex: 1; text-align: center; padding: 5px; border-radius: 6px; font: 700 11px var(--f-body); color: var(--muted); }
+.p-seg span.on { background: var(--olive); color: var(--on-olive); }
+.p-field { display: flex; justify-content: space-between; align-items: center; background: var(--surface-2); border-radius: 9px; padding: 8px 10px; font-size: 12px; }
+.p-field b { font-family: var(--f-display); font-size: 15px; font-variant-numeric: tabular-nums; }
+.p-btn { background: var(--olive); color: var(--on-olive); text-align: center; font: 700 13px var(--f-body); border-radius: 10px; padding: 11px; }
+.ai-note { font-size: 10.5px; color: var(--ok); font-weight: 700; }
+
+/* map screen */
+.map { flex: 1; position: relative; overflow: hidden; background: #d9e3c6; }
+.dark .map { background: #1b2416; }
+.map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map-search { position: absolute; top: 10px; left: 10px; right: 10px; background: var(--surface); border-radius: 12px; padding: 9px 12px; font-size: 12px; color: var(--muted); box-shadow: var(--shadow); }
+.map-fabs { position: absolute; right: 10px; top: 56px; display: grid; gap: 8px; }
+.map-fabs i { width: 34px; height: 34px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); display: block; border: 2px solid var(--olive); }
+.map-card { position: absolute; left: 10px; right: 10px; bottom: 10px; background: var(--surface); border-radius: 14px; padding: 12px; box-shadow: var(--shadow); display: grid; gap: 6px; }
+.legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 10.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend span::before { content: ""; width: 9px; height: 9px; border-radius: 2px; background: var(--c); }
+
+.notes { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px 20px; display: grid; gap: 10px; }
+.notes ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 80ch; }
+footer { margin-top: 56px; color: var(--muted); font-size: .85rem; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* ---- Admin v2 additions ---- */
+.ia { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.ia-col { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 16px 18px; display: grid; gap: 10px; align-content: start; }
+.ia-col h3 { font-size: .95rem; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.ia-col ol, .ia-col ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.before li { color: var(--muted); }
+.tag { font: 600 .72rem var(--f-display); letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: var(--r-pill); background: var(--gold-soft); color: var(--gold-ink); }
+.queue { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); }
+.queue .n { font: 700 20px/1 var(--f-display); min-width: 30px; text-align: center; font-variant-numeric: tabular-nums; }
+.queue .n.hot { color: var(--risk); }
+.queue .n.warm { color: var(--warn); }
+.queue .grow b { font-size: 12.5px; }
+.queue .chev { color: var(--muted); font-weight: 700; }
+.strip { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 8px 4px; text-align: center; }
+.strip b { display: block; font: 700 17px/1.1 var(--f-display); font-variant-numeric: tabular-nums; }
+.strip span { font-size: 9.5px; color: var(--muted); }
+.chips { display: flex; gap: 5px; flex-wrap: wrap; }
+.chips span { font: 600 10.5px var(--f-body); padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); }
+.chips span.on { background: var(--olive); border-color: var(--olive); color: var(--on-olive); }
+.alert { display: flex; gap: 8px; align-items: flex-start; padding: 9px 10px; border-radius: 10px; background: var(--risk-soft); color: var(--risk); font-size: 11.5px; font-weight: 700; }
+.alert.warn { background: var(--warn-soft); color: var(--warn); }
+.dom { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.dom div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 7px 9px; display: grid; gap: 1px; }
+.dom div.hero { grid-column: 1 / -1; border-color: var(--gold); background: var(--gold-soft); }
+.dom b { font: 700 13px var(--f-display); }
+.dom span { font-size: 10.5px; color: var(--muted); }
+.dom em { font-style: normal; font: 700 10px var(--f-display); color: var(--gold-ink); letter-spacing: .04em; }
+.group-title { font: 600 10px var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--gold-ink); margin-top: 2px; }
+.prov { display: grid; gap: 5px; }
+.prov .bar { grid-template-columns: 92px 1fr 22px; }
+.co { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.co:last-child { border-bottom: 0; }
+.logo { width: 34px; height: 34px; border-radius: 9px; background: var(--forest); color: var(--gold); display: grid; place-items: center; font: 700 11px var(--f-display); flex: none; }
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.kpis div { background: var(--surface-2); border-radius: 9px; padding: 7px; text-align: center; }
+.kpis b { display: block; font: 700 16px/1.1 var(--f-display); }
+.kpis span { font-size: 9.5px; color: var(--muted); }
+.actions2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.actions2 div { text-align: center; font: 700 11px var(--f-body); border-radius: 9px; padding: 9px 6px; border: 1.5px solid var(--olive); color: var(--olive); }
+.actions2 div.p { background: var(--olive); color: var(--on-olive); }
+.check { display: flex; gap: 8px; font-size: 11.5px; align-items: flex-start; }
+.check i { width: 16px; height: 16px; border-radius: 50%; flex: none; display: grid; place-items: center; font: 700 10px/1 var(--f-body); font-style: normal; color: #fff; }
+.check i.ok { background: var(--ok); } .check i.ko { background: var(--risk); } .check i.wa { background: var(--warn); }
+.decide { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px 12px 12px; border-top: 1px solid var(--line); background: var(--surface); }
+.decide div { text-align: center; font: 700 12.5px var(--f-body); border-radius: 10px; padding: 11px; }
+.decide .ok { background: var(--olive); color: var(--on-olive); }
+.decide .ko { background: transparent; color: var(--risk); border: 1.5px solid var(--risk); }
+.motif { margin: 0 12px; background: var(--surface-2); border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 11px; color: var(--muted); }
+.bars { display: grid; gap: 6px; }
+.bar { display: grid; grid-template-columns: 74px 1fr 34px; gap: 6px; align-items: center; font-size: 10.5px; }
+.bar .t { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.bar .t i { display: block; height: 100%; background: var(--olive); border-radius: 4px; }
+.bar .v { text-align: right; font: 700 11px var(--f-display); font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-row">
+    <div class="emblem" aria-label="Emplacement du sceau officiel">Sceau<br>officiel</div>
+    <div>
+      <div class="eyebrow">République Gabonaise · Ministère des Eaux et Forêts</div>
+      <h1>Espace Ministère<br>Maquette v2</h1>
+    </div>
+  </div>
+  <p>Proposition de refonte de l'espace administrateur, dans l'identité validée pour l'opérateur (olive, vert forêt, or, blanc). Objectif : qu'en ouvrant l'application, un agent du Ministère voie d'abord ce qui attend une décision, puis les indicateurs, puis les domaines.</p>
+</header>
+
+<main>
+
+<section aria-labelledby="diag">
+  <div class="section-head">
+    <div class="eyebrow">1 · Constat</div>
+    <h2 id="diag">Aujourd'hui → proposé</h2>
+  </div>
+  <div class="ia">
+    <div class="ia-col before">
+      <h3>Aujourd'hui</h3>
+      <ul>
+        <li>10 onglets dans une bande horizontale (Statistiques, Tableau de bord, Utilisateurs, Déclarations, Anomalies, Documents, Titres &amp; AAC, Traçabilité, Fiscalité, Certifications) : la moitié est hors écran.</li>
+        <li>Page d'accueil = 8 compteurs de plateforme (utilisateurs, résidus…), sans lien avec le travail du Ministère.</li>
+        <li>Rien n'indique ce qui attend une décision (déclarations, pièces, autorisations, études…).</li>
+        <li>Chaque domaine décide à sa façon ; motif de rejet parfois caché.</li>
+        <li>Onglet « Activités » de la barre du bas : les scans du téléphone, inutile pour le Ministère.</li>
+        <li>Ancien style sombre, textes tronqués.</li>
+      </ul>
+    </div>
+    <div class="ia-col">
+      <h3>Proposé</h3>
+      <ol>
+        <li><b>Accueil Ministère</b> : file « À traiter » (compteurs par file, triés par urgence), alertes, indicateurs avec filtre de période.</li>
+        <li><b>À traiter</b> (barre du bas) : toutes les demandes en attente dans une seule liste filtrable (type, province, ancienneté).</li>
+        <li><b>Fiche de décision unique</b> : faits, contrôles automatiques (✓ / ✗ / !), pièces, PDF, puis barre <i>Autoriser · Rejeter</i> (motif obligatoire au rejet).</li>
+        <li><b>Menu</b> au lieu de 10 onglets : Tableau de bord · Titres · Instruction · Contrôle · Finances &amp; social · Référence &amp; compte.</li>
+        <li><b>Organisations</b> (entreprises, communautés, coopératives — l'entité légale déjà en base) : onglet dédié, liste filtrable par province et par type, fiche complète (titres, pièces, taxes, certifications, agents), création d'organisation, enregistrement d'un titre par le Ministère, création de compte rattaché.</li>
+        <li>Barre du bas : <b>Tableau de bord · À traiter · Carte · Organisations · Menu</b> (le Menu regroupe le tableau de bord, les domaines, les espèces et le profil).</li>
+        <li>Clair / sombre selon le téléphone, comme l'opérateur ; deux bandes de commandement dans l'en-tête.</li>
+      </ol>
+    </div>
+    <div class="ia-col">
+      <h3>Files « À traiter » (statuts réels)</h3>
+      <ul>
+        <li>Déclarations d'abattage — <span class="tag">soumise</span></li>
+        <li>Pièces légales — <span class="tag">soumis</span></li>
+        <li>Autorisations d'AAC (assiette, PAO, vente, CAE) — <span class="tag">soumis</span></li>
+        <li>PAO d'AAC — <span class="tag">soumis</span></li>
+        <li>Études PPF / EIE — <span class="tag">soumis</span></li>
+        <li>Certifications tierces — <span class="tag">soumis</span></li>
+        <li>Diligences RDUE — <span class="tag">soumis</span></li>
+        <li>Demandes de titre — <span class="tag">demande</span></li>
+        <li>Anomalies — <span class="tag">ouverte</span> (9 familles)</li>
+        <li>Comptes à rattacher (organisations)</li>
+      </ul>
+      <p class="muted" style="font-size:.85rem">Un seul appel serveur nouveau : <code>GET /api/admin/inbox</code> (compteurs + plus ancienne demande par file).</p>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="ecrans">
+  <div class="section-head">
+    <div class="eyebrow">2 · Écrans clés</div>
+    <h2 id="ecrans">Accueil, À traiter, décision, menu, organisations, tableau de bord</h2>
+  </div>
+
+  <div class="screens">
+
+    <!-- 1. Accueil Ministère -->
+    <figure class="screen-cap"><div class="phone light">
+      <div class="status"><span>8:12</span><span>4G · En ligne</span></div>
+      <div class="appbar band"><small>Ministère · Administrateur ▮▮</small><b>Bonjour, Mme Ndong</b></div>
+      <div class="p-body">
+        <div class="chips"><span>Aujourd'hui</span><span class="on">7 jours</span><span>30 jours</span><span>Année</span></div>
+        <div class="strip"><div><b>1 284</b><span>m³ abattus</span></div><div><b>38,2 M</b><span>FCFA perçus</span></div><div><b>6</b><span>taxes en retard</span></div><div><b>412</b><span>t CO₂e</span></div></div>
+        <div class="alert">▲ 2 abattages déclarés en aire protégée (Lopé) — à examiner</div>
+        <div class="group-title">À traiter · 23</div>
+        <div class="queue"><span class="n hot">5</span><span class="grow"><b>Déclarations d'abattage</b><span>plus ancienne : 6 jours</span></span><span class="chev">›</span></div>
+        <div class="queue"><span class="n warm">7</span><span class="grow"><b>Pièces légales</b><span>agréments, quittances, PI/PDI</span></span><span class="chev">›</span></div>
+        <div class="queue"><span class="n">4</span><span class="grow"><b>Autorisations d'AAC</b><span>assiette · PAO · vente de coupe</span></span><span class="chev">›</span></div>
+        <div class="card"><h4>Organisations par province</h4>
+          <div class="prov">
+            <div class="bar"><span>Ogooué-Lolo</span><span class="t"><i style="width:90%"></i></span><span class="v">9</span></div>
+            <div class="bar"><span>Ogooué-Ivindo</span><span class="t"><i style="width:70%"></i></span><span class="v">7</span></div>
+            <div class="bar"><span>Ngounié</span><span class="t"><i style="width:40%"></i></span><span class="v">4</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="tabbar"><span class="tab on"><i></i>Tableau de bord</span><span class="tab"><i></i>À traiter</span><span class="tab"><i></i>Carte</span><span class="tab"><i></i>Organisations</span><span class="tab"><i></i>Menu</span></div>
+    </div><figcaption>Tableau de bord — ce qui attend une décision d'abord</figcaption></figure>
+
+    <!-- 2. À traiter -->
+    <figure class="screen-cap"><div class="phone light">
+      <div class="status"><span>8:13</span><span>4G · En ligne</span></div>
+      <div class="appbar band"><small>Instruction</small><b>À traiter · 23</b></div>
+      <div class="p-body">
+        <div class="chips"><span class="on">Tout</span><span>Déclarations 5</span><span>Pièces 7</span><span>AAC 4</span><span>Études 2</span><span>Certif. 1</span></div>
+        <div class="chips"><span class="on">Plus anciennes</span><span>Estuaire</span><span>Ogooué-Lolo</span></div>
+        <div class="card">
+          <div class="list-row"><span class="thumb">DA</span><span class="grow"><b>Déclaration n° 41 · CFAD-07</b><span>SFD Démo · 18 pieds · AAC 2026-01 · il y a 6 j</span></span><span class="pill pill-risk">2 alertes</span></div>
+          <div class="list-row"><span class="thumb">PL</span><span class="grow"><b>Quittance superficie 2026</b><span>Bois &amp; Cie · déposée il y a 4 j</span></span><span class="pill pill-warn">Soumis</span></div>
+          <div class="list-row"><span class="thumb">AA</span><span class="grow"><b>PAO — AAC 2026-03</b><span>Rougier Gabon · UFA 2</span></span><span class="pill pill-warn">Soumis</span></div>
+          <div class="list-row"><span class="thumb">EI</span><span class="grow"><b>EIE annuelle — CFAD-12</b><span>déposée il y a 2 j</span></span><span class="pill pill-info">Étude</span></div>
+          <div class="list-row"><span class="thumb">CE</span><span class="grow"><b>FSC FM — 64 000 ha</b><span>CBG · à vérifier</span></span><span class="pill pill-gold">Certif.</span></div>
+        </div>
+      </div>
+      <div class="tabbar"><span class="tab"><i></i>Tableau de bord</span><span class="tab on"><i></i>À traiter</span><span class="tab"><i></i>Carte</span><span class="tab"><i></i>Organisations</span><span class="tab"><i></i>Menu</span></div>
+    </div><figcaption>File unique, filtrable par type, province, ancienneté</figcaption></figure>
+
+    <!-- 3. Décision (sombre) -->
+    <figure class="screen-cap"><div class="phone dark">
+      <div class="status"><span>8:15</span><span>4G · En ligne</span></div>
+      <div class="appbar band"><small>Déclaration d'abattage · n° 41</small><b>CFAD-07 · AAC 2026-01</b></div>
+      <div class="p-body">
+        <div class="card raised">
+          <div class="mini-kv"><span>Entreprise</span><span>Société Forestière Démo</span></div>
+          <div class="mini-kv"><span>Pieds déclarés</span><span>18 · 412 m³ estimés</span></div>
+          <div class="mini-kv"><span>Déposée</span><span>8 oct. · il y a 6 j</span></div>
+        </div>
+        <div class="card">
+          <h4>Contrôles automatiques</h4>
+          <div class="check"><i class="ok">✓</i><span>AAC ouverte, autorisation d'exploiter délivrée</span></div>
+          <div class="check"><i class="ok">✓</i><span>DME/UFA respecté (16/18)</span></div>
+          <div class="check"><i class="ko">✗</i><span>2 tiges sous le DME (Okoumé 58 cm &lt; 70)</span></div>
+          <div class="check"><i class="wa">!</i><span>1 tige en aire protégée (Lopé) — avertissement</span></div>
+          <div class="check"><i class="ok">✓</i><span>Pièces de l'entreprise à jour</span></div>
+        </div>
+        <div class="card"><h4>Pieds (18)</h4><div class="mini-kv"><span>GA-2026-0412 · Okoumé</span><span>74 cm</span></div><div class="mini-kv"><span>GA-2026-0413 · Okoumé</span><span style="color:var(--risk)">58 cm</span></div></div>
+      </div>
+      <div class="motif">Motif (obligatoire en cas de rejet)…</div>
+      <div class="decide"><div class="ko">Rejeter</div><div class="ok">Autoriser</div></div>
+    </div><figcaption>Fiche de décision — même modèle pour tous les dossiers</figcaption></figure>
+
+    <!-- 4. Domaines -->
+    <figure class="screen-cap"><div class="phone light">
+      <div class="status"><span>8:20</span><span>4G · En ligne</span></div>
+      <div class="appbar band"><small>Espace Ministère</small><b>Menu</b></div>
+      <div class="p-body">
+        <div class="dom"><div class="hero"><b>Statistiques &amp; rapports</b><span>indicateurs nationaux, par province, export PDF</span><em>2026 · 9 provinces</em></div></div>
+        <div class="group-title">Titres</div>
+        <div class="dom"><div><b>Titres &amp; AAC</b><span>titres, UFA, AAC, DME</span><em>4 en attente</em></div><div><b>Comptes</b><span>agents, rattachement</span><em>2 à rattacher</em></div></div>
+        <div class="group-title">Instruction</div>
+        <div class="dom"><div><b>Déclarations</b><span>abattage, plaques</span><em>5 en attente</em></div><div><b>Pièces légales</b><span>par portée</span><em>7 en attente</em></div><div><b>Études &amp; conventions</b><span>PPF, EIE, attestation</span><em>2 en attente</em></div><div><b>Certifications</b><span>FSC, PAFC</span><em>1 en attente</em></div></div>
+        <div class="group-title">Contrôle</div>
+        <div class="dom"><div><b>Anomalies</b><span>9 familles</span><em>3 ouvertes</em></div><div><b>Traçabilité</b><span>DF10, transport</span></div></div>
+        <div class="group-title">Finances &amp; social</div>
+        <div class="dom"><div><b>Fiscalité</b><span>échéances, retards</span><em>6 en retard</em></div><div><b>Social &amp; RDUE</b><span>CCC, FDL, diligences</span></div></div>
+        <div class="group-title">Référence &amp; compte</div>
+        <div class="dom"><div><b>Espèces</b><span>catalogue, IUCN, CITES</span></div><div><b>Profil</b><span>mon compte, déconnexion</span></div></div>
+      </div>
+      <div class="tabbar"><span class="tab on"><i></i>Tableau de bord</span><span class="tab"><i></i>À traiter</span><span class="tab"><i></i>Carte</span><span class="tab"><i></i>Organisations</span><span class="tab"><i></i>Menu</span></div>
+    </div><figcaption>Menu — tout le reste, regroupé (remplace les 10 onglets)</figcaption></figure>
+
+    <!-- 6. Entreprises -->
+    <figure class="screen-cap"><div class="phone light">
+      <div class="status"><span>8:22</span><span>4G · En ligne</span></div>
+      <div class="appbar band"><small>Entreprises · communautés · coopératives</small><b>Organisations · 38</b></div>
+      <div class="p-body">
+        <div class="chips"><span class="on">Toutes</span><span>Ogooué-Lolo 9</span><span>Ogooué-Ivindo 7</span><span>Ngounié 4</span><span>…</span></div>
+        <div class="chips"><span class="on">Tous types</span><span>Entreprises 29</span><span>Communautés 6</span><span>Coopératives 3</span><span>Pièces à revoir</span></div>
+        <div class="card">
+          <div class="co"><span class="logo">SFD</span><span class="grow"><b>Société Forestière Démo</b><span>Intégré · 2 titres · 64 000 ha · Ogooué-Lolo</span></span><span class="pill pill-ok">À jour</span></div>
+          <div class="co"><span class="logo">RG</span><span class="grow"><b>Rougier Gabon</b><span>Exploitant · 3 titres · Ngounié, Ogooué-Lolo</span></span><span class="pill pill-warn">2 pièces</span></div>
+          <div class="co"><span class="logo">CBG</span><span class="grow"><b>CBG</b><span>Intégré · FSC · 1 titre · Nyanga</span></span><span class="pill pill-ok">À jour</span></div>
+          <div class="co"><span class="logo">CM</span><span class="grow"><b>Communauté de Mikongo</b><span>Forêt communautaire · Ogooué-Ivindo</span></span><span class="pill pill-risk">Taxe en retard</span></div>
+        </div>
+        <div class="p-btn">+ Nouvelle organisation</div>
+      </div>
+      <div class="tabbar"><span class="tab on"><i></i>Tableau de bord</span><span class="tab"><i></i>À traiter</span><span class="tab"><i></i>Carte</span><span class="tab"><i></i>Organisations</span><span class="tab"><i></i>Menu</span></div>
+    </div><figcaption>Organisations (onglet) — par province et par type</figcaption></figure>
+
+    <!-- 7. Fiche entreprise (sombre) -->
+    <figure class="screen-cap"><div class="phone dark">
+      <div class="status"><span>8:23</span><span>4G · En ligne</span></div>
+      <div class="appbar band"><small>Organisation · Entreprise · Intégré</small><b>Société Forestière Démo</b></div>
+      <div class="p-body">
+        <div class="kpis"><div><b>2</b><span>titres</span></div><div><b>64 k</b><span>ha</span></div><div><b>6</b><span>agents</span></div></div>
+        <div class="card"><h4>Titres</h4>
+          <div class="mini-kv"><span>CFAD-01 · Ogooué-Lolo</span><span style="color:var(--ok)">Actif</span></div>
+          <div class="mini-kv"><span>PFA-12 · Ngounié</span><span style="color:var(--warn)">Demande</span></div>
+        </div>
+        <div class="card"><h4>Conformité</h4>
+          <div class="check"><i class="ok">✓</i><span>Pièces légales à jour (12/12)</span></div>
+          <div class="check"><i class="wa">!</i><span>Quittance surveillance : échéance dans 18 j</span></div>
+          <div class="check"><i class="ok">✓</i><span>FSC FM valide jusqu'en 2028</span></div>
+        </div>
+        <div class="actions2"><div>Enregistrer un titre</div><div class="p">Créer un compte</div></div>
+      </div>
+      <div class="tabbar"><span class="tab on"><i></i>Tableau de bord</span><span class="tab"><i></i>À traiter</span><span class="tab"><i></i>Carte</span><span class="tab"><i></i>Organisations</span><span class="tab"><i></i>Menu</span></div>
+    </div><figcaption>Fiche organisation — titres, conformité, comptes</figcaption></figure>
+
+    <!-- 5. Indicateurs (sombre) -->
+    <figure class="screen-cap"><div class="phone dark">
+      <div class="status"><span>8:24</span><span>4G · En ligne</span></div>
+      <div class="appbar band"><small>Menu › Statistiques &amp; rapports</small><b>National · 2026</b></div>
+      <div class="p-body">
+        <div class="chips"><span>30 jours</span><span class="on">Année 2026</span><span>Province ▾</span></div>
+        <div class="strip"><div><b>18 420</b><span>m³ abattus</span></div><div><b>62 %</b><span>transformés</span></div><div><b>412 M</b><span>FCFA</span></div><div><b>9,1 k</b><span>t CO₂e</span></div></div>
+        <div class="card">
+          <h4>Volume par essence</h4>
+          <div class="bars">
+            <div class="bar"><span>Okoumé</span><span class="t"><i style="width:82%"></i></span><span class="v">8 120</span></div>
+            <div class="bar"><span>Padouk</span><span class="t"><i style="width:34%"></i></span><span class="v">3 310</span></div>
+            <div class="bar"><span>Movingui</span><span class="t"><i style="width:21%"></i></span><span class="v">2 050</span></div>
+            <div class="bar"><span>Azobé</span><span class="t"><i style="width:12%"></i></span><span class="v">1 170</span></div>
+          </div>
+        </div>
+        <div class="card"><h4>Titres &amp; AAC</h4><div class="mini-kv"><span>Titres actifs</span><span>42 · 3,1 M ha</span></div><div class="mini-kv"><span>AAC ouvertes</span><span>17</span></div><div class="mini-kv"><span>Pièces expirées</span><span style="color:var(--warn)">9</span></div></div>
+        <div class="p-btn">Exporter le rapport (PDF)</div>
+      </div>
+      <div class="tabbar"><span class="tab"><i></i>Tableau de bord</span><span class="tab"><i></i>À traiter</span><span class="tab"><i></i>Carte</span><span class="tab"><i></i>Organisations</span><span class="tab on"><i></i>Menu</span></div>
+    </div><figcaption>Statistiques &amp; rapports — ouvert depuis le Menu</figcaption></figure>
+
+  </div>
+</section>
+
+<section aria-labelledby="plan">
+  <div class="section-head">
+    <div class="eyebrow">3 · Mise en œuvre</div>
+    <h2 id="plan">En trois étapes, chacune livrable</h2>
+  </div>
+  <div class="notes">
+    <ul>
+      <li><b>Étape A — coquille, accueil &amp; entreprises</b> : <code>GET /api/admin/inbox</code>, provinces, Accueil Ministère (files, alertes, entreprises par province), écran Menu, onglet <b>Organisations</b> (liste, fiche, création, titre enregistré par le Ministère, compte rattaché), barre du bas Ministère, thème clair/sombre ; les autres écrans de domaine restylés et ouverts en plein écran.</li>
+      <li><b>Étape B — instruction</b> : file « À traiter » unifiée + fiche de décision commune (déclarations, pièces, autorisations, études, certifications, diligences RDUE) ; motif obligatoire au rejet partout.</li>
+      <li><b>Étape C — domaines riches</b> : refonte de Titres &amp; AAC, Fiscalité &amp; social, Traçabilité, Anomalies et Indicateurs (graphiques), filtre province.</li>
+    </ul>
+    <p class="muted">Décidé : barre du bas Tableau de bord · À traiter · Carte · Organisations · Menu ; « Tableau de bord » = écran d'entrée ; « Statistiques &amp; rapports » et « Espèces » dans le Menu ; province des titres déduite de la géométrie (geoBoundaries), corrigeable par le Ministère.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>Maquette locale — non publiée (identité du Ministère). Foresterie Numérique · octobre 2026.</footer>
+</body>
+</html>

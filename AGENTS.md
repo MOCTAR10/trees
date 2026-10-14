@@ -44,14 +44,14 @@ only (`mobile/src/i18n/fr.ts`). There is **no navigation library**: `App.tsx`
 routes with a `phase` state machine plus role checks; screens are mounted from
 per-role containers (`CompanyScreen`, `AdminScreen`, …) that expose tabs.
 
-## 2. Where we are (as of Slice 19)
+## 2. Where we are (as of Slice 20)
 
 The product is built as **vertical slices**: each slice ships a DB migration, the
 backend, optionally an operational CLI under `tools/`, the mobile UI, and the
 doc update — as separate logical commits. The full history lives in
 `docs/GABON_WORKFLOW_ANALYSIS.md` **§9**.
 
-**Slices 1–18 are DONE, committed on `main`, and pushed (CI green). Slice 19 is implemented and verified locally.** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
+**Slices 1–19 are DONE and committed on `main` (Slice 19 not yet pushed). Slice 20 is implemented and verified locally.** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
 
 | # | Domaine | Migration | Backend | Mobile | Docs §9 |
 | --- | --- | --- | --- | --- | --- |
@@ -74,9 +74,10 @@ doc update — as separate logical commits. The full history lives in
 | 17 | Carte fluide (emprise + zoom, recherche, fiches), contrôles parc/concession à la déclaration, plaques par déclaration, capteur LiDAR/ARCore natif | — | `/api/map/layers?zoom&bbox`, `/api/map/search`, `/api/map/feature`, `/api/felling/declarations/{id}/plates.pdf` | `MapScreen`, `CompanyScreen`, `CaptureScreen`, `modules/depth-sensor` | pt 17 |
 | 18 | DBH par bords confirmés par l'opérateur, calcul hors-ligne sur le téléphone ; IA lourde désactivée par défaut | `023_slice18.sql` | `/api/v1/process-scan` (`edge_left`, `edge_right`) | `EdgeAdjuster`, `utils/dbh.ts`, `CaptureScreen` | pt 18 |
 | 19 | Accueil agent (prénom, activité, groupe), chantiers d'AAC et projets participatifs, scan libre ou pour un projet | `024_slice19.sql` | `/api/home/summary`, `/api/home/me`, `/api/projects` (join/accept/decline/invite/aac-options, `/{id}/chantier`), `/api/v1/process-scan` (`project_id`) | `HomeScreen`, `ChantierScreen`, `ProfileScreen`, `CaptureScreen`, `CreateProjectScreen`, `ProjectDetailScreen`, `AdminUsers`, `RoleHeader` (badge en ligne) | pt 19 |
+| 20 | Espace Ministère (Tableau de bord, À traiter, Organisations, Menu), provinces, titre enregistré par le Ministère ; art. 14 bloquant à la déclaration | `025_slice20.sql` | `/api/admin/inbox(/items)`, `/api/admin/provinces`, `/api/organizations/directory`, `/{id}/sheet`, `/{id}/accounts`, `/api/titles/register`, `/api/titles/{id}/province`, `/api/felling/aac-options`, `tools.import_provinces` | `ministry/*` (MinistryHome, Inbox, Organisations, Organisation, Menu, Domain), `AdminDeclarations`, `DeclareScreen` (AAC), admin components restylés | pt 20 |
 
-Latest verified suite counts (Slice 19): **`pytest` 451 passed** (+ the AI-capabilities
-test, which needs ≥ 3 GB for Docker) · **`jest` 172 passed / 46 suites** · `ruff` and `tsc` clean.
+Latest verified suite counts (Slice 20): **`pytest` 469 passed** (+ the AI-capabilities
+test, which needs ≥ 3 GB for Docker) · **`jest` 180 passed / 48 suites** · `ruff` and `tsc` clean.
 
 ### What is left (next candidates)
 
@@ -215,7 +216,15 @@ Get-Content db/migrations/0NN_sliceNN.sql | docker exec -i forestry_postgres psq
   light/dark setting; the camera screen is always dark; company / cooperative /
   admin spaces are still forced dark and use the legacy `src/theme.ts` until
   they are migrated. Header rank stripes: Ministry 2, company/cooperative 1,
-  field agent 0. Reference mockup: `docs/design/maquette_design_v1.html`.
+  field agent 0. Reference mockups: `docs/design/maquette_design_v1.html`
+  (operator) and `docs/design/maquette_admin_v2.html` (Ministry). The Ministry
+  space follows the phone theme too; company / cooperative are still forced dark.
+- **Ministry space** (`mobile/src/screens/ministry/`): bottom bar Tableau de bord ·
+  À traiter · Carte · Organisations · Menu (`ADMIN_TABS`). Every pending file shows
+  its competent authority and province (display only — a single `admin` role still
+  decides). Provinces: `admin_areas` from `tools.import_provinces` (run it once on
+  a fresh volume); title province = `v_title_province` (manual, else geometry).
+  Workflow coverage vs the Ministry guide: `docs/AUDIT_WORKFLOW_MINISTERE.md`.
 - **Scanner** (`CaptureScreen` + `utils/scanFlow.ts`): one guided flow, no
   full/quick modes — Arbre → Écorce → Feuilles → Diamètre → Vérifier, auto-advance
   after each photo, optional extra views (flower, fruit…) from the review. The QR
