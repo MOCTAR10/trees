@@ -9,7 +9,7 @@ that concern it (right of reply).
 
 from datetime import UTC, date, datetime, timedelta
 
-from app.services import anomalies, authorities, compliance, controls, db
+from app.services import anomalies, authorities, compliance, controls, db, deadlines
 
 DECISION_WINDOW_DAYS = 120
 CERT_NOTICE_DAYS = 60
@@ -178,6 +178,52 @@ async def todo(org_id: int, company_user_id: int | None) -> list[dict]:
                 f"Certification {c['scheme']} : échéance le {_iso(c['valid_to'])}",
                 "cert",
                 certification_id=c["id"],
+            )
+        )
+    for s in await deadlines.statements_missing(org_id):
+        items.append(
+            _todo(
+                "statement",
+                "risk" if s["overdue"] else "warn",
+                f"État annuel {s['year']} à transmettre"
+                + (
+                    f" : en retard depuis le {_iso(s['due'])}"
+                    if s["overdue"]
+                    else f" avant le {_iso(s['due'])}"
+                )
+                + " (art. 244)",
+                "tracabilite",
+                year=s["year"],
+            )
+        )
+    for a in await deadlines.aac_open_too_long(org_id):
+        items.append(
+            _todo(
+                "aac_deadline",
+                "risk" if a["overdue"] else "warn",
+                f"{a['label']} : ouverture limitée à 3 ans, échéance le {_iso(a['deadline'])} (art. 121)",
+                "titres",
+                aac_id=a["id"],
+            )
+        )
+    for a in await deadlines.authorizations_expiring(org_id):
+        items.append(
+            _todo(
+                "authorization_expiring",
+                "warn",
+                f"Autorisation {a['aac_label']} : fin de validité le {_iso(a['valid_to'])}",
+                "titres",
+                authorization_id=a["id"],
+            )
+        )
+    for d in await deadlines.documents_expiring(org_id):
+        items.append(
+            _todo(
+                "document_expiring",
+                "warn",
+                f"{d['label']} : expire le {_iso(d['expires_at'])}",
+                "documents",
+                document_id=d["id"],
             )
         )
     order = {"risk": 0, "warn": 1, "info": 2}

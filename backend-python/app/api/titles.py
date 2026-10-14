@@ -571,8 +571,13 @@ async def act_on_aac(
         )
     else:
         new_status = {"ouvrir": "ouvert", "fermer": "ferme"}[body.action]
+        stamp = (
+            "opened_at = COALESCE(opened_at, now())"
+            if new_status == "ouvert"
+            else "closed_at = now()"
+        )
         row = await db.fetch_one(
-            f"UPDATE annual_cut_blocks SET status = '{new_status}' WHERE id = $1"
+            f"UPDATE annual_cut_blocks SET status = '{new_status}', {stamp} WHERE id = $1"
             " RETURNING id, status",
             aac_id,
         )

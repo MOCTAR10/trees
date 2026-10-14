@@ -1324,3 +1324,126 @@ def render_dashboard_pdf(data: dict | None = None) -> bytes:
             )
         )
     return _build(story, "Tableau de bord")
+
+
+CONTROL_TYPE_LABEL = {
+    "marquage": "Contrôle du marquage",
+    "visa_df10": "Visa du carnet de chantier (DF10)",
+    "route": "Contrôle en route",
+    "transformation": "Contrôle de transformation",
+}
+CONTROL_RESULT_LABEL = {
+    "conforme": "Conforme",
+    "reserve": "Conforme avec réserves",
+    "non_conforme": "Non conforme",
+}
+CONTROL_LEGAL_BASIS = {
+    "marquage": "Loi 016/01, art. 130 à 133 : marquage des arbres à exploiter sous le contrôle de "
+    "l'administration (marteau forestier, numéro d'arbre, carnet de chantier).",
+    "visa_df10": "Loi 016/01, art. 49 : tenue du carnet de chantier (DF10) et visa par "
+    "l'administration des Eaux et Forêts.",
+    "route": "Loi 016/01, art. 135 : circulation des produits forestiers sous couvert d'un "
+    "bordereau de roulage ou d'une feuille de route.",
+    "transformation": "Loi 016/01 : registre des entrées et sorties des unités de transformation, "
+    "contrôle de la provenance légale des grumes.",
+}
+_CHECK_MARK = {"ok": "Conforme", "ko": "Non conforme", "warn": "À vérifier"}
+
+
+def render_control_pdf(control: dict) -> bytes:
+    """Field control → procès-verbal (template to be validated by the Ministry).
+
+    The Ministère des Eaux et Forêts acts during the pilot; the competent
+    authority is stated on the document.
+    """
+    c = control or {}
+    kind = c.get("control_type")
+    subject = " · ".join(
+        p
+        for p in (
+            f"Grume {c['tree_code']}" if c.get("tree_code") else None,
+            f"Bordereau {c['transport_reference']}" if c.get("transport_reference") else None,
+            f"AAC {c['aac_label']}" if c.get("aac_label") else None,
+        )
+        if p
+    )
+    position = (
+        f"{_fr_num(c['latitude'], 5)}, {_fr_num(c['longitude'], 5)}"
+        if c.get("latitude") is not None and c.get("longitude") is not None
+        else "Non relevée"
+    )
+    agent = c.get("controlled_by_name") or "—"
+    if c.get("controlled_by_matricule"):
+        agent = f"{agent} (matricule {c['controlled_by_matricule']})"
+    codes = c.get("competent_codes") or []
+    names = c.get("competent_names") or []
+    competent = " / ".join(codes) or "—"
+    competent_full = (
+        " ; ".join(f"{n} ({k})" for n, k in zip(names, codes, strict=False)) or competent
+    )
+    when = c.get("controlled_at")
+    when_text = (
+        when.astimezone(UTC).strftime("%d/%m/%Y à %H:%M UTC")
+        if isinstance(when, datetime)
+        else _fmt_date(when)
+    )
+    signatures = _grid_table(
+        ["L'agent verbalisateur", "Le représentant de l'opérateur"],
+        [["Nom, signature et cachet", "Nom, signature (ou mention du refus de signer)"]],
+        [85 * mm, 85 * mm],
+    )
+    signatures.setStyle(TableStyle([("BOTTOMPADDING", (0, 1), (-1, 1), 28 * mm)]))
+    story: list = [
+        Paragraph("Procès-verbal de contrôle", S_TITLE),
+        Paragraph(_safe(CONTROL_TYPE_LABEL.get(kind, kind or "Contrôle")), S_SUB),
+        Spacer(1, 5 * mm),
+        _kv_table(
+            [
+                ("N° de PV", c.get("pv_reference") or f"Contrôle #{c.get('id')}"),
+                ("Date et heure", when_text),
+                ("Administration", c.get("acting_authority") or "Ministère des Eaux et Forêts"),
+                ("Autorité compétente", competent_full),
+                ("Agent verbalisateur", agent),
+                ("Opérateur contrôlé", c.get("org_name") or "—"),
+                ("Objet du contrôle", subject or "—"),
+                ("Position GPS", position),
+                ("Résultat", CONTROL_RESULT_LABEL.get(c.get("result"), c.get("result"))),
+            ]
+        ),
+    ]
+    findings = c.get("findings") or []
+    if findings:
+        story += [
+            Spacer(1, 4 * mm),
+            Paragraph("Vérifications effectuées", S_H2),
+            _grid_table(
+                ["Point vérifié", "Constat"],
+                [
+                    [f.get("label", ""), _CHECK_MARK.get(f.get("level"), f.get("level", ""))]
+                    for f in findings
+                ],
+                [125 * mm, 45 * mm],
+            ),
+        ]
+    story += [
+        Spacer(1, 4 * mm),
+        Paragraph("Constatations", S_H2),
+        Paragraph(_safe(c.get("notes") or "Aucune irrégularité constatée."), S_BODY),
+        Spacer(1, 4 * mm),
+        Paragraph("Base légale", S_H2),
+        Paragraph(
+            _safe(CONTROL_LEGAL_BASIS.get(kind, "Loi 016/01 portant Code forestier.")), S_SMALL
+        ),
+        Spacer(1, 10 * mm),
+        signatures,
+        Spacer(1, 4 * mm),
+        Paragraph(
+            _safe(
+                f"Phase pilote : contrôle réalisé par le {c.get('acting_authority') or 'Ministère des Eaux et Forêts'}"
+                f" pour le compte de : {competent}. Modèle de procès-verbal à valider par le Ministère"
+                " (numérotation, mentions obligatoires, suites — art. 15)."
+            ),
+            S_SMALL,
+        ),
+    ]
+    return _build(story, "Procès-verbal de contrôle")

@@ -14,7 +14,7 @@ from __future__ import annotations
 import json
 from datetime import UTC, date, datetime
 
-from app.services import db
+from app.services import db, deadlines
 
 HARD = "hard"
 WARNING = "warning"
@@ -32,6 +32,8 @@ TYPES: dict[str, str] = {
     "cites_sans_permis": WARNING,
     "transport_sans_bordereau": WARNING,
     "controle_non_conforme": HARD,
+    "aac_ouverture_depassee": WARNING,
+    "etat_annuel_non_transmis": WARNING,
 }
 
 LABELS: dict[str, str] = {
@@ -45,6 +47,8 @@ LABELS: dict[str, str] = {
     "cites_sans_permis": "Essence CITES sans permis d'exportation",
     "transport_sans_bordereau": "Transport sans bordereau / feuille de route",
     "controle_non_conforme": "Contrôle terrain non conforme",
+    "aac_ouverture_depassee": "AAC ouverte au-delà de 3 ans (art. 121)",
+    "etat_annuel_non_transmis": "État annuel non transmis au 31 mars (art. 244)",
 }
 
 REVIEW_STATUSES = ("ouverte", "traitee", "ecartee")
@@ -380,6 +384,42 @@ async def _controle_non_conforme() -> list[dict]:
     ]
 
 
+async def _aac_ouverture_depassee() -> list[dict]:
+    return [
+        _item(
+            "aac_ouverture_depassee",
+            f"aac:{r['id']}",
+            r["label"],
+            f"Ouverte le {r['opened_at'].date().isoformat()} · limite {r['deadline'].isoformat()}",
+            org_id=r["org_id"],
+            org_name=r["org_name"],
+            title_id=r["title_id"],
+            title_ref=r["title_ref"],
+            aac_id=r["id"],
+            aac_label=r["label"],
+            detected_at=r["deadline"],
+        )
+        for r in await deadlines.aac_open_too_long()
+        if r["overdue"]
+    ]
+
+
+async def _etat_annuel_non_transmis() -> list[dict]:
+    return [
+        _item(
+            "etat_annuel_non_transmis",
+            f"etat:{r['org_id']}:{r['year']}",
+            f"État annuel {r['year']}",
+            f"Échéance dépassée : {r['due'].isoformat()}",
+            org_id=r["org_id"],
+            org_name=r["org_name"],
+            detected_at=r["due"],
+        )
+        for r in await deadlines.statements_missing()
+        if r["overdue"]
+    ]
+
+
 _DETECTORS = (
     _below_dme,
     _felled_without_authorization,
@@ -391,6 +431,8 @@ _DETECTORS = (
     _cites_sans_permis,
     _transport_sans_bordereau,
     _controle_non_conforme,
+    _aac_ouverture_depassee,
+    _etat_annuel_non_transmis,
 )
 
 

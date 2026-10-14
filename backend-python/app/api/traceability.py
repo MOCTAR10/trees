@@ -5,15 +5,16 @@ the administration. The DF10 register is the digital logbook of every marked
 stem; the statements aggregate felled volumes (estimated) by species and period.
 """
 
+from datetime import date
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.core import df10
 from app.core.deps import require_roles
 from app.core.log_volume import merchantable_volume_m3
-from app.services import db, pdf_report
+from app.services import db, deadlines, pdf_report
 
 router = APIRouter()
 
@@ -253,3 +254,79 @@ async def _org_name(user: dict) -> str | None:
         return None
     row = await db.fetch_one("SELECT name FROM organizations WHERE id = $1", org_id)
     return row["name"] if row is not None else None
+
+
+class FilingIn(BaseModel):
+    year: int = Field(..., ge=2000, le=2100)
+
+
+@router.post("/statements/file", status_code=201)
+async def file_statement(body: FilingIn, user: dict = Depends(require_roles("company"))):
+    """Transmit the annual statement of a closed year (due 31 March, art. 244)."""
+    org_id = user.get("organization_id")
+    if org_id is None:
+        raise HTTPException(status_code=409, detail="Compte non rattaché à une organisation")
+    if body.year >= date.today().year:
+        raise HTTPException(
+            status_code=400, detail="L'état annuel se transmet après la fin de l'année"
+        )
+    existing = await db.fetch_one(
+        "SELECT filed_at FROM statement_filings"
+        " WHERE org_id = $1 AND period_year = $2 AND period_kind = 'annuel'",
+        org_id,
+        body.year,
+    )
+    if existing is not None:
+        raise HTTPException(
+            status_code=409,
+            detail=f"État annuel {body.year} déjà transmis le {existing['filed_at'].date().isoformat()}",
+        )
+    data = await statements(year=body.year, quarter=None, user=user)
+    due = deadlines.statement_due(body.year)
+    row = await db.fetch_one(
+        """
+        INSERT INTO statement_filings
+            (org_id, period_year, period_kind, stems_felled, volume_m3, reference, filed_by)
+        VALUES ($1, $2, 'annuel', $3, $4, $5, $6)
+        RETURNING id, period_year, stems_felled, volume_m3, reference, filed_at
+        """,
+        org_id,
+        body.year,
+        data["totals"]["stems_felled"],
+        data["totals"]["estimated_volume_m3"],
+        f"EA-{body.year}-{org_id:04d}",
+        user["id"],
+    )
+    out = dict(row)
+    out["due"] = due.isoformat()
+    out["late"] = out["filed_at"].date() > due
+    return out
+
+
+@router.get("/filings")
+async def list_filings(
+    year: int | None = Query(None, ge=2000, le=2100),
+    user: dict = Depends(require_roles("company", "admin")),
+):
+    """Annual statements transmitted (own organisation, or all for the Ministry)."""
+    org_id = None if user["role"] == "admin" else user.get("organization_id")
+    rows = await db.fetch_all(
+        """
+        SELECT f.id, f.org_id, o.name AS org_name, f.period_year, f.period_kind, f.stems_felled,
+               f.volume_m3, f.reference, f.filed_at
+        FROM statement_filings f
+        JOIN organizations o ON o.id = f.org_id
+        WHERE ($1::int IS NULL OR f.org_id = $1) AND ($2::int IS NULL OR f.period_year = $2)
+        ORDER BY f.filed_at DESC
+        LIMIT 500
+        """,
+        org_id,
+        year,
+    )
+    out = []
+    for r in rows:
+        item = dict(r)
+        item["due"] = deadlines.statement_due(item["period_year"]).isoformat()
+        item["late"] = item["filed_at"].date() > deadlines.statement_due(item["period_year"])
+        out.append(item)
+    return out

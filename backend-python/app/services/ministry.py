@@ -5,7 +5,7 @@ decides them under Loi 016/01 (shown, not yet enforced — a single ``admin`` ro
 decides, frozen decision §10 pt 3) and the province of the title concerned.
 """
 
-from app.services import anomalies, authorities, db
+from app.services import anomalies, authorities, db, deadlines
 
 #: queue key -> (label, competent authority, SQL returning id, label, org,
 #: created_at, title_id). Statuses are the real "submitted" ones of each table.
@@ -205,6 +205,12 @@ async def inbox() -> dict:
                 "amount_fcfa": float(taxes.get("amount") or 0),
             }
         )
+    statements = [s for s in await deadlines.statements_missing() if s["overdue"]]
+    if statements:
+        alerts.append({"level": "warn", "kind": "statements_overdue", "count": len(statements)})
+    aac_late = [a for a in await deadlines.aac_open_too_long() if a["overdue"]]
+    if aac_late:
+        alerts.append({"level": "warn", "kind": "aac_open_too_long", "count": len(aac_late)})
     return {
         "total": sum(q["count"] for q in queues),
         "queues": queues,

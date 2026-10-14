@@ -2,11 +2,11 @@
 
 from typing import Literal
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel, Field
 
 from app.core.deps import require_roles
-from app.services import controls
+from app.services import controls, pdf_report
 
 router = APIRouter()
 
@@ -45,3 +45,20 @@ async def list_controls(
     _admin: dict = Depends(require_roles("admin")),
 ):
     return await controls.list_controls(kind, result)
+
+
+@router.get("/{control_id}/pdf")
+async def control_pdf(control_id: int, user: dict = Depends(require_roles("admin", "company"))):
+    """Procès-verbal of a control — the Ministry, or the organisation controlled."""
+    control = await controls.get_control(control_id)
+    if control is None:
+        raise HTTPException(status_code=404, detail="Contrôle introuvable")
+    if user["role"] != "admin" and control["org_id"] != user.get("organization_id"):
+        raise HTTPException(status_code=403, detail="Contrôle d'une autre organisation")
+    pdf = pdf_report.render_control_pdf(control)
+    name = (control.get("pv_reference") or f"controle_{control_id}").replace("/", "-")
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="PV_{name}.pdf"'},
+    )

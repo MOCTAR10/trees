@@ -169,12 +169,15 @@ async def record(body: dict, admin: dict) -> dict:
         raise HTTPException(
             status_code=422, detail="Organisation requise pour un contrôle de transformation"
         )
+    findings = body.get("findings") or []
     if tree_code:
         tree = await _tree(tree_code)
         if tree is None:
             raise HTTPException(status_code=404, detail="Arbre inconnu du registre")
         aac_id = aac_id or tree["aac_id"]
         org_id = org_id or tree["org_id"]
+        if not findings:
+            findings = (await lookup(tree_code))["checks"]
     if aac_id and not org_id:
         holder = await db.fetch_one(
             "SELECT t.holder_org_id FROM annual_cut_blocks b JOIN management_units u ON u.id = b.ufa_id"
@@ -200,7 +203,7 @@ async def record(body: dict, admin: dict) -> dict:
         transport_id,
         aac_id,
         org_id,
-        json.dumps(body.get("findings") or []),
+        json.dumps(findings),
         notes,
         (body.get("pv_reference") or "").strip() or None,
         lat,
@@ -238,3 +241,30 @@ async def list_controls(
         item.update(authorities.competence(CONTROL_AUTHORITY.get(item["control_type"])))
         out.append(item)
     return out
+
+
+async def get_control(control_id: int) -> dict | None:
+    """One control with the names a PV needs (operator, AAC, slip, agent)."""
+    row = await db.fetch_one(
+        """
+        SELECT c.*, b.label AS aac_label, o.name AS org_name, d.reference AS transport_reference,
+               COALESCE(NULLIF(trim(concat_ws(' ', u.first_name, u.last_name)), ''),
+                        u.display_name, u.email) AS controlled_by_name,
+               u.matricule AS controlled_by_matricule,
+               ST_Y(c.geom) AS latitude, ST_X(c.geom) AS longitude
+        FROM field_controls c
+        LEFT JOIN annual_cut_blocks b ON b.id = c.aac_id
+        LEFT JOIN organizations o ON o.id = c.org_id
+        LEFT JOIN transport_documents d ON d.id = c.transport_document_id
+        LEFT JOIN users u ON u.id = c.controlled_by
+        WHERE c.id = $1
+        """,
+        control_id,
+    )
+    if row is None:
+        return None
+    item = dict(row)
+    findings = item.get("findings")
+    item["findings"] = json.loads(findings) if isinstance(findings, str) else (findings or [])
+    item.update(authorities.competence(CONTROL_AUTHORITY.get(item["control_type"])))
+    return item
