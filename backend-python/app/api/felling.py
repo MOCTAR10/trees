@@ -19,27 +19,13 @@ from app.core.deps import require_roles
 from app.core.dme import dme_for
 from app.core.reserved_species import reserved_species_for
 from app.core.species_data import resolve_species
-from app.services import compliance, db, dme, plate_print
+from app.services import compliance, custody, db, dme, plate_print
 
 router = APIRouter()
 
 MarkingType = Literal["qr", "peinture", "gps_photo"]
 PermitType = Literal["CFAD", "PFA", "PGG", "ASC", "ACBSL", "foret_communautaire"]
 CustodyEvent = Literal["abattu", "transporte", "receptionne", "transforme"]
-
-# Registry status chain (forward-only through events).
-_EVENT_STATUS: dict[str, str] = {
-    "abattu": "abattu",
-    "transporte": "transporte",
-    "receptionne": "transporte",
-    "transforme": "transforme",
-}
-_EVENT_REQUIRES: dict[str, str] = {
-    "abattu": "autorise",
-    "transporte": "abattu",
-    "receptionne": "transporte",
-    "transforme": "receptionne",
-}
 
 
 class DeclarationLineIn(BaseModel):
@@ -244,13 +230,18 @@ async def declare(
             """
             INSERT INTO tree_registry
                 (tree_code, marking_type, geom, species_scientific_name,
-                 measured_dbh_cm, company_id, status, permit_number, aac_label)
+                 measured_dbh_cm, company_id, status, permit_number, aac_label,
+                 aac_id, title_id, custodian_org_id)
             VALUES ($1, $2, CASE WHEN $3::float8 IS NULL OR $4::float8 IS NULL THEN NULL
                                 ELSE ST_SetSRID(ST_MakePoint($3::float8, $4::float8), 4326) END,
-                    $5, $6, $7, 'declare', $8, $9)
+                    $5, $6, $7, 'declare', $8, $9, $10, $11, $12)
             ON CONFLICT (tree_code) DO UPDATE SET
                 status = CASE WHEN tree_registry.status = 'inventorie' THEN 'declare'
                               ELSE tree_registry.status END,
+                aac_id = COALESCE(tree_registry.aac_id, EXCLUDED.aac_id),
+                title_id = COALESCE(tree_registry.title_id, EXCLUDED.title_id),
+                custodian_org_id = COALESCE(tree_registry.custodian_org_id,
+                                            EXCLUDED.custodian_org_id),
                 updated_at = now()
             """,
             line.tree_code.strip(),
@@ -262,6 +253,9 @@ async def declare(
             company_id,
             body.permit_number.strip(),
             body.aac_label,
+            body.aac_id,
+            body.title_id,
+            user.get("organization_id"),
         )
     result = await compliance.evaluate(row["id"])
     await db.execute(
@@ -380,22 +374,16 @@ async def record_event(
     body: CustodyIn,
     user: dict = Depends(require_roles("operator", "company")),
 ):
-    company_id = _company_id(user)
     tree = await db.fetch_one(
         "SELECT * FROM tree_registry WHERE tree_code=$1", body.tree_code.strip()
     )
     if tree is None:
         raise HTTPException(status_code=404, detail="Arbre inconnu au registre")
-    if tree["company_id"] != company_id:
-        raise HTTPException(status_code=403, detail="Arbre d'une autre entreprise")
-    required = _EVENT_REQUIRES[body.event]
-    if tree["status"] != required:
-        raise HTTPException(
-            status_code=409,
-            detail=f"Transition impossible: {body.event} exige le statut '{required}'"
-            f" (actuel: '{tree['status']}'). Abattage sans autorisation préalable"
-            " (Art. 14) refusé.",
-        )
+    if not custody.holds(await custody.acting_user(user), dict(tree)):
+        raise HTTPException(status_code=403, detail="Grume détenue par une autre organisation")
+    reason = custody.refusal(body.event, tree["status"])
+    if reason is not None:
+        raise HTTPException(status_code=409, detail=reason)
     event = await db.fetch_one(
         """
         INSERT INTO custody_events (tree_code, event, actor_id, geom, photo_url, note)
@@ -413,7 +401,7 @@ async def record_event(
     )
     await db.execute(
         "UPDATE tree_registry SET status=$1, updated_at=now() WHERE tree_code=$2",
-        _EVENT_STATUS[body.event],
+        body.event,
         body.tree_code.strip(),
     )
     if body.event == "abattu":
@@ -452,12 +440,29 @@ async def list_trees(
         rows = await db.fetch_all(
             "SELECT id, tree_code, marking_type, species_scientific_name, measured_dbh_cm,"
             " status, permit_number, aac_label, ST_Y(geom) AS latitude, ST_X(geom) AS longitude,"
-            " created_at FROM tree_registry WHERE company_id = $1"
-            + (" AND status = $2" if status else "")
+            " created_at FROM tree_registry"
+            " WHERE (custodian_org_id = $2 OR (custodian_org_id IS NULL AND company_id = $1))"
+            + (" AND status = $3" if status else "")
             + " ORDER BY created_at DESC LIMIT 500",
-            *([company_id] if status is None else [company_id, status]),
+            company_id,
+            user.get("organization_id"),
+            *([status] if status else []),
         )
     return [dict(r) for r in rows]
+
+
+@router.get("/trees/{tree_code}")
+async def get_tree(
+    tree_code: str,
+    user: dict = Depends(require_roles("company", "admin", "operator", "cooperative")),
+):
+    """One log: holder, status, custody history, open transport and next action."""
+    out = await custody.lookup(tree_code.strip(), user)
+    if out is None:
+        raise HTTPException(status_code=404, detail="Arbre inconnu au registre")
+    if user["role"] != "admin" and not out["is_holder"] and not out["can_receive"]:
+        raise HTTPException(status_code=403, detail="Grume détenue par une autre organisation")
+    return out
 
 
 @router.get("/anomalies")

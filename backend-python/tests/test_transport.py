@@ -72,6 +72,17 @@ def _setup(monkeypatch):
             "company_id": None,
             "organization_id": None,
         },
+        6: {
+            "id": 6,
+            "email": "mill@x",
+            "display_name": "Mill",
+            "role": "company",
+            "password_hash": _pw("millpw"),
+            "is_active": True,
+            "cooperative_id": None,
+            "company_id": None,
+            "organization_id": 20,
+        },
     }
     registry = {
         "GA-A1": {
@@ -109,7 +120,8 @@ def _setup(monkeypatch):
         "transport_seq": 1,
         "documents": {},
         "registry": registry,
-        "organizations": {10: {"id": 10, "name": "Bois SA"}},
+        "organizations": {10: {"id": 10, "name": "Bois SA"}, 20: {"id": 20, "name": "Scierie"}},
+        "custody": [],
     }
 
     def _filters(s):
@@ -152,6 +164,7 @@ def _setup(monkeypatch):
                 "aac_id": args[10],
                 "transporter": args[11],
                 "vehicle_ref": args[12],
+                "destination_org_id": args[13],
                 "issued_at": None,
                 "created_at": "2026-05-10T10:00:00",
             }
@@ -176,6 +189,13 @@ def _setup(monkeypatch):
         if "from tree_registry where tree_code = any" in s:
             codes = args[0] or []
             return [dict(r) for c, r in state["registry"].items() if c in codes]
+        if "from transport_documents d" in s:
+            rows = list(state["documents"].values())
+            if "d.destination_org_id = $1" in s:
+                rows = [r for r in rows if args[0] in (r["org_id"], r["destination_org_id"])]
+            if "d.status = $" in s:
+                rows = [r for r in rows if r["status"] == args[-1]]
+            return [dict(r, org_name=None, destination_name=None) for r in rows]
         if "from transport_documents" in s:
             rows = list(state["documents"].values())
             if "status in ('brouillon','emis')" in s:
@@ -184,6 +204,18 @@ def _setup(monkeypatch):
         return []
 
     async def execute(sql, *args):
+        s = " ".join(sql.split()).lower()
+        if s.startswith("update tree_registry set status = 'transporte'"):
+            for c in args[0]:
+                state["registry"][c]["status"] = "transporte"
+        elif s.startswith("update tree_registry set status = 'receptionne'"):
+            for c in args[0]:
+                tree = state["registry"][c]
+                if tree["status"] == "transporte":
+                    tree["status"] = "receptionne"
+                    tree["custodian_org_id"] = args[1]
+        elif s.startswith("insert into custody_events"):
+            state["custody"].extend((c, args[1], args[3]) for c in args[0])
         return "OK"
 
     monkeypatch.setattr(db, "fetch_one", fetch_one)
@@ -358,3 +390,39 @@ def test_transport_pdf(client, monkeypatch):
     assert resp.status_code == 200
     assert resp.headers["content-type"] == "application/pdf"
     assert resp.content[:4] == b"%PDF"
+
+
+def test_issue_moves_logs_and_destination_receives(client, monkeypatch):
+    users, state = _setup(monkeypatch)
+    co, mill = _token(users[2]), _token(users[6])
+    created = _create(client, co, destination_org_id=20)
+    assert created.status_code == 201, created.text
+    doc_id = created.json()["id"]
+
+    def patch(token, status):
+        return client.patch(
+            f"/api/transport/documents/{doc_id}",
+            json={"status": status},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    assert patch(mill, "emis").status_code == 403
+    assert patch(co, "emis").status_code == 200
+    assert state["registry"]["GA-A1"]["status"] == "transporte"
+    assert ("GA-A1", "transporte", doc_id) in state["custody"]
+    incoming = client.get(
+        "/api/transport/documents", headers={"Authorization": f"Bearer {mill}"}
+    ).json()
+    assert [d["direction"] for d in incoming] == ["entrant"]
+    assert patch(co, "receptionne").status_code == 403
+    assert patch(mill, "receptionne").status_code == 200
+    assert state["registry"]["GA-A2"]["status"] == "receptionne"
+    assert state["registry"]["GA-A2"]["custodian_org_id"] == 20
+    assert ("GA-A2", "receptionne", doc_id) in state["custody"]
+
+
+def test_destination_must_be_another_known_organization(client, monkeypatch):
+    users, _ = _setup(monkeypatch)
+    co = _token(users[2])
+    assert _create(client, co, destination_org_id=10).status_code == 400
+    assert _create(client, co, destination_org_id=99).status_code == 404
