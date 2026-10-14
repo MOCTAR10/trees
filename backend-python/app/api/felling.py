@@ -127,12 +127,47 @@ async def _check_line(
     return dme_cm, source, violations
 
 
+@router.get("/aac-options")
+async def aac_options(user: dict = Depends(require_roles("company"))):
+    """AACs of the company's titles, with whether felling is allowed now (art. 14)."""
+    org_id = user.get("organization_id")
+    if org_id is None:
+        return []
+    rows = await db.fetch_all(
+        """
+        SELECT b.id, b.label, b.status, b.campaign_year, u.label AS ufa_label,
+               t.id AS title_id, t.title_type, t.reference AS title_reference
+        FROM annual_cut_blocks b
+        JOIN management_units u ON u.id = b.ufa_id
+        JOIN forest_titles t ON t.id = u.title_id
+        WHERE t.holder_org_id = $1
+        ORDER BY b.campaign_year DESC NULLS LAST, b.label
+        """,
+        org_id,
+    )
+    out = []
+    for r in rows:
+        item = dict(r)
+        item["blocker"] = await compliance.authorization_gate(item["id"], org_id)
+        out.append(item)
+    return out
+
+
 @router.post("/declarations")
 async def declare(
     body: DeclarationIn,
     user: dict = Depends(require_roles("company")),
 ):
     company_id = _company_id(user)
+    gate = await compliance.authorization_gate(body.aac_id, user.get("organization_id"))
+    if gate is not None:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "message": "Soumission bloquée — pas d'exploitation sans autorisation (art. 14)",
+                "blockers": [{"tree_code": None, "code": gate}],
+            },
+        )
     points = [
         (line.tree_code.strip(), line.longitude, line.latitude)
         for line in body.lines

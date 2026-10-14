@@ -1,6 +1,7 @@
 """Abattage lifecycle tests (DB service mocked in-memory)."""
 
 import json
+from datetime import date
 
 import pytest
 from fastapi.testclient import TestClient
@@ -95,6 +96,11 @@ def _seed():
         "aac_ufa": {},
         "aac_status": {},
         "ufa_dme": [],
+        "authorizations": {
+            11: [{"status": "delivre", "valid_to": None, "startup_notified_at": "2026-01-10"}],
+            7: [{"status": "delivre", "valid_to": None, "startup_notified_at": "2026-01-10"}],
+        },
+        "aac_holder": {11: None, 7: None},
     }
     return users, state
 
@@ -158,12 +164,18 @@ def _install_fake_db(monkeypatch, users, state):
             return {"ufa_id": ufa_id} if ufa_id is not None else None
         if "select status from annual_cut_blocks" in s:
             return {"status": state["aac_status"].get(args[0])}
+        if "select t.holder_org_id" in s:
+            if args[0] not in state["aac_holder"]:
+                return None
+            return {"holder_org_id": state["aac_holder"][args[0]]}
         return None
 
     async def fetch_all(sql, *args):
         s = " ".join(sql.split()).lower()
         if "from ufa_dme" in s:
             return [dict(r) for r in state["ufa_dme"] if r["ufa_id"] == args[0]]
+        if "from aac_authorizations where aac_id" in s:
+            return [dict(r) for r in state["authorizations"].get(args[0], [])]
         if "lateral" in s and "protected_areas" in s:
             ctx = state.get("spatial", {})
             return [
@@ -314,6 +326,7 @@ def _declare_payload():
         "ufa_label": "UFA-3",
         "aac_label": "AAC-2026",
         "campaign_year": 2026,
+        "aac_id": 11,
         "lines": [
             {
                 "tree_code": "GA-2026-0001",
@@ -480,18 +493,13 @@ def test_tree_outside_aac_blocks_submission(client, monkeypatch):
     assert all(b["tree_code"] != "GA-2026-0002" for b in blockers)
 
 
-def test_no_aac_id_skips_spatial_check(client, monkeypatch):
+def test_no_aac_id_is_blocked_before_any_spatial_check(client, monkeypatch):
     users, state = _setup(monkeypatch)
     state["outside_aac"] = ["GA-2026-0001"]
-    token = _token(users[2])
-    # No aac_id on the payload → the AAC containment query is never consulted.
-    resp = client.post(
-        "/api/felling/declarations",
-        json=_declare_payload(),
-        headers={"Authorization": f"Bearer {token}"},
-    )
-    assert resp.status_code == 200
-    assert resp.json()["compliance"]["compliant"] is True
+    payload = _declare_payload()
+    payload.pop("aac_id")
+    resp = _declare_with(client, users, payload)
+    assert _blocker(resp) == "no_aac"
 
 
 def test_park_and_out_of_concession_stems_warn_but_do_not_block(client, monkeypatch):
@@ -754,3 +762,54 @@ def test_declaration_plates_pdf(client, monkeypatch):
     assert (
         client.get("/api/felling/declarations/9999/plates.pdf", headers=headers).status_code == 404
     )
+
+
+def _declare_with(client, users, payload):
+    return client.post(
+        "/api/felling/declarations",
+        json=payload,
+        headers={"Authorization": f"Bearer {_token(users[2])}"},
+    )
+
+
+def _blocker(resp) -> str:
+    assert resp.status_code == 422, resp.text
+    return resp.json()["detail"]["blockers"][0]["code"]
+
+
+def test_art14_declaration_without_aac_is_blocked(client, monkeypatch):
+    users, _ = _setup(monkeypatch)
+    payload = _declare_payload()
+    payload.pop("aac_id")
+    assert _blocker(_declare_with(client, users, payload)) == "no_aac"
+
+
+def test_art14_no_authorization_or_pending_is_blocked(client, monkeypatch):
+    users, state = _setup(monkeypatch)
+    state["authorizations"][11] = []
+    assert _blocker(_declare_with(client, users, _declare_payload())) == "no_authorization"
+    state["authorizations"][11] = [
+        {"status": "soumis", "valid_to": None, "startup_notified_at": None}
+    ]
+    assert _blocker(_declare_with(client, users, _declare_payload())) == "authorization_pending"
+
+
+def test_art14_expired_or_not_notified_is_blocked(client, monkeypatch):
+    users, state = _setup(monkeypatch)
+    state["authorizations"][11] = [
+        {"status": "delivre", "valid_to": date(2020, 1, 1), "startup_notified_at": "2019-01-01"}
+    ]
+    assert _blocker(_declare_with(client, users, _declare_payload())) == "no_authorization"
+    state["authorizations"][11] = [
+        {"status": "delivre", "valid_to": None, "startup_notified_at": None}
+    ]
+    assert _blocker(_declare_with(client, users, _declare_payload())) == "startup_not_notified"
+
+
+def test_art14_aac_of_another_organisation_is_blocked(client, monkeypatch):
+    users, state = _setup(monkeypatch)
+    users[2]["organization_id"] = 12
+    state["aac_holder"][11] = 99
+    assert _blocker(_declare_with(client, users, _declare_payload())) == "aac_not_held"
+    state["aac_holder"][11] = 12
+    assert _declare_with(client, users, _declare_payload()).status_code == 200

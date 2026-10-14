@@ -1,12 +1,13 @@
 """Compliance gate: two-tier conformance (Loi 016/01 + RDUE).
 
-Hard blockers make submission impossible (duplicate code, missing measurement,
-tree below DME, tree outside the AAC, reserved species). Warnings let the file
-through; the Ministry decides at instruction time (missing documents, unpaid
-taxes, pending authorizations, CITES without permit).
+Hard blockers make submission impossible (no authorization to exploit the AAC
+— art. 14 —, duplicate code, missing measurement, tree below DME, tree outside
+the AAC, reserved species). Warnings let the file through; the Ministry decides
+at instruction time (missing documents, unpaid taxes, CITES without permit).
 """
 
 import json
+from datetime import date
 
 from app.services import db
 
@@ -20,6 +21,50 @@ HARD_LINE_VIOLATIONS = frozenset(
 WARNING_LINE_VIOLATIONS = frozenset({"cites_listed", "in_protected_area", "outside_concession"})
 
 _AAC_OPEN_STATUSES = ("autorise", "ouvert")
+
+#: Declaration-level hard blockers (art. 14: no felling before an authorization
+#: is delivered for the AAC and the start of operations notified).
+AUTHORIZATION_BLOCKERS = frozenset(
+    {"no_aac", "aac_not_held", "no_authorization", "authorization_pending", "startup_not_notified"}
+)
+
+
+async def authorization_gate(aac_id: int | None, org_id: int | None) -> str | None:
+    """Art. 14 blocker code for a felling declaration, or None when allowed."""
+    if aac_id is None:
+        return "no_aac"
+    if org_id is not None:
+        holder = await db.fetch_one(
+            """
+            SELECT t.holder_org_id
+            FROM annual_cut_blocks b
+            JOIN management_units u ON u.id = b.ufa_id
+            JOIN forest_titles t ON t.id = u.title_id
+            WHERE b.id = $1
+            """,
+            aac_id,
+        )
+        if holder is None or holder["holder_org_id"] != org_id:
+            return "aac_not_held"
+    rows = await db.fetch_all(
+        "SELECT status, valid_to, startup_notified_at FROM aac_authorizations WHERE aac_id = $1",
+        aac_id,
+    )
+    today = date.today()
+    delivered = [
+        r
+        for r in rows
+        if r["status"] == "delivre" and (r["valid_to"] is None or r["valid_to"] >= today)
+    ]
+    if not delivered:
+        return (
+            "authorization_pending"
+            if any(r["status"] == "soumis" for r in rows)
+            else "no_authorization"
+        )
+    if not any(r["startup_notified_at"] for r in delivered):
+        return "startup_not_notified"
+    return None
 
 
 def line_impact(violations: list[str] | str | None) -> tuple[list[str], list[str]]:

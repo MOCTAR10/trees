@@ -1,10 +1,13 @@
 """Organization registry: presets, Ministry creation wizard, self-service views."""
 
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Literal
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from app.core import security
 from app.core.deps import require_roles
-from app.services import db, org_backfill
+from app.services import compliance, db, ministry, org_backfill
 
 router = APIRouter()
 
@@ -16,7 +19,8 @@ _ORG_COLUMNS = (
 
 class OrganizationIn(BaseModel):
     name: str = Field(..., min_length=1)
-    profile_code: str = Field(..., min_length=1)
+    profile_code: str | None = None
+    org_type: Literal["entreprise", "communaute", "cooperative"] | None = None
     legal_form: str | None = None
     registration_no: str | None = None
     tax_id: str | None = None
@@ -68,9 +72,18 @@ async def list_profiles(_user: dict = Depends(require_roles("company", "admin"))
 
 @router.post("", status_code=201)
 async def create_organization(body: OrganizationIn, admin: dict = Depends(require_roles("admin"))):
-    profile = await db.fetch_one("SELECT * FROM org_profiles WHERE code = $1", body.profile_code)
-    if profile is None:
-        raise HTTPException(status_code=404, detail="Preset introuvable")
+    if body.profile_code:
+        profile = await db.fetch_one(
+            "SELECT * FROM org_profiles WHERE code = $1", body.profile_code
+        )
+        if profile is None:
+            raise HTTPException(status_code=404, detail="Preset introuvable")
+    elif body.org_type == "cooperative":
+        profile = {"org_type": "cooperative", "doc_required": []}
+    else:
+        raise HTTPException(
+            status_code=422, detail="Profil requis (sauf coopérative : type « cooperative »)"
+        )
 
     row = await db.fetch_one(
         """
@@ -163,6 +176,101 @@ async def list_organizations(_admin: dict = Depends(require_roles("admin"))):
         " ORDER BY o.id"
     )
     return [dict(r) for r in rows]
+
+
+class AccountIn(BaseModel):
+    email: str = Field(..., min_length=3)
+    password: str = Field(..., min_length=8)
+    role: Literal["company", "operator", "cooperative"] = "operator"
+    first_name: str | None = None
+    last_name: str | None = None
+    display_name: str | None = None
+    matricule: str | None = None
+
+
+@router.get("/directory")
+async def directory(
+    province: str | None = Query(None),
+    org_type: str | None = Query(None, alias="type"),
+    _admin: dict = Depends(require_roles("admin")),
+):
+    """Organisations with type, profile, provinces of their titles and health."""
+    return await ministry.organisations(province, org_type)
+
+
+@router.get("/{org_id}/sheet")
+async def organisation_sheet(org_id: int, _admin: dict = Depends(require_roles("admin"))):
+    """One place for the Ministry: titles (with province), compliance, accounts, certifications."""
+    entries = [o for o in await ministry.organisations() if o["id"] == org_id]
+    if not entries:
+        raise HTTPException(status_code=404, detail="Organisation introuvable")
+    titles = await db.fetch_all(
+        """
+        SELECT t.id, t.title_type, t.reference, t.status, t.zone, t.surface_ha,
+               v.province_code, v.province_source, a.name AS province_name
+        FROM forest_titles t
+        LEFT JOIN v_title_province v ON v.title_id = t.id
+        LEFT JOIN admin_areas a ON a.code = v.province_code
+        WHERE t.holder_org_id = $1
+        ORDER BY t.created_at DESC
+        """,
+        org_id,
+    )
+    accounts = await db.fetch_all(
+        "SELECT id, email, display_name, first_name, last_name, matricule, role, is_active"
+        " FROM users WHERE organization_id = $1 ORDER BY role, display_name",
+        org_id,
+    )
+    certifications = await db.fetch_all(
+        "SELECT id, scheme, cert_type, status, valid_to FROM certifications WHERE org_id = $1"
+        " ORDER BY created_at DESC",
+        org_id,
+    )
+    return {
+        **entries[0],
+        "titles": [dict(t) for t in titles],
+        "accounts": [dict(a) for a in accounts],
+        "certifications": [dict(c) for c in certifications],
+        "warnings": await compliance.assess_org_warnings(org_id),
+    }
+
+
+@router.post("/{org_id}/accounts", status_code=201)
+async def create_linked_account(
+    org_id: int, body: AccountIn, _admin: dict = Depends(require_roles("admin"))
+):
+    """Create a login already attached to the organisation (agent or manager)."""
+    org = await db.fetch_one("SELECT id, org_type, name FROM organizations WHERE id = $1", org_id)
+    if org is None:
+        raise HTTPException(status_code=404, detail="Organisation introuvable")
+    if await db.fetch_one(
+        "SELECT id FROM users WHERE lower(email) = lower($1)", body.email.strip()
+    ):
+        raise HTTPException(status_code=409, detail="Cet email est déjà utilisé")
+    first = (body.first_name or "").strip() or None
+    last = (body.last_name or "").strip() or None
+    display = (body.display_name or "").strip() or " ".join(p for p in (first, last) if p)
+    if body.role == "company" and not display:
+        display = org["name"]
+    if not display:
+        raise HTTPException(status_code=422, detail="Prénom et nom requis")
+    row = await db.fetch_one(
+        """
+        INSERT INTO users
+            (email, display_name, role, password_hash, organization_id, first_name, last_name, matricule)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING id, email, display_name, role, organization_id, first_name, last_name, matricule
+        """,
+        body.email.strip(),
+        display,
+        body.role,
+        security.hash_password(body.password),
+        org_id,
+        first,
+        last,
+        (body.matricule or "").strip() or None,
+    )
+    return dict(row)
 
 
 @router.get("/me")

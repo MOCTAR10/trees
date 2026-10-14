@@ -1,11 +1,11 @@
 """Admin interface: user & cooperative management + platform stats."""
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
 from app.core import security
 from app.core.deps import require_roles
-from app.services import db
+from app.services import db, ministry
 
 router = APIRouter()
 
@@ -192,3 +192,25 @@ async def stats(admin: dict = Depends(require_roles("admin"))):
         """
     )
     return dict(row)
+
+
+@router.get("/inbox")
+async def inbox(_admin: dict = Depends(require_roles("admin"))):
+    """What waits for a Ministry decision: counters per queue, oldest first, alerts."""
+    return await ministry.inbox()
+
+
+@router.get("/inbox/items")
+async def inbox_items(
+    kind: str | None = Query(None, alias="type"),
+    province: str | None = Query(None),
+    _admin: dict = Depends(require_roles("admin")),
+):
+    """Every pending file with its competent authority and province."""
+    return await ministry.inbox_items(kind, province)
+
+
+@router.get("/provinces")
+async def provinces(_admin: dict = Depends(require_roles("admin"))):
+    """The 9 provinces with the organisations holding titles there."""
+    return await ministry.provinces_summary()

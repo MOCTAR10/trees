@@ -230,6 +230,69 @@ async def request_title(body: TitleIn, user: dict = Depends(require_roles("compa
     return dict(row)
 
 
+class TitleRegisterIn(TitleIn):
+    holder_org_id: int
+    status: Literal["demande", "exploration", "provisoire", "actif"] = "actif"
+    province_code: str | None = None
+    grant_ref: str | None = None
+    grant_date: date | None = None
+
+
+class TitleProvinceIn(BaseModel):
+    province_code: str | None = None
+
+
+@router.post("/register", status_code=201)
+async def register_title(body: TitleRegisterIn, admin: dict = Depends(require_roles("admin"))):
+    """The Ministry records a title itself (existing title, attribution by decree…)."""
+    org = await db.fetch_one("SELECT id FROM organizations WHERE id = $1", body.holder_org_id)
+    if org is None:
+        raise HTTPException(status_code=404, detail="Organisation introuvable")
+    if body.province_code and not await db.fetch_one(
+        "SELECT code FROM admin_areas WHERE code = $1", body.province_code
+    ):
+        raise HTTPException(status_code=404, detail="Province inconnue")
+    row = await db.fetch_one(
+        """
+        INSERT INTO forest_titles (title_type, reference, holder_org_id, zone, surface_ha, status,
+                                   created_by, decided_by, decided_at, province_code, grant_ref,
+                                   grant_date)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $7, now(), $8, $9, $10)
+        RETURNING id, title_type, reference, status, holder_org_id, province_code, created_at
+        """,
+        body.title_type,
+        body.reference,
+        body.holder_org_id,
+        body.zone,
+        body.surface_ha,
+        body.status,
+        admin["id"],
+        body.province_code,
+        body.grant_ref,
+        body.grant_date,
+    )
+    return dict(row)
+
+
+@router.post("/{title_id}/province")
+async def set_title_province(
+    title_id: int, body: TitleProvinceIn, _admin: dict = Depends(require_roles("admin"))
+):
+    """Set (or clear, to fall back on the geometry) the province of a title."""
+    if body.province_code and not await db.fetch_one(
+        "SELECT code FROM admin_areas WHERE code = $1", body.province_code
+    ):
+        raise HTTPException(status_code=404, detail="Province inconnue")
+    row = await db.fetch_one(
+        "UPDATE forest_titles SET province_code = $2 WHERE id = $1 RETURNING id, province_code",
+        title_id,
+        body.province_code,
+    )
+    if row is None:
+        raise HTTPException(status_code=404, detail="Titre introuvable")
+    return dict(row)
+
+
 @router.get("")
 async def list_titles(user: dict = Depends(require_roles("company", "admin"))):
     if user["role"] == "admin":
