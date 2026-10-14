@@ -1,6 +1,6 @@
 # Audit — parcours complet de l'application
 
-Date : 14 octobre 2026 · état après Slice 21, **mis à jour après Slice 22** (✔ = corrigé).
+Date : 14 octobre 2026 · état après Slice 21, **mis à jour après Slices 22 et 23** (✔ = corrigé).
 Complète `AUDIT_WORKFLOW_MINISTERE.md` (planches du guide Ministère) : ici, le parcours **de bout en bout**
 par rôle et le cycle de vie de la grume, vérifiés dans le code **et en conditions réelles** (Postgres live,
 données de test supprimées).
@@ -42,12 +42,11 @@ tenu »** et **lookup des contrôles terrain** (Slice 21) — testé : une tige 
 ### Entreprise (`company`)
 ✅ Pièces, titres & AAC (autorisations, conventions, études, DME), taxes, traçabilité (DF10, bordereaux),
 fiscalité & social, certifications, déclarations (AAC + porte art. 14), chantiers.
-🟠 L'espace s'ouvre sur **« Résidus »** (économie circulaire, historique) ; **8 onglets** horizontaux ; pas
-d'écran **« À faire »** (pièce expirée, taxe en retard, dossier rejeté, autorisation délivrée à notifier).
-🟠 Aucune **notification** des décisions du Ministère : il faut ouvrir chaque onglet.
-🟠 Ne voit **ni ses anomalies ni les PV de contrôle** la concernant (droit de réponse / contradictoire).
+✔ L'espace s'ouvre sur l'**Accueil « À faire »** ; navigation regroupée en 5 espaces (Slice 23).
+✔ **Décisions reçues** (avec motif et autorité) sur l'Accueil (Slice 23) ; notifications push : à venir.
+✔ Voit ses **anomalies** ouvertes et les **PV de contrôle** la concernant (Slice 23).
 🟠 Ne peut pas créer **ses propres comptes d'agents** (seul le Ministère le peut) — choix à confirmer.
-🟡 Thème sombre forcé et ancien `theme.ts` (pas encore migré vers le design system).
+🟡 Accueil et navigation dans le design system (Slice 23) ; les écrans internes gardent l'ancien `theme.ts` (thème sombre forcé).
 
 ### Coopérative (`cooperative`)
 🟠 Seulement la collecte de résidus. Pas de profil réglementaire (agrégation des volumes, planche 9).
@@ -57,7 +56,7 @@ d'écran **« À faire »** (pièce expirée, taxe en retard, dossier rejeté, a
 🟠 Contrôle terrain : **pas de PV PDF** (seul document Ministère sans PDF) ; les suites (saisie, amende —
 art. 15) ne sont pas modélisées.
 🟠 Pas de **registre de transformation** (entrées / sorties d'usine) à contrôler.
-🟡 Rôle unique (`admin`) : autorité et province affichées, non appliquées (décision figée §10 pt 3).
+🟡 Rôle unique (`admin`) : ✔ chaque action indique « réalisé par le Ministère pour le compte de … » et la page **Parties prenantes** sert de boussole (Slice 23) ; séparation effective après le pilote.
 
 ## 4. Échéances légales non suivies (rappel)
 
@@ -70,7 +69,14 @@ plan d'aménagement, grille des **30 AAC** générée depuis le PA.
    par `aac_label`/titre), statut `receptionne` au registre, messages de transition corrects ; écran
    **Abattage / Transport** pour l'agent et l'entreprise (lecture QR → abattu, avec GPS/photo) ; émission
    d'un bordereau = grumes `transporte`, réception (par le destinataire) = `receptionne`.
-2. 🟠 **Espace entreprise « À faire »** : ouvrir sur les actions dues et les décisions reçues (avec motif),
+2. ✔ **Espace entreprise « À faire »** — fait (Slice 23). : ouvrir sur les actions dues et les décisions reçues (avec motif),
    anomalies et PV la concernant ; migrer l'espace vers le design system.
 3. 🟠 **PV de contrôle** en PDF et suites d'un contrôle non conforme (à valider par le métier).
 4. 🟡 Échéances légales (§ 4), profil coopérative, registre de transformation.
+
+## 6. Vérification par le jeu pilote (Slice 23)
+
+Le parcours complet est désormais rejoué **par l'API** (`tools.seed_pilot`, `tests_e2e/`) : 170 appels, dont
+20 étapes que les règles doivent refuser. Défauts révélés et corrigés : rejet d'un **titre** et d'une
+**pièce** acceptés sans motif. La suite de bout en bout tourne sur PostgreSQL réel ; son branchement en CI est
+la prochaine étape.

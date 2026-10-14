@@ -44,14 +44,14 @@ only (`mobile/src/i18n/fr.ts`). There is **no navigation library**: `App.tsx`
 routes with a `phase` state machine plus role checks; screens are mounted from
 per-role containers (`CompanyScreen`, `AdminScreen`, …) that expose tabs.
 
-## 2. Where we are (as of Slice 22)
+## 2. Where we are (as of Slice 23)
 
 The product is built as **vertical slices**: each slice ships a DB migration, the
 backend, optionally an operational CLI under `tools/`, the mobile UI, and the
 doc update — as separate logical commits. The full history lives in
 `docs/GABON_WORKFLOW_ANALYSIS.md` **§9**.
 
-**Slices 1–21 are DONE, committed on `main`, and pushed (CI green). Slice 22 is implemented and verified locally.** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
+**Slices 1–22 are DONE, committed on `main`, and pushed (CI green). Slice 23 is implemented and verified locally.** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
 
 | # | Domaine | Migration | Backend | Mobile | Docs §9 |
 | --- | --- | --- | --- | --- | --- |
@@ -77,9 +77,11 @@ doc update — as separate logical commits. The full history lives in
 | 20 | Espace Ministère (Tableau de bord, À traiter, Organisations, Menu), provinces, titre enregistré par le Ministère ; art. 14 bloquant à la déclaration | `025_slice20.sql` | `/api/admin/inbox(/items)`, `/api/admin/provinces`, `/api/organizations/directory`, `/{id}/sheet`, `/{id}/accounts`, `/api/titles/register`, `/api/titles/{id}/province`, `/api/felling/aac-options`, `tools.import_provinces` | `ministry/*` (MinistryHome, Inbox, Organisations, Organisation, Menu, Domain), `AdminDeclarations`, `DeclareScreen` (AAC), admin components restylés | pt 20 |
 | 21 | Espace Ministère (étape B) : page de décision unique par dossier, contrôles terrain (marquage, visa DF10, route + PV, transformation), avertissements carnet non tenu / CITES sans permis | `026_slice21.sql` | `/api/admin/inbox/{type}/{id}` (+ `/decision`), `/api/controls` (`lookup`, création, liste), anomalie `controle_non_conforme` | `ministry/DecisionScreen`, `ministry/ControlsScreen` | pt 21 |
 | 22 | Cycle de vie de la grume : AAC + détenteur à la déclaration, abattage / transformation par le détenteur, bordereau ⇒ transport, réception par le destinataire, écran Suivi des grumes | `027_slice22.sql` | `services/custody.py`, `GET /api/felling/trees/{code}`, `POST /api/felling/events`, `/api/transport/destinations`, `/api/transport/documents` (destinataire, réception) | `CustodyScreen`, `QrScanner`, `CompanyTraceability`, `HomeScreen` | pt 22 |
+| 23 | Espace entreprise (À faire, décisions reçues, anomalies, PV), boussole des autorités (Ministère agissant, autorité compétente affichée), jeu pilote par l'API, suite de bout en bout | — | `/api/company/space`, `/api/admin/authorities`, `services/authorities.py`, `services/company_space.py`, `tools.seed_pilot`, `tools.pilot_client`, `tests_e2e/` | `CompanyHomeScreen`, `CompanyNav`, `ministry/AuthoritiesScreen`, `DecisionScreen` (bandeau) | pt 23 |
 
-Latest verified suite counts (Slice 22): **`pytest` 482 passed** (+ the AI-capabilities
-test, which needs ≥ 3 GB for Docker) · **`jest` 189 passed / 50 suites** · `ruff` and `tsc` clean.
+Latest verified suite counts (Slice 23): **`pytest` 489 passed** (+ the AI-capabilities
+test, which needs ≥ 3 GB for Docker) · **`tests_e2e` 12 passed** (real Postgres) ·
+**`jest` 192 passed / 51 suites** · `ruff` and `tsc` clean.
 
 ### What is left (next candidates)
 
@@ -176,6 +178,17 @@ Mobile (`mobile/`):
 npx tsc --noEmit
 npx jest --ci
 ```
+
+Pilot dataset and end-to-end suite (real Postgres, stack up):
+
+```powershell
+docker exec -w /app forestry_fastapi python -m tools.seed_pilot            # build "PILOTE" (skipped if present)
+docker exec -w /app forestry_fastapi python -m tools.seed_pilot --reset    # rebuild
+docker exec -w /app forestry_fastapi python -m pytest tests_e2e -q         # throw-away namespace, cleaned up
+```
+
+Pilot logins: `<alias>@pilote.ga` / `Pilote2026!` (e.g. `hob.dg`, `hob.agent1`, `sdl.dg`,
+`cfn.dg`, `mas.chef`, `can.pres`, inspectors `mef.dp2`, `mef.brigade`).
 
 Full-stack smoke (stack must be up):
 
@@ -314,6 +327,14 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
 - Never let an upstream error message reach the logs verbatim when the request
   URL carries a key (Pl@ntNet passes `api-key` as a query parameter).
 - IUCN enrichment is blocked until `IUCN_API_TOKEN` is provided.
+- Pilot authority model: the Ministère des Eaux et Forêts (`admin`) performs every
+  administrative action; each one carries `acting_authority` + `competent_codes` +
+  `competence_note` from `services/authorities.py`. Keep that on any new Ministry action
+  (queues, decisions, controls) — the UI shows it as the pilot's compass.
+- `tools.seed_pilot` goes through the API and asserts each status: when a workflow rule
+  changes, update the pilot story and `tests_e2e/` with it. Raw SQL there is only for
+  what the API cannot do (AAC polygons, field scans, reset). Under Git Bash prefix
+  `docker exec -w /app …` with `MSYS_NO_PATHCONV=1`.
 - Chain of custody: a log moves `autorise → abattu` (event, holder only) →
   `transporte` (only by **issuing** a transport document) → `receptionne` (only by the
   **destination** org receiving it; custody moves to that org) → `transforme` (event,

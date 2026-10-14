@@ -107,6 +107,20 @@ docker exec -it forestry_fastapi python -m tools.seed_demo
 # field agent  : agent.demo@forestry.local / Demo12345 (Nzé Obiang, invited to the demo chantier)
 ```
 
+### Pilot dataset (all roles, all scenarios)
+
+A richer story built **through the API** — six organisations in five provinces,
+managers, field agents, a sawmill, a community forest, a cooperative and two
+Ministry inspectors — covering titles, AAC, art. 14, documents, declarations
+(approved, rejected, blocked), the full chain of custody, taxes, certifications,
+studies, EUDR, field controls and anomaly reviews:
+
+```powershell
+docker exec -w /app forestry_fastapi python -m tools.seed_pilot --reset
+# logins: hob.dg@pilote.ga, hob.agent1@pilote.ga, sdl.dg@pilote.ga, mef.dp2@pilote.ga … / Pilote2026!
+docker exec -w /app forestry_fastapi python -m pytest tests_e2e -q   # end-to-end suite
+```
+
 Sign in through `POST /api/auth/login` to receive a JWT; send it as
 `Authorization: Bearer <token>` for role-scoped endpoints.
 
