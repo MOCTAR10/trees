@@ -18,13 +18,13 @@ de la base live et aux écrans mobiles. ✅ implémenté · ⚠️ partiel · �
 | 8 | DF10 alimenté auto → **visa du carnet** (art. 49) | ✔ | registre DF10 + PDF ✅ ; visa enregistré comme contrôle `visa_df10` sur l'AAC (Slice 21). |
 | 9 | Bordereau / feuille de route → **contrôle en route** (art. 135) | ✔ | contrôle `route` (Slice 21) : lecture QR de la grume ou n° de bordereau, « en transport sans bordereau » détecté, PV ; non conforme → anomalie grave. |
 | 10 | Transformation (registre) → contrôle DGICBVPF | ⚠️ | statut `transforme` + états ; acte de contrôle `transformation` ✔ (Slice 21) ; pas de registre entrées/sorties détaillé. |
-| 11 | États annuels (31 mars) + taxes → contrôle DGF · DGI · Douanes (art. 244) | ⚠️ | états par période + échéancier fiscal ✅ ; échéance du 31 mars non suivie ; transmission DGI / Douanes « à brancher ». |
+| 11 | États annuels (31 mars) + taxes → contrôle DGF · DGI · Douanes (art. 244) | ⚠️ | états par période + échéancier fiscal ✅ ; ✔ transmission de l'état annuel et **échéance du 31 mars** suivies (Slice 24) ; transmission DGI / Douanes « à brancher ». |
 
 ## Planche 3 — Titre → UFA → 30 AAC
 
 - ✅ Titre, UFA (`management_units`, réf. PA, rotation), AAC, DME par UFA.
 - ⚠️ La **grille des 30 AAC** n'est pas générée depuis le PA (AAC créées une à une).
-- ⚠️ « AAC ouverte **3 ans** (art. 121) » : pas d'échéance d'ouverture suivie (seule l'anomalie `aac_fermee`).
+- ✔ « AAC ouverte **3 ans** (art. 121) » : date d'ouverture tracée, anomalie `aac_ouverture_depassee` et préavis (Slice 24).
 
 ## Planches 4–6 — documents & autorités
 

@@ -44,14 +44,14 @@ only (`mobile/src/i18n/fr.ts`). There is **no navigation library**: `App.tsx`
 routes with a `phase` state machine plus role checks; screens are mounted from
 per-role containers (`CompanyScreen`, `AdminScreen`, …) that expose tabs.
 
-## 2. Where we are (as of Slice 23)
+## 2. Where we are (as of Slice 24)
 
 The product is built as **vertical slices**: each slice ships a DB migration, the
 backend, optionally an operational CLI under `tools/`, the mobile UI, and the
 doc update — as separate logical commits. The full history lives in
 `docs/GABON_WORKFLOW_ANALYSIS.md` **§9**.
 
-**Slices 1–22 are DONE, committed on `main`, and pushed (CI green). Slice 23 is implemented and verified locally.** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
+**Slices 1–23 are DONE, committed on `main`, and pushed (CI green, including the workflow job). Slice 24 is implemented and verified locally.** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
 
 | # | Domaine | Migration | Backend | Mobile | Docs §9 |
 | --- | --- | --- | --- | --- | --- |
@@ -78,10 +78,11 @@ doc update — as separate logical commits. The full history lives in
 | 21 | Espace Ministère (étape B) : page de décision unique par dossier, contrôles terrain (marquage, visa DF10, route + PV, transformation), avertissements carnet non tenu / CITES sans permis | `026_slice21.sql` | `/api/admin/inbox/{type}/{id}` (+ `/decision`), `/api/controls` (`lookup`, création, liste), anomalie `controle_non_conforme` | `ministry/DecisionScreen`, `ministry/ControlsScreen` | pt 21 |
 | 22 | Cycle de vie de la grume : AAC + détenteur à la déclaration, abattage / transformation par le détenteur, bordereau ⇒ transport, réception par le destinataire, écran Suivi des grumes | `027_slice22.sql` | `services/custody.py`, `GET /api/felling/trees/{code}`, `POST /api/felling/events`, `/api/transport/destinations`, `/api/transport/documents` (destinataire, réception) | `CustodyScreen`, `QrScanner`, `CompanyTraceability`, `HomeScreen` | pt 22 |
 | 23 | Espace entreprise (À faire, décisions reçues, anomalies, PV), boussole des autorités (Ministère agissant, autorité compétente affichée), jeu pilote par l'API, suite de bout en bout | — | `/api/company/space`, `/api/admin/authorities`, `services/authorities.py`, `services/company_space.py`, `tools.seed_pilot`, `tools.pilot_client`, `tests_e2e/` | `CompanyHomeScreen`, `CompanyNav`, `ministry/AuthoritiesScreen`, `DecisionScreen` (bandeau) | pt 23 |
+| 24 | Échéances légales (AAC 3 ans, état annuel 31 mars, autorisations, pièces), transmission de l'état annuel, PV de contrôle PDF | `028_slice24.sql` | `services/deadlines.py`, `/api/traceability/statements/file`, `/api/traceability/filings`, `/api/controls/{id}/pdf`, anomalies `aac_ouverture_depassee` / `etat_annuel_non_transmis` | `CompanyHomeScreen` (transmettre, PV), `ControlsScreen` (PV), `MinistryHomeScreen` (alertes) | pt 24 |
 
-Latest verified suite counts (Slice 23): **`pytest` 490 passed** (+ the AI-capabilities
-test, which needs ≥ 3 GB for Docker) · **`tests_e2e` 12 passed** (real Postgres) ·
-**`jest` 192 passed / 51 suites** · `ruff` and `tsc` clean.
+Latest verified suite counts (Slice 24): **`pytest` 497 passed** (+ the AI-capabilities
+test, which needs ≥ 3 GB for Docker) · **`tests_e2e` 13 passed** (real Postgres) ·
+**`jest` 193 passed / 51 suites** · `ruff` and `tsc` clean.
 
 ### What is left (next candidates)
 
@@ -267,7 +268,7 @@ Get-Content db/migrations/0NN_sliceNN.sql | docker exec -i forestry_postgres psq
 **stack smoke** and **workflow** — and gates on `CI · success`. The **workflow** job
 is the whole-workflow regression on a fresh PostgreSQL/PostGIS volume: every
 migration, the bundled provinces, `tools.seed_demo` twice (idempotency),
-`tools.seed_pilot` built then rebuilt after `--reset` (170 API steps, forbidden steps
+`tools.seed_pilot` built then rebuilt after `--reset` (176 API steps, forbidden steps
 must be refused) and `pytest tests_e2e`. A change to a workflow rule must keep the
 pilot story and `tests_e2e/` in step, or this job fails. `concurrency.cancel-in-progress`
 cancels superseded runs, so **wait for the previous run to finish before

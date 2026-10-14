@@ -53,15 +53,15 @@ fiscalité & social, certifications, déclarations (AAC + porte art. 14), chanti
 
 ### Ministère (`admin`)
 ✅ Tableau de bord, À traiter + page de décision, organisations, contrôles terrain, anomalies, carte.
-🟠 Contrôle terrain : **pas de PV PDF** (seul document Ministère sans PDF) ; les suites (saisie, amende —
-art. 15) ne sont pas modélisées.
+✔ **PV PDF** de chaque contrôle (Ministère et opérateur contrôlé, Slice 24) ; les suites (saisie, amende — art. 15)
+restent à modéliser.
 🟠 Pas de **registre de transformation** (entrées / sorties d'usine) à contrôler.
 🟡 Rôle unique (`admin`) : ✔ chaque action indique « réalisé par le Ministère pour le compte de … » et la page **Parties prenantes** sert de boussole (Slice 23) ; séparation effective après le pilote.
 
 ## 4. Échéances légales non suivies (rappel)
 
-Ouverture d'AAC **3 ans** (art. 121), états annuels au **31 mars** (art. 244), étapes **comité / décret** du
-plan d'aménagement, grille des **30 AAC** générée depuis le PA.
+✔ Ouverture d'AAC **3 ans** (art. 121) et états annuels au **31 mars** (art. 244) suivis (Slice 24). Restent : étapes
+**comité / décret** du plan d'aménagement, grille des **30 AAC** générée depuis le PA.
 
 ## 5. Proposition de priorités
 
@@ -71,8 +71,8 @@ plan d'aménagement, grille des **30 AAC** générée depuis le PA.
    d'un bordereau = grumes `transporte`, réception (par le destinataire) = `receptionne`.
 2. ✔ **Espace entreprise « À faire »** — fait (Slice 23). : ouvrir sur les actions dues et les décisions reçues (avec motif),
    anomalies et PV la concernant ; migrer l'espace vers le design system.
-3. 🟠 **PV de contrôle** en PDF et suites d'un contrôle non conforme (à valider par le métier).
-4. 🟡 Échéances légales (§ 4), profil coopérative, registre de transformation.
+3. ✔ **PV de contrôle** en PDF (Slice 24) — et suites d'un contrôle non conforme (à valider par le métier).
+4. 🟡 ✔ Échéances AAC / état annuel (Slice 24) ; restent profil coopérative, registre de transformation, étapes du PA.
 
 ## 6. Vérification par le jeu pilote (Slice 23)
 
