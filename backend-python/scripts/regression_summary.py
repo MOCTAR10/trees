@@ -18,6 +18,10 @@ DOMAINS = {
     "test_regression_04_custody": "Chaîne de garde de la grume",
     "test_regression_05_compliance": "Pièces, fiscalité, certifications, études, RDUE",
     "test_regression_06_ministry": "Contrôles, PV, échéances, vues Ministère et entreprises",
+    "test_admin_01_accounts_orgs": "Ministère · comptes, organisations, rattachements",
+    "test_admin_02_titles": "Ministère · titres, UFA, AAC, DME, conventions, autorisations, études",
+    "test_admin_03_instruction": "Ministère · déclarations, pièces, fiscalité, social, certifications, RDUE",
+    "test_admin_04_control": "Ministère · traçabilité, transport, contrôles, anomalies, rapports",
 }
 
 
