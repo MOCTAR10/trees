@@ -1,12 +1,21 @@
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
+import { Platform } from "react-native";
 
 import { API_BASE, requestHeaders, timedFetch, UPLOAD_TIMEOUT_MS } from "./api/client";
 
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
 const authHeaders = API_KEY ? { "X-API-Key": API_KEY } : undefined;
 
+/** Web: object URL → file name, used when the browser downloads the PDF. */
+const webFileNames = new Map<string, string>();
+
 async function blobToCache(blob: Blob, filename: string): Promise<string> {
+  if (Platform.OS === "web") {
+    const url = URL.createObjectURL(blob);
+    webFileNames.set(url, filename);
+    return url;
+  }
   const dataUrl = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result));
@@ -139,6 +148,19 @@ export async function exportDeclarationPlatesPdf(declarationId: number): Promise
 }
 
 export async function sharePdf(uri: string): Promise<void> {
+  if (Platform.OS === "web") {
+    const link = document.createElement("a");
+    link.href = uri;
+    link.download = webFileNames.get(uri) ?? "document.pdf";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => {
+      URL.revokeObjectURL(uri);
+      webFileNames.delete(uri);
+    }, 60_000);
+    return;
+  }
   if (await Sharing.isAvailableAsync()) {
     await Sharing.shareAsync(uri, {
       mimeType: "application/pdf",

@@ -1411,6 +1411,7 @@ export const fr = {
     drivers: (year: number | null) => `Émissions par facteur${year ? ` (${year})` : ""}`,
     close: "Fermer",
     longPressHint: "Appui long sur la carte : contrôle forestier du point (GFW)",
+    rightClickHint: "Clic droit sur la carte : contrôle forestier du point (GFW)",
     checking: "Contrôle Global Forest Watch…",
     gfwOff: "Global Forest Watch n'est pas encore configuré sur le serveur.",
     checkFailed: "Contrôle impossible pour le moment.",
@@ -1555,6 +1556,13 @@ export const fr = {
     sources: "Sources",
     offlineQueued: "Connexion perdue : le plan sera généré et synchronisé dès que la connexion revient.",
     backToStart: "Retour à l'accueil",
+  },
+
+  web: {
+    fieldTitle: "Espace terrain : application mobile",
+    fieldBody:
+      "Les mesures et les scans se font sur le téléphone, au pied de l'arbre (photo, GPS et heure pris au même instant). Installez l'application Android pour continuer.",
+    download: "Télécharger l'application Android",
   },
 
   agents: {

@@ -5,6 +5,7 @@ import React from "react";
 import {
   ActivityIndicator,
   Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -563,7 +564,7 @@ export default function MapScreen() {
           ) : (
             <View style={styles.hintBadge}>
               <Text style={styles.hintText}>
-                {`${t.shownOf(filtered.length, trees.length)} · ${t.longPressHint}`}
+                {`${t.shownOf(filtered.length, trees.length)} · ${Platform.OS === "web" ? t.rightClickHint : t.longPressHint}`}
               </Text>
             </View>
           )}

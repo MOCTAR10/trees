@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Alert,
   InteractionManager,
+  Platform,
   StyleSheet,
   Text,
   View,
@@ -27,6 +28,8 @@ import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import ReportScreen from './src/screens/ReportScreen';
 import BottomNav from './src/components/BottomNav';
+import DesktopFrame, { useDesktop } from './src/web/DesktopFrame';
+import WebFieldNotice from './src/web/WebFieldNotice';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import LoadingScreen from './src/components/LoadingScreen';
 import RouteLoader from './src/components/RouteLoader';
@@ -109,6 +112,7 @@ function BottomInset({ kind }: { kind: 'nav' | 'page' | 'band' | 'legacy' }) {
 
 export default function App() {
   const fontsReady = useAppFonts();
+  const desktop = useDesktop();
   const [phase, setPhase] = useState<Phase>("home");
   const [valorization, setValorization] = useState<V2Response | null>(null);
   const [report, setReport] = useState<V1Report | null>(null);
@@ -590,6 +594,11 @@ export default function App() {
     );
   }
 
+  if (Platform.OS === "web" && (user.role === "operator" || user.role === "cooperative")) {
+    // Field work stays on the phone: live photo, GPS and time at the tree (decision 16).
+    return <WebFieldNotice role={user.role} onLogout={handleLogout} />;
+  }
+
   const roleLabel = fr.roles[user.role] ?? user.role;
   // Server-resolved company/cooperative name wins; while offline (or for
   // admins) fall back to the display name minus any role-word repeat.
@@ -609,6 +618,10 @@ export default function App() {
   })();
   const isTab = TAB_PHASES.includes(phase);
   const designed = isTab || DESIGNED_PHASES.includes(phase);
+  // Desktop web: the side menu stays on sub-pages, with their parent area highlighted.
+  const DESKTOP_PARENT: Partial<Record<Phase, Phase>> = { decision: 'inbox', organisation: 'orgs', domain: domainReturn, profile: 'menu' };
+  const desktopFrame = desktop && (isTab || phase in DESKTOP_PARENT);
+  const desktopActive = DESKTOP_PARENT[phase] ?? phase;
 
   const openDomain = (key: DomainKey, from: Phase) => {
     if (key === "profil") {
@@ -684,7 +697,17 @@ export default function App() {
       <ThemeProvider force={user.role === 'operator' || user.role === 'admin' ? undefined : 'dark'}>
       <Shell band={designed}>
         <ErrorBoundary onHome={goHome}>
-        {isTab && (
+        <DesktopFrame
+          enabled={desktopFrame}
+          user={user}
+          active={desktopActive}
+          roleLabel={roleLabel}
+          orgName={headerOrg}
+          online={serverStatus !== "offline"}
+          onChange={handleTabChange}
+          onLogout={handleLogout}
+        >
+        {isTab && !desktop && (
           <RoleHeader
             title={fr.appTitle}
             roleLabel={roleLabel}
@@ -860,7 +883,8 @@ export default function App() {
           <Text style={styles.exportingText}>{fr.common.exporting}</Text>
         </View>
       )}
-      {isTab && <BottomNav user={user} active={phase} onChange={handleTabChange} />}
+      {isTab && !desktop && <BottomNav user={user} active={phase} onChange={handleTabChange} />}
+        </DesktopFrame>
         </ErrorBoundary>
       </Shell>
       <BottomInset
