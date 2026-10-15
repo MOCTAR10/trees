@@ -72,6 +72,31 @@ test("rate limit: 4th request in the window is rejected with 429 + headers", asy
   assert.deepEqual(statuses, [200, 200, 200, 429]);
 });
 
+test("rate limit: counted per signed-in session, not per shared IP", async (t) => {
+  const base = await startApp(t, { rateLimitMax: 2, rateLimitIpMax: 100 });
+  const get = (token) =>
+    fetch(`${base}/api/x`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.status);
+  assert.deepEqual([await get("a"), await get("a"), await get("a")], [200, 200, 429]);
+  assert.deepEqual([await get("b"), await get("b")], [200, 200]);
+});
+
+test("rate limit: the per-IP cap still bounds many sessions from one network", async (t) => {
+  const base = await startApp(t, { rateLimitMax: 100, rateLimitIpMax: 3 });
+  const statuses = [];
+  for (const token of ["a", "b", "c", "d"]) {
+    const r = await fetch(`${base}/api/x`, { headers: { Authorization: `Bearer ${token}` } });
+    statuses.push(r.status);
+  }
+  assert.deepEqual(statuses, [200, 200, 200, 429]);
+});
+
+test("rate limit: sign-in attempts have their own strict limit", async (t) => {
+  const base = await startApp(t, { rateLimitAuthMax: 2 });
+  const login = () => fetch(`${base}/api/auth/login`, { method: "POST" }).then((r) => r.status);
+  assert.deepEqual([await login(), await login(), await login()], [200, 200, 429]);
+  assert.equal((await fetch(`${base}/api/x`)).status, 200);
+});
+
 test("safeEqual: constant-time comparison works and rejects mismatches", () => {
   assert.equal(safeEqual("abc123", "abc123"), true);
   assert.equal(safeEqual("abc123", "abc124"), false);

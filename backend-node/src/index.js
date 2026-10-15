@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { pathToFileURL } from "node:url";
 import express from "express";
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
 /**
@@ -15,10 +15,16 @@ export function buildApp(opts = {}) {
     requireApiKey = process.env.REQUIRE_API_KEY === "true",
     apiKey = process.env.API_KEY || "",
     rateWindowMs = Number(process.env.RATE_LIMIT_WINDOW_MS) || 60_000,
-    rateLimitMax = Number(process.env.RATE_LIMIT_MAX) || 60,
+    rateLimitMax = Number(process.env.RATE_LIMIT_MAX) || 120,
+    rateLimitIpMax = Number(process.env.RATE_LIMIT_IP_MAX) || 1200,
+    rateLimitAuthMax = Number(process.env.RATE_LIMIT_AUTH_MAX) || 30,
+    trustProxy = process.env.TRUST_PROXY || "",
   } = opts;
 
   const app = express();
+  // Behind a reverse proxy (nginx, load balancer) set TRUST_PROXY to its hop
+  // count so the limits see the client's IP, not the proxy's.
+  if (trustProxy) app.set("trust proxy", /^\d+$/.test(trustProxy) ? Number(trustProxy) : trustProxy);
 
   // CORS for the Expo dev client / standalone app
   app.use((req, res, next) => {
@@ -42,16 +48,44 @@ export function buildApp(opts = {}) {
     });
   };
 
-  const apiLimiter = rateLimit({
-    windowMs: rateWindowMs,
-    limit: rateLimitMax,
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: { detail: "Trop de requêtes. Réessayez dans une minute." },
-  });
+  // Rate limits: per signed-in session (many users share one public IP behind
+  // a Ministry or company NAT), a wider cap per IP, and a strict one on sign-in.
+  const limiter = (limit, keyGenerator, detail) =>
+    rateLimit({
+      windowMs: rateWindowMs,
+      limit,
+      keyGenerator,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: { detail },
+    });
+  const ipKey = (req) => ipKeyGenerator(req.ip ?? "");
+  const sessionKey = (req) => {
+    const auth = req.get("authorization") ?? "";
+    const token = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
+    if (!token) return `ip:${ipKey(req)}`;
+    return `s:${crypto.createHash("sha256").update(token).digest("hex")}`;
+  };
+  const ipLimiter = limiter(
+    rateLimitIpMax,
+    ipKey,
+    "Trop de requêtes depuis ce réseau. Réessayez dans une minute."
+  );
+  const sessionLimiter = limiter(
+    rateLimitMax,
+    sessionKey,
+    "Trop de requêtes. Réessayez dans une minute."
+  );
+  const authLimiter = limiter(
+    rateLimitAuthMax,
+    ipKey,
+    "Trop de tentatives de connexion. Réessayez dans une minute."
+  );
 
   app.use("/api", apiAuth);
-  app.use("/api", apiLimiter);
+  app.use("/api", ipLimiter);
+  app.use("/api/auth/login", authLimiter);
+  app.use("/api", sessionLimiter);
 
   const proxy = createProxyMiddleware({
     target: fastapiUrl,

@@ -65,7 +65,7 @@ jobs:
             echo "AI_MODELS_ENABLED=false"
             echo "GFW_API_KEY="
           } >> .env
-          export REQUIRE_API_KEY=true API_KEY="${REGRESSION_API_KEY}" RATE_LIMIT_MAX=5000
+          export REQUIRE_API_KEY=true API_KEY="${REGRESSION_API_KEY}" RATE_LIMIT_MAX=5000 RATE_LIMIT_IP_MAX=20000 RATE_LIMIT_AUTH_MAX=2000
           docker compose up -d --no-build --wait --wait-timeout 240 db api gateway
           docker compose ps
           mkdir -p backend-python/reports
