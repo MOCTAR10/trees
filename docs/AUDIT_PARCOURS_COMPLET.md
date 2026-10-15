@@ -1,6 +1,6 @@
 # Audit — parcours complet de l'application
 
-Date : 14 octobre 2026 · état après Slice 21, **mis à jour après Slices 22 et 23** (✔ = corrigé).
+Date : 14 octobre 2026 · état après Slice 21, **mis à jour après Slices 22, 23 et 26** (✔ = corrigé).
 Complète `AUDIT_WORKFLOW_MINISTERE.md` (planches du guide Ministère) : ici, le parcours **de bout en bout**
 par rôle et le cycle de vie de la grume, vérifiés dans le code **et en conditions réelles** (Postgres live,
 données de test supprimées).
@@ -37,7 +37,7 @@ tenu »** et **lookup des contrôles terrain** (Slice 21) — testé : une tige 
 ### Agent de terrain (`operator`)
 ✅ Accueil, scan guidé hors-ligne, rapport, chantiers / projets, carte, espèces.
 ✔ Enregistre l'**abattage** depuis « Suivi des grumes » (Accueil), pour l'organisation de son employeur (Slice 22).
-⚠️ Inventaire avant abattage : un scan lié par QR n'alimente pas le registre (`inventorie` n'est jamais posé).
+✔ Inventaire avant abattage : une plaque inconnue scannée inscrit l'arbre `inventorie` (AAC du point), repris à la déclaration (Slice 26).
 
 ### Entreprise (`company`)
 ✅ Pièces, titres & AAC (autorisations, conventions, études, DME), taxes, traçabilité (DF10, bordereaux),
@@ -45,7 +45,7 @@ fiscalité & social, certifications, déclarations (AAC + porte art. 14), chanti
 ✔ L'espace s'ouvre sur l'**Accueil « À faire »** ; navigation regroupée en 5 espaces (Slice 23).
 ✔ **Décisions reçues** (avec motif et autorité) sur l'Accueil (Slice 23) ; notifications push : à venir.
 ✔ Voit ses **anomalies** ouvertes et les **PV de contrôle** la concernant (Slice 23).
-🟠 Ne peut pas créer **ses propres comptes d'agents** (seul le Ministère le peut) — choix à confirmer.
+✔ Ouvre et suspend **ses propres comptes d'agents** (onglet Équipe, Slice 26).
 🟡 Accueil et navigation dans le design system (Slice 23) ; les écrans internes gardent l'ancien `theme.ts` (thème sombre forcé).
 
 ### Coopérative (`cooperative`)
@@ -53,9 +53,9 @@ fiscalité & social, certifications, déclarations (AAC + porte art. 14), chanti
 
 ### Ministère (`admin`)
 ✅ Tableau de bord, À traiter + page de décision, organisations, contrôles terrain, anomalies, carte.
-✔ **PV PDF** de chaque contrôle (Ministère et opérateur contrôlé, Slice 24) ; les suites (saisie, amende — art. 15)
-restent à modéliser.
-🟠 Pas de **registre de transformation** (entrées / sorties d'usine) à contrôler.
+✔ **PV PDF** de chaque contrôle (Ministère et opérateur contrôlé, Slice 24) ; ✔ **suites** (mise en demeure, amende,
+transaction, saisie, suspension, poursuites), contestation par l'organisation, anomalie si échue (Slice 26).
+✔ **Registre de transformation** (entrées réceptionnées, lots, rendement matière, PDF, alerte) consultable par organisation (Slice 26).
 🟡 Rôle unique (`admin`) : ✔ chaque action indique « réalisé par le Ministère pour le compte de … » et la page **Parties prenantes** sert de boussole (Slice 23) ; séparation effective après le pilote.
 
 ## 4. Échéances légales non suivies (rappel)
@@ -80,3 +80,14 @@ Le parcours complet est désormais rejoué **par l'API** (`tools.seed_pilot`, `t
 20 étapes que les règles doivent refuser. Défauts révélés et corrigés : rejet d'un **titre** et d'une
 **pièce** acceptés sans motif. La suite de bout en bout tourne sur PostgreSQL réel ; son branchement en CI est
 la prochaine étape.
+
+## 7. Audit complet du 15 octobre 2026
+
+Portes : `pytest`, `tests_e2e` (PostgreSQL réel, clés externes vidées comme en CI), couverture par rôle **100 %**,
+passerelle, `tsc` / `jest`, **audit des écrans** de chaque rôle sur les données pilote (aucun `undefined`, date ISO,
+décimale anglaise, code interne ni état d'erreur), **sonde d'accès inter-organisations** (575 appels sur les
+enregistrements d'autres organisations : aucune fuite — la scierie ne voit que les grumes qui lui sont adressées),
+secrets (aucun suivi par git). Défauts corrigés : textes serveur et écrans en format anglais (dates, décimales,
+codes) ; trois tests mobiles et le jeu d'écrans enregistré désynchronisés. Écarts fonctionnels traités en
+**Slice 26** : inventaire par scan, comptes d'agents par l'entreprise, registre de transformation, suites des
+contrôles, limite de débit par session. Reste : **séparation des autorités** (après le pilote, décision figée).

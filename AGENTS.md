@@ -44,14 +44,14 @@ only (`mobile/src/i18n/fr.ts`). There is **no navigation library**: `App.tsx`
 routes with a `phase` state machine plus role checks; screens are mounted from
 per-role containers (`CompanyScreen`, `AdminScreen`, …) that expose tabs.
 
-## 2. Where we are (as of Slice 24)
+## 2. Where we are (as of Slice 26)
 
 The product is built as **vertical slices**: each slice ships a DB migration, the
 backend, optionally an operational CLI under `tools/`, the mobile UI, and the
 doc update — as separate logical commits. The full history lives in
 `docs/GABON_WORKFLOW_ANALYSIS.md` **§9**.
 
-**Slices 1–23 are DONE, committed on `main`, and pushed (CI green, including the workflow job). Slice 24 is implemented and verified locally.** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
+**Slices 1–25 are DONE, committed on `main`, and pushed (CI green, including the workflow job). Slice 26 is implemented and verified locally.** GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
 
 | # | Domaine | Migration | Backend | Mobile | Docs §9 |
 | --- | --- | --- | --- | --- | --- |
@@ -79,10 +79,12 @@ doc update — as separate logical commits. The full history lives in
 | 22 | Cycle de vie de la grume : AAC + détenteur à la déclaration, abattage / transformation par le détenteur, bordereau ⇒ transport, réception par le destinataire, écran Suivi des grumes | `027_slice22.sql` | `services/custody.py`, `GET /api/felling/trees/{code}`, `POST /api/felling/events`, `/api/transport/destinations`, `/api/transport/documents` (destinataire, réception) | `CustodyScreen`, `QrScanner`, `CompanyTraceability`, `HomeScreen` | pt 22 |
 | 23 | Espace entreprise (À faire, décisions reçues, anomalies, PV), boussole des autorités (Ministère agissant, autorité compétente affichée), jeu pilote par l'API, suite de bout en bout | — | `/api/company/space`, `/api/admin/authorities`, `services/authorities.py`, `services/company_space.py`, `tools.seed_pilot`, `tools.pilot_client`, `tests_e2e/` | `CompanyHomeScreen`, `CompanyNav`, `ministry/AuthoritiesScreen`, `DecisionScreen` (bandeau) | pt 23 |
 | 24 | Échéances légales (AAC 3 ans, état annuel 31 mars, autorisations, pièces), transmission de l'état annuel, PV de contrôle PDF | `028_slice24.sql` | `services/deadlines.py`, `/api/traceability/statements/file`, `/api/traceability/filings`, `/api/controls/{id}/pdf`, anomalies `aac_ouverture_depassee` / `etat_annuel_non_transmis` | `CompanyHomeScreen` (transmettre, PV), `ControlsScreen` (PV), `MinistryHomeScreen` (alertes) | pt 24 |
+| 25 | Régression par rôle (100 % des points d'accès de chaque rôle), comptes créés par le Ministère rattachés (coopérative, employeur) | `029_slice25.sql` | `scripts/role_coverage.py`, `POST /api/organizations/{id}/accounts` | en-tête entreprise | pt 25 |
+| 26 | Inventaire par scan, équipe gérée par l'entreprise, registre de transformation, suites des contrôles, limite de débit par session, affichage français | `030_slice26.sql` | `services/mill.py`, `/api/mill/*`, `/api/organizations/me/agents`, `/api/controls/{id}/followups`, `/api/controls/followups` (`/status`, `/contest`), file `followups`, `core/fr_format.py`, passerelle | `CompanyAgents`, `MillRegister`, `ministry/ControlFollowups`, `CompanyHomeScreen` (contester), `DeclareScreen` (inventaire), `ScreenAudit` | pt 26 |
 
-Latest verified suite counts (Slice 24): **`pytest` 497 passed** (+ the AI-capabilities
-test, which needs ≥ 3 GB for Docker) · **`tests_e2e` 13 passed** (real Postgres) ·
-**`jest` 193 passed / 51 suites** · `ruff` and `tsc` clean.
+Latest verified suite counts (Slice 26): **`pytest` 718 passed** · **`tests_e2e` 196 passed**
+(real Postgres) · role coverage **100 %** (admin 98, company 102, operator 37, cooperative 30) ·
+**`jest` 200 passed / 53 suites** · gateway **8** · `ruff` and `tsc` clean.
 
 ### What is left (next candidates)
 
@@ -94,6 +96,8 @@ slice unprompted.
   monolithic Ministère role. Target: distinguish **DGF / DGFAP / DGE / ANPN /
   DGICBVPF / Douanes** as roles or scoped attributes (provincial/central).
   **Frozen decision so far: keep `admin` monolithic for now** and split later.
+- **Done in Slice 26** (from the 15 Oct 2026 audit): inventory by scan, company-managed agent
+  accounts, transformation register, control follow-ups, per-session rate limit.
 - **Matérialisation des limites (forêt communautaire)** (row 216): the CAE
   authorization cycle is complete, but the FC boundary-materialization documents
   (`legal_documents`) are not wired.
@@ -202,6 +206,18 @@ Apply a migration to a running DB:
 ```powershell
 Get-Content db/migrations/0NN_sliceNN.sql | docker exec -i forestry_postgres psql -U forestry -d forestry
 ```
+
+Production (`api.greenleaves.ga`, server `79.143.177.127`, app in `/var/www/trees`):
+
+```bash
+ssh greenleaves /var/www/trees/deploy/deploy.sh   # pull main, rebuild, new migrations, restart
+```
+
+`deploy/server_setup.sh` (once, as root) installs Docker/nginx/certbot/ufw, clones the repo, generates the
+production `.env` **on the server only** (secrets never committed nor pasted in a chat), sets up TLS and runs
+`deploy.sh`. `docker-compose.prod.yml` keeps Postgres off the host ports and binds the API and the gateway to
+127.0.0.1 (nginx is the only public entry, gateway with `REQUIRE_API_KEY=true`). Applied migrations are tracked
+in `schema_migrations`; a new `0NN_*.sql` is applied by the next `deploy.sh`.
 
 ## 5. Conventions
 
@@ -317,6 +333,12 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
   (lost on container recreation).
 - PostGIS/SQL is **not** covered by the fake-DB unit tests — always smoke the new
   queries on real Postgres.
+- `mobile/__tests__/ScreenAudit.test.tsx` replays recorded pilot responses
+  (`__tests__/fixtures/screen-audit.json`). After changing a screen or the pilot story, re-record against the
+  live stack (pilot built): `AUDIT_RECORD=1 npx jest __tests__/ScreenAudit.test.tsx`. Never run two jest
+  processes at once — they share the transform cache and produce false crashes.
+- An unknown plate scanned by a field user **creates** a registry row (`inventorie`); the declaration's
+  `duplicate_code` check lets the same company's inventoried stems through. Keep both sides in step.
 - `mobile/__tests__/CaptureScreen.test.tsx` and `OrgDocuments.test.tsx` can
   time out under full parallel `jest` on a loaded machine; they pass on re-run
   / in isolation. Unrelated to feature work.
@@ -351,10 +373,10 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
 - Never let an upstream error message reach the logs verbatim when the request
   URL carries a key (Pl@ntNet passes `api-key` as a query parameter).
 - IUCN enrichment is blocked until `IUCN_API_TOKEN` is provided.
-- The gateway rate limit (`RATE_LIMIT_MAX`, default **60 requests/min per IP**) is too
-  low for a deployment where many users share one public IP (a Ministry office behind
-  NAT): the pilot story alone hits 429. The regression workflow raises it to 5000;
-  decide the production policy before deploying (see roadmap §10).
+- The gateway rate limit counts **per signed-in session** (`RATE_LIMIT_MAX`, default 120/min, keyed by a hash
+  of the bearer token), with a cap **per IP** (`RATE_LIMIT_IP_MAX`, 1200/min — an office behind one NAT) and a
+  strict limit on **sign-in** (`RATE_LIMIT_AUTH_MAX`, 30/min/IP). Behind a reverse proxy set `TRUST_PROXY` (hop
+  count) or every user shares the proxy's IP. The regression workflow raises all three for the pilot story.
 - Rehearse `tests_e2e` locally **as CI runs it**: external keys emptied
   (`docker exec -e GFW_API_KEY= -e GROQ_API_KEY= -e PLANTNET_API_KEY= -e AI_MODELS_ENABLED=false …`).
   With the live `.env` keys, external services answer and a test can pass locally yet
