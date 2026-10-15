@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Foresterie Numérique",
+    "name": "Foresterie",
     "slug": "foresterie-numerique",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -45,7 +45,9 @@
     },
     "icon": "./assets/icon.png",
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "name": "Foresterie Numérique",
+      "shortName": "Foresterie"
     },
     "runtimeVersion": "0.1.0",
     "updates": {
