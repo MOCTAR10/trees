@@ -20,6 +20,13 @@ if ! command -v docker >/dev/null; then
 fi
 systemctl enable --now docker nginx
 
+echo "== Swap (4 GB safety net)"
+if ! swapon --show | grep -q /swapfile; then
+  fallocate -l 4G /swapfile && chmod 600 /swapfile && mkswap /swapfile >/dev/null && swapon /swapfile
+  grep -q "^/swapfile" /etc/fstab || echo "/swapfile none swap sw 0 0" >> /etc/fstab
+  sysctl -q vm.swappiness=10 && echo "vm.swappiness=10" > /etc/sysctl.d/99-trees.conf
+fi
+
 echo "== Firewall (SSH, HTTP, HTTPS only)"
 ufw allow OpenSSH >/dev/null
 ufw allow 'Nginx Full' >/dev/null

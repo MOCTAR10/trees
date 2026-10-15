@@ -1,6 +1,7 @@
 # Jenkins beside the production stack, always second in line for the processor:
 # cpu_shares 128 (the app has the default 1024) so a build only uses what the app
-# leaves free, plus hard caps (4 CPUs, 6 GB). Reachable through nginx only.
+# leaves free, plus hard caps (4 CPUs, 7 GB RAM + 3 GB swap: a native build spills to
+# swap instead of being killed; the app keeps > 4 GB). Reachable through nginx only.
 services:
   jenkins:
     build: .
@@ -16,7 +17,8 @@ services:
       - /var/www/trees-apk:/var/www/trees-apk
     cpu_shares: 128
     cpus: 4
-    mem_limit: 6g
+    mem_limit: 7g
+    memswap_limit: 10g
 
 volumes:
   jenkins_home:

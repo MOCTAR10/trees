@@ -12,8 +12,11 @@ pipeline {
   environment {
     CI = 'true'
     NODE_OPTIONS = '--max-old-space-size=2048'
-    GRADLE_OPTS = '-Dorg.gradle.jvmargs=-Xmx3g -Dorg.gradle.workers.max=3 -Dorg.gradle.daemon=false'
-    ORG_GRADLE_PROJECT_reactNativeArchitectures = 'arm64-v8a,armeabi-v7a'
+    // Memory-bounded build (Jenkins container: 7 GB + swap): 2 parallel tasks, Kotlin
+    // compiled in the Gradle process, arm64 only (every phone of the last years).
+    GRADLE_OPTS = '-Dorg.gradle.jvmargs=-Xmx2560m -Dorg.gradle.workers.max=2 -Dorg.gradle.daemon=false'
+    ORG_GRADLE_PROJECT_reactNativeArchitectures = 'arm64-v8a'
+    ORG_GRADLE_PROJECT_kotlin_compiler_execution_strategy = 'in-process'
   }
   stages {
     stage('Changements mobiles') {

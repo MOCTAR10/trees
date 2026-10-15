@@ -224,7 +224,7 @@ token from `POST /api/auth/login` (`Bearer`).
 **Android builds (Jenkins)**: `https://jenkins.greenleaves.ga` (job `foresterie-android`, `mobile/Jenkinsfile`):
 `npm ci` → `tsc` → `expo prebuild` → `gradlew assembleRelease` (arm64/armv7) → signed with
 `/etc/trees/android/release.keystore` → `https://greenleaves.ga/app/foresterie.apk`. No EAS queue. Runs only when
-`mobile/` changed (or by hand). Jenkins has `cpu_shares: 128` (the app 1024) and hard caps (4 CPUs, 6 GB): a build
+`mobile/` changed (or by hand). Jenkins has `cpu_shares: 128` (the app 1024) and hard caps (4 CPUs, 7 GB + 3 GB swap; arm64-only, 2 Gradle workers): a build
 never slows the users' app. Setup once: `JENKINS_HOST=jenkins.greenleaves.ga bash deploy/jenkins/setup.sh`.
 **Back up the signing keystore and its password** (`/etc/trees/`): losing them means phones cannot update the app.
 **Continuous deployment**: the `trees-autodeploy.timer` (systemd, every 5 min) runs `deploy/autodeploy.sh`, which
