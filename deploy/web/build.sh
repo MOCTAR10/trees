@@ -19,14 +19,15 @@ if [ -f "$STAMP" ] && [ "${FORCE_WEB:-}" != "1" ]; then
 fi
 
 echo "web: construction depuis ${head:0:7}"
-mkdir -p "$OUT.next"
-rm -rf "${OUT:?}.next"/*
-docker run --rm --cpu-shares 128 --cpus 3 --memory 4g \
-  -u "$(id -u):$(id -g)" -e HOME=/tmp -e CI=1 -e EXPO_PUBLIC_API_URL= -e EXPO_NO_TELEMETRY=1 \
-  -v "$APP_DIR/mobile:/src" -v "$OUT.next:/out" -w /src node:22-bookworm-slim \
-  sh -c "npm ci --no-audit --no-fund --loglevel=error && npx expo export --platform web --output-dir /out"
-echo "$head" > "$OUT.next/.built-from"
+# expo export recreates its output folder: give it a sub-folder of the mount, not the mount itself.
+STAGE="$(dirname "$OUT")/.trees-web-build"
+rm -rf "$STAGE" && mkdir -p "$STAGE"
+docker run --rm --cpu-shares 128 --cpus 3 --memory 4g   -u "$(id -u):$(id -g)" -e HOME=/tmp -e CI=1 -e EXPO_PUBLIC_API_URL= -e EXPO_NO_TELEMETRY=1   -v "$APP_DIR/mobile:/src" -v "$STAGE:/work" -w /src node:22-bookworm-slim   sh -c "npm ci --no-audit --no-fund --loglevel=error && npx expo export --platform web --output-dir /work/dist"
+# Pre-compressed copies served by nginx gzip_static (no CPU spent per request).
+find "$STAGE/dist" -type f \( -name "*.js" -o -name "*.css" -o -name "*.html" -o -name "*.json" -o -name "*.ttf" \)   -exec gzip -9 -k -f {} \;
+echo "$head" > "$STAGE/dist/.built-from"
 rm -rf "$OUT.prev"
 if [ -d "$OUT" ]; then mv "$OUT" "$OUT.prev"; fi
-mv "$OUT.next" "$OUT"
+mv "$STAGE/dist" "$OUT"
+rm -rf "$STAGE"
 echo "web: publié ($(du -sh "$OUT" | cut -f1))"

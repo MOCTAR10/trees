@@ -12,6 +12,7 @@ sed -e "s/__DOMAIN__/$WEB_HOST/g" -e "s|__API_KEY__|$api_key|g" deploy/web/nginx
   > /etc/nginx/sites-available/trees-web.conf
 chmod 600 /etc/nginx/sites-available/trees-web.conf
 ln -sf /etc/nginx/sites-available/trees-web.conf /etc/nginx/sites-enabled/trees-web.conf
+cp deploy/nginx/gzip.conf /etc/nginx/conf.d/trees-gzip.conf
 
 FORCE_WEB=1 bash deploy/web/build.sh
 nginx -t && systemctl reload nginx
