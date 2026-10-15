@@ -28,7 +28,7 @@ def test_accueil_groupe_et_arbres(world):
 
 
 def test_carte_couches_recherche_fiche_et_controle(world):
-    """La carte : contexte national, tuiles, couches de l'emprise, recherche, fiche, contrôle d'un point."""
+    """La carte : contexte, tuiles, couches de l'emprise, recherche, fiche ; contrôle d'un point (GFW si configuré)."""
     assert world.p.get("hob.dg", "/api/map/context")
     assert world.p.get("hob.dg", "/api/map/tiles")
     layers = world.p.get("hob.dg", "/api/map/layers?zoom=12&bbox=13.55,-0.83,13.70,-0.68")
@@ -40,8 +40,11 @@ def test_carte_couches_recherche_fiche_et_controle(world):
     assert results
     hit = results[0]
     world.p.get("hob.dg", f"/api/map/feature/{hit['layer']}/{hit['id']}")
-    check = world.p.get("hob.dg", "/api/map/point-check?lat=-0.77&lon=13.61")
-    assert check is not None
+    check = world.p.call(
+        "hob.dg", "GET", "/api/map/point-check?lat=-0.77&lon=13.61", expect=(200, 503)
+    )
+    if isinstance(check, dict) and "detail" in check:
+        assert "GFW_API_KEY" in check["detail"]
 
 
 def test_especes_liste_et_fiche(world):

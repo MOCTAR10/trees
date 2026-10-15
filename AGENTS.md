@@ -355,6 +355,10 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
   low for a deployment where many users share one public IP (a Ministry office behind
   NAT): the pilot story alone hits 429. The regression workflow raises it to 5000;
   decide the production policy before deploying (see roadmap §10).
+- Rehearse `tests_e2e` locally **as CI runs it**: external keys emptied
+  (`docker exec -e GFW_API_KEY= -e GROQ_API_KEY= -e PLANTNET_API_KEY= -e AI_MODELS_ENABLED=false …`).
+  With the live `.env` keys, external services answer and a test can pass locally yet
+  fail on GitHub (e.g. `/api/map/point-check` is 503 without a GFW key — by design).
 - Pilot authority model: the Ministère des Eaux et Forêts (`admin`) performs every
   administrative action; each one carries `acting_authority` + `competent_codes` +
   `competence_note` from `services/authorities.py`. Keep that on any new Ministry action
