@@ -7,9 +7,11 @@ import { fr } from "../i18n/fr";
 
 export type CompanyTab =
   | "accueil"
+  | "equipe"
   | "abattage"
   | "grumes"
   | "tracabilite"
+  | "usine"
   | "documents"
   | "titres"
   | "cert"
@@ -18,8 +20,8 @@ export type CompanyTab =
   | "residues";
 
 export const COMPANY_GROUPS: { key: string; tabs: CompanyTab[] }[] = [
-  { key: "accueil", tabs: ["accueil"] },
-  { key: "exploitation", tabs: ["abattage", "grumes", "tracabilite"] },
+  { key: "accueil", tabs: ["accueil", "equipe"] },
+  { key: "exploitation", tabs: ["abattage", "grumes", "tracabilite", "usine"] },
   { key: "conformite", tabs: ["documents", "titres", "cert"] },
   { key: "finances", tabs: ["taxes", "fiscal"] },
   { key: "circulaire", tabs: ["residues"] },

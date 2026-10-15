@@ -1,8 +1,8 @@
 import { AlertTriangle, ChevronRight, CircleCheck, CircleX, ClipboardList, Info, ShieldAlert } from "lucide-react-native";
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from "react-native";
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, TextInput, View } from "react-native";
 
-import { CompanySpace, fileAnnualStatement, getCompanySpace } from "../api/client";
+import { CompanySpace, contestFollowup, fileAnnualStatement, getCompanySpace } from "../api/client";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { Button, Card, Divider, EmptyState, Pill, PillTone, Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
@@ -30,6 +30,29 @@ export default function CompanyHomeScreen({ onOpen }: Props) {
   const [error, setError] = useState(false);
   const [filing, setFiling] = useState<number | null>(null);
   const [notice, setNotice] = useState<{ tone: "ok" | "risk"; text: string } | null>(null);
+  const [contesting, setContesting] = useState<number | null>(null);
+  const [reply, setReply] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const sendContest = async (id: number) => {
+    if (!reply.trim()) {
+      setNotice({ tone: "risk", text: t.contestRequired });
+      return;
+    }
+    setSending(true);
+    setNotice(null);
+    try {
+      await contestFollowup(id, reply.trim());
+      setContesting(null);
+      setReply("");
+      setNotice({ tone: "ok", text: t.contestSent });
+      setData(await getCompanySpace());
+    } catch (err) {
+      setNotice({ tone: "risk", text: err instanceof Error && err.message ? err.message : t.contestError });
+    } finally {
+      setSending(false);
+    }
+  };
 
   const fileStatement = async (year: number) => {
     setFiling(year);
@@ -139,6 +162,41 @@ export default function CompanyHomeScreen({ onOpen }: Props) {
                 </Txt>
                 <ChevronRight size={16} color={theme.c.muted} />
               </Pressable>
+              {item.can_contest && item.followup_id && contesting !== item.followup_id ? (
+                <Button
+                  testID={`contest-${item.followup_id}`}
+                  label={t.contest}
+                  variant="secondary"
+                  compact
+                  onPress={() => {
+                    setContesting(item.followup_id as number);
+                    setReply("");
+                  }}
+                />
+              ) : null}
+              {item.followup_id && contesting === item.followup_id ? (
+                <View style={s.contest}>
+                  <TextInput
+                    testID={`contest-reply-${item.followup_id}`}
+                    style={s.input}
+                    value={reply}
+                    onChangeText={setReply}
+                    placeholder={t.contestPlaceholder}
+                    placeholderTextColor={theme.c.muted}
+                    multiline
+                  />
+                  <View style={s.row}>
+                    <Button label={fr.common.cancel} variant="ghost" compact onPress={() => setContesting(null)} />
+                    <Button
+                      testID={`contest-send-${item.followup_id}`}
+                      label={t.contestSend}
+                      compact
+                      loading={sending}
+                      onPress={() => void sendContest(item.followup_id as number)}
+                    />
+                  </View>
+                </View>
+              ) : null}
               {item.kind === "statement" && item.year ? (
                 <Button
                   testID={`file-statement-${item.year}`}
@@ -270,4 +328,17 @@ const useStyles = makeStyles((th) => ({
   decision: { flexDirection: "row", alignItems: "flex-start", gap: th.space.sm, paddingVertical: th.space.sm },
   anomaly: { gap: 2, paddingVertical: th.space.xs, alignItems: "flex-start" },
   controlSide: { alignItems: "flex-end", gap: th.space.xs },
+  contest: { gap: th.space.sm, paddingBottom: th.space.sm },
+  input: {
+    minHeight: 72,
+    borderRadius: th.radius.md,
+    borderWidth: 1,
+    borderColor: th.c.line,
+    backgroundColor: th.c.surface2,
+    color: th.c.ink,
+    fontFamily: th.fonts.body,
+    fontSize: 15,
+    padding: th.space.md,
+    textAlignVertical: "top",
+  },
 }));

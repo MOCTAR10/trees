@@ -28,6 +28,7 @@ export const QUEUE_DOMAIN: Record<InboxQueueKey, DomainKey> = {
   titles: "titres",
   anomalies: "anomalies",
   orphans: "comptes",
+  followups: "controles",
 };
 
 /** Queues whose files open on the unified decision page. */
@@ -40,6 +41,7 @@ export const DECIDABLE: InboxQueueKey[] = [
   "certifications",
   "eudr",
   "titles",
+  "followups",
 ];
 
 /** Whole days since an ISO date (0 = today), or null. */

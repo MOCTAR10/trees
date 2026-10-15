@@ -30,7 +30,9 @@ import CompanyFiscal from "../components/CompanyFiscal";
 import CompanyCertifications from "../components/CompanyCertifications";
 import OrgDocuments from "../components/OrgDocuments";
 import OrgTaxes from "../components/OrgTaxes";
+import CompanyAgents from "../components/CompanyAgents";
 import CompanyNav, { CompanyTab } from "../components/CompanyNav";
+import MillRegister from "../components/MillRegister";
 import CompanyHomeScreen from "./CompanyHomeScreen";
 import CustodyScreen from "./CustodyScreen";
 import DeclareScreen from "./DeclareScreen";
@@ -141,6 +143,8 @@ export default function CompanyScreen({ user, onLogout, showHeader = true }: Pro
 
   const LABELS: Record<CompanyTab, string> = {
     accueil: fr.companySpace.groups.accueil,
+    equipe: fr.companySpace.tabTeam,
+    usine: fr.companySpace.tabMill,
     abattage: `${fr.felling.tabFelling} (${declarations.length})`,
     grumes: fr.custody.tab,
     tracabilite: fr.traceability.tab,
@@ -160,6 +164,10 @@ export default function CompanyScreen({ user, onLogout, showHeader = true }: Pro
 
       {tab === "accueil" ? (
         <CompanyHomeScreen onOpen={(target) => setTab(target as CompanyTab)} />
+      ) : tab === "equipe" ? (
+        <CompanyAgents />
+      ) : tab === "usine" ? (
+        <MillRegister mode="company" />
       ) : tab === "grumes" ? (
         <CustodyScreen />
       ) : tab === "documents" ? (

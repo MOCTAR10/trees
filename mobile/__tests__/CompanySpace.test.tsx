@@ -109,6 +109,7 @@ describe("Company space and authority compass", () => {
     const labels = {
       accueil: "Accueil", abattage: "Abattage", grumes: "Grumes", tracabilite: "Traçabilité", documents: "Pièces",
       titres: "Titres", cert: "Certifications", taxes: "Taxes", fiscal: "Fiscalité", residues: "Résidus",
+      equipe: "Équipe", usine: "Usine",
     };
     const view = render(<CompanyNav tab="grumes" labels={labels} onChange={onChange} />);
     expect(view.getByTestId("company-tab-tracabilite")).toBeTruthy();

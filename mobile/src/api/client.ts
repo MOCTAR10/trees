@@ -623,6 +623,7 @@ export interface RegistryTree {
   status: RegistryStatus;
   permit_number: string | null;
   aac_label: string | null;
+  aac_id?: number | null;
   latitude: number | null;
   longitude: number | null;
   created_at: string;
@@ -2828,6 +2829,7 @@ export async function dashboardOverview(): Promise<DashboardOverview> {
 // ---------------------------------------------------------------------------
 
 export type InboxQueueKey =
+  | "followups"
   | "declarations"
   | "documents"
   | "authorizations"
@@ -3146,6 +3148,8 @@ export interface CompanyTodo {
   target: string;
   count?: number;
   year?: number;
+  followup_id?: number;
+  can_contest?: boolean;
 }
 
 export interface CompanyDecision extends Competence {
@@ -3210,3 +3214,142 @@ export function fileAnnualStatement(year: number): Promise<StatementFiling> {
 }
 
 export const listStatementFilings = () => getLabeled<StatementFiling[]>("/api/traceability/filings", "Filings");
+
+async function sendJson<T>(method: string, path: string, body: unknown, label: string): Promise<T> {
+  const resp = await timedFetch(`${API_BASE}${path}`, {
+    method,
+    headers: headers(true),
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) {
+    let detail = "";
+    try {
+      const data = await resp.json();
+      detail = typeof data?.detail === "string" ? data.detail : "";
+    } catch {
+      detail = "";
+    }
+    throw new Error(detail || `${label} ${resp.status}`);
+  }
+  return resp.json();
+}
+
+// ---- Slice 26: company agents, transformation register, control follow-ups ----
+
+export interface CompanyAgent {
+  id: number;
+  email: string;
+  display_name: string;
+  first_name: string | null;
+  last_name: string | null;
+  matricule: string | null;
+  is_active: boolean;
+  created_at: string;
+  last_scan_at: string | null;
+}
+
+export const listMyAgents = () => getLabeled<CompanyAgent[]>("/api/organizations/me/agents", "Agents");
+
+export const createMyAgent = (input: {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  matricule?: string | null;
+}) => postJson<CompanyAgent>("/api/organizations/me/agents", input, "Create agent");
+
+export const setMyAgentActive = (id: number, isActive: boolean) =>
+  sendJson<CompanyAgent>("PATCH", `/api/organizations/me/agents/${id}`, { is_active: isActive }, "Agent");
+
+export type MillProduct = "sciage" | "placage" | "contreplaque" | "bois_profile" | "autre";
+
+export interface MillOutput {
+  id: number;
+  produced_on: string;
+  product_type: MillProduct;
+  product_label: string;
+  species_scientific_name: string | null;
+  volume_m3: number;
+  tree_codes: string[];
+  lot_reference: string | null;
+  destination: "local" | "export" | null;
+  notes: string | null;
+}
+
+export interface MillRegister {
+  org_id: number;
+  year: number;
+  inputs: {
+    id: number;
+    reference: string | null;
+    received_at: string;
+    volume_m3: number | null;
+    tree_codes: string[];
+    logs: number;
+    from_org: string | null;
+  }[];
+  outputs: MillOutput[];
+  stock: { tree_code: string; species_scientific_name: string | null }[];
+  totals: {
+    input_m3: number;
+    output_m3: number;
+    yield_pct: number | null;
+    max_yield_pct: number;
+    alert: boolean;
+    logs_received: number;
+    logs_in_stock: number;
+  };
+}
+
+export function getMillRegister(orgId?: number | null, year?: number | null): Promise<MillRegister> {
+  const params = new URLSearchParams();
+  if (orgId) params.set("org_id", String(orgId));
+  if (year) params.set("year", String(year));
+  const q = params.toString();
+  return getLabeled<MillRegister>(`/api/mill/register${q ? `?${q}` : ""}`, "Register");
+}
+
+export const recordMillOutput = (input: {
+  product_type: MillProduct;
+  volume_m3: number;
+  tree_codes: string[];
+  species_scientific_name?: string | null;
+  lot_reference?: string | null;
+  destination?: "local" | "export" | null;
+}) => postJson<MillOutput & { transformed: string[] }>("/api/mill/outputs", input, "Mill output");
+
+export type FollowupType = "mise_en_demeure" | "amende" | "transaction" | "saisie" | "suspension" | "poursuite";
+
+export interface ControlFollowup extends Partial<Competence> {
+  id: number;
+  control_id: number;
+  action_type: FollowupType;
+  label: string;
+  amount_fcfa: number | null;
+  reference: string | null;
+  due_at: string | null;
+  status: "notifie" | "conteste" | "execute" | "annule";
+  display_status: "notifie" | "en_retard" | "conteste" | "execute" | "annule";
+  status_label: string;
+  notes: string | null;
+  reply: string | null;
+  decision_motif: string | null;
+  close_motif: string | null;
+  org_id: number | null;
+  org_name: string | null;
+  pv_reference: string | null;
+}
+
+export const listOpenFollowups = () => getLabeled<ControlFollowup[]>("/api/controls/followups", "Followups");
+
+export const addControlFollowup = (
+  controlId: number,
+  input: { action_type: FollowupType; amount_fcfa?: number | null; due_at?: string | null; reference?: string | null; notes?: string | null },
+) => postJson<ControlFollowup>(`/api/controls/${controlId}/followups`, input, "Followup");
+
+export const setFollowupStatus = (id: number, status: "execute" | "annule" | "notifie", motif?: string | null) =>
+  postJson<ControlFollowup>(`/api/controls/followups/${id}/status`, { status, motif: motif ?? null }, "Followup");
+
+export const contestFollowup = (id: number, reply: string) =>
+  postJson<ControlFollowup>(`/api/controls/followups/${id}/contest`, { reply }, "Contest");
+

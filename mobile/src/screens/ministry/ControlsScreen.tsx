@@ -4,14 +4,17 @@ import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Modal, Pressable, RefreshControl, ScrollView, TextInput, View } from "react-native";
 
 import {
+  ControlFollowup,
   ControlLookup,
   ControlResult,
   ControlType,
   createFieldControl,
   FieldControl,
   listFieldControls,
+  listOpenFollowups,
   lookupControlCode,
 } from "../../api/client";
+import ControlFollowups from "./ControlFollowups";
 import QrScanner from "../../components/QrScanner";
 import { exportControlPdf, sharePdf } from "../../pdf";
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
@@ -52,12 +55,15 @@ export default function ControlsScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [followups, setFollowups] = useState<ControlFollowup[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(false);
     try {
-      setRows(await listFieldControls());
+      const [controls, open] = await Promise.all([listFieldControls(), listOpenFollowups()]);
+      setRows(controls);
+      setFollowups(open);
     } catch {
       setError(true);
     } finally {
@@ -137,6 +143,13 @@ export default function ControlsScreen() {
               <Txt variant="caption" tone="muted">
                 {t.authorityLine(c.competent_codes.join(" / "))}
               </Txt>
+            ) : null}
+            {c.result !== "conforme" && c.org_id ? (
+              <ControlFollowups
+                controlId={c.id}
+                followups={followups.filter((f) => f.control_id === c.id)}
+                onChanged={() => void load()}
+              />
             ) : null}
           </Card>
         ))}

@@ -15,8 +15,10 @@ import {
   DeclarationLineInput,
   FellingAacOption,
   listFellingAacOptions,
+  listRegistryTrees,
   MarkingType,
   PermitType,
+  RegistryTree,
 } from "../api/client";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
@@ -52,14 +54,36 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [result, setResult] = React.useState<DeclarationCreated | null>(null);
+  const [inventory, setInventory] = React.useState<RegistryTree[]>([]);
 
   React.useEffect(() => {
     listFellingAacOptions()
       .then(setAacOptions)
       .catch(() => setAacOptions([]));
+    listRegistryTrees("inventorie")
+      .then(setInventory)
+      .catch(() => setInventory([]));
   }, []);
 
   const selectedAac = aacOptions?.find((a) => a.id === aacId) ?? null;
+  const listed = new Set(lines.map((l) => l.tree_code.trim()));
+  const pending = inventory.filter(
+    (tree) => !listed.has(tree.tree_code) && (tree.aac_id == null || tree.aac_id === aacId),
+  );
+
+  const takeInventory = () => {
+    lineSeq += 1;
+    const added: LineDraft[] = pending.map((tree, i) => ({
+      key: `inv-${lineSeq}-${i}`,
+      tree_code: tree.tree_code,
+      marking_type: tree.marking_type,
+      species_scientific_name: tree.species_scientific_name,
+      measured_dbh_cm: tree.measured_dbh_cm,
+      latitude: tree.latitude,
+      longitude: tree.longitude,
+    }));
+    setLines((prev) => [...prev.filter((l) => l.tree_code.trim().length > 0), ...added]);
+  };
 
   const chooseAac = (option: FellingAacOption) => {
     setAacId(option.id);
@@ -239,6 +263,14 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
       <Text style={styles.section}>
         {t.trees} ({lines.length})
       </Text>
+      {pending.length > 0 ? (
+        <View style={styles.card}>
+          <Text style={styles.meta}>{t.inventoryHint}</Text>
+          <TouchableOpacity style={styles.secondary} onPress={takeInventory} testID="declare-from-inventory">
+            <Text style={styles.secondaryText}>{t.fromInventory(pending.length)}</Text>
+          </TouchableOpacity>
+        </View>
+      ) : null}
       {lines.map((line, i) => (
         <View key={line.key} style={styles.card}>
           <View style={styles.cardHead}>

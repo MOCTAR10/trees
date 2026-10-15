@@ -1,4 +1,4 @@
-import { FileBadge, MapPin, UserPlus } from "lucide-react-native";
+import { Factory, FileBadge, MapPin, UserPlus } from "lucide-react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Modal, Pressable, ScrollView, TextInput, View } from "react-native";
 
@@ -11,6 +11,7 @@ import {
   registerTitle,
   setTitleProvince,
 } from "../../api/client";
+import MillRegister from "../../components/MillRegister";
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
 import { Button, Card, Divider, EmptyState, KeyValue, Pill, ScreenHeader, Txt } from "../../design/ui";
 import { fr } from "../../i18n/fr";
@@ -51,7 +52,7 @@ export default function OrganisationScreen({ id, onBack }: Props) {
   const [provinces, setProvinces] = useState<ProvinceSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [sheet, setSheet] = useState<"title" | "account" | null>(null);
+  const [sheet, setSheet] = useState<"title" | "account" | "mill" | null>(null);
   const [provinceFor, setProvinceFor] = useState<number | null>(null);
 
   const load = useCallback(async () => {
@@ -212,8 +213,23 @@ export default function OrganisationScreen({ id, onBack }: Props) {
             ))}
           </Card>
         ) : null}
+        {data.entry.org_type === "entreprise" ? (
+          <Button
+            testID="org-mill-register"
+            label={t.millRegister}
+            variant="secondary"
+            icon={<Factory size={16} color={theme.c.olive} />}
+            onPress={() => setSheet("mill")}
+          />
+        ) : null}
       </ScrollView>
 
+      <Modal visible={sheet === "mill"} animationType="slide" onRequestClose={() => setSheet(null)}>
+        <View style={s.full} testID="org-mill-sheet">
+          <ScreenHeader title={t.millRegister} onBack={() => setSheet(null)} />
+          <MillRegister mode="admin" orgId={id} />
+        </View>
+      </Modal>
       <RegisterTitle
         visible={sheet === "title"}
         orgId={id}
@@ -517,6 +533,7 @@ function ProvincePicker({
 }
 
 const useStyles = makeStyles((th) => ({
+  full: { flex: 1, backgroundColor: th.c.bg },
   screen: { flex: 1, backgroundColor: th.c.bg },
   loader: { flex: 1 },
   content: { padding: th.space.lg, gap: th.space.md, paddingBottom: th.space.xxl },

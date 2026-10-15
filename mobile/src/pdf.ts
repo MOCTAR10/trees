@@ -83,6 +83,15 @@ export async function exportControlPdf(id: number, reference?: string | null): P
   return getPdfToCache(`/api/controls/${id}/pdf`, `PV_${name}.pdf`);
 }
 
+/** Transformation register of a mill (the caller's, or an organisation's for the Ministry). */
+export async function exportMillRegisterPdf(orgId?: number | null, year?: number | null): Promise<string> {
+  const qs = new URLSearchParams();
+  if (orgId) qs.set("org_id", String(orgId));
+  if (year) qs.set("year", String(year));
+  const q = qs.toString();
+  return getPdfToCache(`/api/mill/register/pdf${q ? `?${q}` : ""}`, `registre_transformation_${year ?? Date.now()}.pdf`);
+}
+
 /** EUDR due-diligence statement PDF. */
 export async function exportDiligencePdf(id: number): Promise<string> {
   return getPdfToCache(`/api/eudr/diligence/${id}/pdf`, `diligence_eudr_${id}.pdf`);

@@ -6,6 +6,10 @@ jest.mock("../src/api/client", () => ({
     { id: 29, label: "DEMO-AAC-2026-01", status: "ouvert", campaign_year: 2026, ufa_label: "UFA Démo 1", title_id: 3, title_type: "CFAD", title_reference: "DEMO-CFAD-01", blocker: null },
     { id: 30, label: "DEMO-AAC-2026-02", status: "ferme", campaign_year: 2026, ufa_label: "UFA Démo 1", title_id: 3, title_type: "CFAD", title_reference: "DEMO-CFAD-01", blocker: "no_authorization" },
   ]),
+  listRegistryTrees: jest.fn(async () => [
+    { id: 1, tree_code: "GA-INV-01", marking_type: "qr", species_scientific_name: "Aucoumea klaineana", measured_dbh_cm: 82, status: "inventorie", permit_number: null, aac_label: "DEMO-AAC-2026-01", aac_id: 29, latitude: -0.7, longitude: 13.6, created_at: "2026-10-01" },
+    { id: 2, tree_code: "GA-INV-02", marking_type: "qr", species_scientific_name: null, measured_dbh_cm: null, status: "inventorie", permit_number: null, aac_label: "DEMO-AAC-2026-02", aac_id: 30, latitude: null, longitude: null, created_at: "2026-10-01" },
+  ]),
   createDeclaration: jest.fn(async () => ({
     id: 7,
     status: "soumise",
@@ -62,5 +66,23 @@ describe("DeclareScreen", () => {
 
     fireEvent.press(getAllByText("OK")[1]);
     expect(onDone).toHaveBeenCalledTimes(1);
+  });
+
+  it("takes the inventoried stems of the chosen AAC", async () => {
+    const { getByTestId, getByText, getByPlaceholderText, queryByTestId } = render(
+      <DeclareScreen onDone={jest.fn()} onBack={jest.fn()} />,
+    );
+    await waitFor(() => expect(getByTestId("aac-option-29")).toBeTruthy());
+    fireEvent.press(getByTestId("aac-option-29"));
+    expect(getByText("Reprendre l'inventaire (1 tige)")).toBeTruthy();
+    fireEvent.press(getByTestId("declare-from-inventory"));
+    expect(queryByTestId("declare-from-inventory")).toBeNull();
+    expect(getByTestId("tree-code-0").props.value).toBe("GA-INV-01");
+    fireEvent.changeText(getByPlaceholderText("PFA-2026-07"), "PFA-2026-07");
+    (createDeclaration as jest.Mock).mockClear();
+    fireEvent.press(getByTestId("submit-declaration"));
+    await waitFor(() => expect(createDeclaration).toHaveBeenCalledTimes(1));
+    const line = (createDeclaration as jest.Mock).mock.calls[0][0].lines[0];
+    expect(line).toMatchObject({ tree_code: "GA-INV-01", marking_type: "qr", measured_dbh_cm: 82 });
   });
 });

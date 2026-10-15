@@ -37,6 +37,7 @@ jest.mock("../src/api/client", () => ({
     blocking: true,
   })),
   decideInbox: jest.fn(async () => ({ id: 41, status: "rejetee" })),
+  listOpenFollowups: jest.fn(async () => []),
   listFieldControls: jest.fn(async () => [
     {
       id: 1,

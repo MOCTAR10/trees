@@ -293,6 +293,7 @@ describe("Audit des écrans avec données réelles", () => {
     const Species = require("../src/screens/SpeciesScreen").default;
     const SpeciesDetail = require("../src/screens/SpeciesDetailScreen").default;
     const MapScreen = require("../src/screens/MapScreen").default;
+    const MillRegister = require("../src/components/MillRegister").default;
     const { ThemeProvider } = require("../src/design/ThemeProvider");
     const { SafeAreaProvider } = require("react-native-safe-area-context");
     const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, left: 0, right: 0, bottom: 34 } };
@@ -317,6 +318,9 @@ describe("Audit des écrans avec données réelles", () => {
     const directory: any[] = await client.getOrganisationDirectory();
     for (const org of directory.filter((o) => /Haut-Ogooué|Lambaréné|Massaha|Ntoum/.test(o.name)).slice(0, 4)) {
       await audit(`Ministère · Fiche ${org.name}`, wrap(<Organisation id={org.id} onBack={noop} />));
+      if (/Lambaréné/.test(org.name)) {
+        await audit(`Ministère · Registre ${org.name}`, wrap(<MillRegister mode="admin" orgId={org.id} />));
+      }
     }
     await audit("Ministère · Menu", wrap(<Menu onOpen={noop} onLogout={noop} />));
     for (const key of ["stats", "titres", "comptes", "declarations", "documents", "etudes", "certifications",
@@ -330,10 +334,10 @@ describe("Audit des écrans avec données réelles", () => {
       await signIn(who);
       const me = await client.getMe();
       const label = who === "company" ? "Entreprise" : "Scierie";
-      const tabs = ["accueil", "abattage", "grumes", "tracabilite", "documents", "titres", "cert", "taxes", "fiscal", "residues"];
+      const tabs = ["accueil", "equipe", "abattage", "grumes", "tracabilite", "usine", "documents", "titres", "cert", "taxes", "fiscal", "residues"];
       for (const tab of tabs) {
         await audit(`${label} · onglet ${tab}`, wrap(<Company user={me} onLogout={noop} showHeader={false} />, true), async (view) => {
-          const groups: Record<string, string> = { abattage: "exploitation", grumes: "exploitation", tracabilite: "exploitation",
+          const groups: Record<string, string> = { equipe: "accueil", usine: "exploitation", abattage: "exploitation", grumes: "exploitation", tracabilite: "exploitation",
             documents: "conformite", titres: "conformite", cert: "conformite", taxes: "finances", fiscal: "finances", residues: "circulaire" };
           if (groups[tab]) fireEvent.press(view.getByTestId(`company-group-${groups[tab]}`));
           await flush();
