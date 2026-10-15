@@ -363,6 +363,9 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
   Desktop defaults can be lower (1.8 GB here): raise it in Docker Desktop →
   Settings → Resources. First load downloads ~250 MB into `forestry_hf_cache`
   and warms up in the background (~2–3 min on CPU).
+- SAM 2.1's image processor needs **`torchvision`** (pinned next to `torch`, CPU wheels, matching release:
+  torch 2.14 ↔ torchvision 0.29). Without it segmentation silently falls back to OpenCV (`dbh_method`
+  `opencv_edge_profile`, log « SAM trunk segmentation skipped »). Production runs with `AI_MODELS_ENABLED=true`.
 - Tests force `AI_MODELS_ENABLED=false`, empty `GFW_API_KEY`, and reset the soil/GEE/GFW caches
   (`tests/conftest.py`); never let a test load real models.
 - GFW: create the key with `python -m tools.gfw_api_key` in **your own

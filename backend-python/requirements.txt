@@ -25,6 +25,7 @@ reportlab==5.0.1
 # Anything V2 via transformers, Apache-2.0) — CPU build of torch
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch==2.14.1+cpu
+torchvision==0.29.1+cpu
 sentence-transformers==6.1.0
 
 # Tests
