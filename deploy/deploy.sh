@@ -21,6 +21,16 @@ git log --oneline -1
 echo "== Build and start"
 compose build --pull
 compose up -d --wait --wait-timeout 600 db
+# A fresh volume runs the init scripts on a temporary server, then restarts:
+# wait for the real server before touching the schema.
+for i in $(seq 1 120); do
+  if compose logs db 2>/dev/null | grep -qE "init process complete|Skipping initialization" \
+    && psql_db -At -c "SELECT 1" >/dev/null 2>&1; then
+    break
+  fi
+  if [ "$i" = 120 ]; then echo "!! Base de données indisponible"; exit 1; fi
+  sleep 5
+done
 
 echo "== Migrations"
 psql_db -q -c "CREATE TABLE IF NOT EXISTS schema_migrations (filename TEXT PRIMARY KEY, applied_at TIMESTAMPTZ NOT NULL DEFAULT now())"
