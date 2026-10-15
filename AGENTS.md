@@ -82,6 +82,7 @@ doc update — as separate logical commits. The full history lives in
 | 25 | Régression par rôle (100 % des points d'accès de chaque rôle), comptes créés par le Ministère rattachés (coopérative, employeur) | `029_slice25.sql` | `scripts/role_coverage.py`, `POST /api/organizations/{id}/accounts` | en-tête entreprise | pt 25 |
 | 26 | Inventaire par scan, équipe gérée par l'entreprise, registre de transformation, suites des contrôles, limite de débit par session, affichage français | `030_slice26.sql` | `services/mill.py`, `/api/mill/*`, `/api/organizations/me/agents`, `/api/controls/{id}/followups`, `/api/controls/followups` (`/status`, `/contest`), file `followups`, `core/fr_format.py`, passerelle | `CompanyAgents`, `MillRegister`, `ministry/ControlFollowups`, `CompanyHomeScreen` (contester), `DeclareScreen` (inventaire), `ScreenAudit` | pt 26 |
 | 27 | Application web du Ministère (même code, `react-native-web`), menu latéral bureau, carte Leaflet, PDF navigateur, hébergement `foresterie-app.greenleaves.ga` | — | — | `src/web/` (DesktopFrame, LeafletMaps, WebFieldNotice), `metro.config.js`, `pdf.ts` | pt 27 |
+| 28 | Espace entreprise sur le système de design (plus de thème sombre imposé), menu latéral « Mon entreprise » sur le web bureau, connexion sans défilement, organisation affichée à la connexion | — | `/api/auth/check-email` (organisation) | `CompanyNav` (`hideGroups`), `CompanyScreen` (onglet piloté), `DesktopFrame` (`sections`), `LoginScreen` | pt 28 |
 
 Latest verified suite counts (Slice 26): **`pytest` 718 passed** · **`tests_e2e` 196 passed**
 (real Postgres) · role coverage **100 %** (admin 98, company 102, operator 37, cooperative 30) ·
@@ -266,12 +267,11 @@ So a push to `main` reaches production about 5 minutes after CI passes — keep 
   ScreenHeader, Segmented, EmptyState, RankStripes), `format.ts` (French decimal
   comma). Fonts: Barlow Semi Condensed (titles, figures) + Atkinson Hyperlegible
   (body), loaded by `fonts.ts`. The operator space follows the phone's
-  light/dark setting; the camera screen is always dark; company / cooperative /
-  admin spaces are still forced dark and use the legacy `src/theme.ts` until
-  they are migrated. Header rank stripes: Ministry 2, company/cooperative 1,
+  light/dark setting; the camera screen is always dark. The Ministry and company
+  spaces follow the device theme (Slice 28); only the **cooperative** space is still
+  forced dark on the legacy `src/theme.ts` (and a few operator screens use it). Header rank stripes: Ministry 2, company/cooperative 1,
   field agent 0. Reference mockups: `docs/design/maquette_design_v1.html`
-  (operator) and `docs/design/maquette_admin_v2.html` (Ministry). The Ministry
-  space follows the phone theme too; company / cooperative are still forced dark.
+  (operator) and `docs/design/maquette_admin_v2.html` (Ministry). 
 - **Ministry space** (`mobile/src/screens/ministry/`): bottom bar Tableau de bord ·
   À traiter · Carte · Organisations · Menu (`ADMIN_TABS`). Every pending file shows
   its competent authority and province (display only — a single `admin` role still
