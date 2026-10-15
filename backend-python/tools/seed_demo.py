@@ -167,9 +167,12 @@ SEEDED_ANOMALY_TYPES = frozenset(
         "controle_non_conforme",
         "aac_ouverture_depassee",
         "etat_annuel_non_transmis",
+        "rendement_matiere_anormal",
+        "suite_controle_en_retard",
     }
 )
 PV_PREFIX = "PV-DEMO-"
+LOT_PREFIX = "LOT-DEMO-"
 
 #: (tree_code suffix, scientific name, DBH cm, registry status) for the demo
 #: stems that populate the dashboard harvest rollup.
@@ -217,6 +220,7 @@ async def _reset(company_id: int, org_ids: list[int]) -> None:
 
     await db.execute("DELETE FROM anomaly_reviews WHERE subject_key LIKE $1", f"{TREE_PREFIX}%")
     await db.execute("DELETE FROM field_controls WHERE pv_reference LIKE $1", f"{PV_PREFIX}%")
+    await db.execute("DELETE FROM mill_outputs WHERE lot_reference LIKE $1", f"{LOT_PREFIX}%")
     await db.execute(
         "DELETE FROM declaration_lines WHERE declaration_id IN"
         " (SELECT id FROM felling_declarations WHERE company_id = $1 OR title_id = ANY($2::int[]))",
@@ -335,6 +339,24 @@ async def _demo_controls(admin_id: int, org_id: int, aac_id: int) -> None:
             pv,
             admin_id,
         )
+    await db.execute(
+        "INSERT INTO control_followups"
+        " (control_id, action_type, amount_fcfa, reference, due_at, notes, decided_by)"
+        " SELECT id, 'amende', 500000, 'AM-DEMO-001', CURRENT_DATE - 10,"
+        " 'Transport sans bordereau (art. 135)', $2 FROM field_controls WHERE pv_reference = $1",
+        f"{PV_PREFIX}002",
+        admin_id,
+    )
+    await db.execute(
+        "INSERT INTO mill_outputs"
+        " (org_id, product_type, species_scientific_name, volume_m3, tree_codes, lot_reference,"
+        " destination, recorded_by)"
+        " VALUES ($1, 'sciage', 'Entandrophragma utile', 12.5, $2::text[], $3, 'local', $4)",
+        org_id,
+        [_code("007"), _code("008")],
+        f"{LOT_PREFIX}001",
+        admin_id,
+    )
 
 
 async def _agent_user(company_id: int) -> int:

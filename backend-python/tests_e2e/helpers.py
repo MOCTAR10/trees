@@ -78,6 +78,33 @@ def slip(
     return world.p.post(actor, "/api/transport/documents", body, expect=expect)
 
 
+def received_logs(world, n: int = 1) -> list[str]:
+    """Felled HOB logs carried to the sawmill and received there (custody: SDL)."""
+    codes = felled_trees(world, n)
+    doc = slip(world, codes)
+    world.p.patch("hob.dg", f"/api/transport/documents/{doc['id']}", {"status": "emis"})
+    world.p.patch("sdl.dg", f"/api/transport/documents/{doc['id']}", {"status": "receptionne"})
+    return codes
+
+
+def non_compliant_control(world, org: str = "hob") -> int:
+    """A non-compliant marking control on a fresh HOB log."""
+    code = felled_trees(world)[0]
+    out = world.p.post(
+        "mef.dp2",
+        "/api/controls",
+        {
+            "control_type": "marquage",
+            "result": "non_conforme",
+            "tree_code": code,
+            "notes": "Marque du marteau absente",
+            "pv_reference": world.ref(f"PV-{world.code()}"),
+        },
+        expect=201,
+    )
+    return out["id"]
+
+
 def detail(response) -> str:
     """Error detail of a refused call, whatever its shape."""
     d = response.get("detail") if isinstance(response, dict) else response

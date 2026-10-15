@@ -1254,7 +1254,7 @@ def controls(ctx: Ctx) -> None:
         expect=201,
         note="contrôle non conforme → anomalie grave",
     )
-    p.post(
+    ctx.slip["pv_visa"] = p.post(
         "mef.dp2",
         "/api/controls",
         {
@@ -1445,6 +1445,174 @@ def deadlines_and_reports(ctx: Ctx) -> None:
     )
 
 
+# --- 11. Team, transformation register, control follow-ups (Slice 26) -------
+def team_mill_followups(ctx: Ctx) -> None:
+    p = ctx.p
+    agent = p.post(
+        "hob.dg",
+        "/api/organizations/me/agents",
+        {
+            "email": ctx.email("hob.agent3"),
+            "password": PASSWORD,
+            "first_name": "Rodrigue",
+            "last_name": "Mintsa",
+            "matricule": ctx.ref("AGT-3"),
+        },
+        expect=201,
+        note="l'entreprise ouvre le compte de son agent",
+    )
+    ctx.user["hob.agent3"] = agent["id"]
+    assert agent["role"] == "operator" and agent["organization_id"] == ctx.org["hob"]
+    team = p.get("hob.dg", "/api/organizations/me/agents")
+    assert any(a["id"] == agent["id"] for a in team), "agent absent de l'équipe"
+    p.refused(
+        "hob.agent1",
+        "POST",
+        "/api/organizations/me/agents",
+        {"email": ctx.email("x"), "password": PASSWORD, "first_name": "X", "last_name": "Y"},
+        403,
+        "un agent n'ouvre pas de compte",
+    )
+    p.refused(
+        "sdl.dg",
+        "PATCH",
+        f"/api/organizations/me/agents/{agent['id']}",
+        {"is_active": False},
+        404,
+        "agent d'une autre organisation",
+    )
+    p.patch(
+        "hob.dg",
+        f"/api/organizations/me/agents/{agent['id']}",
+        {"is_active": False},
+        expect=200,
+        note="agent parti : compte suspendu, historique conservé",
+    )
+
+    lines = _lines(ctx, "hob1", [("Aucoumea klaineana", 96), ("Aucoumea klaineana", 101)], 40)
+    decl = _declare(ctx, "hob.dg", "hob1", "hob", lines, expect=200)
+    p.post("admin", f"/api/admin/inbox/declarations/{decl['id']}/decision", {"approve": True})
+    lot_logs = [ln["tree_code"] for ln in lines]
+    for i, code in enumerate(lot_logs):
+        lon, lat = _point(ctx, "hob1", 40 + i)
+        p.post(
+            "hob.agent1",
+            "/api/felling/events",
+            {"tree_code": code, "event": "abattu", "latitude": lat, "longitude": lon},
+            expect=200,
+        )
+    t3 = p.post(
+        "hob.dg",
+        "/api/transport/documents",
+        {
+            "doc_type": "bordereau_roulage",
+            "tree_codes": lot_logs,
+            "destination_org_id": ctx.org["sdl"],
+            "reference": ctx.ref("BDR-003"),
+        },
+        expect=201,
+    )
+    p.patch("hob.dg", f"/api/transport/documents/{t3['id']}", {"status": "emis"}, expect=200)
+    p.patch("sdl.dg", f"/api/transport/documents/{t3['id']}", {"status": "receptionne"}, expect=200)
+
+    reg = p.get("sdl.dg", "/api/mill/register", note="registre de transformation")
+    assert set(lot_logs) <= {t["tree_code"] for t in reg["stock"]}, "grumes non réceptionnées"
+    held = [t["tree_code"] for t in p.get("hob.dg", "/api/felling/trees?status=abattu")]
+    p.refused(
+        "sdl.dg",
+        "POST",
+        "/api/mill/outputs",
+        {"product_type": "sciage", "volume_m3": 2, "tree_codes": held[:1]},
+        403,
+        "lot citant une grume détenue par une autre organisation",
+    )
+    lot = p.post(
+        "sdl.dg",
+        "/api/mill/outputs",
+        {
+            "product_type": "sciage",
+            "volume_m3": 6.2,
+            "tree_codes": lot_logs,
+            "lot_reference": ctx.ref("LOT-1"),
+            "destination": "local",
+        },
+        expect=201,
+        note="lot produit : grumes « transformé »",
+    )
+    assert sorted(lot["transformed"]) == sorted(lot_logs)
+    after = p.get("admin", f"/api/mill/register?org_id={ctx.org['sdl']}")
+    assert after["outputs"] and not after["totals"]["alert"]
+    for actor, path in (
+        ("sdl.dg", "/api/mill/register/pdf"),
+        ("admin", f"/api/mill/register/pdf?org_id={ctx.org['sdl']}"),
+    ):
+        pdf = p.call(actor, "GET", path, expect=200, note="registre en PDF")
+        assert bytes(pdf).startswith(b"%PDF"), "registre non PDF"
+    p.get("admin", "/api/mill/alerts")
+
+    pv = ctx.slip["pv_marquage"]["id"]
+    p.refused(
+        "admin",
+        "POST",
+        f"/api/controls/{ctx.slip['pv_visa']['id']}/followups",
+        {"action_type": "mise_en_demeure"},
+        409,
+        "pas de suite à un contrôle conforme",
+    )
+    notice = p.post(
+        "mef.dp2",
+        f"/api/controls/{pv}/followups",
+        {"action_type": "mise_en_demeure", "due_at": _d(15), "notes": "Marquer la tige"},
+        expect=201,
+        note="mise en demeure notifiée",
+    )
+    fine = p.post(
+        "mef.dp2",
+        f"/api/controls/{pv}/followups",
+        {"action_type": "amende", "amount_fcfa": 250000, "due_at": _d(30)},
+        expect=201,
+        note="amende notifiée",
+    )
+    mine = p.get("hob.dg", "/api/controls/followups")
+    assert {notice["id"], fine["id"]} <= {f["id"] for f in mine}
+    p.post(
+        "hob.dg",
+        f"/api/controls/followups/{fine['id']}/contest",
+        {"reply": "Le marteau a été apposé, photo jointe au dossier"},
+        expect=200,
+        note="l'entreprise conteste l'amende",
+    )
+    queue = p.get("admin", "/api/admin/inbox/items?type=followups")
+    assert any(i["id"] == fine["id"] for i in queue), "contestation absente de « À traiter »"
+    p.get("admin", f"/api/admin/inbox/followups/{fine['id']}")
+    p.post(
+        "admin",
+        f"/api/admin/inbox/followups/{fine['id']}/decision",
+        {"approve": False, "motif": "Photo postérieure au contrôle"},
+        expect=200,
+        note="contestation rejetée : amende maintenue",
+    )
+    p.refused(
+        "hob.dg",
+        "POST",
+        f"/api/controls/followups/{fine['id']}/contest",
+        {"reply": "encore"},
+        409,
+        "une suite ne se conteste qu'une fois",
+    )
+    p.post(
+        "admin",
+        f"/api/controls/followups/{fine['id']}/status",
+        {"status": "execute"},
+        expect=200,
+        note="amende réglée",
+    )
+    ctx.note(
+        "équipe : agent ouvert puis suspendu par HOB ; usine : lot de la scierie ;"
+        " suites : mise en demeure + amende contestée, maintenue, réglée"
+    )
+
+
 STAGES = [
     people,
     titles,
@@ -1457,6 +1625,7 @@ STAGES = [
     controls,
     deadlines_and_reports,
     projects,
+    team_mill_followups,
 ]
 
 
