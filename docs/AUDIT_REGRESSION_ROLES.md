@@ -1,4 +1,4 @@
-# Régression du Ministère (Admin) — inventaire et couverture
+# Régression par rôle — Ministère et Entreprise : inventaire et couverture
 
 Date : 15 octobre 2026 · après Slice 24.
 Objectif : vérifier que **tout ce que fait le Ministère** (autorisations, décisions, pièces, titres, contrôles,
@@ -9,14 +9,15 @@ rapports) fonctionne de bout en bout, **et que l'effet de chaque acte est visibl
 ## Méthode
 
 1. **Inventaire automatique** des points d'accès ouverts au rôle `admin`, lu dans le code FastAPI
-   (`scripts/admin_coverage.py`) : **92** points d'accès (Ministère seul ou partagé).
+   (`scripts/role_coverage.py --role admin`) : **92** points d'accès (Ministère seul ou partagé).
 2. **Mesure** : chaque appel de la régression est journalisé (acteur, méthode, chemin, statut attendu) ;
    un point d'accès est « vérifié » quand un compte du Ministère (`admin`, inspecteurs `mef.dp2`,
    `mef.brigade`) l'a exercé avec le résultat attendu.
 3. **Écrans** : chaque écran Ministère de l'application est relié aux fonctions d'API qu'il importe,
    donc aux points d'accès qu'il appelle.
-4. **Garde-fou** : la régression **échoue** si la couverture du Ministère descend sous **100 %** — une
-   nouvelle fonction Admin ne peut pas partir sans son test.
+4. **Garde-fou** : la régression **échoue** si la couverture du Ministère **ou de l'Entreprise** descend
+   sous **100 %** — une nouvelle fonction ne peut pas partir sans son test. (`set -o pipefail` dans le
+   workflow : sans lui, le seuil n'aurait jamais fait échouer l'exécution — défaut corrigé.)
 
 Avant ce travail : **35/92** points d'accès exercés par un compte Ministère (38 %). Après : **92/92**.
 
@@ -84,3 +85,45 @@ cloisonnement des rôles), la suite compte **138 tests**, tous passés sur base 
 Actions → **Régression** → dernière exécution : le résumé affiche la liste de contrôle règle par règle,
 le tableau des refus attendus, puis **« Couverture du Ministère (Admin) »** (par domaine et par écran).
 L'artefact `regression-reports` contient JUnit, déroulés et journaux.
+
+---
+
+# Espace Entreprise — inventaire et couverture
+
+Même méthode, rôle `company` (`scripts/role_coverage.py --role company`) : points d'accès dont
+`require_roles` nomme `company`, plus ceux ouverts à tout compte connecté (accueil, projets, carte,
+espèces). Hors périmètre : la chaîne de scan avec images (`/api/v1`, `/api/v2`), la base de
+connaissances et le diagnostic, couverts par leurs propres tests.
+
+Avant : **33/94** points d'accès exercés par un compte entreprise (35 %). Après : **94/94**, et les
+19 écrans entreprise (Accueil « À faire », Exploitation, Conformité, Finances, Économie circulaire,
+Suivi des grumes, Déclaration, Chantiers et projets, composants partagés titres / conventions /
+études / autorisations / DME) n'appellent que des points d'accès vérifiés.
+
+## Ce que vérifient les tests Entreprise (`tests_e2e/test_company_0*.py`, 28 tests)
+
+- **Accueil et profil** : rôle et organisation du compte, **nom saisi par le dirigeant visible par le
+  Ministère**, accueil, groupe, arbres du compte.
+- **Carte et espèces** : contexte national, tuiles, couches de l'emprise (AAC de l'entreprise),
+  recherche, fiche d'un objet, contrôle d'un point ; référentiel et fiche d'essence.
+- **Titres et actes** : l'entreprise ne voit **que ses titres** (refus sur ceux d'un tiers), ses UFA,
+  AAC (statut) et DME applicable (75 cm d'UFA), conventions + attestation, études, autorisation et
+  **leurs PDF** (refusés à un tiers).
+- **Opérations** : détail et conformité de ses déclarations, plaques QR, registre limité à ses tiges,
+  carnet DF10 et états (PDF), destinataires possibles (jamais elle-même), bordereau (détail, PDF) lu
+  aussi par l'usine destinataire et **refusé à un tiers**, diligence RDUE (liste, détail, grumes,
+  attestation), CCC et communautés, échéances fiscales (les siennes seulement), attestation de
+  certification.
+- **Chantiers et projets** : chantier sur **ses AAC seulement**, liste / détail / vue terrain,
+  **chantier sur invitation** (rejoindre refusé sans invitation, accepter, quitter), invitation d'un
+  compte inconnu refusée, gestion réservée au créateur, statut invalide refusé, **chantier clôturé**
+  (adhésion et rattachement refusés), rattacher **son** scan (pas celui d'un autre), une entreprise
+  qui participe aux projets des autres (rejoindre, accepter / décliner, quitter, rattacher).
+- **Économie circulaire** : résidus de coupe attribués à une coopérative, libérés, refus pour un
+  tiers et pour une double libération.
+
+## Bilan
+
+Suite de bout en bout : **166 tests** (parcours, règles, Ministère, Entreprise), tous passés.
+Couverture : **Ministère 92/92**, **Entreprise 94/94** — imposée à chaque exécution GitHub.
+Prochaines cibles affichées dans le rapport : **agent de terrain** et **coopérative**.

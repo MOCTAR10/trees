@@ -281,11 +281,13 @@ being the rule. It publishes a job summary (rule-by-rule checklist and every exp
 refusal) built by `scripts/regression_summary.py`, and uploads JUnit, step logs and
 service logs as the `regression-reports` artifact. A new workflow rule = a new
 regression test with a one-line French docstring.
-The Ministry is held to **100 % coverage**: `scripts/admin_coverage.py` lists every
-endpoint open to `admin` and fails the Régression job if one is not exercised by a
-Ministry account; it also maps each Ministry screen to its endpoints. A new Admin
-endpoint therefore needs a test in `tests_e2e/test_admin_0*.py`
-(see `docs/AUDIT_ADMIN_REGRESSION.md`). `concurrency.cancel-in-progress`
+The Ministry and Company roles are held to **100 % coverage**: `scripts/role_coverage.py
+--role admin|company` lists every endpoint open to the role and fails the Régression job
+if one is not exercised by an account of that role (pilot aliases: `admin`/`mef.*`,
+`*.dg`/`*.chef`); it also maps each screen of the role to its endpoints. Field agent and
+cooperative coverage are reported for information (next targets). A new endpoint needs a
+test in `tests_e2e/test_admin_0*.py` or `test_company_0*.py`; keep `set -o pipefail` in
+front of any `… | tee` gate (see `docs/AUDIT_REGRESSION_ROLES.md`). `concurrency.cancel-in-progress`
 cancels superseded runs, so **wait for the previous run to finish before
 pushing**.
 
