@@ -3,7 +3,7 @@
 jenkins:
   systemMessage: "Foresterie Numérique — build Android (APK signé)"
   numExecutors: 1
-  mode: EXCLUSIVE
+  mode: NORMAL
   securityRealm:
     local:
       allowsSignup: false
