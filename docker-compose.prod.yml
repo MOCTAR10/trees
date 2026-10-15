@@ -1,0 +1,19 @@
+# Production overlay: `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`
+# (deploy/deploy.sh does it). Postgres has no host port, the API and the gateway
+# listen on 127.0.0.1 only — nginx (TLS) is the single public entry.
+services:
+  db:
+    ports: !reset []
+    restart: unless-stopped
+
+  api:
+    ports: !override
+      - "127.0.0.1:8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips=*
+    restart: unless-stopped
+
+  gateway:
+    ports: !override
+      - "127.0.0.1:3000:3000"
+    command: npm start
+    restart: unless-stopped
