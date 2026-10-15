@@ -24,6 +24,12 @@ async def my_company(user: dict = Depends(require_roles("company", "operator")))
 
     Company accounts own their row; operators inherit their company.
     """
+    if user.get("organization_id") is not None:
+        org = await db.fetch_one(
+            "SELECT name FROM organizations WHERE id = $1", user["organization_id"]
+        )
+        if org is not None:
+            return {"organization": org["name"], "organization_type": "company"}
     company_id = user.get("company_id")
     if company_id is None and user["role"] == "company":
         company_id = user["id"]

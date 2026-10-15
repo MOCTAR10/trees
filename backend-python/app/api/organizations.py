@@ -178,6 +178,11 @@ async def list_organizations(_admin: dict = Depends(require_roles("admin"))):
     return [dict(r) for r in rows]
 
 
+CooperativeProfile = Literal[
+    "agricultural_biochar", "energy_briquettes", "artisan_furniture", "bio_chemical_extraction"
+]
+
+
 class AccountIn(BaseModel):
     email: str = Field(..., min_length=3)
     password: str = Field(..., min_length=8)
@@ -186,6 +191,40 @@ class AccountIn(BaseModel):
     last_name: str | None = None
     display_name: str | None = None
     matricule: str | None = None
+    cooperative_profile: CooperativeProfile = "artisan_furniture"
+    latitude: float | None = Field(None, ge=-90, le=90)
+    longitude: float | None = Field(None, ge=-180, le=180)
+
+
+#: Libreville — default location of a cooperative until its site is entered.
+DEFAULT_COOPERATIVE_POINT = (9.4542, 0.3901)
+
+
+async def _community_cooperative(org: dict, body: AccountIn) -> int:
+    """The organisation's community cooperative (residues, collection), created once."""
+    existing = await db.fetch_one(
+        "SELECT id FROM community_cooperatives WHERE organization_id = $1", org["id"]
+    )
+    if existing is not None:
+        return existing["id"]
+    lon, lat = (
+        (body.longitude, body.latitude)
+        if body.longitude is not None and body.latitude is not None
+        else DEFAULT_COOPERATIVE_POINT
+    )
+    row = await db.fetch_one(
+        """
+        INSERT INTO community_cooperatives (geom, cooperative_name, profile_type, organization_id)
+        VALUES (ST_SetSRID(ST_MakePoint($1, $2), 4326), $3, $4, $5)
+        RETURNING id
+        """,
+        lon,
+        lat,
+        org["name"],
+        body.cooperative_profile,
+        org["id"],
+    )
+    return row["id"]
 
 
 @router.get("/directory")
@@ -254,12 +293,25 @@ async def create_linked_account(
         display = org["name"]
     if not display:
         raise HTTPException(status_code=422, detail="Prénom et nom requis")
+    cooperative_id = (
+        await _community_cooperative(dict(org), body) if body.role == "cooperative" else None
+    )
+    employer = None
+    if body.role == "operator":
+        manager = await db.fetch_one(
+            "SELECT min(id) AS id FROM users"
+            " WHERE organization_id = $1 AND role = 'company' AND is_active",
+            org_id,
+        )
+        employer = manager["id"] if manager else None
     row = await db.fetch_one(
         """
         INSERT INTO users
-            (email, display_name, role, password_hash, organization_id, first_name, last_name, matricule)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        RETURNING id, email, display_name, role, organization_id, first_name, last_name, matricule
+            (email, display_name, role, password_hash, organization_id, first_name, last_name, matricule,
+             cooperative_id, company_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        RETURNING id, email, display_name, role, organization_id, first_name, last_name, matricule,
+                  cooperative_id, company_id
         """,
         body.email.strip(),
         display,
@@ -269,7 +321,16 @@ async def create_linked_account(
         first,
         last,
         (body.matricule or "").strip() or None,
+        cooperative_id,
+        employer,
     )
+    if body.role == "company":
+        await db.execute(
+            "UPDATE users SET company_id = $1 WHERE organization_id = $2 AND role = 'operator'"
+            " AND company_id IS NULL",
+            row["id"],
+            org_id,
+        )
     return dict(row)
 
 

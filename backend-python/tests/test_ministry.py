@@ -76,6 +76,9 @@ class Fake:
     def __init__(self):
         self.inserted: list[tuple[str, tuple]] = []
         self.emails = {"taken@x"}
+        self.coop_by_org: dict[int, dict] = {}
+        self.manager_id: int | None = 14
+        self.executed: list[tuple[str, tuple]] = []
 
     async def fetch_one(self, sql, *args):
         s = " ".join(sql.split()).lower()
@@ -104,9 +107,19 @@ class Fake:
             }
         if "update forest_titles set province_code" in s:
             return {"id": args[0], "province_code": args[1]} if args[0] == 5 else None
+        if "select min(id) as id from users" in s:
+            return {"id": self.manager_id} if self.manager_id else None
+        if "from community_cooperatives where organization_id" in s:
+            return self.coop_by_org.get(args[0])
+        if "insert into community_cooperatives" in s:
+            self.inserted.append(("coop", args))
+            self.coop_by_org[args[4]] = {"id": 77}
+            return {"id": 77}
         if "insert into users" in s:
             self.inserted.append(("user", args))
             return {
+                "cooperative_id": args[8],
+                "company_id": args[9],
                 "id": 30,
                 "email": args[0],
                 "display_name": args[1],
@@ -179,6 +192,7 @@ class Fake:
         return []
 
     async def execute(self, sql, *args):
+        self.executed.append((" ".join(sql.split()).lower(), args))
         return "OK"
 
 
@@ -312,6 +326,54 @@ def test_create_linked_agent_account(client, fake):
         headers=_auth(ADMIN),
     )
     assert taken.status_code == 409
+
+
+def test_agent_account_is_linked_to_the_company_account(client, fake):
+    body = {"password": "Secret123", "role": "operator", "first_name": "Jean", "last_name": "Ndong"}
+    agent = client.post(
+        "/api/organizations/10/accounts", json={**body, "email": "a1@x"}, headers=_auth(ADMIN)
+    )
+    assert agent.status_code == 201, agent.text
+    assert agent.json()["company_id"] == 14
+    fake.manager_id = None
+    early = client.post(
+        "/api/organizations/10/accounts", json={**body, "email": "a2@x"}, headers=_auth(ADMIN)
+    )
+    assert early.json()["company_id"] is None
+    manager = client.post(
+        "/api/organizations/10/accounts",
+        json={**body, "email": "dg@x", "role": "company"},
+        headers=_auth(ADMIN),
+    )
+    assert manager.status_code == 201
+    assert any("update users set company_id" in q for q, _ in fake.executed)
+
+
+def test_cooperative_account_is_linked_to_its_community_cooperative(client, fake):
+    def create(email):
+        return client.post(
+            "/api/organizations/13/accounts",
+            json={
+                "email": email,
+                "password": "Secret123",
+                "role": "cooperative",
+                "first_name": "Esther",
+                "last_name": "Mabika",
+                "cooperative_profile": "energy_briquettes",
+                "latitude": 0.39,
+                "longitude": 9.76,
+            },
+            headers=_auth(ADMIN),
+        )
+
+    first = create("coop1@x")
+    assert first.status_code == 201, first.text
+    assert first.json()["cooperative_id"] == 77
+    coop = next(a for kind, a in fake.inserted if kind == "coop")
+    assert coop[0] == 9.76 and coop[1] == 0.39 and coop[3] == "energy_briquettes" and coop[4] == 13
+    second = create("coop2@x")
+    assert second.json()["cooperative_id"] == 77
+    assert sum(1 for kind, _ in fake.inserted if kind == "coop") == 1
 
 
 def test_cooperative_can_be_created_without_profile(client, fake):
