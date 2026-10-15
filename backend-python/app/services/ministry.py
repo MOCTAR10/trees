@@ -5,6 +5,7 @@ decides them under Loi 016/01 (shown, not yet enforced — a single ``admin`` ro
 decides, frozen decision §10 pt 3) and the province of the title concerned.
 """
 
+from app.core import fr_format
 from app.services import anomalies, authorities, db, deadlines
 
 #: queue key -> (label, competent authority, SQL returning id, label, org,
@@ -133,6 +134,8 @@ async def _queue_rows(key: str) -> list[dict]:
     for r in rows:
         item = dict(r)
         item["type"] = key
+        if key == "authorizations":
+            item["label"] = fr_format.with_authorization_label(item.get("label"))
         item["authority"] = item.get("authority") or q["authority"]
         item.update(authorities.competence(item["authority"]))
         out.append(item)
@@ -143,15 +146,17 @@ async def inbox() -> dict:
     """Counters per queue (oldest first), anomalies, accounts to link, alerts."""
     queues = []
     for key, q in QUEUES.items():
-        rows = await _queue_rows(key)
+        stats = await db.fetch_one(
+            f"SELECT count(*) AS n, min(q.created_at) AS oldest FROM ({q['sql']}) q"
+        )
         queues.append(
             {
                 "key": key,
                 "label": q["label"],
                 "authority": q["authority"],
                 **authorities.competence(q["authority"]),
-                "count": len(rows),
-                "oldest_at": rows[0]["created_at"] if rows else None,
+                "count": int((stats or {}).get("n") or 0),
+                "oldest_at": (stats or {}).get("oldest"),
             }
         )
     summary = anomalies.summarise(await anomalies.collect())

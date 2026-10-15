@@ -5,10 +5,11 @@ Checks use three levels, as on the Ministry guide: ``ok`` (✓), ``ko`` (✗,
 illicit or blocking) and ``warn`` (!, the authority decides).
 """
 
-from datetime import date
+from datetime import date, datetime
 
 from fastapi import HTTPException
 
+from app.core import fr_format
 from app.services import compliance, db, ministry
 
 #: Readable labels for compliance codes (Loi 016/01 · RDUE).
@@ -34,6 +35,20 @@ def _label(code: str | None) -> str:
     return CODE_LABELS.get(code or "", code or "")
 
 
+async def _doc_labels() -> dict[str, str]:
+    rows = await db.fetch_all("SELECT code, label FROM document_types")
+    return {r["code"]: r["label"] for r in rows}
+
+
+def _warning_detail(w: dict, docs: dict[str, str]) -> str:
+    if w.get("doc_type"):
+        return docs.get(w["doc_type"], w["doc_type"])
+    if w.get("tax_type"):
+        tax = fr_format.TAX_TYPE_LABEL.get(w["tax_type"], w["tax_type"])
+        return f"{tax} {w.get('period_year') or ''}".strip()
+    return w.get("tree_code") or w.get("status") or ""
+
+
 def _check(level: str, label: str) -> dict:
     return {"level": level, "label": label}
 
@@ -41,6 +56,10 @@ def _check(level: str, label: str) -> dict:
 def _fact(label: str, value) -> dict | None:
     if value is None or value == "":
         return None
+    if isinstance(value, (date, datetime)):
+        return {"label": label, "value": fr_format.fr_date(value)}
+    if isinstance(value, float):
+        return {"label": label, "value": fr_format.fr_num(value, 1)}
     return {"label": label, "value": str(value)}
 
 
@@ -81,11 +100,10 @@ async def _declaration(item_id: int) -> tuple[list, list, list]:
         )
         for b in assessment["blockers"]
     ]
+    docs = await _doc_labels()
     for w in assessment["warnings"]:
         label = _label(w.get("code") or w.get("kind"))
-        detail = (
-            w.get("doc_type") or w.get("tax_type") or w.get("tree_code") or w.get("status") or ""
-        )
+        detail = _warning_detail(w, docs)
         checks.append(_check("warn", f"{label} · {detail}" if detail else label))
     if not checks:
         checks.append(_check("ok", "Aucune non-conformité détectée"))
@@ -96,8 +114,12 @@ async def _declaration(item_id: int) -> tuple[list, list, list]:
                 p
                 for p in (
                     ln["species_scientific_name"],
-                    f"{ln['measured_dbh_cm']} cm" if ln["measured_dbh_cm"] is not None else None,
-                    f"DME {ln['dme_cm']}" if ln["dme_cm"] is not None else None,
+                    f"{fr_format.fr_num(ln['measured_dbh_cm'], 1)} cm"
+                    if ln["measured_dbh_cm"] is not None
+                    else None,
+                    f"DME {fr_format.fr_num(ln['dme_cm'], 1)} cm"
+                    if ln["dme_cm"] is not None
+                    else None,
                 )
                 if p
             ),
@@ -143,7 +165,7 @@ async def _authorization(item_id: int) -> tuple[list, list, list]:
         item_id,
     )
     facts = _facts(
-        ("Autorisation", a["authorization_type"]),
+        ("Autorisation", fr_format.authorization_label(a["authorization_type"])),
         ("AAC", f"{a['aac_label']} ({a['aac_status']})"),
         ("Titre", a.get("title_reference")),
         ("Référence", a.get("reference")),
@@ -216,7 +238,7 @@ async def _certification(item_id: int) -> tuple[list, list, list]:
     c = await db.fetch_one("SELECT * FROM certifications WHERE id = $1", item_id)
     facts = _facts(
         ("Référentiel", c["scheme"]),
-        ("Type", c["cert_type"]),
+        ("Type", fr_format.CERT_TYPE_LABEL.get(c["cert_type"], c["cert_type"])),
         ("Certificat", c.get("certificate_ref")),
         ("Surface (ha)", c.get("surface_ha")),
         ("Valide jusqu'au", c.get("valid_to")),
@@ -264,11 +286,9 @@ async def _title(item_id: int) -> tuple[list, list, list]:
         ("Domaine", t.get("zone")),
     )
     warnings = await compliance.assess_org_warnings(t.get("holder_org_id"))
+    docs = await _doc_labels()
     checks = [
-        _check(
-            "warn",
-            f"{_label(w['kind'])} · {w.get('doc_type') or w.get('tax_type') or ''}".rstrip(" ·"),
-        )
+        _check("warn", f"{_label(w['kind'])} · {_warning_detail(w, docs)}".rstrip(" ·"))
         for w in warnings
     ]
     if not checks:

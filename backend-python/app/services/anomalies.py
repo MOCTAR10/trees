@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 from datetime import UTC, date, datetime
 
+from app.core import fr_format
 from app.services import db, deadlines
 
 HARD = "hard"
@@ -119,7 +120,10 @@ async def _violation_lines(code: str, anomaly_type: str) -> list[dict]:
     items: list[dict] = []
     for r in rows:
         if anomaly_type == "below_dme":
-            detail = f"DBH {r['measured_dbh_cm']} cm < DME {r['dme_cm']} cm"
+            detail = (
+                f"DBH {fr_format.fr_num(r['measured_dbh_cm'], 1)} cm"
+                f" < DME {fr_format.fr_num(r['dme_cm'], 1)} cm"
+            )
             if r.get("dme_source"):
                 detail += f" ({r['dme_source']})"
         else:
@@ -242,7 +246,7 @@ async def _documents_expires() -> list[dict]:
     items: list[dict] = []
     for r in rows:
         label = r.get("doc_label") or r.get("doc_type") or "Document"
-        detail = f"{label} — échéance {_iso(r.get('expires_at')) or 'inconnue'}"
+        detail = f"{label} — échéance {fr_format.fr_date(r.get('expires_at')) or 'inconnue'}"
         if r.get("authority"):
             detail += f" (autorité : {r['authority']})"
         item = _item(
@@ -281,9 +285,10 @@ async def _taxes_impayees() -> list[dict]:
         _item(
             "taxes_impayees",
             f"due:{r['id']}",
-            f"{r.get('tax_type')} {r.get('period_year') or ''}".strip(),
-            f"Échéance {_iso(r.get('due_at'))} — "
-            f"{r.get('amount_fcfa') or 0} FCFA non réglés (double droit, art. 283)",
+            f"{fr_format.TAX_TYPE_LABEL.get(r.get('tax_type'), r.get('tax_type'))}"
+            f" {r.get('period_year') or ''}".strip(),
+            f"Échéance {fr_format.fr_date(r.get('due_at'))} — "
+            f"{fr_format.fr_num(r.get('amount_fcfa') or 0)} FCFA non réglés (double droit, art. 283)",
             org_id=r.get("org_id"),
             org_name=r.get("org_name"),
             detected_at=r.get("due_at"),
@@ -390,7 +395,7 @@ async def _aac_ouverture_depassee() -> list[dict]:
             "aac_ouverture_depassee",
             f"aac:{r['id']}",
             r["label"],
-            f"Ouverte le {r['opened_at'].date().isoformat()} · limite {r['deadline'].isoformat()}",
+            f"Ouverte le {fr_format.fr_date(r['opened_at'])} · limite {fr_format.fr_date(r['deadline'])}",
             org_id=r["org_id"],
             org_name=r["org_name"],
             title_id=r["title_id"],
@@ -410,7 +415,7 @@ async def _etat_annuel_non_transmis() -> list[dict]:
             "etat_annuel_non_transmis",
             f"etat:{r['org_id']}:{r['year']}",
             f"État annuel {r['year']}",
-            f"Échéance dépassée : {r['due'].isoformat()}",
+            f"Échéance dépassée : {fr_format.fr_date(r['due'])}",
             org_id=r["org_id"],
             org_name=r["org_name"],
             detected_at=r["due"],

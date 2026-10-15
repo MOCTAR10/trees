@@ -24,6 +24,9 @@ def _install(monkeypatch, users, coops, scans):
         s = " ".join(sql.split()).lower()
         if "from community_cooperatives where id" in s:
             return coops.get(args[0])
+        if "from users u left join organizations o" in s:
+            user = users.get(args[0])
+            return {"id": user["id"], "display_name": user["display_name"]} if user else None
         if "from users where id" in s:
             user = users.get(args[0])
             return {k: v for k, v in user.items() if k != "password_hash"} if user else None

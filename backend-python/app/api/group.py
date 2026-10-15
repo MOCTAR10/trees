@@ -34,7 +34,9 @@ async def my_group(user: dict = Depends(get_current_user)):
 
     if user.get("company_id"):
         detail = await db.fetch_one(
-            "SELECT id, display_name FROM users WHERE id=$1", user["company_id"]
+            "SELECT u.id, COALESCE(o.name, u.display_name) AS display_name FROM users u"
+            " LEFT JOIN organizations o ON o.id = u.organization_id WHERE u.id=$1",
+            user["company_id"],
         )
         members = await db.fetch_all(
             f"SELECT {_MEMBER_COLS} FROM users WHERE company_id=$1 ORDER BY display_name",

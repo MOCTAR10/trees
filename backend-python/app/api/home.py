@@ -37,7 +37,9 @@ async def _group(user: dict) -> dict | None:
         kind = "cooperative"
     elif user.get("company_id"):
         name_row = await db.fetch_one(
-            "SELECT display_name AS name FROM users WHERE id=$1", user["company_id"]
+            "SELECT COALESCE(o.name, u.display_name) AS name FROM users u"
+            " LEFT JOIN organizations o ON o.id = u.organization_id WHERE u.id=$1",
+            user["company_id"],
         )
         member_filter, key = "u.company_id = $1", user["company_id"]
         kind = "company"

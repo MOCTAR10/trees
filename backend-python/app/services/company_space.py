@@ -9,6 +9,7 @@ that concern it (right of reply).
 
 from datetime import UTC, date, datetime, timedelta
 
+from app.core import fr_format
 from app.services import anomalies, authorities, compliance, controls, db, deadlines
 
 DECISION_WINDOW_DAYS = 120
@@ -175,7 +176,7 @@ async def todo(org_id: int, company_user_id: int | None) -> list[dict]:
             _todo(
                 "certification",
                 "warn",
-                f"Certification {c['scheme']} : échéance le {_iso(c['valid_to'])}",
+                f"Certification {c['scheme']} : échéance le {fr_format.fr_date(c['valid_to'])}",
                 "cert",
                 certification_id=c["id"],
             )
@@ -187,9 +188,9 @@ async def todo(org_id: int, company_user_id: int | None) -> list[dict]:
                 "risk" if s["overdue"] else "warn",
                 f"État annuel {s['year']} à transmettre"
                 + (
-                    f" : en retard depuis le {_iso(s['due'])}"
+                    f" : en retard depuis le {fr_format.fr_date(s['due'])}"
                     if s["overdue"]
-                    else f" avant le {_iso(s['due'])}"
+                    else f" avant le {fr_format.fr_date(s['due'])}"
                 )
                 + " (art. 244)",
                 "tracabilite",
@@ -201,7 +202,7 @@ async def todo(org_id: int, company_user_id: int | None) -> list[dict]:
             _todo(
                 "aac_deadline",
                 "risk" if a["overdue"] else "warn",
-                f"{a['label']} : ouverture limitée à 3 ans, échéance le {_iso(a['deadline'])} (art. 121)",
+                f"{a['label']} : ouverture limitée à 3 ans, échéance le {fr_format.fr_date(a['deadline'])} (art. 121)",
                 "titres",
                 aac_id=a["id"],
             )
@@ -211,7 +212,7 @@ async def todo(org_id: int, company_user_id: int | None) -> list[dict]:
             _todo(
                 "authorization_expiring",
                 "warn",
-                f"Autorisation {a['aac_label']} : fin de validité le {_iso(a['valid_to'])}",
+                f"Autorisation {a['aac_label']} : fin de validité le {fr_format.fr_date(a['valid_to'])}",
                 "titres",
                 authorization_id=a["id"],
             )
@@ -221,7 +222,7 @@ async def todo(org_id: int, company_user_id: int | None) -> list[dict]:
             _todo(
                 "document_expiring",
                 "warn",
-                f"{d['label']} : expire le {_iso(d['expires_at'])}",
+                f"{d['label']} : expire le {fr_format.fr_date(d['expires_at'])}",
                 "documents",
                 document_id=d["id"],
             )
@@ -300,6 +301,8 @@ async def decisions(org_id: int) -> list[dict]:
         item = dict(r)
         item["decided_at"] = _iso(item.get("decided_at"))
         item["outcome"] = "rejet" if item["status"] in _REJECTED else "accord"
+        if item["kind"] == "authorizations":
+            item["label"] = fr_format.with_authorization_label(item["label"])
         item.update(authorities.competence(_QUEUE_AUTHORITY.get(item["kind"])))
         out.append(item)
     return out

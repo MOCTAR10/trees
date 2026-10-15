@@ -81,7 +81,7 @@ class FakeDb:
         s = " ".join(sql.split()).lower()
         if "where id=$1 and is_active" in s:
             return {"id": args[0]} if args[0] in USERS else None
-        if "cooperative_name as name" in s or "display_name as name" in s:
+        if "cooperative_name as name" in s or "as name from users u" in s:
             return {"name": "Scierie Demo"}
         if "from users where id" in s:
             return USERS.get(args[0])

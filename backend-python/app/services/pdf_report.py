@@ -27,6 +27,8 @@ from reportlab.platypus import (
     TableStyle,
 )
 
+from app.core import fr_format
+
 FOREST = colors.HexColor("#2E7D32")
 DARK = colors.HexColor("#144A1A")
 LIGHT = colors.HexColor("#E8F5E9")
@@ -494,12 +496,7 @@ EUDR_STATUS_LABEL = {
     "valide": "Validé",
     "rejete": "Rejeté",
 }
-AUTHORIZATION_TYPE_LABEL = {
-    "certificat_assiette": "Certificat annuel d'assiette de coupe",
-    "permis_annuel_operations": "Permis annuel d'opérations",
-    "certificat_vente_coupe": "Certificat de vente de coupe",
-    "cae": "Cahier des charges (CAE)",
-}
+AUTHORIZATION_TYPE_LABEL = dict(fr_format.AUTHORIZATION_TYPE_LABEL)
 AUTHORIZATION_STATUS_LABEL = {
     "soumis": "Soumis",
     "delivre": "Délivré",
@@ -524,10 +521,7 @@ STUDY_STATUS_LABEL = {
     "rejete": "Rejeté",
     "expire": "Expiré",
 }
-CERT_TYPE_LABEL = {
-    "gestion_durable": "Gestion durable",
-    "legalite_plus": "Légalité plus",
-}
+CERT_TYPE_LABEL = dict(fr_format.CERT_TYPE_LABEL)
 CERT_STATUS_LABEL = {
     "soumis": "Soumis",
     "actif": "Actif",

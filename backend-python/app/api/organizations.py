@@ -5,7 +5,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from app.core import security
+from app.core import fr_format, security
 from app.core.deps import require_roles
 from app.services import compliance, db, ministry, org_backfill
 
@@ -227,6 +227,20 @@ async def _community_cooperative(org: dict, body: AccountIn) -> int:
     return row["id"]
 
 
+async def _labelled_warnings(org_id: int) -> list[dict]:
+    """Org warnings with the French label of each document and tax."""
+    warnings = await compliance.assess_org_warnings(org_id)
+    docs = {
+        r["code"]: r["label"] for r in await db.fetch_all("SELECT code, label FROM document_types")
+    }
+    for w in warnings:
+        if w.get("doc_type"):
+            w["label"] = docs.get(w["doc_type"], w["doc_type"])
+        elif w.get("tax_type"):
+            w["label"] = fr_format.TAX_TYPE_LABEL.get(w["tax_type"], w["tax_type"])
+    return warnings
+
+
 @router.get("/directory")
 async def directory(
     province: str | None = Query(None),
@@ -270,7 +284,7 @@ async def organisation_sheet(org_id: int, _admin: dict = Depends(require_roles("
         "titles": [dict(t) for t in titles],
         "accounts": [dict(a) for a in accounts],
         "certifications": [dict(c) for c in certifications],
-        "warnings": await compliance.assess_org_warnings(org_id),
+        "warnings": await _labelled_warnings(org_id),
     }
 
 

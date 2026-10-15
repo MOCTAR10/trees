@@ -82,6 +82,12 @@ class Fake:
 
     async def fetch_one(self, sql, *args):
         s = " ".join(sql.split()).lower()
+        if s.startswith("select count(*) as n, min(q.created_at) as oldest"):
+            if "from felling_declarations d" in s:
+                return {"n": 1, "oldest": "2026-10-08"}
+            if "from environmental_studies s" in s:
+                return {"n": 1, "oldest": "2026-10-12"}
+            return {"n": 0, "oldest": None}
         if "from users where id" in s:
             return USERS.get(args[0])
         if "from users where lower(email)" in s:
