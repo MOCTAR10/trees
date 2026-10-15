@@ -23,6 +23,7 @@ import { makeStyles, useTheme } from "../design/ThemeProvider";
 const FLAG = { green: "#009E60", gold: "#FEED01", blue: "#4664B2" };
 
 const LEAF_LOGO = require("../../assets/leaf_logo.jpg");
+const FOREST = require("../../assets/login-forest.jpg");
 const GREENLEAVE_LOGO = require("../../assets/greenleave_logo.png");
 
 interface Props {
@@ -107,6 +108,9 @@ export default function LoginScreen({ onLogin }: Props) {
           style={[styles.officialSection, compact && !split && styles.officialCompact, split && styles.officialSplit]}
           testID="login-header"
         >
+          {split ? (
+            <Image source={FOREST} style={styles.forest} resizeMode="cover" accessibilityElementsHidden importantForAccessibility="no" />
+          ) : null}
           <View style={[styles.emblem, compact && styles.emblemCompact]}>
             <Image
               source={LEAF_LOGO}
@@ -294,6 +298,7 @@ const useStyles = makeStyles((th) => ({
   },
   scrollCompact: { paddingBottom: th.space.sm },
   screenSplit: { flexDirection: "row" },
+  forest: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, width: "100%", height: "100%", opacity: 0.22 },
   officialSplit: {
     alignSelf: "stretch",
     width: "42%",
@@ -303,6 +308,7 @@ const useStyles = makeStyles((th) => ({
     paddingHorizontal: th.space.xxl,
     borderRightWidth: 3,
     borderRightColor: th.c.gold,
+    overflow: "hidden",
   },
   emblemSealSplit: { width: 220, height: 148 },
   republicSplit: { fontSize: 16, marginTop: th.space.md },
