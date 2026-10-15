@@ -11,6 +11,14 @@ services:
       - "127.0.0.1:8000:8000"
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips=*
     restart: unless-stopped
+    # Over-the-air updates of the mobile app: published by Jenkins, manifests signed
+    # with the server's private key (never in the repository).
+    environment:
+      UPDATES_DIR: /updates
+      UPDATES_PRIVATE_KEY: /run/secrets/updates-key.pem
+    volumes:
+      - /var/www/trees-updates:/updates:ro
+      - /etc/trees/updates/private-key.pem:/run/secrets/updates-key.pem:ro
 
   gateway:
     ports: !override

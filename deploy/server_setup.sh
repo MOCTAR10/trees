@@ -68,6 +68,11 @@ sed "s/__DOMAIN__/$DOMAINS/g" deploy/nginx/trees.conf > /etc/nginx/sites-availab
 ln -sf /etc/nginx/sites-available/trees.conf /etc/nginx/sites-enabled/trees.conf
 rm -f /etc/nginx/sites-enabled/default
 cp deploy/nginx/cloudflare-realip.conf /etc/nginx/conf.d/cloudflare-realip.conf
+mkdir -p /var/www/trees-updates && chown 1000:1000 /var/www/trees-updates
+cp deploy/nginx/trees-updates.snippet /etc/nginx/snippets/trees-updates.conf
+grep -q "snippets/trees-updates.conf" /etc/nginx/sites-available/trees.conf   || sed -i "0,/location \/ {/s//include snippets\/trees-updates.conf;
+
+    location \/ {/" /etc/nginx/sites-available/trees.conf
 nginx -t && systemctl reload nginx
 if ! certbot certificates 2>/dev/null | grep -q "Domains: $DOMAIN"; then
   contact=(--register-unsafely-without-email)

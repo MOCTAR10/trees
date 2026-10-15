@@ -15,6 +15,7 @@ services:
       - android_sdk:/opt/android-sdk
       - /etc/trees/android:/var/jenkins_secrets:ro
       - /var/www/trees-apk:/var/www/trees-apk
+      - /var/www/trees-updates:/var/www/trees-updates
     cpu_shares: 128
     cpus: 4
     mem_limit: 7g
