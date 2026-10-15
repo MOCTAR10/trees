@@ -296,6 +296,25 @@ async def _title(item_id: int) -> tuple[list, list, list]:
     return facts, checks, []
 
 
+async def _followup(item_id: int) -> tuple[list, list, list]:
+    from app.services import controls
+
+    f = await controls.get_followup(item_id)
+    facts = _facts(
+        ("Suite", f["label"]),
+        ("PV", f.get("pv_reference")),
+        ("Montant (FCFA)", fr_format.fr_num(f["amount_fcfa"]) if f.get("amount_fcfa") else None),
+        ("Échéance", f.get("due_at")),
+        ("Notifiée le", f.get("created_at")),
+        ("Constat", f.get("notes")),
+        ("Contestation", f.get("reply")),
+    )
+    checks = [
+        _check("warn", "L'organisation conteste la suite : accepter l'annule, rejeter la maintient")
+    ]
+    return facts, checks, []
+
+
 _DETAIL = {
     "declarations": _declaration,
     "documents": _document,
@@ -305,6 +324,7 @@ _DETAIL = {
     "certifications": _certification,
     "eudr": _eudr,
     "titles": _title,
+    "followups": _followup,
 }
 
 #: What "approve" means for each queue (verb shown on the button).
@@ -317,6 +337,7 @@ APPROVE_LABEL = {
     "certifications": "Activer",
     "eudr": "Valider",
     "titles": "Autoriser l'exploration",
+    "followups": "Accepter la contestation",
 }
 
 
@@ -337,7 +358,7 @@ async def detail(kind: str, item_id: int) -> dict:
 
 async def decide(kind: str, item_id: int, approve: bool, motif: str | None, admin: dict) -> dict:
     """Apply the decision through the domain endpoint (its rules, its checks)."""
-    from app.api import certifications, documents, eudr, felling, titles
+    from app.api import certifications, controls, documents, eudr, felling, titles
 
     motif = (motif or "").strip() or None
     if not approve and not motif:
@@ -374,4 +395,10 @@ async def decide(kind: str, item_id: int, approve: bool, motif: str | None, admi
     if kind == "titles":
         body = titles.TitleDecisionIn(decision="exploration" if approve else "rejete", motif=motif)
         return await titles.decide_title(item_id, body, admin=admin)
+    if kind == "followups":
+        body = controls.FollowupStatus(
+            status="annule" if approve else "notifie",
+            motif=motif or "Contestation acceptée par le Ministère",
+        )
+        return await controls.set_followup_status(item_id, body, admin=admin)
     raise HTTPException(status_code=404, detail="Type de dossier inconnu")

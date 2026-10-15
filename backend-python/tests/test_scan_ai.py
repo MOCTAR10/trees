@@ -232,11 +232,37 @@ def test_scan_links_own_registry_tree(client, monkeypatch):
     assert "GA-OWN" in persisted["args"]
 
 
+def test_unknown_code_scanned_by_a_company_is_inventoried(client, monkeypatch):
+    install_v1_fakes(monkeypatch)
+    calls = []
+
+    async def fake_execute(sql, *args):
+        calls.append((" ".join(sql.split()).lower(), args))
+        return "INSERT 0 1"
+
+    monkeypatch.setattr(v1.db, "execute", fake_execute)
+    headers = _auth(monkeypatch, _COMPANY)
+    resp = _post(client, headers=headers, circumference_cm="196", tree_code="GA-NEW-001")
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["tree_code"] == "GA-NEW-001"
+    assert "tree_inventoried" in body["measurement_notes"]
+    registry = [a for s, a in calls if s.startswith("insert into tree_registry")]
+    assert registry and registry[0][0] == "GA-NEW-001"
+    assert "'inventorie'" in calls[0][0]
+    assert registry[0][5] == 7 and registry[0][9] == 10
+    scan = [a for s, a in calls if s.startswith("insert into tree_scans")]
+    assert "GA-NEW-001" in scan[0]
+
+
 def test_scan_link_rules(client, monkeypatch):
     install_v1_fakes(monkeypatch)
     assert _post(client, tree_code="GA-OWN").status_code == 401
-    headers = _auth(monkeypatch, _COMPANY)
+    coop = {**_COMPANY, "id": 9, "email": "coop@x", "role": "cooperative"}
+    headers = _auth(monkeypatch, coop)
     assert _post(client, headers=headers, tree_code="GA-NOPE").status_code == 404
+    headers = _auth(monkeypatch, _COMPANY)
+    assert _post(client, headers=headers, tree_code="x").status_code == 404
     other = {**_COMPANY, "id": 8, "email": "other@x"}
     headers = _auth(monkeypatch, other)
     assert _post(client, headers=headers, tree_code="GA-OWN").status_code == 403

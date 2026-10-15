@@ -68,3 +68,11 @@ def with_authorization_label(text: str | None) -> str:
         if text.startswith(code):
             return label + text[len(code) :]
     return text
+
+
+def pv_label(reference: str | None) -> str:
+    """``"PV-2026-01"`` stays as is; ``"2026/01"`` → ``"PV 2026/01"`` (empty when missing)."""
+    ref = (reference or "").strip()
+    if not ref:
+        return ""
+    return ref if ref.upper().startswith("PV") else f"PV {ref}"

@@ -28,3 +28,9 @@ def test_authorization_labels():
         == "Permis annuel d'opérations · AAC-1"
     )
     assert fr_format.with_authorization_label(None) == ""
+
+
+def test_pv_label():
+    assert fr_format.pv_label("PV-DEMO-002") == "PV-DEMO-002"
+    assert fr_format.pv_label("2026/01") == "PV 2026/01"
+    assert fr_format.pv_label(None) == ""

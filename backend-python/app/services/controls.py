@@ -7,6 +7,7 @@ control and its result. A non-compliant control becomes an anomaly.
 """
 
 import json
+from datetime import date
 
 from fastapi import HTTPException
 
@@ -267,4 +268,177 @@ async def get_control(control_id: int) -> dict | None:
     findings = item.get("findings")
     item["findings"] = json.loads(findings) if isinstance(findings, str) else (findings or [])
     item.update(authorities.competence(CONTROL_AUTHORITY.get(item["control_type"])))
+    item["followups"] = await list_followups(control_id)
     return item
+
+
+FOLLOWUP_TYPES = (
+    "mise_en_demeure",
+    "amende",
+    "transaction",
+    "saisie",
+    "suspension",
+    "poursuite",
+)
+FOLLOWUP_LABELS = {
+    "mise_en_demeure": "Mise en demeure",
+    "amende": "Amende",
+    "transaction": "Transaction",
+    "saisie": "Saisie des produits",
+    "suspension": "Suspension d'activité",
+    "poursuite": "Poursuites judiciaires",
+}
+FOLLOWUP_STATUS_LABELS = {
+    "notifie": "Notifiée",
+    "en_retard": "En retard",
+    "conteste": "Contestée",
+    "execute": "Exécutée",
+    "annule": "Annulée",
+}
+_WITH_AMOUNT = ("amende", "transaction")
+_FOLLOWUP_COLS = """
+    f.id, f.control_id, f.action_type, f.amount_fcfa, f.reference, f.due_at, f.status, f.notes,
+    f.reply, f.replied_at, f.decision_motif, f.close_motif, f.closed_at, f.created_at,
+    c.org_id, c.pv_reference, c.control_type, o.name AS org_name
+"""
+_FOLLOWUP_FROM = """
+    FROM control_followups f
+    JOIN field_controls c ON c.id = f.control_id
+    LEFT JOIN organizations o ON o.id = c.org_id
+"""
+
+
+def _followup(row, today: date | None = None) -> dict:
+    item = dict(row)
+    today = today or date.today()
+    due = item.get("due_at")
+    overdue = item["status"] == "notifie" and due is not None and due < today
+    item["display_status"] = "en_retard" if overdue else item["status"]
+    item["label"] = FOLLOWUP_LABELS.get(item["action_type"], item["action_type"])
+    item["status_label"] = FOLLOWUP_STATUS_LABELS[item["display_status"]]
+    item.update(authorities.competence(CONTROL_AUTHORITY.get(item.get("control_type"))))
+    return item
+
+
+async def list_followups(control_id: int) -> list[dict]:
+    rows = await db.fetch_all(
+        f"SELECT {_FOLLOWUP_COLS} {_FOLLOWUP_FROM} WHERE f.control_id = $1 ORDER BY f.id",
+        control_id,
+    )
+    return [_followup(r) for r in rows]
+
+
+async def get_followup(followup_id: int) -> dict | None:
+    row = await db.fetch_one(
+        f"SELECT {_FOLLOWUP_COLS} {_FOLLOWUP_FROM} WHERE f.id = $1", followup_id
+    )
+    return _followup(row) if row else None
+
+
+async def open_followups(org_id: int | None = None) -> list[dict]:
+    """Follow-ups still to execute (notified or contested), oldest due date first."""
+    rows = await db.fetch_all(
+        f"SELECT {_FOLLOWUP_COLS} {_FOLLOWUP_FROM}"
+        " WHERE f.status IN ('notifie', 'conteste') AND ($1::int IS NULL OR c.org_id = $1)"
+        " ORDER BY f.due_at NULLS LAST, f.id",
+        org_id,
+    )
+    return [_followup(r) for r in rows]
+
+
+async def add_followup(control_id: int, body: dict, admin: dict) -> dict:
+    control = await db.fetch_one(
+        "SELECT id, result, org_id FROM field_controls WHERE id = $1", control_id
+    )
+    if control is None:
+        raise HTTPException(status_code=404, detail="Contrôle introuvable")
+    if control["result"] == "conforme":
+        raise HTTPException(status_code=409, detail="Un contrôle conforme n'appelle pas de suite")
+    if control["org_id"] is None:
+        raise HTTPException(
+            status_code=409, detail="Contrôle sans organisation : la suite n'a pas de destinataire"
+        )
+    action = body["action_type"]
+    amount = body.get("amount_fcfa")
+    if action in _WITH_AMOUNT and not amount:
+        raise HTTPException(
+            status_code=422, detail=f"Montant requis pour une {FOLLOWUP_LABELS[action].lower()}"
+        )
+    row = await db.fetch_one(
+        """
+        INSERT INTO control_followups
+            (control_id, action_type, amount_fcfa, reference, due_at, notes, decided_by)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING id
+        """,
+        control_id,
+        action,
+        amount if action in _WITH_AMOUNT else None,
+        (body.get("reference") or "").strip() or None,
+        body.get("due_at"),
+        (body.get("notes") or "").strip() or None,
+        admin["id"],
+    )
+    return await get_followup(row["id"])
+
+
+async def set_followup_status(
+    followup_id: int, status: str, motif: str | None, admin: dict
+) -> dict:
+    """Execute or cancel a follow-up; answer a contestation (cancel or maintain)."""
+    current = await get_followup(followup_id)
+    if current is None:
+        raise HTTPException(status_code=404, detail="Suite introuvable")
+    if current["status"] in ("execute", "annule"):
+        raise HTTPException(status_code=409, detail="Suite déjà close")
+    motif = (motif or "").strip() or None
+    if status == "notifie":
+        if current["status"] != "conteste":
+            raise HTTPException(status_code=409, detail="Aucune contestation à rejeter")
+        if not motif:
+            raise HTTPException(status_code=400, detail="Motif obligatoire pour maintenir la suite")
+        await db.execute(
+            "UPDATE control_followups SET status = 'notifie', decision_motif = $1,"
+            " decided_by = $2 WHERE id = $3",
+            motif,
+            admin["id"],
+            followup_id,
+        )
+        return await get_followup(followup_id)
+    if status == "execute" and current["status"] == "conteste":
+        raise HTTPException(
+            status_code=409, detail="Statuez d'abord sur la contestation de l'organisation"
+        )
+    if status == "annule" and not motif:
+        raise HTTPException(status_code=400, detail="Motif obligatoire pour annuler une suite")
+    await db.execute(
+        "UPDATE control_followups SET status = $1, close_motif = $2, closed_by = $3,"
+        " closed_at = now() WHERE id = $4",
+        status,
+        motif,
+        admin["id"],
+        followup_id,
+    )
+    return await get_followup(followup_id)
+
+
+async def contest_followup(followup_id: int, reply: str, user: dict) -> dict:
+    current = await get_followup(followup_id)
+    if current is None:
+        raise HTTPException(status_code=404, detail="Suite introuvable")
+    if current["org_id"] != user.get("organization_id"):
+        raise HTTPException(status_code=403, detail="Suite d'une autre organisation")
+    if current["status"] != "notifie":
+        raise HTTPException(status_code=409, detail="Seule une suite notifiée peut être contestée")
+    if current.get("reply"):
+        raise HTTPException(status_code=409, detail="Suite déjà contestée une fois")
+    reply = (reply or "").strip()
+    if not reply:
+        raise HTTPException(status_code=400, detail="Motif de la contestation obligatoire")
+    await db.execute(
+        "UPDATE control_followups SET status = 'conteste', reply = $1, replied_at = now()"
+        " WHERE id = $2",
+        reply,
+        followup_id,
+    )
+    return await get_followup(followup_id)

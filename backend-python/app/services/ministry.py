@@ -104,6 +104,30 @@ QUEUES: dict[str, dict] = {
             WHERE e.status = 'soumis'
         """,
     },
+    "followups": {
+        "label": "Contestations de suites de contrôle",
+        "authority": "Selon le contrôle",
+        "sql": """
+            SELECT f.id, 'Contestation · ' || CASE f.action_type
+                       WHEN 'mise_en_demeure' THEN 'Mise en demeure'
+                       WHEN 'amende' THEN 'Amende'
+                       WHEN 'transaction' THEN 'Transaction'
+                       WHEN 'saisie' THEN 'Saisie des produits'
+                       WHEN 'suspension' THEN 'Suspension d''activité'
+                       ELSE 'Poursuites judiciaires' END
+                   || COALESCE(' · ' || CASE WHEN c.pv_reference ILIKE 'PV%' THEN c.pv_reference
+                                             ELSE 'PV ' || c.pv_reference END, '') AS label,
+                   o.name AS org_name, f.replied_at AS created_at, mu.title_id,
+                   CASE c.control_type WHEN 'transformation' THEN 'DGICBVPF'
+                        WHEN 'route' THEN 'DGF' ELSE 'Direction Provinciale' END AS authority
+            FROM control_followups f
+            JOIN field_controls c ON c.id = f.control_id
+            LEFT JOIN organizations o ON o.id = c.org_id
+            LEFT JOIN annual_cut_blocks b ON b.id = c.aac_id
+            LEFT JOIN management_units mu ON mu.id = b.ufa_id
+            WHERE f.status = 'conteste'
+        """,
+    },
     "titles": {
         "label": "Demandes de titre",
         "authority": "DGF",

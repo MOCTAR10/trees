@@ -5,6 +5,7 @@ import io
 import json
 import logging
 import math
+import re
 import statistics
 import uuid
 from dataclasses import dataclass, field
@@ -435,10 +436,26 @@ async def _prepare_ai(views: list[dict], ar_depth_m: float | None) -> float | No
     return ai_models.trunk_distance_m(depth, first.get("ai_mask"))
 
 
-async def _linked_tree_code(tree_code: str | None, user: dict | None) -> str | None:
-    """Validate the registry tree a scan is attached to (QR / typed code)."""
+INVENTORY_CODE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{2,39}$")
+
+
+def _tree_company(user: dict) -> int | None:
+    """Company account a field user inventories for (the company itself or the employer)."""
+    if user["role"] == "company":
+        return user["id"]
+    if user["role"] == "operator":
+        return user.get("company_id")
+    return None
+
+
+async def _linked_tree_code(tree_code: str | None, user: dict | None) -> tuple[str | None, bool]:
+    """Validate the registry tree a scan is attached to (QR / typed code).
+
+    Returns ``(code, to_inventory)``: an unknown code scanned by a field user of a
+    company enters the registry as ``inventorie`` when the scan is stored.
+    """
     if not tree_code or not tree_code.strip():
-        return None
+        return None, False
     code = tree_code.strip()
     if user is None:
         raise HTTPException(status_code=401, detail="Connexion requise pour lier un arbre")
@@ -446,12 +463,66 @@ async def _linked_tree_code(tree_code: str | None, user: dict | None) -> str | N
         "SELECT tree_code, company_id FROM tree_registry WHERE tree_code=$1", code
     )
     if tree is None:
+        if _tree_company(user) and INVENTORY_CODE.match(code):
+            return code, True
         raise HTTPException(status_code=404, detail="Arbre inconnu au registre")
-    if user["role"] != "admin":
-        owner = user["id"] if user["role"] == "company" else user.get("company_id")
-        if tree["company_id"] != owner:
-            raise HTTPException(status_code=403, detail="Arbre d'une autre entreprise")
-    return code
+    if user["role"] != "admin" and tree["company_id"] != _tree_company(user):
+        raise HTTPException(status_code=403, detail="Arbre d'une autre entreprise")
+    return code, False
+
+
+async def _inventory_tree(
+    code: str,
+    user: dict,
+    species: str | None,
+    dbh_cm: float | None,
+    latitude: float,
+    longitude: float,
+    project_id: int | None,
+) -> bool:
+    """Enter a newly marked stem in the registry (status ``inventorie``)."""
+    aac = None
+    if project_id:
+        aac = await db.fetch_one(
+            "SELECT a.id AS aac_id, a.label, m.title_id FROM projects p"
+            " JOIN annual_cut_blocks a ON a.id = p.aac_id"
+            " JOIN management_units m ON m.id = a.ufa_id WHERE p.id = $1",
+            project_id,
+        )
+    if aac is None and user.get("organization_id"):
+        aac = await db.fetch_one(
+            "SELECT a.id AS aac_id, a.label, m.title_id FROM annual_cut_blocks a"
+            " JOIN management_units m ON m.id = a.ufa_id"
+            " JOIN forest_titles t ON t.id = m.title_id"
+            " WHERE t.holder_org_id = $1 AND a.geom IS NOT NULL"
+            " AND ST_Covers(a.geom, ST_SetSRID(ST_MakePoint($3, $2), 4326))"
+            " ORDER BY a.id DESC LIMIT 1",
+            user["organization_id"],
+            latitude,
+            longitude,
+        )
+    aac = dict(aac) if aac else {}
+    try:
+        await db.execute(
+            "INSERT INTO tree_registry (tree_code, marking_type, geom, species_scientific_name,"
+            " measured_dbh_cm, company_id, status, aac_id, aac_label, title_id, custodian_org_id)"
+            " VALUES ($1, 'qr', ST_SetSRID(ST_MakePoint($3, $2), 4326), $4, $5, $6, 'inventorie',"
+            " $7, $8, $9, $10) ON CONFLICT (tree_code) DO NOTHING",
+            code,
+            latitude,
+            longitude,
+            species,
+            dbh_cm,
+            _tree_company(user),
+            aac.get("aac_id"),
+            aac.get("label"),
+            aac.get("title_id"),
+            user.get("organization_id"),
+        )
+    except Exception as exc:
+        logger.warning("inventory of %s failed: %s", code, exc)
+        return False
+    return True
 
 
 def _save_labelled_media(views: list[dict], dbh: "DbhResolution") -> str | None:
@@ -547,7 +618,7 @@ async def process_scan(
     ),
     user: dict | None = Depends(get_optional_user),
 ):
-    linked_code = await _linked_tree_code(tree_code, user)
+    linked_code, to_inventory = await _linked_tree_code(tree_code, user)
     scan_project, project_title, project_note = await projects.resolve_scan_project(
         project_id, user, latitude, longitude
     )
@@ -567,7 +638,7 @@ async def process_scan(
     plate_note = None
     if plate and plate.code and linked_code is None and user is not None:
         try:
-            linked_code = await _linked_tree_code(plate.code, user)
+            linked_code, to_inventory = await _linked_tree_code(plate.code, user)
         except HTTPException:
             plate_note = "qr_tree_unknown"
 
@@ -692,6 +763,13 @@ async def process_scan(
         {"organ": v["organ"], "azimuth": v["azimuth"], "sharpness": round(v["sharpness"], 1)}
         for v in views
     ]
+    if linked_code and to_inventory and user is not None:
+        if await _inventory_tree(
+            linked_code, user, species_name, dbh_cm, latitude, longitude, scan_project
+        ):
+            dbh.notes.append("tree_inventoried")
+        else:
+            linked_code = None
     try:
         await db.execute(
             """

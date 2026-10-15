@@ -296,6 +296,10 @@ async def create_linked_account(
     org = await db.fetch_one("SELECT id, org_type, name FROM organizations WHERE id = $1", org_id)
     if org is None:
         raise HTTPException(status_code=404, detail="Organisation introuvable")
+    return await _create_account(dict(org), body)
+
+
+async def _create_account(org: dict, body: AccountIn, employer: int | None = None) -> dict:
     if await db.fetch_one(
         "SELECT id FROM users WHERE lower(email) = lower($1)", body.email.strip()
     ):
@@ -307,15 +311,12 @@ async def create_linked_account(
         display = org["name"]
     if not display:
         raise HTTPException(status_code=422, detail="Prénom et nom requis")
-    cooperative_id = (
-        await _community_cooperative(dict(org), body) if body.role == "cooperative" else None
-    )
-    employer = None
-    if body.role == "operator":
+    cooperative_id = await _community_cooperative(org, body) if body.role == "cooperative" else None
+    if body.role == "operator" and employer is None:
         manager = await db.fetch_one(
             "SELECT min(id) AS id FROM users"
             " WHERE organization_id = $1 AND role = 'company' AND is_active",
-            org_id,
+            org["id"],
         )
         employer = manager["id"] if manager else None
     row = await db.fetch_one(
@@ -331,20 +332,84 @@ async def create_linked_account(
         display,
         body.role,
         security.hash_password(body.password),
-        org_id,
+        org["id"],
         first,
         last,
         (body.matricule or "").strip() or None,
         cooperative_id,
-        employer,
+        employer if body.role == "operator" else None,
     )
     if body.role == "company":
         await db.execute(
             "UPDATE users SET company_id = $1 WHERE organization_id = $2 AND role = 'operator'"
             " AND company_id IS NULL",
             row["id"],
-            org_id,
+            org["id"],
         )
+    return dict(row)
+
+
+class AgentIn(BaseModel):
+    email: str = Field(..., min_length=3)
+    password: str = Field(..., min_length=8)
+    first_name: str = Field(..., min_length=1)
+    last_name: str = Field(..., min_length=1)
+    matricule: str | None = None
+
+
+class AgentPatch(BaseModel):
+    is_active: bool
+
+
+_AGENT_COLS = (
+    "id, email, display_name, first_name, last_name, matricule, is_active, created_at,"
+    " (SELECT max(s.created_at) FROM tree_scans s WHERE s.user_id = users.id) AS last_scan_at"
+)
+
+
+@router.get("/me/agents")
+async def my_agents(user: dict = Depends(require_roles("company"))):
+    """Field agents of the company (active first)."""
+    org_id = require_org(user)
+    rows = await db.fetch_all(
+        f"SELECT {_AGENT_COLS} FROM users WHERE organization_id = $1 AND role = 'operator'"
+        " ORDER BY is_active DESC, display_name",
+        org_id,
+    )
+    return [dict(r) for r in rows]
+
+
+@router.post("/me/agents", status_code=201)
+async def create_my_agent(body: AgentIn, user: dict = Depends(require_roles("company"))):
+    """The company opens a field agent account itself (employer = this company)."""
+    org_id = require_org(user)
+    org = await db.fetch_one("SELECT id, org_type, name FROM organizations WHERE id = $1", org_id)
+    account = AccountIn(
+        email=body.email,
+        password=body.password,
+        role="operator",
+        first_name=body.first_name,
+        last_name=body.last_name,
+        matricule=body.matricule,
+    )
+    return await _create_account(dict(org), account, employer=user["id"])
+
+
+@router.patch("/me/agents/{agent_id}")
+async def update_my_agent(
+    agent_id: int, body: AgentPatch, user: dict = Depends(require_roles("company"))
+):
+    """Suspend or reactivate an agent of the company (the history of an agent who leaves is kept)."""
+    org_id = require_org(user)
+    row = await db.fetch_one(
+        f"UPDATE users SET is_active = $1 WHERE id = $2 AND organization_id = $3"
+        f" AND role = 'operator' RETURNING {_AGENT_COLS}",
+        body.is_active,
+        agent_id,
+        org_id,
+    )
+    if row is None:
+        raise HTTPException(status_code=404, detail="Agent introuvable dans votre organisation")
     return dict(row)
 
 

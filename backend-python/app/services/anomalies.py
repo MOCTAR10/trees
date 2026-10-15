@@ -15,7 +15,7 @@ import json
 from datetime import UTC, date, datetime
 
 from app.core import fr_format
-from app.services import db, deadlines
+from app.services import controls, db, deadlines, mill
 
 HARD = "hard"
 WARNING = "warning"
@@ -35,6 +35,8 @@ TYPES: dict[str, str] = {
     "controle_non_conforme": HARD,
     "aac_ouverture_depassee": WARNING,
     "etat_annuel_non_transmis": WARNING,
+    "rendement_matiere_anormal": WARNING,
+    "suite_controle_en_retard": HARD,
 }
 
 LABELS: dict[str, str] = {
@@ -50,6 +52,8 @@ LABELS: dict[str, str] = {
     "controle_non_conforme": "Contrôle terrain non conforme",
     "aac_ouverture_depassee": "AAC ouverte au-delà de 3 ans (art. 121)",
     "etat_annuel_non_transmis": "État annuel non transmis au 31 mars (art. 244)",
+    "rendement_matiere_anormal": "Sorties d'usine supérieures aux grumes reçues",
+    "suite_controle_en_retard": "Suite d'un contrôle non exécutée à l'échéance",
 }
 
 REVIEW_STATUSES = ("ouverte", "traitee", "ecartee")
@@ -425,6 +429,45 @@ async def _etat_annuel_non_transmis() -> list[dict]:
     ]
 
 
+async def _rendement_matiere_anormal() -> list[dict]:
+    items = []
+    for r in await mill.yield_alerts():
+        received = fr_format.fr_num(r["input_m3"], 1)
+        produced = fr_format.fr_num(r["output_m3"], 1)
+        ratio = f" ({fr_format.fr_num(r['yield_pct'], 1)} %)" if r["yield_pct"] is not None else ""
+        items.append(
+            _item(
+                "rendement_matiere_anormal",
+                f"usine:{r['org_id']}:{r['year']}",
+                f"Registre de transformation {r['year']}",
+                f"{produced} m³ produits pour {received} m³ reçus{ratio}"
+                f" — seuil {r['max_yield_pct']} %",
+                org_id=r["org_id"],
+                org_name=r["org_name"],
+                detected_at=r.get("last_at"),
+            )
+        )
+    return items
+
+
+async def _suite_controle_en_retard() -> list[dict]:
+    return [
+        _item(
+            "suite_controle_en_retard",
+            f"suite:{f['id']}",
+            f"{f['label']}"
+            + (f" · {fr_format.pv_label(f['pv_reference'])}" if f.get("pv_reference") else ""),
+            f"Échéance {fr_format.fr_date(f['due_at'])}"
+            + (f" — {fr_format.fr_num(f['amount_fcfa'])} FCFA" if f.get("amount_fcfa") else ""),
+            org_id=f["org_id"],
+            org_name=f["org_name"],
+            detected_at=f["due_at"],
+        )
+        for f in await controls.open_followups()
+        if f["display_status"] == "en_retard"
+    ]
+
+
 _DETECTORS = (
     _below_dme,
     _felled_without_authorization,
@@ -438,6 +481,8 @@ _DETECTORS = (
     _controle_non_conforme,
     _aac_ouverture_depassee,
     _etat_annuel_non_transmis,
+    _rendement_matiere_anormal,
+    _suite_controle_en_retard,
 )
 
 

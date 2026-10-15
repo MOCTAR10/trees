@@ -75,6 +75,7 @@ async def _check_line(
     outside_aac: bool = False,
     ufa_dme: dict[str, dict] | None = None,
     spatial: dict | None = None,
+    company_id: int | None = None,
 ) -> tuple[float | None, str | None, list[str]]:
     """Auto-compliance checks for one declared stem (Loi 016/01 Art. 124).
 
@@ -106,9 +107,16 @@ async def _check_line(
     if spatial and spatial.get("outside_concession"):
         violations.append("outside_concession")
     existing = await db.fetch_one(
-        "SELECT tree_code FROM tree_registry WHERE tree_code=$1", line.tree_code
+        "SELECT tree_code, status, company_id FROM tree_registry WHERE tree_code=$1",
+        line.tree_code,
     )
-    if existing is not None:
+    own_inventory = (
+        existing is not None
+        and existing.get("status") == "inventorie"
+        and company_id is not None
+        and existing.get("company_id") == company_id
+    )
+    if existing is not None and not own_inventory:
         violations.append("duplicate_code")
     return dme_cm, source, violations
 
@@ -170,6 +178,7 @@ async def declare(
             outside_aac=line.tree_code.strip() in outside_codes,
             ufa_dme=ufa_dme,
             spatial=spatial.get(line.tree_code.strip()),
+            company_id=company_id,
         )
         checked.append(
             {
@@ -430,8 +439,8 @@ async def list_trees(
     if user["role"] == "admin":
         rows = await db.fetch_all(
             "SELECT id, tree_code, marking_type, species_scientific_name, measured_dbh_cm,"
-            " status, permit_number, aac_label, ST_Y(geom) AS latitude, ST_X(geom) AS longitude,"
-            " created_at FROM tree_registry"
+            " status, permit_number, aac_label, aac_id, ST_Y(geom) AS latitude,"
+            " ST_X(geom) AS longitude, created_at FROM tree_registry"
             + (" WHERE status = $1" if status else "")
             + " ORDER BY created_at DESC LIMIT 500",
             *([status] if status else []),
@@ -439,8 +448,8 @@ async def list_trees(
     else:
         rows = await db.fetch_all(
             "SELECT id, tree_code, marking_type, species_scientific_name, measured_dbh_cm,"
-            " status, permit_number, aac_label, ST_Y(geom) AS latitude, ST_X(geom) AS longitude,"
-            " created_at FROM tree_registry"
+            " status, permit_number, aac_label, aac_id, ST_Y(geom) AS latitude,"
+            " ST_X(geom) AS longitude, created_at FROM tree_registry"
             " WHERE (custodian_org_id = $2 OR (custodian_org_id IS NULL AND company_id = $1))"
             + (" AND status = $3" if status else "")
             + " ORDER BY created_at DESC LIMIT 500",

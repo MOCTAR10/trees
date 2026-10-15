@@ -133,8 +133,9 @@ def _install_fake_db(monkeypatch, users, state):
                 "decided_by": None,
             }
             return {"id": did, "status": "soumise"}
-        if "select tree_code from tree_registry where tree_code" in s:
-            return {"tree_code": args[0]} if args[0] in state["registry"] else None
+        if "select tree_code, status, company_id from tree_registry where tree_code" in s:
+            row = state["registry"].get(args[0])
+            return dict(row) if row else None
         if "select * from felling_declarations where id" in s:
             row = state["declarations"].get(args[0])
             return dict(row) if row else None
@@ -553,6 +554,29 @@ def test_duplicate_code_flagged_on_redeclare(client, monkeypatch):
     second = client.post("/api/felling/declarations", json=_declare_payload(), headers=headers)
     assert second.status_code == 422
     assert any(b["code"] == "duplicate_code" for b in second.json()["detail"]["blockers"])
+
+
+def test_own_inventoried_stem_can_be_declared(client, monkeypatch):
+    users, state = _setup(monkeypatch)
+    headers = {"Authorization": f"Bearer {_token(users[2])}"}
+    state["registry"]["GA-2026-0001"] = {
+        "tree_code": "GA-2026-0001",
+        "status": "inventorie",
+        "company_id": users[2]["id"],
+    }
+    state["registry"]["GA-2026-0002"] = {
+        "tree_code": "GA-2026-0002",
+        "status": "inventorie",
+        "company_id": 999,
+    }
+    resp = client.post("/api/felling/declarations", json=_declare_payload(), headers=headers)
+    assert resp.status_code == 422
+    blocked = {b["tree_code"] for b in resp.json()["detail"]["blockers"]}
+    assert blocked == {"GA-2026-0002"}
+    del state["registry"]["GA-2026-0002"]
+    resp = client.post("/api/felling/declarations", json=_declare_payload(), headers=headers)
+    assert resp.status_code == 200, resp.text
+    assert state["registry"]["GA-2026-0001"]["status"] == "declare"
 
 
 def test_declare_forbidden_roles(client, monkeypatch):

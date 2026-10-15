@@ -22,6 +22,7 @@ from app.api import (
     group,
     home,
     knowledge,
+    mill,
     organizations,
     projects,
     species,
@@ -91,6 +92,7 @@ app.include_router(diagnostics.router, prefix="/api/diagnostics", tags=["diagnos
 app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
 app.include_router(home.router, prefix="/api/home", tags=["home"])
 app.include_router(controls.router, prefix="/api/controls", tags=["controls"])
+app.include_router(mill.router, prefix="/api/mill", tags=["mill"])
 
 
 @app.get("/health")

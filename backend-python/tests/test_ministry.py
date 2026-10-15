@@ -22,7 +22,8 @@ ADMIN = {
     "matricule": None,
 }
 COMPANY = {**ADMIN, "id": 14, "email": "co@x", "role": "company", "organization_id": 10}
-USERS = {u["id"]: u for u in (ADMIN, COMPANY)}
+OPERATOR = {**ADMIN, "id": 15, "email": "op@x", "role": "operator", "organization_id": 10}
+USERS = {u["id"]: u for u in (ADMIN, COMPANY, OPERATOR)}
 
 
 def _auth(user: dict) -> dict:
@@ -113,6 +114,10 @@ class Fake:
             }
         if "update forest_titles set province_code" in s:
             return {"id": args[0], "province_code": args[1]} if args[0] == 5 else None
+        if "update users set is_active" in s:
+            if args[1] == 30 and args[2] == 10:
+                return {"id": 30, "is_active": args[0], "display_name": "Nzé Obiang"}
+            return None
         if "select min(id) as id from users" in s:
             return {"id": self.manager_id} if self.manager_id else None
         if "from community_cooperatives where organization_id" in s:
@@ -500,3 +505,40 @@ def test_bundled_provinces_file_has_the_nine_provinces():
     rows = provinces(json.loads(BUNDLED.read_text(encoding="utf-8")))
     assert sorted(r["code"] for r in rows) == [f"GA-{i}" for i in range(1, 10)]
     assert {"Haut-Ogooué", "Nyanga", "Ogooué-Ivindo"} <= {r["name"] for r in rows}
+
+
+def test_company_opens_and_suspends_its_own_agents(client, fake):
+    body = {
+        "email": "nze@x",
+        "password": "Secret123",
+        "first_name": "Nzé",
+        "last_name": "Obiang",
+        "matricule": "AGT-9",
+    }
+    created = client.post("/api/organizations/me/agents", json=body, headers=_auth(COMPANY))
+    assert created.status_code == 201, created.text
+    agent = created.json()
+    assert agent["role"] == "operator"
+    assert agent["organization_id"] == 10 and agent["company_id"] == 14
+    assert agent["display_name"] == "Nzé Obiang"
+    again = client.post(
+        "/api/organizations/me/agents", json={**body, "email": "taken@x"}, headers=_auth(COMPANY)
+    )
+    assert again.status_code == 409
+    suspended = client.patch(
+        "/api/organizations/me/agents/30", json={"is_active": False}, headers=_auth(COMPANY)
+    )
+    assert suspended.status_code == 200 and suspended.json()["is_active"] is False
+    foreign = client.patch(
+        "/api/organizations/me/agents/31", json={"is_active": False}, headers=_auth(COMPANY)
+    )
+    assert foreign.status_code == 404
+    assert client.get("/api/organizations/me/agents", headers=_auth(COMPANY)).status_code == 200
+
+
+def test_only_the_company_manages_its_agents(client, fake):
+    body = {"email": "x@x", "password": "Secret123", "first_name": "A", "last_name": "B"}
+    for user in (OPERATOR, ADMIN):
+        resp = client.post("/api/organizations/me/agents", json=body, headers=_auth(user))
+        assert resp.status_code == 403
+    assert client.get("/api/organizations/me/agents", headers=_auth(OPERATOR)).status_code == 403

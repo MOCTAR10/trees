@@ -10,7 +10,7 @@ that concern it (right of reply).
 from datetime import UTC, date, datetime, timedelta
 
 from app.core import fr_format
-from app.services import anomalies, authorities, compliance, controls, db, deadlines
+from app.services import anomalies, authorities, compliance, controls, db, deadlines, mill
 
 DECISION_WINDOW_DAYS = 120
 CERT_NOTICE_DAYS = 60
@@ -227,6 +227,32 @@ async def todo(org_id: int, company_user_id: int | None) -> list[dict]:
                 document_id=d["id"],
             )
         )
+    for f in await controls.open_followups(org_id):
+        amount = f" de {fr_format.fr_num(f['amount_fcfa'])} FCFA" if f.get("amount_fcfa") else ""
+        due = f" avant le {fr_format.fr_date(f['due_at'])}" if f.get("due_at") else ""
+        state = {"en_retard": " — en retard", "conteste": " — contestée, en attente du Ministère"}
+        items.append(
+            _todo(
+                "control_followup",
+                "risk" if f["display_status"] in ("en_retard", "notifie") else "warn",
+                f"{f['label']}{amount}{due}{state.get(f['display_status'], '')}",
+                "accueil",
+                followup_id=f["id"],
+                can_contest=f["status"] == "notifie" and not f.get("reply"),
+            )
+        )
+    for alert in await mill.yield_alerts():
+        if alert["org_id"] == org_id:
+            items.append(
+                _todo(
+                    "mill_yield",
+                    "warn",
+                    f"Registre de transformation : {fr_format.fr_num(alert['output_m3'], 1)} m³"
+                    f" produits pour {fr_format.fr_num(alert['input_m3'], 1)} m³ reçus"
+                    " — vérifiez vos entrées",
+                    "usine",
+                )
+            )
     order = {"risk": 0, "warn": 1, "info": 2}
     items.sort(key=lambda i: order.get(i["level"], 3))
     return items

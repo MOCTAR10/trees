@@ -98,7 +98,7 @@ def test_scan_measures_with_the_plate_and_links_the_tree(monkeypatch):
     assert body["measured_dbh_cm"] == pytest.approx(55.0, rel=0.05)
 
 
-def test_plate_of_unknown_tree_still_measures(monkeypatch):
+def test_plate_of_unknown_tree_measures_and_inventories(monkeypatch):
     from app.main import app
 
     install_v1_fakes(monkeypatch)
@@ -107,6 +107,20 @@ def test_plate_of_unknown_tree_still_measures(monkeypatch):
     monkeypatch.setattr(v1, "measure_dbh", vision.measure_dbh)
     headers = _auth(monkeypatch, _COMPANY)
     body = _post(TestClient(app), _jpeg(_scene(code="GA-NOPE")), headers=headers).json()
+    assert body["distance_source"] == "qr"
+    assert body["tree_code"] == "GA-NOPE"
+    assert "tree_inventoried" in body["measurement_notes"]
+
+
+def test_plate_of_another_company_tree_still_measures(monkeypatch):
+    from app.main import app
+
+    install_v1_fakes(monkeypatch)
+    from app.services import vision
+
+    monkeypatch.setattr(v1, "measure_dbh", vision.measure_dbh)
+    headers = _auth(monkeypatch, {**_COMPANY, "id": 8, "email": "other@x"})
+    body = _post(TestClient(app), _jpeg(_scene(code="GA-OWN")), headers=headers).json()
     assert body["distance_source"] == "qr"
     assert body["tree_code"] is None
     assert "qr_tree_unknown" in body["measurement_notes"]

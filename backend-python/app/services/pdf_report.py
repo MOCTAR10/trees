@@ -241,6 +241,7 @@ MEASUREMENT_NOTE_LABELS = {
     "depth_qr_plate": "Distance mesurée grâce à la plaque QR de l'arbre (règle de taille connue)",
     "qr_plate_unreadable": "Plaque QR vue mais trop petite ou trop oblique pour mesurer",
     "qr_tree_unknown": "Plaque QR lue, mais code absent du registre ou d'une autre entreprise",
+    "tree_inventoried": "Arbre inscrit au registre (inventorié) par ce scan",
     "species_low_confidence": "Espèce non retenue : confiance d'identification < 15 %",
     "trunk_exceeds_frame": "Tronc plus large que le cadre — reculez",
     "vision_implausible": "Mesure vision hors plage plausible — écartée",
@@ -1423,6 +1424,29 @@ def render_control_pdf(control: dict) -> bytes:
         Spacer(1, 4 * mm),
         Paragraph("Constatations", S_H2),
         Paragraph(_safe(c.get("notes") or "Aucune irrégularité constatée."), S_BODY),
+    ]
+    followups = c.get("followups") or []
+    if followups:
+        story += [
+            Spacer(1, 4 * mm),
+            Paragraph("Suites données", S_H2),
+            _grid_table(
+                ["Suite", "Montant", "Échéance", "Statut"],
+                [
+                    [
+                        f.get("label", ""),
+                        f"{fr_format.fr_num(f['amount_fcfa'])} FCFA"
+                        if f.get("amount_fcfa")
+                        else "—",
+                        _fmt_date(f.get("due_at")) or "—",
+                        f.get("status_label", ""),
+                    ]
+                    for f in followups
+                ],
+                [60 * mm, 40 * mm, 30 * mm, 40 * mm],
+            ),
+        ]
+    story += [
         Spacer(1, 4 * mm),
         Paragraph("Base légale", S_H2),
         Paragraph(
@@ -1441,3 +1465,72 @@ def render_control_pdf(control: dict) -> bytes:
         ),
     ]
     return _build(story, "Procès-verbal de contrôle")
+
+
+def render_mill_register_pdf(data: dict, org_name: str | None = None) -> bytes:
+    """Transformation register of a mill: entries, output lots, material yield."""
+    d = data or {}
+    t = d.get("totals") or {}
+    yield_text = f"{_fr_num(t.get('yield_pct'), 1)} %" if t.get("yield_pct") is not None else "—"
+    story: list = [
+        Paragraph("Registre de transformation", S_TITLE),
+        Paragraph(_safe(f"{org_name or 'Organisation'} · année {d.get('year')}"), S_SUB),
+        Spacer(1, 5 * mm),
+        _kv_table(
+            [
+                ("Grumes reçues", str(t.get("logs_received", 0))),
+                ("Volume reçu", f"{_fr_num(t.get('input_m3'), 1)} m³"),
+                ("Volume produit", f"{_fr_num(t.get('output_m3'), 1)} m³"),
+                ("Rendement matière", yield_text),
+                ("Grumes en stock (non transformées)", str(t.get("logs_in_stock", 0))),
+            ]
+        ),
+    ]
+    if t.get("alert"):
+        story += [
+            Spacer(1, 3 * mm),
+            Paragraph(
+                _safe(
+                    f"Alerte : les sorties dépassent {t.get('max_yield_pct')} % du volume reçu"
+                    " — origine du bois à vérifier (seuil à valider par le métier)."
+                ),
+                S_BODY,
+            ),
+        ]
+    story += [
+        Spacer(1, 4 * mm),
+        Paragraph("Entrées (bordereaux réceptionnés)", S_H2),
+        _grid_table(
+            ["Bordereau", "Reçu le", "Expéditeur", "Grumes", "Volume"],
+            [
+                [
+                    e.get("reference") or f"#{e.get('id')}",
+                    _fmt_date(e.get("received_at")),
+                    e.get("from_org") or "—",
+                    str(e.get("logs", 0)),
+                    f"{_fr_num(e.get('volume_m3'), 1)} m³",
+                ]
+                for e in d.get("inputs") or []
+            ]
+            or [["Aucune entrée", "", "", "", ""]],
+            [40 * mm, 25 * mm, 55 * mm, 20 * mm, 30 * mm],
+        ),
+        Spacer(1, 4 * mm),
+        Paragraph("Sorties (lots produits)", S_H2),
+        _grid_table(
+            ["Lot", "Date", "Produit", "Grumes", "Volume"],
+            [
+                [
+                    o.get("lot_reference") or f"#{o.get('id')}",
+                    _fmt_date(o.get("produced_on")),
+                    o.get("product_label") or "",
+                    ", ".join(o.get("tree_codes") or []),
+                    f"{_fr_num(o.get('volume_m3'), 1)} m³",
+                ]
+                for o in d.get("outputs") or []
+            ]
+            or [["Aucune sortie", "", "", "", ""]],
+            [30 * mm, 22 * mm, 30 * mm, 60 * mm, 28 * mm],
+        ),
+    ]
+    return _build(story, "Registre de transformation")
