@@ -282,6 +282,29 @@ def test_check_email_admin_has_no_organization(client, monkeypatch):
     assert body["organization_type"] is None
 
 
+def test_check_email_names_the_organisation_not_the_manager(client, monkeypatch):
+    _setup(monkeypatch)
+    from app.api import auth
+
+    real = auth.db.fetch_one
+
+    async def fetch_one(sql, *args):
+        s = " ".join(sql.split()).lower()
+        if "from users where email" in s:
+            row = await real(sql, *args)
+            return {**row, "organization_id": 40} if row else row
+        if "from organizations where id" in s:
+            return (
+                {"name": "Bois du Haut-Ogooué", "org_type": "entreprise"} if args[0] == 40 else None
+            )
+        return await real(sql, *args)
+
+    monkeypatch.setattr(auth.db, "fetch_one", fetch_one)
+    body = client.post("/api/auth/check-email", json={"email": "co@x"}).json()
+    assert body["organization"] == "Bois du Haut-Ogooué"
+    assert body["organization_type"] == "company"
+
+
 def test_check_email_unknown_returns_404(client, monkeypatch):
     _setup(monkeypatch)
     resp = client.post("/api/auth/check-email", json={"email": "ghost@x"})

@@ -23,7 +23,7 @@ class CheckEmailRequest(BaseModel):
 @router.post("/check-email")
 async def check_email(body: CheckEmailRequest):
     row = await db.fetch_one(
-        "SELECT id, role, display_name, cooperative_id, company_id "
+        "SELECT id, role, display_name, cooperative_id, company_id, organization_id "
         "FROM users WHERE email=$1 AND is_active",
         body.email,
     )
@@ -40,8 +40,21 @@ async def check_email(body: CheckEmailRequest):
 
 
 async def _resolve_organization(row: dict) -> tuple[str | None, str | None]:
-    """Resolve the company/cooperative a user is attached to."""
+    """Resolve the company/cooperative a user is attached to.
+
+    The organisation (the account's own, or the employer's for a field agent) wins over
+    the legacy links, which name the manager's account rather than the company.
+    """
     company_id = row.get("company_id")
+    org_id = row.get("organization_id")
+    if org_id is None and company_id:
+        employer = await db.fetch_one("SELECT organization_id FROM users WHERE id=$1", company_id)
+        org_id = (employer or {}).get("organization_id")
+    if org_id is not None:
+        org = await db.fetch_one("SELECT name, org_type FROM organizations WHERE id=$1", org_id)
+        if org is not None:
+            return org["name"], ("cooperative" if org["org_type"] == "cooperative" else "company")
+
     if company_id:
         company = await db.fetch_one("SELECT display_name FROM users WHERE id=$1", company_id)
         return (company or {}).get("display_name"), "company"
