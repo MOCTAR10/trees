@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -35,10 +36,23 @@ export default function LoginScreen({ onLogin }: Props) {
   const th = useTheme();
   const styles = useStyles();
   const { width, height } = useWindowDimensions();
-  // Fit the whole login (password step included) on screen without scrolling:
-  // compact header below 860 px of height, one-line footer below 700 px.
-  const compact = height < 860;
-  const tight = height < 700;
+  // Fit the whole login (password step included) on screen without scrolling: the
+  // official header keeps its full size; the notice and version sit right under the
+  // form. Only small phones (< 700 px) get a compact header.
+  const compact = height < 700;
+  const tight = height < 620;
+  // Phone keyboard open (or a very short window): keep only the form — a thin band
+  // instead of the seal, no footer — so the password and the button stay in view.
+  const [keyboard, setKeyboard] = useState(false);
+  useEffect(() => {
+    const shown = Keyboard.addListener("keyboardDidShow", () => setKeyboard(true));
+    const hidden = Keyboard.addListener("keyboardDidHide", () => setKeyboard(false));
+    return () => {
+      shown.remove();
+      hidden.remove();
+    };
+  }, []);
+  const mini = keyboard || height < 560;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -104,6 +118,15 @@ export default function LoginScreen({ onLogin }: Props) {
         keyboardShouldPersistTaps="handled"
         bounces={false}
       >
+        {mini ? (
+          <View style={styles.miniBand} testID="login-header-mini">
+            <Text style={styles.miniText}>{fr.auth.official}</Text>
+            <View style={styles.goldRule}>
+              <View style={styles.goldLine} />
+              <View style={styles.goldLine} />
+            </View>
+          </View>
+        ) : (
         <View style={[styles.officialSection, compact && styles.officialCompact]} testID="login-header">
           <View style={[styles.emblem, compact && styles.emblemCompact]}>
             <Image
@@ -124,6 +147,7 @@ export default function LoginScreen({ onLogin }: Props) {
             <View style={styles.goldLine} />
           </View>
         </View>
+        )}
 
         <View style={styles.middle}>
         <View style={[styles.card, compact && styles.cardCompact, { width: cardWidth }]}>
@@ -246,29 +270,17 @@ export default function LoginScreen({ onLogin }: Props) {
           </View>
         </View>
 
-        </View>
-
-        <View style={styles.footer} testID="login-footer">
-          <View style={[styles.notice, compact && styles.noticeCompact]}>
-            <LockKeyhole size={tight ? 14 : 18} color={th.c.muted} strokeWidth={2} />
-            <Text style={[styles.noticeText, tight && styles.noticeTextTight]}>{fr.auth.footer}</Text>
-          </View>
-
-          {tight ? (
-            <Text style={styles.version}>{`${fr.auth.version} · ${fr.auth.copyright}`}</Text>
-          ) : (
-            <>
-              <Text style={[styles.version, compact && styles.versionCompact]}>{fr.auth.version}</Text>
-              <View style={[styles.brandFooter, compact && styles.brandFooterCompact]}>
-                <View style={styles.brandRow}>
-                  <Image source={GREENLEAVE_LOGO} style={styles.brandLogo} resizeMode="contain" />
-                  <Text style={styles.brandName}>Green Leave Gabon</Text>
-                </View>
-                <Text style={styles.copyright}>{fr.auth.copyright}</Text>
+          {mini ? null : (
+            <View style={styles.footer} testID="login-footer">
+              <View style={[styles.notice, compact && styles.noticeCompact]}>
+                <LockKeyhole size={tight ? 14 : 16} color={th.c.muted} strokeWidth={2} />
+                <Text style={[styles.noticeText, tight && styles.noticeTextTight]}>{fr.auth.footer}</Text>
               </View>
-            </>
+              <Text style={styles.version}>{`${fr.auth.version} · ${fr.auth.copyright}`}</Text>
+            </View>
           )}
         </View>
+
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -291,9 +303,17 @@ const useStyles = makeStyles((th) => ({
   cardCompact: { paddingVertical: th.space.md },
   titleCompact: { fontSize: 22, lineHeight: 26 },
   subtitleCompact: { marginBottom: th.space.sm },
+  miniBand: {
+    alignSelf: "stretch",
+    alignItems: "center",
+    backgroundColor: th.c.forest,
+    paddingVertical: th.space.sm,
+    marginBottom: th.space.md,
+  },
+  miniText: { color: th.c.onForest, fontFamily: th.fonts.display, fontSize: 16 },
   middle: { flexGrow: 1, justifyContent: "center", alignItems: "center", alignSelf: "stretch" },
-  footer: { alignItems: "center", alignSelf: "stretch" },
-  noticeCompact: { marginTop: th.space.md, paddingVertical: th.space.xs },
+  footer: { alignItems: "center", alignSelf: "stretch", gap: th.space.xs, marginTop: th.space.md },
+  noticeCompact: { paddingVertical: th.space.xs },
   noticeTextTight: { fontSize: 11 },
   versionCompact: { marginTop: th.space.sm },
   brandFooterCompact: { marginTop: th.space.sm },
@@ -460,7 +480,6 @@ const useStyles = makeStyles((th) => ({
     gap: th.space.sm,
     alignSelf: "center",
     maxWidth: 340,
-    marginTop: th.space.xl,
     marginHorizontal: th.space.xl,
     paddingVertical: th.space.sm,
     paddingHorizontal: th.space.lg,
@@ -481,7 +500,6 @@ const useStyles = makeStyles((th) => ({
     fontSize: 11,
     fontFamily: th.fonts.body,
     textAlign: "center",
-    marginTop: th.space.lg,
   },
   brandFooter: {
     marginTop: th.space.xxl,
