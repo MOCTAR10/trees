@@ -26,7 +26,7 @@ unclassified:
 jobs:
   - script: >
       pipelineJob('foresterie-ota') {
-        description('Mise à jour OTA de l'application (après CI verte), installée par l'utilisateur depuis le badge')
+        description("Mise à jour OTA de l'application (après CI verte), installée par l'utilisateur depuis le badge")
         properties {
           githubProjectUrl('https://github.com/MOCTAR10/trees')
           pipelineTriggers {
@@ -49,9 +49,9 @@ jobs:
           }
         }
       }
-  - script: >
+
       pipelineJob('foresterie-android') {
-        description('APK Android signé de l\'application mobile (expo prebuild + Gradle)')
+        description("APK Android signé de l\'application mobile (expo prebuild + Gradle)")
         properties {
           githubProjectUrl('https://github.com/MOCTAR10/trees')
           pipelineTriggers {
