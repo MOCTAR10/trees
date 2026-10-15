@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # One-time setup of a fresh Ubuntu/Debian server for Foresterie Numérique.
-# Usage (as root): DOMAIN=api.greenleaves.ga EMAIL=you@example.com bash server_setup.sh
+# Usage (as root): DOMAINS="greenleaves.ga www.greenleaves.ga" [EMAIL=you@example.com] bash server_setup.sh
 # Idempotent: re-running keeps the existing .env (secrets) and data.
 set -euo pipefail
 
-DOMAIN="${DOMAIN:?DOMAIN requis (ex. api.greenleaves.ga)}"
-EMAIL="${EMAIL:?EMAIL requis pour le certificat TLS}"
+DOMAINS="${DOMAINS:?DOMAINS requis (ex. greenleaves.ga www.greenleaves.ga)}"
+EMAIL="${EMAIL:-}"
+DOMAIN="${DOMAINS%% *}"
 APP_DIR="${APP_DIR:-/var/www/trees}"
 REPO="${REPO:-https://github.com/MOCTAR10/trees.git}"
 AI="${AI_MODELS_ENABLED:-true}"
@@ -54,15 +55,19 @@ if [ ! -f .env ]; then
   echo ".env créé (mots de passe dans $APP_DIR/.env, lisible par root seulement)"
 fi
 
-echo "== nginx + TLS for $DOMAIN"
+echo "== nginx + TLS for $DOMAINS"
 mkdir -p /var/www/certbot
-sed "s/__DOMAIN__/$DOMAIN/g" deploy/nginx/trees.conf > /etc/nginx/sites-available/trees.conf
+sed "s/__DOMAIN__/$DOMAINS/g" deploy/nginx/trees.conf > /etc/nginx/sites-available/trees.conf
 ln -sf /etc/nginx/sites-available/trees.conf /etc/nginx/sites-enabled/trees.conf
 rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
 if ! certbot certificates 2>/dev/null | grep -q "Domains: $DOMAIN"; then
-  certbot --nginx --non-interactive --agree-tos --redirect -m "$EMAIL" -d "$DOMAIN" \
-    || echo "!! Certificat non obtenu (DNS de $DOMAIN pas encore propagé ?) — relancer ce script plus tard"
+  contact=(--register-unsafely-without-email)
+  if [ -n "$EMAIL" ]; then contact=(-m "$EMAIL"); fi
+  domain_args=()
+  for d in $DOMAINS; do domain_args+=(-d "$d"); done
+  certbot --nginx --non-interactive --agree-tos --redirect "${contact[@]}" "${domain_args[@]}" \
+    || echo "!! Certificat non obtenu (DNS pas encore propagé ?) — relancer ce script plus tard"
 fi
 
 echo "== Stack"

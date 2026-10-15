@@ -207,7 +207,7 @@ Apply a migration to a running DB:
 Get-Content db/migrations/0NN_sliceNN.sql | docker exec -i forestry_postgres psql -U forestry -d forestry
 ```
 
-Production (`api.greenleaves.ga`, server `79.143.177.127`, app in `/var/www/trees`):
+Production (`https://greenleaves.ga`, server `79.143.177.127`, app in `/var/www/trees`):
 
 ```bash
 ssh greenleaves /var/www/trees/deploy/deploy.sh   # pull main, rebuild, new migrations, restart
