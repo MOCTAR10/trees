@@ -3,6 +3,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.openapi.utils import get_openapi
 
 from app.api import (
     admin,
@@ -58,11 +59,58 @@ async def lifespan(app: FastAPI):
     await db.close_pool()
 
 
+API_DESCRIPTION = """
+API de **Foresterie Numérique** (Loi 016/01, RDUE) : mesure des arbres, traçabilité des grumes,
+titres et autorisations, fiscalité, certifications, contrôles, anomalies, registres d'usine.
+
+**S'authentifier pour essayer un appel** (bouton *Authorize*) :
+
+1. **ApiKey** — la clé de la passerelle (`X-API-Key`), fournie par l'administrateur du serveur ;
+2. `POST /api/auth/login` avec l'email et le mot de passe d'un compte → `access_token` ;
+3. **Bearer** — coller ce jeton.
+
+Chaque point d'accès indique les rôles autorisés (`operator`, `company`, `cooperative`, `admin`) ;
+un appel hors rôle répond **403**.
+"""
+
 app = FastAPI(
-    title="Digital Forestry & Circular Economy API",
-    version="0.1.0",
+    title="Foresterie Numérique — API",
+    version="0.26.0",
+    description=API_DESCRIPTION,
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
+    openapi_url="/api/openapi.json",
     lifespan=lifespan,
 )
+
+
+def _openapi() -> dict:
+    """OpenAPI with the gateway key and the bearer token as security schemes."""
+    if app.openapi_schema:
+        return app.openapi_schema
+    schema = get_openapi(
+        title=app.title, version=app.version, description=app.description, routes=app.routes
+    )
+    schema.setdefault("components", {})["securitySchemes"] = {
+        "ApiKey": {"type": "apiKey", "in": "header", "name": "X-API-Key"},
+        "Bearer": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
+    }
+    schema["security"] = [{"ApiKey": [], "Bearer": []}]
+    for path in schema.get("paths", {}).values():
+        for operation in path.values():
+            if isinstance(operation, dict) and "parameters" in operation:
+                operation["parameters"] = [
+                    p
+                    for p in operation["parameters"]
+                    if not (
+                        p.get("in") == "header" and p.get("name", "").lower() == "authorization"
+                    )
+                ]
+    app.openapi_schema = schema
+    return schema
+
+
+app.openapi = _openapi
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(v1.router, prefix="/api/v1", tags=["v1-measurement"])

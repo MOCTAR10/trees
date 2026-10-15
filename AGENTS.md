@@ -218,6 +218,9 @@ production `.env` **on the server only** (secrets never committed nor pasted in 
 `deploy.sh`. `docker-compose.prod.yml` keeps Postgres off the host ports and binds the API and the gateway to
 127.0.0.1 (nginx is the only public entry, gateway with `REQUIRE_API_KEY=true`). Applied migrations are tracked
 in `schema_migrations`; a new `0NN_*.sql` is applied by the next `deploy.sh`.
+**API documentation**: Swagger at `https://greenleaves.ga/api/docs` (ReDoc `/api/redoc`, schema
+`/api/openapi.json`) — readable without the key; « Authorize » takes the gateway key (`ApiKey`) and the
+token from `POST /api/auth/login` (`Bearer`).
 **Continuous deployment**: the `trees-autodeploy.timer` (systemd, every 5 min) runs `deploy/autodeploy.sh`, which
 deploys the newest commit of `main` **only once its « CI » workflow is green** (log `/var/log/trees-deploy.log`).
 So a push to `main` reaches production about 5 minutes after CI passes — keep CI green.

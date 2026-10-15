@@ -49,6 +49,15 @@ test("auth: 401 without / with wrong key, 200 with the right key", async (t) => 
   assert.equal((await ok.json()).upstream, true);
 });
 
+test("auth: the API documentation is readable without the key, the API is not", async (t) => {
+  const base = await startApp(t, { requireApiKey: true, apiKey: "s3cret" });
+  for (const path of ["/api/docs", "/api/redoc", "/api/openapi.json"]) {
+    assert.equal((await fetch(`${base}${path}`)).status, 200, path);
+  }
+  assert.equal((await fetch(`${base}/api/openapi.json`, { method: "POST" })).status, 401);
+  assert.equal((await fetch(`${base}/api/docs/../auth/login`)).status, 401);
+});
+
 test("auth: /health stays public even when the API key is required", async (t) => {
   const base = await startApp(t, { requireApiKey: true, apiKey: "s3cret" });
   const r = await fetch(`${base}/health`);
