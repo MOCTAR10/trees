@@ -1,0 +1,8 @@
+[Unit]
+Description=Foresterie Numérique — deploy origin/main when CI is green
+Wants=network-online.target
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/var/www/trees/deploy/autodeploy.sh

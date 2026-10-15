@@ -74,6 +74,12 @@ echo "== Stack"
 chmod +x deploy/deploy.sh
 deploy/deploy.sh
 
+echo "== Continuous deployment (new green commit on main → deploy.sh)"
+chmod +x deploy/autodeploy.sh
+cp deploy/systemd/trees-autodeploy.service deploy/systemd/trees-autodeploy.timer /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now trees-autodeploy.timer
+
 echo "== Reference data"
 docker compose -f docker-compose.yml -f docker-compose.prod.yml exec -T api python -m tools.import_provinces
 echo "Setup terminé."

@@ -15,7 +15,8 @@ psql_db() { compose exec -T db psql -v ON_ERROR_STOP=1 -U "${PGUSER_:-forestry}"
 
 echo "== Code: $BRANCH"
 git fetch --quiet origin "$BRANCH"
-git reset --hard "origin/$BRANCH"
+# DEPLOY_SHA (set by autodeploy.sh) pins the exact commit whose CI is green.
+git reset --hard "${DEPLOY_SHA:-origin/$BRANCH}"
 git log --oneline -1
 
 echo "== Build and start"
