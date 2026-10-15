@@ -83,6 +83,7 @@ doc update — as separate logical commits. The full history lives in
 | 26 | Inventaire par scan, équipe gérée par l'entreprise, registre de transformation, suites des contrôles, limite de débit par session, affichage français | `030_slice26.sql` | `services/mill.py`, `/api/mill/*`, `/api/organizations/me/agents`, `/api/controls/{id}/followups`, `/api/controls/followups` (`/status`, `/contest`), file `followups`, `core/fr_format.py`, passerelle | `CompanyAgents`, `MillRegister`, `ministry/ControlFollowups`, `CompanyHomeScreen` (contester), `DeclareScreen` (inventaire), `ScreenAudit` | pt 26 |
 | 27 | Application web du Ministère (même code, `react-native-web`), menu latéral bureau, carte Leaflet, PDF navigateur, hébergement `foresterie-app.greenleaves.ga` | — | — | `src/web/` (DesktopFrame, LeafletMaps, WebFieldNotice), `metro.config.js`, `pdf.ts` | pt 27 |
 | 28 | Espace entreprise sur le système de design (plus de thème sombre imposé), menu latéral « Mon entreprise » sur le web bureau, connexion sans défilement, organisation affichée à la connexion | — | `/api/auth/check-email` (organisation) | `CompanyNav` (`hideGroups`), `CompanyScreen` (onglet piloté), `DesktopFrame` (`sections`), `LoginScreen` | pt 28 |
+| 29 | Mises à jour OTA signées et auto-hébergées, appliquées par l'utilisateur (badge), icône du sceau | — | `/updates/manifest`, `/updates/assets` (`app/api/updates.py`, hors `/api`) | `utils/useAppUpdate.ts`, `RoleHeader` (badge), `app.json` (`updates`, `runtimeVersion`, icônes), `certs/certificate.pem` | pt 29 |
 
 Latest verified suite counts (Slice 26): **`pytest` 718 passed** · **`tests_e2e` 196 passed**
 (real Postgres) · role coverage **100 %** (admin 98, company 102, operator 37, cooperative 30) ·
@@ -237,6 +238,12 @@ token from `POST /api/auth/login` (`Bearer`).
 `mobile/` changed (or by hand). Jenkins has `cpu_shares: 128` (the app 1024) and hard caps (4 CPUs, 7 GB + 3 GB swap; arm64-only, 2 Gradle workers): a build
 never slows the users' app. Setup once: `JENKINS_HOST=jenkins.greenleaves.ga bash deploy/jenkins/setup.sh`.
 **Back up the signing keystore and its password** (`/etc/trees/`): losing them means phones cannot update the app.
+**OTA updates (Slice 29)**: `expo-updates` against our own server (`https://greenleaves.ga/updates/manifest`,
+`checkAutomatically: NEVER` — `useAppUpdate` checks, downloads silently, the user installs from the header badge).
+Manifests are signed with `/etc/trees/updates/private-key.pem` (server only — **back it up**; the app embeds
+`mobile/certs/certificate.pem`). Jenkins stage « Mise à jour (OTA) » publishes `expo export --platform android` to
+`/var/www/trees-updates/<runtimeVersion>/<build>`. A native change (new module, permission, Expo upgrade) needs a
+new APK **and a new `runtimeVersion`** in `app.json`, otherwise old installs would receive incompatible code.
 **Continuous deployment**: the `trees-autodeploy.timer` (systemd, every 5 min) runs `deploy/autodeploy.sh`, which
 deploys the newest commit of `main` **only once its « CI » workflow is green** (log `/var/log/trees-deploy.log`).
 So a push to `main` reaches production about 5 minutes after CI passes — keep CI green.
