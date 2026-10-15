@@ -331,10 +331,10 @@ const useStyles = makeStyles((th) => ({
     overflow: "hidden",
     marginBottom: th.space.lg,
   },
-  emblemSeal: { width: 128, height: 86 },
+  emblemSeal: { width: 160, height: 108 },
   republicText: {
     color: th.c.gold,
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: th.fonts.displaySemi,
     letterSpacing: 1.6,
     textTransform: "uppercase",
@@ -342,8 +342,8 @@ const useStyles = makeStyles((th) => ({
   },
   ministryText: {
     color: th.c.onForest,
-    fontSize: 24,
-    lineHeight: 28,
+    fontSize: 30,
+    lineHeight: 35,
     fontFamily: th.fonts.display,
     textAlign: "center",
     marginTop: th.space.xs,
