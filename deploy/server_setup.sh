@@ -67,6 +67,7 @@ mkdir -p /var/www/certbot
 sed "s/__DOMAIN__/$DOMAINS/g" deploy/nginx/trees.conf > /etc/nginx/sites-available/trees.conf
 ln -sf /etc/nginx/sites-available/trees.conf /etc/nginx/sites-enabled/trees.conf
 rm -f /etc/nginx/sites-enabled/default
+cp deploy/nginx/cloudflare-realip.conf /etc/nginx/conf.d/cloudflare-realip.conf
 nginx -t && systemctl reload nginx
 if ! certbot certificates 2>/dev/null | grep -q "Domains: $DOMAIN"; then
   contact=(--register-unsafely-without-email)
