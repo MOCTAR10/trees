@@ -22,6 +22,9 @@ DOMAINS = {
     "test_admin_02_titles": "Ministère · titres, UFA, AAC, DME, conventions, autorisations, études",
     "test_admin_03_instruction": "Ministère · déclarations, pièces, fiscalité, social, certifications, RDUE",
     "test_admin_04_control": "Ministère · traçabilité, transport, contrôles, anomalies, rapports",
+    "test_company_01_home_titles": "Entreprise · accueil, profil, carte, espèces, titres et actes",
+    "test_company_02_operations": "Entreprise · déclarations, DF10, états, transport, RDUE, social, fiscalité",
+    "test_company_03_projects_residues": "Entreprise · chantiers, projets, résidus et coopératives",
 }
 
 
