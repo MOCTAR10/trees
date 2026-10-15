@@ -3,8 +3,7 @@ import {
   ActivityIndicator,
   Modal,
   ScrollView,
-  StyleSheet,
-  Text,
+    Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -27,10 +26,10 @@ import {
 } from "../api/client";
 import { exportDiligencePdf, sharePdf } from "../pdf";
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
 import Badge, { taxTone, Tone } from "./Badge";
 import EudrStems from "./EudrStems";
 import { frDate } from "../design/format";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 function agreementTone(status: string): Tone {
   if (status === "actif") return "success";
@@ -49,6 +48,8 @@ const fcfa = (value: number | null | undefined): string =>
 
 /** Company view: tax dues (échéances), CCC/FDL agreements and EUDR diligence. */
 export default function CompanyFiscal() {
+  const styles = useStyles();
+  const theme = useTheme();
   const [mode, setMode] = useState<"dues" | "ccc" | "eudr">("dues");
   const [message, setMessage] = useState<string | null>(null);
   const [titles, setTitles] = useState<ForestTitle[]>([]);
@@ -156,7 +157,7 @@ export default function CompanyFiscal() {
 
       {mode === "dues" ? (
         dueLoading ? (
-          <ActivityIndicator style={styles.center} color={colors.accent} />
+          <ActivityIndicator style={styles.center} color={theme.c.olive} />
         ) : dueError ? (
           <View style={styles.center}>
             <Text style={styles.error}>{dueError}</Text>
@@ -203,7 +204,7 @@ export default function CompanyFiscal() {
         )
       ) : mode === "ccc" ? (
         cccLoading ? (
-          <ActivityIndicator style={styles.center} color={colors.accent} />
+          <ActivityIndicator style={styles.center} color={theme.c.olive} />
         ) : cccError ? (
           <View style={styles.center}>
             <Text style={styles.error}>{cccError}</Text>
@@ -257,7 +258,7 @@ export default function CompanyFiscal() {
           </ScrollView>
         )
       ) : eudrLoading ? (
-        <ActivityIndicator style={styles.center} color={colors.accent} />
+        <ActivityIndicator style={styles.center} color={theme.c.olive} />
       ) : eudrError ? (
         <View style={styles.center}>
           <Text style={styles.error}>{eudrError}</Text>
@@ -358,6 +359,8 @@ function SettleModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const styles = useStyles();
+  const theme = useTheme();
   const [amount, setAmount] = useState("");
   const [receiptRef, setReceiptRef] = useState("");
   const [paidAt, setPaidAt] = useState("");
@@ -405,7 +408,7 @@ function SettleModal({
             <TextInput
               style={styles.input}
               placeholder={fr.taxes.amount}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={amount}
               onChangeText={setAmount}
               keyboardType="numeric"
@@ -413,7 +416,7 @@ function SettleModal({
             <TextInput
               style={styles.input}
               placeholder={fr.taxes.receiptRef}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={receiptRef}
               onChangeText={setReceiptRef}
               autoCapitalize="characters"
@@ -421,7 +424,7 @@ function SettleModal({
             <TextInput
               style={styles.input}
               placeholder={fr.taxes.paidAt}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={paidAt}
               onChangeText={setPaidAt}
               autoCapitalize="none"
@@ -438,7 +441,7 @@ function SettleModal({
                 testID="settle-submit"
               >
                 {busy ? (
-                  <ActivityIndicator color={colors.primary} />
+                  <ActivityIndicator color={theme.c.forest} />
                 ) : (
                   <Text style={styles.submitText}>{fr.fiscal.settle}</Text>
                 )}
@@ -460,6 +463,7 @@ function TitleChips({
   value: number | null;
   onChange: (id: number | null) => void;
 }) {
+  const styles = useStyles();
   return (
     <View style={styles.chips}>
       <TouchableOpacity
@@ -496,6 +500,8 @@ function AgreementModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const styles = useStyles();
+  const theme = useTheme();
   const [titleId, setTitleId] = useState<number | null>(null);
   const [communities, setCommunities] = useState<Community[]>([]);
   const [communityId, setCommunityId] = useState<number | null>(null);
@@ -587,7 +593,7 @@ function AgreementModal({
             <TextInput
               style={styles.input}
               placeholder={fr.fiscal.cccRef}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={cccRef}
               onChangeText={setCccRef}
               autoCapitalize="characters"
@@ -595,7 +601,7 @@ function AgreementModal({
             <TextInput
               style={styles.input}
               placeholder={fr.fiscal.signedAt}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={signedAt}
               onChangeText={setSignedAt}
               autoCapitalize="none"
@@ -603,7 +609,7 @@ function AgreementModal({
             <TextInput
               style={styles.input}
               placeholder={fr.fiscal.fdlRate}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={rate}
               onChangeText={setRate}
               keyboardType="numeric"
@@ -611,7 +617,7 @@ function AgreementModal({
             <TextInput
               style={styles.input}
               placeholder={fr.fiscal.annualVolume}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={volume}
               onChangeText={setVolume}
               keyboardType="numeric"
@@ -628,7 +634,7 @@ function AgreementModal({
                 testID="agreement-submit"
               >
                 {busy ? (
-                  <ActivityIndicator color={colors.primary} />
+                  <ActivityIndicator color={theme.c.forest} />
                 ) : (
                   <Text style={styles.submitText}>{fr.fiscal.newAgreement}</Text>
                 )}
@@ -652,6 +658,8 @@ function DiligenceModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const styles = useStyles();
+  const theme = useTheme();
   const [titleId, setTitleId] = useState<number | null>(null);
   const [parcel, setParcel] = useState("");
   const [wkt, setWkt] = useState("");
@@ -710,14 +718,14 @@ function DiligenceModal({
             <TextInput
               style={styles.input}
               placeholder={fr.fiscal.parcel}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={parcel}
               onChangeText={setParcel}
             />
             <TextInput
               style={[styles.input, styles.multiline]}
               placeholder={fr.fiscal.parcelWkt}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={wkt}
               onChangeText={setWkt}
               autoCapitalize="none"
@@ -726,7 +734,7 @@ function DiligenceModal({
             <TextInput
               style={styles.input}
               placeholder={fr.fiscal.declaredVolume}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={volume}
               onChangeText={setVolume}
               keyboardType="numeric"
@@ -734,7 +742,7 @@ function DiligenceModal({
             <TextInput
               style={styles.input}
               placeholder={fr.fiscal.consultationDoc}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={consultation}
               onChangeText={setConsultation}
               keyboardType="numeric"
@@ -751,7 +759,7 @@ function DiligenceModal({
                 testID="diligence-submit"
               >
                 {busy ? (
-                  <ActivityIndicator color={colors.primary} />
+                  <ActivityIndicator color={theme.c.forest} />
                 ) : (
                   <Text style={styles.submitText}>{fr.fiscal.newDiligence}</Text>
                 )}
@@ -764,131 +772,135 @@ function DiligenceModal({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((th) => ({
   container: { flex: 1 },
   segment: {
     flexDirection: "row",
-    gap: spacing.xs,
-    padding: spacing.sm,
+    gap: th.space.xs,
+    padding: th.space.sm,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: th.c.line,
   },
   segBtn: {
     flex: 1,
     alignItems: "center",
-    paddingVertical: spacing.sm,
+    paddingVertical: th.space.sm,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  segOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  segText: { color: colors.textDim, fontSize: type.caption, fontWeight: "700" },
-  segTextOn: { color: colors.primary },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.md },
-  error: { color: colors.error, fontSize: type.body, textAlign: "center" },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  list: { padding: spacing.md, gap: spacing.sm, paddingBottom: spacing.xl },
-  note: { color: colors.textDim, fontSize: type.caption, fontStyle: "italic" },
+  segOn: { backgroundColor: th.c.olive, borderColor: th.c.olive },
+  segText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  segTextOn: { color: th.c.onOlive },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: th.space.lg },
+  error: { color: th.c.risk, fontSize: 15, textAlign: "center", fontFamily: th.fonts.body },
+  link: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  list: { padding: th.space.lg, gap: th.space.sm, paddingBottom: th.space.xxl },
+  note: { color: th.c.muted, fontSize: 12, fontStyle: "italic", fontFamily: th.fonts.body },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
   cardTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: th.space.sm,
   },
-  title: { color: colors.text, fontSize: type.body, fontWeight: "700", flex: 1 },
-  meta: { color: colors.textDim, fontSize: type.caption },
-  warn: { color: colors.warning, fontSize: type.caption, fontWeight: "700" },
-  dim: { color: colors.textDim, fontSize: type.body, marginTop: spacing.sm },
+  title: { color: th.c.ink, fontSize: 15, flex: 1, fontFamily: th.fonts.bodyBold },
+  meta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  warn: { color: th.c.warn, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  dim: { color: th.c.muted, fontSize: 15, marginTop: th.space.sm, fontFamily: th.fonts.body },
   success: {
-    color: colors.success,
-    fontSize: type.body,
-    fontWeight: "700",
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
+    color: th.c.ok,
+    fontSize: 15,
+    paddingHorizontal: th.space.lg,
+    paddingTop: th.space.sm,
+    fontFamily: th.fonts.bodyBold,
+
   },
   action: {
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
     borderRadius: 10,
-    paddingVertical: spacing.sm,
+    paddingVertical: th.space.sm,
     alignItems: "center",
   },
-  actionText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
+  actionText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   smallBtn: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: th.c.surface2,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
     borderRadius: 8,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
+    paddingVertical: th.space.sm,
+    paddingHorizontal: th.space.lg,
     alignItems: "center",
-    marginTop: spacing.xs,
+    marginTop: th.space.xs,
   },
-  smallBtnText: { color: colors.accent, fontSize: type.caption, fontWeight: "800" },
+  smallBtnText: { color: th.c.olive, fontSize: 12, fontFamily: th.fonts.bodyBold },
   backdrop: { flex: 1, backgroundColor: "rgba(14,21,18,0.8)", justifyContent: "flex-end" },
   modal: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    padding: spacing.lg,
+    padding: th.space.xl,
     maxHeight: "85%",
   },
   modalTitle: {
-    color: colors.text,
-    fontSize: type.heading,
-    fontWeight: "700",
-    marginBottom: spacing.sm,
+    color: th.c.ink,
+    fontSize: 20,
+    marginBottom: th.space.sm,
+    fontFamily: th.fonts.display,
+
   },
-  form: { paddingBottom: spacing.sm },
-  fieldLabel: { color: colors.textDim, fontSize: type.caption, marginBottom: spacing.xs },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs, marginBottom: spacing.sm },
+  form: { paddingBottom: th.space.sm },
+  fieldLabel: { color: th.c.muted, fontSize: 12, marginBottom: th.space.xs, fontFamily: th.fonts.body },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: th.space.xs, marginBottom: th.space.sm },
   chip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.xs,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.background,
+    borderColor: th.c.line,
+    backgroundColor: th.c.bg,
   },
-  chipOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  chipText: { color: colors.textDim, fontSize: type.caption, fontWeight: "700" },
-  chipTextOn: { color: colors.primary },
+  chipOn: { backgroundColor: th.c.olive, borderColor: th.c.olive },
+  chipText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  chipTextOn: { color: th.c.onOlive },
   input: {
-    backgroundColor: colors.background,
+    backgroundColor: th.c.bg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: type.body,
-    marginBottom: spacing.sm,
+    borderColor: th.c.line,
+    color: th.c.ink,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    fontSize: 15,
+    marginBottom: th.space.sm,
+    fontFamily: th.fonts.body,
+
   },
   multiline: { minHeight: 72, textAlignVertical: "top" },
-  modalActions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.sm },
+  modalActions: { flexDirection: "row", gap: th.space.sm, marginTop: th.space.sm },
   cancelBtn: {
     flex: 1,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  cancelText: { color: colors.text, fontSize: type.body, fontWeight: "700" },
+  cancelText: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
   submitBtn: {
     flex: 2,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
   },
-  submitText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
+  submitText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   disabled: { opacity: 0.6 },
-});
+}));

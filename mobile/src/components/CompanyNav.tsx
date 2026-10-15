@@ -35,15 +35,19 @@ interface Props {
   tab: CompanyTab;
   labels: Record<CompanyTab, string>;
   onChange: (tab: CompanyTab) => void;
+  /** Desktop web: the areas are in the side menu, only the screens of the area stay here. */
+  hideGroups?: boolean;
 }
 
 /** Two-level company navigation: work areas, then the screens of the area. */
-export default function CompanyNav({ tab, labels, onChange }: Props) {
+export default function CompanyNav({ tab, labels, onChange, hideGroups }: Props) {
   const s = useStyles();
   const group = groupOf(tab);
   const tabs = COMPANY_GROUPS.find((g) => g.key === group)?.tabs ?? [];
+  if (hideGroups && tabs.length < 2) return null;
   return (
     <View style={s.wrap}>
+      {hideGroups ? null : (
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.row}>
         {COMPANY_GROUPS.map((g) => {
           const on = g.key === group;
@@ -63,6 +67,7 @@ export default function CompanyNav({ tab, labels, onChange }: Props) {
           );
         })}
       </ScrollView>
+      )}
       {tabs.length > 1 ? (
         <View style={s.subRow}>
           {tabs.map((k) => {

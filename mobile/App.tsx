@@ -28,7 +28,9 @@ import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import ReportScreen from './src/screens/ReportScreen';
 import BottomNav from './src/components/BottomNav';
-import DesktopFrame, { useDesktop } from './src/web/DesktopFrame';
+import DesktopFrame, { SideSection, useDesktop } from './src/web/DesktopFrame';
+import { COMPANY_GROUPS, CompanyTab, groupOf } from './src/components/CompanyNav';
+import { Axe, House, Recycle, ShieldCheck, Wallet } from 'lucide-react-native';
 import WebFieldNotice from './src/web/WebFieldNotice';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import LoadingScreen from './src/components/LoadingScreen';
@@ -113,6 +115,7 @@ function BottomInset({ kind }: { kind: 'nav' | 'page' | 'band' | 'legacy' }) {
 export default function App() {
   const fontsReady = useAppFonts();
   const desktop = useDesktop();
+  const [companyTab, setCompanyTab] = useState<CompanyTab>('accueil');
   const [phase, setPhase] = useState<Phase>("home");
   const [valorization, setValorization] = useState<V2Response | null>(null);
   const [report, setReport] = useState<V1Report | null>(null);
@@ -622,6 +625,20 @@ export default function App() {
   const DESKTOP_PARENT: Partial<Record<Phase, Phase>> = { decision: 'inbox', organisation: 'orgs', domain: domainReturn, profile: 'menu' };
   const desktopFrame = desktop && (isTab || phase in DESKTOP_PARENT);
   const desktopActive = DESKTOP_PARENT[phase] ?? phase;
+  const COMPANY_ICONS = { accueil: House, exploitation: Axe, conformite: ShieldCheck, finances: Wallet, circulaire: Recycle };
+  const companySections: SideSection[] | undefined =
+    user.role === 'company'
+      ? COMPANY_GROUPS.map((g) => ({
+          key: g.key,
+          label: fr.companySpace.groups[g.key],
+          icon: COMPANY_ICONS[g.key as keyof typeof COMPANY_ICONS] ?? House,
+          active: phase === 'home' && groupOf(companyTab) === g.key,
+          onPress: () => {
+            setCompanyTab(g.tabs[0]);
+            handleTabChange('home');
+          },
+        }))
+      : undefined;
 
   const openDomain = (key: DomainKey, from: Phase) => {
     if (key === "profil") {
@@ -671,7 +688,16 @@ export default function App() {
           />
         );
       case "company":
-        return <CompanyScreen user={user} onLogout={handleLogout} showHeader={false} />;
+        return (
+          <CompanyScreen
+            user={user}
+            onLogout={handleLogout}
+            showHeader={false}
+            tab={companyTab}
+            onTabChange={setCompanyTab}
+            desktop={desktop}
+          />
+        );
       case "cooperative":
         return <CooperativeScreen user={user} onLogout={handleLogout} showHeader={false} />;
       default:
@@ -694,11 +720,13 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider force={user.role === 'operator' || user.role === 'admin' ? undefined : 'dark'}>
+      <ThemeProvider force={user.role === 'cooperative' ? 'dark' : undefined}>
       <Shell band={designed}>
         <ErrorBoundary onHome={goHome}>
         <DesktopFrame
           enabled={desktopFrame}
+          sections={companySections}
+          sectionsTitle={user.role === 'company' ? fr.web.companySpace : undefined}
           user={user}
           active={desktopActive}
           roleLabel={roleLabel}

@@ -2,14 +2,13 @@ import React from "react";
 import {
   ActivityIndicator,
   FlatList,
-  StyleSheet,
-  Text,
+    Text,
   TouchableOpacity,
   View,
 } from "react-native";
 
 import { AuthUser, listProjects, Project } from "../api/client";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 interface Props {
   user: AuthUser;
@@ -34,6 +33,8 @@ const TARGET_LABELS: Record<string, string> = {
 };
 
 export default function ProjetsScreen({ user, onOpenProject, onCreateProject, onBack }: Props) {
+  const styles = useStyles();
+  const theme = useTheme();
   const [projects, setProjects] = React.useState<Project[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -74,7 +75,7 @@ export default function ProjetsScreen({ user, onOpenProject, onCreateProject, on
       </View>
 
       {loading ? (
-        <ActivityIndicator style={styles.center} color={colors.accent} />
+        <ActivityIndicator style={styles.center} color={theme.c.olive} />
       ) : error ? (
         <View style={styles.center}>
           <Text style={styles.error}>{error}</Text>
@@ -120,38 +121,38 @@ export default function ProjetsScreen({ user, onOpenProject, onCreateProject, on
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+const useStyles = makeStyles((th) => ({
+  container: { flex: 1, backgroundColor: th.c.bg },
   topBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: spacing.md,
+    padding: th.space.lg,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: th.c.line,
   },
-  back: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  title: { color: colors.text, fontSize: type.heading, fontWeight: "800", flexShrink: 1 },
-  create: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
+  back: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  title: { color: th.c.ink, fontSize: 20, flexShrink: 1, fontFamily: th.fonts.display },
+  create: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   spacer: { width: 70 },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.sm, padding: spacing.lg },
-  error: { color: colors.error, fontSize: type.body },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700", marginTop: spacing.sm },
-  empty: { color: colors.textDim, fontSize: type.body },
-  list: { padding: spacing.md, gap: spacing.sm },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: th.space.sm, padding: th.space.xl },
+  error: { color: th.c.risk, fontSize: 15, fontFamily: th.fonts.body },
+  link: { color: th.c.olive, fontSize: 15, marginTop: th.space.sm, fontFamily: th.fonts.bodyBold },
+  empty: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body },
+  list: { padding: th.space.lg, gap: th.space.sm },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
-  cardHeader: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: spacing.sm },
-  cardTitle: { color: colors.text, fontSize: type.body, fontWeight: "700", flexShrink: 1 },
-  statusBadge: { borderRadius: 6, paddingHorizontal: spacing.sm, paddingVertical: 2, backgroundColor: colors.textDim },
-  statusOpen: { backgroundColor: colors.success },
-  statusText: { color: colors.text, fontSize: type.caption, fontWeight: "800" },
-  cardMeta: { color: colors.textDim, fontSize: type.caption },
-  cardStats: { color: colors.accent, fontSize: type.caption, fontWeight: "700" },
-});
+  cardHeader: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: th.space.sm },
+  cardTitle: { color: th.c.ink, fontSize: 15, flexShrink: 1, fontFamily: th.fonts.bodyBold },
+  statusBadge: { borderRadius: 6, paddingHorizontal: th.space.sm, paddingVertical: 2, backgroundColor: th.c.muted },
+  statusOpen: { backgroundColor: th.c.ok },
+  statusText: { color: th.c.ink, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  cardMeta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  cardStats: { color: th.c.olive, fontSize: 12, fontFamily: th.fonts.bodyBold },
+}));

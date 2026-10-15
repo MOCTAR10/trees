@@ -3,8 +3,7 @@ import {
   ActivityIndicator,
   FlatList,
   Modal,
-  StyleSheet,
-  Text,
+    Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -23,7 +22,6 @@ import {
 import RoleHeader from "../components/RoleHeader";
 import { fr } from "../i18n/fr";
 import { exportDeclarationPlatesPdf, sharePdf } from "../pdf";
-import { colors, spacing, type } from "../theme";
 import CompanyTitles from "../components/CompanyTitles";
 import CompanyTraceability from "../components/CompanyTraceability";
 import CompanyFiscal from "../components/CompanyFiscal";
@@ -36,21 +34,30 @@ import MillRegister from "../components/MillRegister";
 import CompanyHomeScreen from "./CompanyHomeScreen";
 import CustodyScreen from "./CustodyScreen";
 import DeclareScreen from "./DeclareScreen";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 interface Props {
   user: AuthUser;
   onLogout: () => void;
   showHeader?: boolean;
+  /** Controlled area / screen (desktop web: the side menu drives it). */
+  tab?: CompanyTab;
+  onTabChange?: (tab: CompanyTab) => void;
+  desktop?: boolean;
 }
 
 
-export default function CompanyScreen({ user, onLogout, showHeader = true }: Props) {
+export default function CompanyScreen({ user, onLogout, showHeader = true, tab: controlledTab, onTabChange, desktop }: Props) {
+  const styles = useStyles();
+  const theme = useTheme();
   const [residues, setResidues] = useState<CompanyResidue[]>([]);
   const [cooperatives, setCooperatives] = useState<Cooperation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [picking, setPicking] = useState<CompanyResidue | null>(null);
-  const [tab, setTab] = useState<CompanyTab>("accueil");
+  const [ownTab, setOwnTab] = useState<CompanyTab>("accueil");
+  const tab = controlledTab ?? ownTab;
+  const setTab = onTabChange ?? setOwnTab;
   const [declarations, setDeclarations] = useState<Declaration[]>([]);
   const [platesBusy, setPlatesBusy] = useState<number | null>(null);
 
@@ -160,7 +167,7 @@ export default function CompanyScreen({ user, onLogout, showHeader = true }: Pro
     <View style={styles.container}>
       {showHeader && <RoleHeader title={fr.company.title} subtitle={fr.company.subtitle} />}
 
-      <CompanyNav tab={tab} labels={LABELS} onChange={setTab} />
+      <CompanyNav tab={tab} labels={LABELS} onChange={setTab} hideGroups={desktop} />
 
       {tab === "accueil" ? (
         <CompanyHomeScreen onOpen={(target) => setTab(target as CompanyTab)} />
@@ -201,7 +208,7 @@ export default function CompanyScreen({ user, onLogout, showHeader = true }: Pro
               <Text style={styles.declareText}>+ {fr.felling.newDeclaration}</Text>
             </TouchableOpacity>
             {declLoading ? (
-              <ActivityIndicator style={styles.center} color={colors.accent} />
+              <ActivityIndicator style={styles.center} color={theme.c.olive} />
             ) : declError ? (
               <View style={styles.center}>
                 <Text style={styles.error}>{declError}</Text>
@@ -246,7 +253,7 @@ export default function CompanyScreen({ user, onLogout, showHeader = true }: Pro
           </View>
         )
       ) : loading ? (
-        <ActivityIndicator style={styles.center} color={colors.accent} />
+        <ActivityIndicator style={styles.center} color={theme.c.olive} />
       ) : error ? (
         <View style={styles.center}>
           <Text style={styles.error}>{error}</Text>
@@ -342,77 +349,77 @@ export default function CompanyScreen({ user, onLogout, showHeader = true }: Pro
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+const useStyles = makeStyles((th) => ({
+  container: { flex: 1, backgroundColor: th.c.bg },
   flex1: { flex: 1 },
   declareBtn: {
-    margin: spacing.md,
+    margin: th.space.lg,
     marginBottom: 0,
     borderWidth: 1,
-    borderColor: colors.accent,
+    borderColor: th.c.olive,
     borderRadius: 10,
-    padding: spacing.sm,
+    padding: th.space.sm,
     alignItems: "center",
   },
-  declareText: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.md },
-  dim: { color: colors.textDim, fontSize: type.body },
-  error: { color: colors.error, fontSize: type.body },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  list: { padding: spacing.md, gap: spacing.sm },
+  declareText: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: th.space.lg },
+  dim: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body },
+  error: { color: th.c.risk, fontSize: 15, fontFamily: th.fonts.body },
+  link: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  list: { padding: th.space.lg, gap: th.space.sm },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
-  species: { color: colors.text, fontSize: type.body, fontWeight: "700", fontStyle: "italic" },
-  meta: { color: colors.textDim, fontSize: type.caption },
-  assigned: { color: colors.success, fontSize: type.caption, fontWeight: "700" },
+  species: { color: th.c.ink, fontSize: 15, fontStyle: "italic", fontFamily: th.fonts.bodyBold },
+  meta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  assigned: { color: th.c.ok, fontSize: 12, fontFamily: th.fonts.bodyBold },
   actionsRow: {
     flexDirection: "row",
-    gap: spacing.sm,
-    marginTop: spacing.sm,
+    gap: th.space.sm,
+    marginTop: th.space.sm,
   },
   action: {
     flex: 1,
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
     borderRadius: 8,
-    paddingVertical: spacing.sm,
+    paddingVertical: th.space.sm,
     alignItems: "center",
   },
   actionSecondary: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: th.c.surface2,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  actionDanger: { backgroundColor: colors.error },
-  actionText: { color: colors.primary, fontSize: type.caption, fontWeight: "800" },
-  coopAffinity: { color: colors.success, fontSize: type.caption, fontWeight: "600", marginTop: spacing.xs },
+  actionDanger: { backgroundColor: th.c.risk },
+  actionText: { color: th.c.onOlive, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  coopAffinity: { color: th.c.ok, fontSize: 12, marginTop: th.space.xs, fontFamily: th.fonts.bodyBold },
   modalBackdrop: {
     flex: 1,
     backgroundColor: "rgba(14,21,18,0.8)",
     justifyContent: "flex-end",
   },
   modalCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    padding: spacing.lg,
-    gap: spacing.sm,
+    padding: th.space.xl,
+    gap: th.space.sm,
     maxHeight: "70%",
   },
-  modalTitle: { color: colors.text, fontSize: type.heading, fontWeight: "700" },
+  modalTitle: { color: th.c.ink, fontSize: 20, fontFamily: th.fonts.display },
   modalList: { flexGrow: 0 },
   coopRow: {
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: th.c.line,
   },
-  coopName: { color: colors.text, fontSize: type.body, fontWeight: "600" },
-  coopMeta: { color: colors.textDim, fontSize: type.caption },
-  cancelBtn: { alignItems: "center", paddingVertical: spacing.md },
-  cancelText: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-});
+  coopName: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  coopMeta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  cancelBtn: { alignItems: "center", paddingVertical: th.space.lg },
+  cancelText: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+}));

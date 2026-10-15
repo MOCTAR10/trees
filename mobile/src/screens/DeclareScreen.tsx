@@ -2,8 +2,7 @@ import React from "react";
 import {
   ActivityIndicator,
   ScrollView,
-  StyleSheet,
-  Text,
+    Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -21,7 +20,7 @@ import {
   RegistryTree,
 } from "../api/client";
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 const t = fr.felling;
 
@@ -44,6 +43,8 @@ function newLine(): LineDraft {
 }
 
 export default function DeclareScreen({ onDone, onBack }: Props) {
+  const styles = useStyles();
+  const theme = useTheme();
   const [permitType, setPermitType] = React.useState<PermitType>("PFA");
   const [permitNumber, setPermitNumber] = React.useState("");
   const [ufa, setUfa] = React.useState("");
@@ -208,7 +209,7 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
         value={permitNumber}
         onChangeText={setPermitNumber}
         placeholder="PFA-2026-07"
-        placeholderTextColor={colors.textDim}
+        placeholderTextColor={theme.c.muted}
         autoCapitalize="characters"
       />
       <View style={styles.duo}>
@@ -219,7 +220,7 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
             value={ufa}
             onChangeText={setUfa}
             placeholder="UFA-3"
-            placeholderTextColor={colors.textDim}
+            placeholderTextColor={theme.c.muted}
           />
         </View>
         <View style={styles.flex1}>
@@ -230,14 +231,14 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
             onChangeText={setCampaign}
             keyboardType="numeric"
             placeholder="2026"
-            placeholderTextColor={colors.textDim}
+            placeholderTextColor={theme.c.muted}
           />
         </View>
       </View>
       <Text style={styles.label}>{t.aacPick}</Text>
       <Text style={styles.meta}>{t.aacPickHint}</Text>
       {aacOptions == null ? (
-        <ActivityIndicator color={colors.accent} />
+        <ActivityIndicator color={theme.c.olive} />
       ) : aacOptions.length === 0 ? (
         <Text style={styles.meta} testID="aac-none">
           {t.aacNone}
@@ -288,7 +289,7 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
             value={line.tree_code}
             onChangeText={(v) => patchLine(line.key, { tree_code: v })}
             placeholder={t.treeCode}
-            placeholderTextColor={colors.textDim}
+            placeholderTextColor={theme.c.muted}
             autoCapitalize="characters"
             testID={`tree-code-${i}`}
           />
@@ -310,7 +311,7 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
             value={line.species_scientific_name ?? ""}
             onChangeText={(v) => patchLine(line.key, { species_scientific_name: v })}
             placeholder={t.species}
-            placeholderTextColor={colors.textDim}
+            placeholderTextColor={theme.c.muted}
             autoCapitalize="none"
           />
           <TextInput
@@ -321,7 +322,7 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
               patchLine(line.key, { measured_dbh_cm: Number.isFinite(n) ? n : null });
             }}
             placeholder={t.dbh}
-            placeholderTextColor={colors.textDim}
+            placeholderTextColor={theme.c.muted}
             keyboardType="numeric"
           />
         </View>
@@ -341,7 +342,7 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
         testID="submit-declaration"
       >
         {busy ? (
-          <ActivityIndicator color={colors.primary} />
+          <ActivityIndicator color={theme.c.forest} />
         ) : (
           <Text style={styles.primaryText}>{t.submit}</Text>
         )}
@@ -350,99 +351,103 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  form: { padding: spacing.md, gap: spacing.sm, paddingBottom: spacing.xl },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  label: { color: colors.text, fontSize: type.caption, fontWeight: "700", marginTop: spacing.xs },
-  section: { color: colors.accent, fontSize: type.body, fontWeight: "800", marginTop: spacing.md },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs },
+const useStyles = makeStyles((th) => ({
+  container: { flex: 1, backgroundColor: th.c.bg },
+  form: { padding: th.space.lg, gap: th.space.sm, paddingBottom: th.space.xxl },
+  link: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  label: { color: th.c.ink, fontSize: 12, marginTop: th.space.xs, fontFamily: th.fonts.bodyBold },
+  section: { color: th.c.olive, fontSize: 15, marginTop: th.space.lg, fontFamily: th.fonts.bodyBold },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: th.space.xs },
   chip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.xs,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderColor: th.c.line,
+    backgroundColor: th.c.surface,
   },
-  chipOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  chipText: { color: colors.textDim, fontSize: type.caption, fontWeight: "700" },
-  chipTextOn: { color: colors.primary },
+  chipOn: { backgroundColor: th.c.olive, borderColor: th.c.olive },
+  chipText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  chipTextOn: { color: th.c.onOlive },
   input: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    color: colors.text,
-    fontSize: type.body,
+    borderColor: th.c.line,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    color: th.c.ink,
+    fontSize: 15,
+    fontFamily: th.fonts.body,
+
   },
-  duo: { flexDirection: "row", gap: spacing.sm },
+  duo: { flexDirection: "row", gap: th.space.sm },
   flex1: { flex: 1 },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.sm,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.sm,
   },
   cardHead: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  cardTitle: { color: colors.text, fontSize: type.body, fontWeight: "800" },
-  remove: { color: colors.error, fontSize: type.caption, fontWeight: "700" },
+  cardTitle: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  remove: { color: th.c.risk, fontSize: 12, fontFamily: th.fonts.bodyBold },
   secondary: {
     borderWidth: 1,
-    borderColor: colors.accent,
+    borderColor: th.c.olive,
     borderRadius: 10,
-    padding: spacing.sm,
+    padding: th.space.sm,
     alignItems: "center",
   },
-  secondaryText: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
+  secondaryText: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   primary: {
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
     borderRadius: 10,
-    padding: spacing.md,
+    padding: th.space.lg,
     alignItems: "center",
-    marginTop: spacing.sm,
+    marginTop: th.space.sm,
   },
-  primaryText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
+  primaryText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   dim: { opacity: 0.5 },
-  error: { color: colors.error, fontSize: type.body, textAlign: "center" },
-  success: { color: colors.success, fontSize: type.heading, fontWeight: "800", textAlign: "center", marginTop: spacing.xl },
-  meta: { color: colors.textDim, fontSize: type.body, textAlign: "center", marginBottom: spacing.md },
-  list: { padding: spacing.md, gap: spacing.sm },
+  error: { color: th.c.risk, fontSize: 15, textAlign: "center", fontFamily: th.fonts.body },
+  success: { color: th.c.ok, fontSize: 20, textAlign: "center", marginTop: th.space.xxl, fontFamily: th.fonts.display },
+  meta: { color: th.c.muted, fontSize: 15, textAlign: "center", marginBottom: th.space.lg, fontFamily: th.fonts.body },
+  list: { padding: th.space.lg, gap: th.space.sm },
   row: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
-  code: { color: colors.text, fontSize: type.body, fontWeight: "800" },
-  badges: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs },
+  code: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  badges: { flexDirection: "row", flexWrap: "wrap", gap: th.space.xs },
   badge: {
-    backgroundColor: colors.warning,
-    color: colors.primary,
-    fontSize: type.caption,
-    fontWeight: "800",
+    backgroundColor: th.c.warn,
+    color: th.c.onOlive,
+    fontSize: 12,
     borderRadius: 6,
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: th.space.sm,
     paddingVertical: 2,
     overflow: "hidden",
+    fontFamily: th.fonts.bodyBold,
+
   },
   ok: {
-    backgroundColor: colors.success,
+    backgroundColor: th.c.ok,
     color: "#FFFFFF",
-    fontSize: type.caption,
-    fontWeight: "800",
+    fontSize: 12,
     borderRadius: 6,
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: th.space.sm,
     paddingVertical: 2,
     overflow: "hidden",
+    fontFamily: th.fonts.bodyBold,
+
   },
-  aacOn: { borderColor: colors.accent, borderWidth: 2 },
-  aacOk: { color: colors.success, fontSize: type.caption, fontWeight: "700" },
-  aacBlocked: { color: colors.warning, fontSize: type.caption, fontWeight: "700" },
-});
+  aacOn: { borderColor: th.c.olive, borderWidth: 2 },
+  aacOk: { color: th.c.ok, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  aacBlocked: { color: th.c.warn, fontSize: 12, fontFamily: th.fonts.bodyBold },
+}));

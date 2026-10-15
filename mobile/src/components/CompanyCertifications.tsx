@@ -3,8 +3,7 @@ import {
   ActivityIndicator,
   Modal,
   ScrollView,
-  StyleSheet,
-  Text,
+    Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -21,15 +20,17 @@ import {
 } from "../api/client";
 import { fr } from "../i18n/fr";
 import { exportCertificationPdf, sharePdf } from "../pdf";
-import { colors, spacing, type } from "../theme";
 import Badge, { certTone } from "./Badge";
 import { frDate, shown } from "../design/format";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 const SCHEMES: CertScheme[] = ["FSC", "PAFC", "PEFC", "OLB", "LS", "TLV"];
 const TYPES: CertType[] = ["gestion_durable", "legalite_plus"];
 
 /** Company view: declare and track its third-party certifications. */
 export default function CompanyCertifications() {
+  const styles = useStyles();
+  const theme = useTheme();
   const [certs, setCerts] = useState<Certification[]>([]);
   const [titles, setTitles] = useState<ForestTitle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,7 +89,7 @@ export default function CompanyCertifications() {
       {message ? <Text style={styles.success}>{message}</Text> : null}
 
       {loading ? (
-        <ActivityIndicator style={styles.center} color={colors.accent} />
+        <ActivityIndicator style={styles.center} color={theme.c.olive} />
       ) : certs.length === 0 ? (
         <View style={styles.center}>
           <Text style={styles.dim}>{fr.cert.noCerts}</Text>
@@ -157,6 +158,8 @@ function DeclareModal({
   onClose: () => void;
   onCreated: () => void;
 }) {
+  const styles = useStyles();
+  const theme = useTheme();
   const [scheme, setScheme] = useState<CertScheme>("FSC");
   const [certType, setCertType] = useState<CertType>("gestion_durable");
   const [reference, setReference] = useState("");
@@ -241,7 +244,7 @@ function DeclareModal({
             <TextInput
               style={styles.input}
               placeholder={fr.cert.reference}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={reference}
               onChangeText={setReference}
               autoCapitalize="characters"
@@ -250,7 +253,7 @@ function DeclareModal({
             <TextInput
               style={styles.input}
               placeholder={fr.cert.surface}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={surface}
               onChangeText={setSurface}
               keyboardType="numeric"
@@ -258,14 +261,14 @@ function DeclareModal({
             <TextInput
               style={styles.input}
               placeholder={fr.cert.validFrom}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={validFrom}
               onChangeText={setValidFrom}
             />
             <TextInput
               style={styles.input}
               placeholder={fr.cert.validTo}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={validTo}
               onChangeText={setValidTo}
             />
@@ -311,7 +314,7 @@ function DeclareModal({
                 testID="cert-submit"
               >
                 {busy ? (
-                  <ActivityIndicator color={colors.primary} />
+                  <ActivityIndicator color={theme.c.forest} />
                 ) : (
                   <Text style={styles.submitText}>{fr.cert.newCert}</Text>
                 )}
@@ -324,105 +327,108 @@ function DeclareModal({
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+const useStyles = makeStyles((th) => ({
+  container: { flex: 1, backgroundColor: th.c.bg },
   addBtn: {
-    margin: spacing.md,
+    margin: th.space.lg,
     marginBottom: 0,
     borderWidth: 1,
-    borderColor: colors.accent,
+    borderColor: th.c.olive,
     borderRadius: 10,
-    padding: spacing.sm,
+    padding: th.space.sm,
     alignItems: "center",
   },
-  addText: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  success: { color: colors.success, fontSize: type.caption, fontWeight: "700", margin: spacing.sm },
+  addText: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  success: { color: th.c.ok, fontSize: 12, margin: th.space.sm, fontFamily: th.fonts.bodyBold },
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  dim: { color: colors.textDim, fontSize: type.body },
-  error: { color: colors.error, fontSize: type.body, textAlign: "center" },
-  list: { padding: spacing.md, gap: spacing.sm },
+  dim: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body },
+  error: { color: th.c.risk, fontSize: 15, textAlign: "center", fontFamily: th.fonts.body },
+  list: { padding: th.space.lg, gap: th.space.sm },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
   cardTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: th.space.sm,
   },
-  scheme: { color: colors.text, fontSize: type.body, fontWeight: "700", flex: 1 },
-  meta: { color: colors.textDim, fontSize: type.caption },
-  actionsRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm, marginTop: spacing.xs },
+  scheme: { color: th.c.ink, fontSize: 15, flex: 1, fontFamily: th.fonts.bodyBold },
+  meta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  actionsRow: { flexDirection: "row", flexWrap: "wrap", gap: th.space.sm, marginTop: th.space.xs },
   smallBtn: {
     borderRadius: 8,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.surfaceAlt,
+    paddingVertical: th.space.xs,
+    paddingHorizontal: th.space.lg,
+    backgroundColor: th.c.surface2,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  smallBtnText: { color: colors.text, fontSize: type.caption, fontWeight: "800" },
+  smallBtnText: { color: th.c.ink, fontSize: 12, fontFamily: th.fonts.bodyBold },
   backdrop: { flex: 1, backgroundColor: "rgba(14,21,18,0.8)", justifyContent: "flex-end" },
   modal: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    padding: spacing.lg,
+    padding: th.space.xl,
     maxHeight: "85%",
   },
   modalTitle: {
-    color: colors.text,
-    fontSize: type.heading,
-    fontWeight: "700",
-    marginBottom: spacing.sm,
+    color: th.c.ink,
+    fontSize: 20,
+    marginBottom: th.space.sm,
+    fontFamily: th.fonts.display,
+
   },
-  form: { paddingBottom: spacing.sm },
-  fieldLabel: { color: colors.textDim, fontSize: type.caption, marginBottom: spacing.xs },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs, marginBottom: spacing.sm },
+  form: { paddingBottom: th.space.sm },
+  fieldLabel: { color: th.c.muted, fontSize: 12, marginBottom: th.space.xs, fontFamily: th.fonts.body },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: th.space.xs, marginBottom: th.space.sm },
   chip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.xs,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.background,
+    borderColor: th.c.line,
+    backgroundColor: th.c.bg,
   },
-  chipOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  chipText: { color: colors.textDim, fontSize: type.caption, fontWeight: "700" },
-  chipTextOn: { color: colors.primary },
+  chipOn: { backgroundColor: th.c.olive, borderColor: th.c.olive },
+  chipText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  chipTextOn: { color: th.c.onOlive },
   input: {
-    backgroundColor: colors.background,
+    backgroundColor: th.c.bg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: type.body,
-    marginBottom: spacing.sm,
+    borderColor: th.c.line,
+    color: th.c.ink,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    fontSize: 15,
+    marginBottom: th.space.sm,
+    fontFamily: th.fonts.body,
+
   },
-  actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.sm },
+  actions: { flexDirection: "row", gap: th.space.sm, marginTop: th.space.sm },
   cancelBtn: {
     flex: 1,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  cancelText: { color: colors.text, fontSize: type.body, fontWeight: "700" },
+  cancelText: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
   submitBtn: {
     flex: 2,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
   },
-  submitText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
+  submitText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   submitDisabled: { opacity: 0.6 },
-});
+}));

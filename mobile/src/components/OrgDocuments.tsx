@@ -3,8 +3,7 @@ import {
   ActivityIndicator,
   Modal,
   ScrollView,
-  StyleSheet,
-  Text,
+    Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -17,13 +16,15 @@ import {
   uploadDocument,
 } from "../api/client";
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
 import Badge, { docTone } from "./Badge";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 /** Company view: own organization identity + required-document checklist. */
 export default function OrgDocuments() {
+  const styles = useStyles();
+  const theme = useTheme();
   const [detail, setDetail] = useState<OrganizationDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +49,7 @@ export default function OrgDocuments() {
   }, [load]);
 
   if (loading) {
-    return <ActivityIndicator style={styles.center} color={colors.accent} />;
+    return <ActivityIndicator style={styles.center} color={theme.c.olive} />;
   }
   if (error || !detail) {
     return (
@@ -140,6 +141,8 @@ function DocumentModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const styles = useStyles();
+  const theme = useTheme();
   const [reference, setReference] = useState("");
   const [authority, setAuthority] = useState("");
   const [issuedAt, setIssuedAt] = useState("");
@@ -202,21 +205,21 @@ function DocumentModal({
             <TextInput
               style={styles.input}
               placeholder={fr.docs.reference}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={reference}
               onChangeText={setReference}
             />
             <TextInput
               style={styles.input}
               placeholder={fr.docs.authority}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={authority}
               onChangeText={setAuthority}
             />
             <TextInput
               style={styles.input}
               placeholder={fr.docs.issuedAt}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={issuedAt}
               onChangeText={setIssuedAt}
               autoCapitalize="none"
@@ -224,7 +227,7 @@ function DocumentModal({
             <TextInput
               style={styles.input}
               placeholder={fr.docs.expiresAt}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={expiresAt}
               onChangeText={setExpiresAt}
               autoCapitalize="none"
@@ -232,7 +235,7 @@ function DocumentModal({
             <TextInput
               style={styles.input}
               placeholder={fr.docs.fileUrl}
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               value={fileUrl}
               onChangeText={setFileUrl}
               autoCapitalize="none"
@@ -249,7 +252,7 @@ function DocumentModal({
                 testID="doc-submit"
               >
                 {busy ? (
-                  <ActivityIndicator color={colors.primary} />
+                  <ActivityIndicator color={theme.c.forest} />
                 ) : (
                   <Text style={styles.submitText}>{fr.docs.submit}</Text>
                 )}
@@ -262,89 +265,92 @@ function DocumentModal({
   );
 }
 
-const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.md, padding: spacing.lg },
-  error: { color: colors.error, fontSize: type.body, textAlign: "center" },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  list: { padding: spacing.md, gap: spacing.sm, paddingBottom: spacing.xl },
+const useStyles = makeStyles((th) => ({
+  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: th.space.lg, padding: th.space.xl },
+  error: { color: th.c.risk, fontSize: 15, textAlign: "center", fontFamily: th.fonts.body },
+  link: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  list: { padding: th.space.lg, gap: th.space.sm, paddingBottom: th.space.xxl },
   sectionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: spacing.sm,
+    marginTop: th.space.sm,
   },
-  section: { color: colors.accent, fontSize: type.body, fontWeight: "800" },
+  section: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
   cardTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: th.space.sm,
   },
-  name: { color: colors.text, fontSize: type.heading, fontWeight: "800" },
-  docLabel: { color: colors.text, fontSize: type.body, fontWeight: "700", flex: 1 },
-  meta: { color: colors.textDim, fontSize: type.caption },
-  dim: { color: colors.textDim, fontSize: type.body, marginTop: spacing.sm },
-  success: { color: colors.success, fontSize: type.body, fontWeight: "700" },
+  name: { color: th.c.ink, fontSize: 20, fontFamily: th.fonts.display },
+  docLabel: { color: th.c.ink, fontSize: 15, flex: 1, fontFamily: th.fonts.bodyBold },
+  meta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+  dim: { color: th.c.muted, fontSize: 15, marginTop: th.space.sm, fontFamily: th.fonts.body },
+  success: { color: th.c.ok, fontSize: 15, fontFamily: th.fonts.bodyBold },
   action: {
-    marginTop: spacing.sm,
+    marginTop: th.space.sm,
     borderWidth: 1,
-    borderColor: colors.accent,
+    borderColor: th.c.olive,
     borderRadius: 8,
-    paddingVertical: spacing.sm,
+    paddingVertical: th.space.sm,
     alignItems: "center",
   },
-  actionText: { color: colors.accent, fontSize: type.caption, fontWeight: "800" },
+  actionText: { color: th.c.olive, fontSize: 12, fontFamily: th.fonts.bodyBold },
   backdrop: { flex: 1, backgroundColor: "rgba(14,21,18,0.8)", justifyContent: "flex-end" },
   modal: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    padding: spacing.lg,
+    padding: th.space.xl,
     maxHeight: "85%",
   },
   modalTitle: {
-    color: colors.text,
-    fontSize: type.heading,
-    fontWeight: "700",
-    marginBottom: spacing.sm,
+    color: th.c.ink,
+    fontSize: 20,
+    marginBottom: th.space.sm,
+    fontFamily: th.fonts.display,
+
   },
-  form: { paddingBottom: spacing.sm },
+  form: { paddingBottom: th.space.sm },
   input: {
-    backgroundColor: colors.background,
+    backgroundColor: th.c.bg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: type.body,
-    marginBottom: spacing.sm,
+    borderColor: th.c.line,
+    color: th.c.ink,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    fontSize: 15,
+    marginBottom: th.space.sm,
+    fontFamily: th.fonts.body,
+
   },
-  actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.sm },
+  actions: { flexDirection: "row", gap: th.space.sm, marginTop: th.space.sm },
   cancelBtn: {
     flex: 1,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
   },
-  cancelText: { color: colors.text, fontSize: type.body, fontWeight: "700" },
+  cancelText: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold },
   submitBtn: {
     flex: 2,
     alignItems: "center",
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     borderRadius: 10,
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
   },
-  submitText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
+  submitText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   submitDisabled: { opacity: 0.6 },
-});
+}));

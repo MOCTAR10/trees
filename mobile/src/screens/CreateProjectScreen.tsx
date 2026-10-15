@@ -2,8 +2,7 @@ import React from "react";
 import {
   ActivityIndicator,
   ScrollView,
-  StyleSheet,
-  Text,
+    Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -18,7 +17,7 @@ import {
   ProjectParticipation,
   ProjectTargetType,
 } from "../api/client";
-import { colors, spacing, type } from "../theme";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 interface Props {
   onDone: () => void;
@@ -51,6 +50,8 @@ const TARGETS: { value: ProjectTargetType; label: string }[] = [
 ];
 
 export default function CreateProjectScreen({ onDone, onBack }: Props) {
+  const styles = useStyles();
+  const theme = useTheme();
   const [kind, setKind] = React.useState<ProjectKind>("participatif");
   const [participation, setParticipation] = React.useState<ProjectParticipation>("open");
   const [aacs, setAacs] = React.useState<AacOption[]>([]);
@@ -175,7 +176,7 @@ export default function CreateProjectScreen({ onDone, onBack }: Props) {
           value={title}
           onChangeText={setTitle}
           placeholder="Ex. Cartographier l'Okoumé"
-          placeholderTextColor={colors.textDim}
+          placeholderTextColor={theme.c.muted}
           style={styles.input}
         />
 
@@ -184,7 +185,7 @@ export default function CreateProjectScreen({ onDone, onBack }: Props) {
           value={description}
           onChangeText={setDescription}
           placeholder="Objectif, consignes…"
-          placeholderTextColor={colors.textDim}
+          placeholderTextColor={theme.c.muted}
           style={[styles.input, styles.multiline]}
           multiline
         />
@@ -226,7 +227,7 @@ export default function CreateProjectScreen({ onDone, onBack }: Props) {
               value={targetValue}
               onChangeText={setTargetValue}
               placeholder="Ex. Aucoumea klaineana"
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               style={styles.input}
             />
           </>
@@ -239,7 +240,7 @@ export default function CreateProjectScreen({ onDone, onBack }: Props) {
               value={radius}
               onChangeText={setRadius}
               placeholder="Ex. 50"
-              placeholderTextColor={colors.textDim}
+              placeholderTextColor={theme.c.muted}
               keyboardType="numeric"
               style={styles.input}
             />
@@ -250,7 +251,7 @@ export default function CreateProjectScreen({ onDone, onBack }: Props) {
 
         <TouchableOpacity style={styles.submit} onPress={submit} disabled={busy}>
           {busy ? (
-            <ActivityIndicator color={colors.primary} />
+            <ActivityIndicator color={theme.c.forest} />
           ) : (
             <Text style={styles.submitText}>Publier le projet</Text>
           )}
@@ -260,60 +261,62 @@ export default function CreateProjectScreen({ onDone, onBack }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+const useStyles = makeStyles((th) => ({
+  container: { flex: 1, backgroundColor: th.c.bg },
   topBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: spacing.md,
+    padding: th.space.lg,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: th.c.line,
   },
-  back: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  title: { color: colors.text, fontSize: type.heading, fontWeight: "800", flexShrink: 1 },
+  back: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  title: { color: th.c.ink, fontSize: 20, flexShrink: 1, fontFamily: th.fonts.display },
   spacer: { width: 70 },
-  content: { padding: spacing.md, gap: spacing.sm, paddingBottom: spacing.xl },
-  label: { color: colors.textDim, fontSize: type.caption, textTransform: "uppercase", fontWeight: "700", marginTop: spacing.sm },
+  content: { padding: th.space.lg, gap: th.space.sm, paddingBottom: th.space.xxl },
+  label: { color: th.c.muted, fontSize: 12, textTransform: "uppercase", marginTop: th.space.sm, fontFamily: th.fonts.bodyBold },
   input: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    color: colors.text,
-    fontSize: type.body,
+    borderColor: th.c.line,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    color: th.c.ink,
+    fontSize: 15,
+    fontFamily: th.fonts.body,
+
   },
   multiline: { minHeight: 80, textAlignVertical: "top" },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: th.space.sm },
   chip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderColor: th.c.line,
+    backgroundColor: th.c.surface,
   },
-  chipOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  chipText: { color: colors.textDim, fontSize: type.caption, fontWeight: "600" },
-  chipTextOn: { color: colors.primary, fontWeight: "800" },
-  error: { color: colors.error, fontSize: type.body },
-  hint: { color: colors.textDim, fontSize: type.caption },
+  chipOn: { backgroundColor: th.c.olive, borderColor: th.c.olive },
+  chipText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  chipTextOn: { color: th.c.onOlive, fontWeight: "800" },
+  error: { color: th.c.risk, fontSize: 15, fontFamily: th.fonts.body },
+  hint: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
   aac: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderColor: th.c.line,
+    backgroundColor: th.c.surface,
   },
   submit: {
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
     borderRadius: 12,
-    paddingVertical: spacing.md,
+    paddingVertical: th.space.lg,
     alignItems: "center",
-    marginTop: spacing.md,
+    marginTop: th.space.lg,
   },
-  submitText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
-});
+  submitText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+}));

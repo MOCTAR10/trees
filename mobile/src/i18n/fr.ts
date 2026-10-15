@@ -819,7 +819,7 @@ export const fr = {
     newDue: "Déclarer une échéance",
     noDues: "Aucune échéance.",
     dueAt: "Échéance (AAAA-MM-JJ)",
-    due: "Due le",
+    due: "Échéance le",
     surcharge: "Double droit (art. 283)",
     settle: "Régler",
     settleTitle: "Enregistrer la quittance",
@@ -1563,6 +1563,7 @@ export const fr = {
     fieldBody:
       "Les mesures et les scans se font sur le téléphone, au pied de l'arbre (photo, GPS et heure pris au même instant). Installez l'application Android pour continuer.",
     download: "Télécharger l'application Android",
+    companySpace: "MON ENTREPRISE",
   },
 
   agents: {

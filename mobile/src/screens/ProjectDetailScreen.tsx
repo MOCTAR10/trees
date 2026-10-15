@@ -2,13 +2,13 @@ import React from "react";
 import {
   ActivityIndicator,
   ScrollView,
-  StyleSheet,
-  Text,
+    Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 import {
   attributeScan,
@@ -23,7 +23,6 @@ import {
   MyTree,
   ProjectDetail,
 } from "../api/client";
-import { colors, spacing, type } from "../theme";
 
 interface Props {
   id: number;
@@ -47,6 +46,8 @@ const TARGET_LABELS: Record<string, string> = {
 };
 
 export default function ProjectDetailScreen({ id, user, onBack }: Props) {
+  const styles = useStyles();
+  const theme = useTheme();
   const [project, setProject] = React.useState<ProjectDetail | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -177,7 +178,7 @@ export default function ProjectDetailScreen({ id, user, onBack }: Props) {
       </View>
 
       {loading ? (
-        <ActivityIndicator style={styles.center} color={colors.accent} />
+        <ActivityIndicator style={styles.center} color={theme.c.olive} />
       ) : error || !project ? (
         <View style={styles.center}>
           <Text style={styles.error}>{error ?? "Projet introuvable."}</Text>
@@ -257,7 +258,7 @@ export default function ProjectDetailScreen({ id, user, onBack }: Props) {
                 autoCapitalize="none"
                 keyboardType="email-address"
                 placeholder="agent@exemple.ga"
-                placeholderTextColor={colors.textDim}
+                placeholderTextColor={theme.c.muted}
                 style={styles.inviteInput}
               />
               <TouchableOpacity testID="project-invite" style={styles.attributeBtn} onPress={handleInvite} disabled={actionBusy}>
@@ -315,7 +316,7 @@ export default function ProjectDetailScreen({ id, user, onBack }: Props) {
                   coordinate={{ latitude: c.latitude as number, longitude: c.longitude as number }}
                   title={c.species_scientific_name ?? "Espèce inconnue"}
                   description={c.owner_name}
-                  pinColor={colors.accent}
+                  pinColor={theme.c.olive}
                 />
               ))}
             </MapView>
@@ -344,6 +345,7 @@ export default function ProjectDetailScreen({ id, user, onBack }: Props) {
 }
 
 function Stat({ value, label }: { value: number; label: string }) {
+  const styles = useStyles();
   return (
     <View style={styles.stat}>
       <Text style={styles.statValue}>{value}</Text>
@@ -352,74 +354,74 @@ function Stat({ value, label }: { value: number; label: string }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  topBar: { padding: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
-  back: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.sm, padding: spacing.lg },
-  error: { color: colors.error, fontSize: type.body },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700", marginTop: spacing.sm },
-  content: { padding: spacing.md, gap: spacing.md, paddingBottom: spacing.xl },
-  title: { color: colors.text, fontSize: type.title, fontWeight: "800" },
-  description: { color: colors.textDim, fontSize: type.body },
-  metaRow: { gap: spacing.xs },
-  meta: { color: colors.accent, fontSize: type.body, fontWeight: "600" },
-  statsRow: { flexDirection: "row", gap: spacing.sm },
+const useStyles = makeStyles((th) => ({
+  container: { flex: 1, backgroundColor: th.c.bg },
+  topBar: { padding: th.space.lg, borderBottomWidth: 1, borderBottomColor: th.c.line },
+  back: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: th.space.sm, padding: th.space.xl },
+  error: { color: th.c.risk, fontSize: 15, fontFamily: th.fonts.body },
+  link: { color: th.c.olive, fontSize: 15, marginTop: th.space.sm, fontFamily: th.fonts.bodyBold },
+  content: { padding: th.space.lg, gap: th.space.lg, paddingBottom: th.space.xxl },
+  title: { color: th.c.ink, fontSize: 26, fontFamily: th.fonts.display },
+  description: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body },
+  metaRow: { gap: th.space.xs },
+  meta: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  statsRow: { flexDirection: "row", gap: th.space.sm },
   stat: {
     flex: 1,
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.sm,
+    borderColor: th.c.line,
+    padding: th.space.sm,
     alignItems: "center",
   },
-  statValue: { color: colors.text, fontSize: type.heading, fontWeight: "800" },
-  statLabel: { color: colors.textDim, fontSize: type.caption, textTransform: "uppercase" },
+  statValue: { color: th.c.ink, fontSize: 20, fontFamily: th.fonts.display },
+  statLabel: { color: th.c.muted, fontSize: 12, textTransform: "uppercase", fontFamily: th.fonts.body },
   actionBtn: {
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: th.c.line,
     borderRadius: 10,
-    paddingVertical: spacing.sm,
+    paddingVertical: th.space.sm,
     alignItems: "center",
   },
   actionBtnPrimary: {
-    backgroundColor: colors.accent,
+    backgroundColor: th.c.olive,
     borderRadius: 10,
-    paddingVertical: spacing.sm,
+    paddingVertical: th.space.sm,
     alignItems: "center",
   },
-  actionText: { color: colors.textDim, fontSize: type.body, fontWeight: "700" },
-  actionTextPrimary: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
+  actionText: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  actionTextPrimary: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   attributeBtn: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: th.c.surface2,
     borderRadius: 8,
-    paddingVertical: spacing.sm,
+    paddingVertical: th.space.sm,
     alignItems: "center",
-    marginTop: spacing.xs,
+    marginTop: th.space.xs,
   },
-  attributeText: { color: colors.accent, fontSize: type.caption, fontWeight: "800" },
+  attributeText: { color: th.c.olive, fontSize: 12, fontFamily: th.fonts.bodyBold },
   inviteInput: {
-    backgroundColor: colors.background,
+    backgroundColor: th.c.bg,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    marginTop: spacing.xs,
+    borderColor: th.c.line,
+    color: th.c.ink,
+    paddingHorizontal: th.space.lg,
+    paddingVertical: th.space.sm,
+    marginTop: th.space.xs,
   },
   map: { height: 200, borderRadius: 12 },
-  sectionTitle: { color: colors.accent, fontSize: type.caption, fontWeight: "800", textTransform: "uppercase" },
-  empty: { color: colors.textDim, fontSize: type.body },
+  sectionTitle: { color: th.c.olive, fontSize: 12, textTransform: "uppercase", fontFamily: th.fonts.bodyBold },
+  empty: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body },
   contribution: {
-    backgroundColor: colors.surface,
+    backgroundColor: th.c.surface,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
+    borderColor: th.c.line,
+    padding: th.space.lg,
+    gap: th.space.xs,
   },
-  contributionTitle: { color: colors.text, fontSize: type.body, fontWeight: "700", fontStyle: "italic" },
-  contributionMeta: { color: colors.textDim, fontSize: type.caption },
-});
+  contributionTitle: { color: th.c.ink, fontSize: 15, fontStyle: "italic", fontFamily: th.fonts.bodyBold },
+  contributionMeta: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body },
+}));

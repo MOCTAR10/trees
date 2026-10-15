@@ -18,7 +18,9 @@ import { checkEmail, EmailCheckResponse, getMe, login, setAuthToken } from "../a
 import { fr } from "../i18n/fr";
 import { Session } from "../storage/session";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
-import { colors } from "../theme";
+
+/** Gabonese flag colours (fixed, not themed). */
+const FLAG = { green: "#009E60", gold: "#FEED01", blue: "#4664B2" };
 
 const LEAF_LOGO = require("../../assets/leaf_logo.jpg");
 const GREENLEAVE_LOGO = require("../../assets/greenleave_logo.png");
@@ -32,7 +34,11 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function LoginScreen({ onLogin }: Props) {
   const th = useTheme();
   const styles = useStyles();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+  // Fit the whole login (password step included) on screen without scrolling:
+  // compact header below 860 px of height, one-line footer below 700 px.
+  const compact = height < 860;
+  const tight = height < 700;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -94,20 +100,24 @@ export default function LoginScreen({ onLogin }: Props) {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={[styles.scroll, compact && styles.scrollCompact]}
         keyboardShouldPersistTaps="handled"
         bounces={false}
       >
-        <View style={styles.officialSection}>
-          <View style={styles.emblem}>
-            <Image source={LEAF_LOGO} style={styles.emblemSeal} resizeMode="contain" />
+        <View style={[styles.officialSection, compact && styles.officialCompact]} testID="login-header">
+          <View style={[styles.emblem, compact && styles.emblemCompact]}>
+            <Image
+              source={LEAF_LOGO}
+              style={[styles.emblemSeal, compact && styles.emblemSealCompact, tight && styles.emblemSealTight]}
+              resizeMode="contain"
+            />
           </View>
           <Text style={styles.republicText}>{fr.auth.republic}</Text>
-          <Text style={styles.ministryText}>{fr.auth.official}</Text>
-          <View style={styles.tricolor}>
-            <View style={[styles.tricolorStripe, { backgroundColor: colors.flagGreen }]} />
-            <View style={[styles.tricolorStripe, { backgroundColor: colors.flagGold }]} />
-            <View style={[styles.tricolorStripe, { backgroundColor: colors.flagBlue }]} />
+          <Text style={[styles.ministryText, compact && styles.ministryCompact]}>{fr.auth.official}</Text>
+          <View style={[styles.tricolor, compact && styles.tricolorCompact]}>
+            <View style={[styles.tricolorStripe, { backgroundColor: FLAG.green }]} />
+            <View style={[styles.tricolorStripe, { backgroundColor: FLAG.gold }]} />
+            <View style={[styles.tricolorStripe, { backgroundColor: FLAG.blue }]} />
           </View>
           <View style={styles.goldRule}>
             <View style={styles.goldLine} />
@@ -115,9 +125,10 @@ export default function LoginScreen({ onLogin }: Props) {
           </View>
         </View>
 
-        <View style={[styles.card, { width: cardWidth }]}>
-          <Text style={styles.title}>{fr.appTitle}</Text>
-          <Text style={styles.subtitle}>{fr.auth.subtitle}</Text>
+        <View style={styles.middle}>
+        <View style={[styles.card, compact && styles.cardCompact, { width: cardWidth }]}>
+          <Text style={[styles.title, compact && styles.titleCompact]}>{fr.appTitle}</Text>
+          <Text style={[styles.subtitle, compact && styles.subtitleCompact]}>{fr.auth.subtitle}</Text>
 
           <View style={styles.form}>
             <View style={styles.verifyRow}>
@@ -235,19 +246,28 @@ export default function LoginScreen({ onLogin }: Props) {
           </View>
         </View>
 
-        <View style={styles.notice}>
-          <LockKeyhole size={18} color={th.c.muted} strokeWidth={2} />
-          <Text style={styles.noticeText}>{fr.auth.footer}</Text>
         </View>
 
-        <Text style={styles.version}>{fr.auth.version}</Text>
-
-        <View style={styles.brandFooter}>
-          <View style={styles.brandRow}>
-            <Image source={GREENLEAVE_LOGO} style={styles.brandLogo} resizeMode="contain" />
-            <Text style={styles.brandName}>Green Leave Gabon</Text>
+        <View style={styles.footer} testID="login-footer">
+          <View style={[styles.notice, compact && styles.noticeCompact]}>
+            <LockKeyhole size={tight ? 14 : 18} color={th.c.muted} strokeWidth={2} />
+            <Text style={[styles.noticeText, tight && styles.noticeTextTight]}>{fr.auth.footer}</Text>
           </View>
-          <Text style={styles.copyright}>{fr.auth.copyright}</Text>
+
+          {tight ? (
+            <Text style={styles.version}>{`${fr.auth.version} · ${fr.auth.copyright}`}</Text>
+          ) : (
+            <>
+              <Text style={[styles.version, compact && styles.versionCompact]}>{fr.auth.version}</Text>
+              <View style={[styles.brandFooter, compact && styles.brandFooterCompact]}>
+                <View style={styles.brandRow}>
+                  <Image source={GREENLEAVE_LOGO} style={styles.brandLogo} resizeMode="contain" />
+                  <Text style={styles.brandName}>Green Leave Gabon</Text>
+                </View>
+                <Text style={styles.copyright}>{fr.auth.copyright}</Text>
+              </View>
+            </>
+          )}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -259,8 +279,24 @@ const useStyles = makeStyles((th) => ({
   scroll: {
     flexGrow: 1,
     alignItems: "center",
-    paddingBottom: th.space.xxl + 40,
+    paddingBottom: th.space.lg,
   },
+  scrollCompact: { paddingBottom: th.space.sm },
+  officialCompact: { paddingTop: th.space.lg, paddingBottom: th.space.lg, marginBottom: th.space.lg },
+  emblemCompact: { marginBottom: th.space.sm },
+  emblemSealCompact: { width: 84, height: 56 },
+  emblemSealTight: { width: 60, height: 40 },
+  ministryCompact: { fontSize: 20, lineHeight: 24 },
+  tricolorCompact: { marginTop: th.space.sm, height: 4 },
+  cardCompact: { paddingVertical: th.space.md },
+  titleCompact: { fontSize: 22, lineHeight: 26 },
+  subtitleCompact: { marginBottom: th.space.sm },
+  middle: { flexGrow: 1, justifyContent: "center", alignItems: "center", alignSelf: "stretch" },
+  footer: { alignItems: "center", alignSelf: "stretch" },
+  noticeCompact: { marginTop: th.space.md, paddingVertical: th.space.xs },
+  noticeTextTight: { fontSize: 11 },
+  versionCompact: { marginTop: th.space.sm },
+  brandFooterCompact: { marginTop: th.space.sm },
   officialSection: {
     alignSelf: "stretch",
     alignItems: "center",

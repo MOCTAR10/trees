@@ -35,8 +35,19 @@ export function useDesktop(): boolean {
   return Platform.OS === "web" && width >= DESKTOP_MIN_WIDTH;
 }
 
+export interface SideSection {
+  key: string;
+  label: string;
+  icon: IconComponent;
+  active: boolean;
+  onPress: () => void;
+}
+
 interface Props {
   enabled: boolean;
+  /** Role-specific areas shown first (company: Accueil, Exploitation…); they replace the « home » entry. */
+  sections?: SideSection[];
+  sectionsTitle?: string;
   user: AuthUser;
   active: string;
   roleLabel: string;
@@ -47,7 +58,19 @@ interface Props {
   children: React.ReactNode;
 }
 
-export default function DesktopFrame({ enabled, user, active, roleLabel, orgName, online, onChange, onLogout, children }: Props) {
+export default function DesktopFrame({
+  enabled,
+  sections,
+  sectionsTitle,
+  user,
+  active,
+  roleLabel,
+  orgName,
+  online,
+  onChange,
+  onLogout,
+  children,
+}: Props) {
   const t = useTheme();
   const s = useStyles();
   if (!enabled) return <>{children}</>;
@@ -62,8 +85,26 @@ export default function DesktopFrame({ enabled, user, active, roleLabel, orgName
             <Text style={s.ministry}>{fr.header.ministry}</Text>
           </View>
           <View style={s.rule} />
+          {sections?.length ? (
+            <View style={s.nav}>
+              {sectionsTitle ? <Text style={s.sectionTitle}>{sectionsTitle}</Text> : null}
+              {sections.map((sec) => (
+                <Pressable
+                  key={sec.key}
+                  testID={`side-section-${sec.key}`}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: sec.active }}
+                  onPress={sec.onPress}
+                  style={(state) => [s.item, sec.active && s.itemOn, (state as { hovered?: boolean }).hovered && !sec.active && s.itemHover]}
+                >
+                  <sec.icon size={20} color={sec.active ? t.c.gold : t.c.onForest} strokeWidth={sec.active ? 2.4 : 2} />
+                  <Text style={[s.itemLabel, sec.active && s.itemLabelOn]}>{sec.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+          ) : null}
           <View style={s.nav}>
-            {tabsForRole(user.role).map((tab) => {
+            {tabsForRole(user.role).filter((tab) => !(sections?.length && tab.key === "home")).map((tab) => {
               const Icon = user.role === "admin" && tab.key === "home" ? LayoutDashboard : ICONS[tab.key];
               const on = active === tab.key;
               return (
@@ -116,6 +157,14 @@ const useStyles = makeStyles((th) => ({
   ministry: { color: th.c.onForest, fontFamily: th.fonts.display, fontSize: 18, textAlign: "center", lineHeight: 22 },
   rule: { height: 1.5, backgroundColor: th.c.gold, marginHorizontal: th.space.lg, opacity: 0.8 },
   nav: { gap: 4, paddingHorizontal: th.space.sm },
+  sectionTitle: {
+    color: th.c.gold,
+    fontFamily: th.fonts.displaySemi,
+    fontSize: 11,
+    letterSpacing: 1.2,
+    paddingHorizontal: th.space.md,
+    paddingBottom: 4,
+  },
   item: {
     flexDirection: "row",
     alignItems: "center",
