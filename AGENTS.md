@@ -81,6 +81,7 @@ doc update — as separate logical commits. The full history lives in
 | 24 | Échéances légales (AAC 3 ans, état annuel 31 mars, autorisations, pièces), transmission de l'état annuel, PV de contrôle PDF | `028_slice24.sql` | `services/deadlines.py`, `/api/traceability/statements/file`, `/api/traceability/filings`, `/api/controls/{id}/pdf`, anomalies `aac_ouverture_depassee` / `etat_annuel_non_transmis` | `CompanyHomeScreen` (transmettre, PV), `ControlsScreen` (PV), `MinistryHomeScreen` (alertes) | pt 24 |
 | 25 | Régression par rôle (100 % des points d'accès de chaque rôle), comptes créés par le Ministère rattachés (coopérative, employeur) | `029_slice25.sql` | `scripts/role_coverage.py`, `POST /api/organizations/{id}/accounts` | en-tête entreprise | pt 25 |
 | 26 | Inventaire par scan, équipe gérée par l'entreprise, registre de transformation, suites des contrôles, limite de débit par session, affichage français | `030_slice26.sql` | `services/mill.py`, `/api/mill/*`, `/api/organizations/me/agents`, `/api/controls/{id}/followups`, `/api/controls/followups` (`/status`, `/contest`), file `followups`, `core/fr_format.py`, passerelle | `CompanyAgents`, `MillRegister`, `ministry/ControlFollowups`, `CompanyHomeScreen` (contester), `DeclareScreen` (inventaire), `ScreenAudit` | pt 26 |
+| 27 | Application web du Ministère (même code, `react-native-web`), menu latéral bureau, carte Leaflet, PDF navigateur, hébergement `foresterie-app.greenleaves.ga` | — | — | `src/web/` (DesktopFrame, LeafletMaps, WebFieldNotice), `metro.config.js`, `pdf.ts` | pt 27 |
 
 Latest verified suite counts (Slice 26): **`pytest` 718 passed** · **`tests_e2e` 196 passed**
 (real Postgres) · role coverage **100 %** (admin 98, company 102, operator 37, cooperative 30) ·
@@ -218,6 +219,14 @@ production `.env` **on the server only** (secrets never committed nor pasted in 
 `deploy.sh`. `docker-compose.prod.yml` keeps Postgres off the host ports and binds the API and the gateway to
 127.0.0.1 (nginx is the only public entry, gateway with `REQUIRE_API_KEY=true`). Applied migrations are tracked
 in `schema_migrations`; a new `0NN_*.sql` is applied by the next `deploy.sh`.
+**Web app (Slice 27)**: `https://foresterie-app.greenleaves.ga` — the mobile code exported for the browser
+(`npx expo export --platform web`). Web-only pieces live in `mobile/src/web/`: `DesktopFrame` (side menu at
+≥ 1024 px, kept on decision/domain/organisation pages), `LeafletMaps` (`react-native-maps` is resolved to it for
+the web by `metro.config.js` — keep its API in step when a screen uses a new map prop), `WebFieldNotice`
+(agents and cooperatives are sent to the Android app). `deploy.sh` → `deploy/web/build.sh` rebuilds the site when
+`mobile/` changed; nginx (`deploy/web/nginx-web.conf`) relays `/api` **adding the gateway key**, so the bundle is
+built with `EXPO_PUBLIC_API_URL=` (relative) and no key. One-time host setup: `WEB_HOST=foresterie-app.greenleaves.ga
+bash deploy/web/setup.sh`. Check it in a real browser (screens, map, a PDF), not only with jest.
 **API documentation**: Swagger at `https://greenleaves.ga/api/docs` (ReDoc `/api/redoc`, schema
 `/api/openapi.json`) — readable without the key; « Authorize » takes the gateway key (`ApiKey`) and the
 token from `POST /api/auth/login` (`Bearer`).
