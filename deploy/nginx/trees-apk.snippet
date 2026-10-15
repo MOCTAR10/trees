@@ -1,0 +1,7 @@
+# Android app download: https://<domaine>/app/foresterie.apk (latest signed build from Jenkins).
+location /app/ {
+    alias /var/www/trees-apk/;
+    types { application/vnd.android.package-archive apk; }
+    add_header Content-Disposition "attachment";
+    add_header Cache-Control "no-cache";
+}

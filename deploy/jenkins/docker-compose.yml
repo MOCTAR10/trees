@@ -1,0 +1,23 @@
+# Jenkins beside the production stack, always second in line for the processor:
+# cpu_shares 128 (the app has the default 1024) so a build only uses what the app
+# leaves free, plus hard caps (4 CPUs, 6 GB). Reachable through nginx only.
+services:
+  jenkins:
+    build: .
+    container_name: trees_jenkins
+    restart: unless-stopped
+    env_file: /etc/trees/jenkins.env
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - android_sdk:/opt/android-sdk
+      - /etc/trees/android:/var/jenkins_secrets:ro
+      - /var/www/trees-apk:/var/www/trees-apk
+    cpu_shares: 128
+    cpus: 4
+    mem_limit: 6g
+
+volumes:
+  jenkins_home:
+  android_sdk:

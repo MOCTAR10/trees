@@ -221,6 +221,12 @@ in `schema_migrations`; a new `0NN_*.sql` is applied by the next `deploy.sh`.
 **API documentation**: Swagger at `https://greenleaves.ga/api/docs` (ReDoc `/api/redoc`, schema
 `/api/openapi.json`) — readable without the key; « Authorize » takes the gateway key (`ApiKey`) and the
 token from `POST /api/auth/login` (`Bearer`).
+**Android builds (Jenkins)**: `https://jenkins.greenleaves.ga` (job `foresterie-android`, `mobile/Jenkinsfile`):
+`npm ci` → `tsc` → `expo prebuild` → `gradlew assembleRelease` (arm64/armv7) → signed with
+`/etc/trees/android/release.keystore` → `https://greenleaves.ga/app/foresterie.apk`. No EAS queue. Runs only when
+`mobile/` changed (or by hand). Jenkins has `cpu_shares: 128` (the app 1024) and hard caps (4 CPUs, 6 GB): a build
+never slows the users' app. Setup once: `JENKINS_HOST=jenkins.greenleaves.ga bash deploy/jenkins/setup.sh`.
+**Back up the signing keystore and its password** (`/etc/trees/`): losing them means phones cannot update the app.
 **Continuous deployment**: the `trees-autodeploy.timer` (systemd, every 5 min) runs `deploy/autodeploy.sh`, which
 deploys the newest commit of `main` **only once its « CI » workflow is green** (log `/var/log/trees-deploy.log`).
 So a push to `main` reaches production about 5 minutes after CI passes — keep CI green.

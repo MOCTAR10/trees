@@ -1,0 +1,51 @@
+# Jenkins configured as code: admin account (password from the server's jenkins.env),
+# no anonymous access, and the « foresterie-android » pipeline reading mobile/Jenkinsfile.
+jenkins:
+  systemMessage: "Foresterie Numérique — build Android (APK signé)"
+  numExecutors: 1
+  mode: EXCLUSIVE
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    globalMatrix:
+      entries:
+        - user:
+            name: "admin"
+            permissions:
+              - "Overall/Administer"
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: true
+unclassified:
+  location:
+    url: "https://${JENKINS_HOST}/"
+jobs:
+  - script: >
+      pipelineJob('foresterie-android') {
+        description('APK Android signé de l\'application mobile (expo prebuild + Gradle)')
+        properties {
+          githubProjectUrl('https://github.com/MOCTAR10/trees')
+          pipelineTriggers {
+            triggers {
+              githubPush()
+              pollSCM { scmpoll_spec('H/15 * * * *') }
+            }
+          }
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote { url('https://github.com/MOCTAR10/trees.git') }
+                branch('*/main')
+              }
+            }
+            scriptPath('mobile/Jenkinsfile')
+            lightweight(true)
+          }
+        }
+      }

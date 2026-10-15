@@ -1,0 +1,94 @@
+// Android release APK of the mobile app: expo prebuild + Gradle, signed with the
+// production key, published at https://greenleaves.ga/app/foresterie.apk.
+// Runs on the Jenkins of the production server (low CPU priority, see deploy/jenkins).
+pipeline {
+  agent any
+  options {
+    timestamps()
+    disableConcurrentBuilds()
+    buildDiscarder(logRotator(numToKeepStr: '15', artifactNumToKeepStr: '5'))
+    timeout(time: 60, unit: 'MINUTES')
+  }
+  environment {
+    CI = 'true'
+    NODE_OPTIONS = '--max-old-space-size=2048'
+    GRADLE_OPTS = '-Dorg.gradle.jvmargs=-Xmx3g -Dorg.gradle.workers.max=3 -Dorg.gradle.daemon=false'
+    ORG_GRADLE_PROJECT_reactNativeArchitectures = 'arm64-v8a,armeabi-v7a'
+  }
+  stages {
+    stage('Changements mobiles') {
+      when {
+        not {
+          anyOf {
+            changeset 'mobile/**'
+            triggeredBy 'UserIdCause'
+            expression { currentBuild.previousSuccessfulBuild == null }
+          }
+        }
+      }
+      steps {
+        script {
+          currentBuild.result = 'NOT_BUILT'
+          currentBuild.description = 'Aucun changement dans mobile/'
+          env.SKIP = 'true'
+        }
+      }
+    }
+    stage('Dépendances') {
+      when { expression { env.SKIP != 'true' } }
+      steps {
+        dir('mobile') {
+          sh 'npm ci --no-audit --no-fund'
+          sh 'npx tsc --noEmit'
+        }
+      }
+    }
+    stage('Projet Android') {
+      when { expression { env.SKIP != 'true' } }
+      steps {
+        dir('mobile') {
+          sh 'npx expo prebuild --platform android --clean --no-install'
+          sh '''
+            sed -i -E "s/versionCode [0-9]+/versionCode ${BUILD_NUMBER}/" android/app/build.gradle
+            grep -n "versionCode" android/app/build.gradle
+          '''
+        }
+      }
+    }
+    stage('APK release') {
+      when { expression { env.SKIP != 'true' } }
+      steps {
+        dir('mobile/android') {
+          sh 'nice -n 15 ./gradlew assembleRelease --no-daemon --console=plain'
+        }
+      }
+    }
+    stage('Signature et publication') {
+      when { expression { env.SKIP != 'true' } }
+      steps {
+        dir('mobile') {
+          sh '''
+            set -e
+            BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+            VERSION=$(node -p "require('./app.json').expo.version")
+            OUT="foresterie-${VERSION}-${BUILD_NUMBER}.apk"
+            "$BT/zipalign" -f -p 4 android/app/build/outputs/apk/release/app-release.apk "$OUT"
+            "$BT/apksigner" sign --ks /var/jenkins_secrets/release.keystore \
+              --ks-key-alias "$ANDROID_KEY_ALIAS" \
+              --ks-pass env:ANDROID_KEYSTORE_PASSWORD --key-pass env:ANDROID_KEYSTORE_PASSWORD "$OUT"
+            "$BT/apksigner" verify "$OUT"
+            cp "$OUT" /var/www/trees-apk/
+            ln -sfn "$OUT" /var/www/trees-apk/foresterie.apk
+            ls -1t /var/www/trees-apk/foresterie-*.apk | tail -n +6 | xargs -r rm -f
+            echo "Publié : https://greenleaves.ga/app/foresterie.apk ($OUT)"
+          '''
+          archiveArtifacts artifacts: 'foresterie-*.apk', fingerprint: true
+          script { currentBuild.description = "v${BUILD_NUMBER} publiée" }
+        }
+      }
+    }
+  }
+  post {
+    always { cleanWs(deleteDirs: true, notFailBuild: true) }
+  }
+}
