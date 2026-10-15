@@ -58,6 +58,11 @@ fi
 compose up -d --force-recreate --wait --wait-timeout 900 api gateway
 compose ps
 
+echo "== Web app"
+if [ -f /etc/nginx/sites-available/trees-web.conf ]; then
+  bash deploy/web/build.sh || echo "!! construction de l'application web en échec (l'API est à jour)"
+fi
+
 echo "== Health"
 curl -fsS http://127.0.0.1:3000/health && echo
 echo "Deployed $(git rev-parse --short HEAD) at $(date -Is)"
