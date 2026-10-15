@@ -1,5 +1,8 @@
 // Android release APK of the mobile app: expo prebuild + Gradle, signed with the
 // production key, published at https://greenleaves.ga/app/foresterie.apk.
+// Built only when the native part changes (dependencies, app.json, native modules,
+// icons, update certificate) or by hand, and only once the GitHub CI is green.
+// JavaScript changes reach phones as over-the-air updates (Jenkinsfile.ota).
 // Runs on the Jenkins of the production server (low CPU priority, see deploy/jenkins).
 pipeline {
   agent any
@@ -7,7 +10,7 @@ pipeline {
     timestamps()
     disableConcurrentBuilds()
     buildDiscarder(logRotator(numToKeepStr: '15', artifactNumToKeepStr: '5'))
-    timeout(time: 60, unit: 'MINUTES')
+    timeout(time: 120, unit: 'MINUTES')
   }
   environment {
     CI = 'true'
@@ -19,11 +22,18 @@ pipeline {
     ORG_GRADLE_PROJECT_kotlin_compiler_execution_strategy = 'in-process'
   }
   stages {
-    stage('Changements mobiles') {
+    stage('Changements natifs') {
       when {
         not {
           anyOf {
-            changeset 'mobile/**'
+            changeset 'mobile/package.json'
+            changeset 'mobile/package-lock.json'
+            changeset 'mobile/app.json'
+            changeset 'mobile/modules/**'
+            changeset 'mobile/assets/icon.png'
+            changeset 'mobile/assets/adaptive-icon-*'
+            changeset 'mobile/certs/**'
+            changeset 'mobile/Jenkinsfile'
             triggeredBy 'UserIdCause'
             expression { currentBuild.previousSuccessfulBuild == null }
           }
@@ -32,8 +42,23 @@ pipeline {
       steps {
         script {
           currentBuild.result = 'NOT_BUILT'
-          currentBuild.description = 'Aucun changement dans mobile/'
+          currentBuild.description = 'Pas de changement natif : mise à jour OTA seulement'
           env.SKIP = 'true'
+        }
+      }
+    }
+    stage('CI verte') {
+      when { expression { env.SKIP != 'true' } }
+      steps {
+        script {
+          def code = sh(script: "bash deploy/jenkins/wait-ci.sh ${env.GIT_COMMIT} 75", returnStatus: true)
+          if (code == 3) {
+            currentBuild.result = 'NOT_BUILT'
+            currentBuild.description = 'Commit remplacé par un plus récent'
+            env.SKIP = 'true'
+          } else if (code != 0) {
+            error('CI non verte : APK non construit')
+          }
         }
       }
     }
@@ -43,25 +68,6 @@ pipeline {
         dir('mobile') {
           sh 'npm ci --no-audit --no-fund'
           sh 'npx tsc --noEmit'
-        }
-      }
-    }
-    stage('Mise à jour (OTA)') {
-      when { expression { env.SKIP != 'true' } }
-      steps {
-        dir('mobile') {
-          // Over-the-air update for the installed apps of the same runtime version:
-          // the phones download it silently and the user installs it when ready.
-          sh '''
-            set -e
-            RUNTIME=$(node -p "require('./app.json').expo.runtimeVersion")
-            rm -rf ota && npx expo export --platform android --output-dir ota
-            npx expo config --json --type public > ota/expoConfig.json
-            DEST="/var/www/trees-updates/$RUNTIME/$BUILD_NUMBER"
-            mkdir -p "$DEST" && cp -r ota/. "$DEST/"
-            ls -1d /var/www/trees-updates/$RUNTIME/* | sort -t/ -k6 -n | head -n -5 | xargs -r rm -rf
-            echo "Mise à jour publiée : runtime $RUNTIME, build $BUILD_NUMBER"
-          '''
         }
       }
     }

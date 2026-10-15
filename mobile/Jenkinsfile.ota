@@ -1,0 +1,73 @@
+// Over-the-air update of the mobile app (Slice 29): published only once the GitHub
+// « CI » workflow is green for this commit. Phones download it silently and the user
+// installs it from the « Mise à jour » badge. A few minutes after CI.
+pipeline {
+  agent any
+  options {
+    timestamps()
+    disableConcurrentBuilds(abortPrevious: true)
+    buildDiscarder(logRotator(numToKeepStr: '30'))
+    timeout(time: 90, unit: 'MINUTES')
+  }
+  environment {
+    CI = 'true'
+    NODE_OPTIONS = '--max-old-space-size=2048'
+  }
+  stages {
+    stage('Changements mobiles') {
+      when {
+        not {
+          anyOf {
+            changeset 'mobile/**'
+            triggeredBy 'UserIdCause'
+          }
+        }
+      }
+      steps {
+        script {
+          currentBuild.result = 'NOT_BUILT'
+          currentBuild.description = 'Aucun changement dans mobile/'
+          env.SKIP = 'true'
+        }
+      }
+    }
+    stage('CI verte') {
+      when { expression { env.SKIP != 'true' } }
+      steps {
+        script {
+          def code = sh(script: "bash deploy/jenkins/wait-ci.sh ${env.GIT_COMMIT} 75", returnStatus: true)
+          if (code == 3) {
+            currentBuild.result = 'NOT_BUILT'
+            currentBuild.description = 'Commit remplacé par un plus récent'
+            env.SKIP = 'true'
+          } else if (code != 0) {
+            error('CI non verte : mise à jour non publiée')
+          }
+        }
+      }
+    }
+    stage('Publication') {
+      when { expression { env.SKIP != 'true' } }
+      steps {
+        dir('mobile') {
+          sh '''
+            set -e
+            npm ci --no-audit --no-fund --loglevel=error
+            RUNTIME=$(node -p "require('./app.json').expo.runtimeVersion")
+            rm -rf ota && npx expo export --platform android --output-dir ota
+            npx expo config --json --type public > ota/expoConfig.json
+            STAMP=$(date -u +%Y%m%d%H%M%S)
+            DEST="/var/www/trees-updates/$RUNTIME/$STAMP"
+            mkdir -p "$DEST" && cp -r ota/. "$DEST/"
+            ls -1d /var/www/trees-updates/$RUNTIME/* | sort -t/ -k6 -n | head -n -5 | xargs -r rm -rf
+            echo "Mise à jour publiée : runtime $RUNTIME, version $STAMP (${GIT_COMMIT})"
+          '''
+          script { currentBuild.description = "OTA ${env.GIT_COMMIT.take(7)}" }
+        }
+      }
+    }
+  }
+  post {
+    always { cleanWs(deleteDirs: true, notFailBuild: true) }
+  }
+}

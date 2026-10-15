@@ -25,6 +25,31 @@ unclassified:
     url: "https://${JENKINS_HOST}/"
 jobs:
   - script: >
+      pipelineJob('foresterie-ota') {
+        description('Mise à jour OTA de l'application (après CI verte), installée par l'utilisateur depuis le badge')
+        properties {
+          githubProjectUrl('https://github.com/MOCTAR10/trees')
+          pipelineTriggers {
+            triggers {
+              githubPush()
+              pollSCM { scmpoll_spec('H/15 * * * *') }
+            }
+          }
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote { url('https://github.com/MOCTAR10/trees.git') }
+                branch('*/main')
+              }
+            }
+            scriptPath('mobile/Jenkinsfile.ota')
+            lightweight(true)
+          }
+        }
+      }
+  - script: >
       pipelineJob('foresterie-android') {
         description('APK Android signé de l\'application mobile (expo prebuild + Gradle)')
         properties {

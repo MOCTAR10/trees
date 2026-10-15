@@ -232,10 +232,13 @@ bash deploy/web/setup.sh`. Check it in a real browser (screens, map, a PDF), not
 **API documentation**: Swagger at `https://greenleaves.ga/api/docs` (ReDoc `/api/redoc`, schema
 `/api/openapi.json`) — readable without the key; « Authorize » takes the gateway key (`ApiKey`) and the
 token from `POST /api/auth/login` (`Bearer`).
-**Android builds (Jenkins)**: `https://jenkins.greenleaves.ga` (job `foresterie-android`, `mobile/Jenkinsfile`):
-`npm ci` → `tsc` → `expo prebuild` → `gradlew assembleRelease` (arm64/armv7) → signed with
-`/etc/trees/android/release.keystore` → `https://greenleaves.ga/app/foresterie.apk`. No EAS queue. Runs only when
-`mobile/` changed (or by hand). Jenkins has `cpu_shares: 128` (the app 1024) and hard caps (4 CPUs, 7 GB + 3 GB swap; arm64-only, 2 Gradle workers): a build
+**Android builds (Jenkins)**: `https://jenkins.greenleaves.ga`, two jobs, both **wait for the GitHub CI to be green**
+on the commit (`deploy/jenkins/wait-ci.sh`; a superseded commit publishes nothing):
+- `foresterie-ota` (`mobile/Jenkinsfile.ota`) — every change in `mobile/`: `expo export --platform android` →
+  `/var/www/trees-updates/<runtimeVersion>/<UTC timestamp>` → phones get it via the « Mise à jour » badge (~4 min after CI);
+- `foresterie-android` (`mobile/Jenkinsfile`) — only when the **native** part changes (`package*.json`, `app.json`,
+  `modules/`, app icons, `certs/`) or by hand: `expo prebuild` → `gradlew assembleRelease` (arm64) → signed with
+  `/etc/trees/android/release.keystore` → `https://greenleaves.ga/app/foresterie.apk`. No EAS queue. Jenkins has `cpu_shares: 128` (the app 1024) and hard caps (4 CPUs, 7 GB + 3 GB swap; arm64-only, 2 Gradle workers): a build
 never slows the users' app. Setup once: `JENKINS_HOST=jenkins.greenleaves.ga bash deploy/jenkins/setup.sh`.
 **Back up the signing keystore and its password** (`/etc/trees/`): losing them means phones cannot update the app.
 **OTA updates (Slice 29)**: `expo-updates` against our own server (`https://greenleaves.ga/updates/manifest`,
