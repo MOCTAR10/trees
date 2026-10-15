@@ -1,4 +1,4 @@
-# Régression par rôle — Ministère et Entreprise : inventaire et couverture
+# Régression par rôle — Ministère, Entreprise, Agent, Coopérative : inventaire et couverture
 
 Date : 15 octobre 2026 · après Slice 24.
 Objectif : vérifier que **tout ce que fait le Ministère** (autorisations, décisions, pièces, titres, contrôles,
@@ -122,8 +122,41 @@ Suivi des grumes, Déclaration, Chantiers et projets, composants partagés titre
 - **Économie circulaire** : résidus de coupe attribués à une coopérative, libérés, refus pour un
   tiers et pour une double libération.
 
+---
+
+# Agent de terrain et Coopérative
+
+Avant : agent **9/37** (24 %), coopérative **0/30**. Après : **37/37** et **30/30**, écrans compris
+(Accueil, Chantier, Suivi des grumes, Projets, Historique, Profil ; espace Coopérative).
+
+## Défauts réels révélés et corrigés (Slice 25)
+
+1. **Compte coopérative inutilisable** : un compte « coopérative » créé par le Ministère depuis la fiche
+   d'une organisation n'était relié à aucune coopérative communautaire — profil en erreur (400),
+   résidus invisibles, collecte impossible. Désormais la coopérative communautaire de l'organisation est
+   créée (une seule fois) et reliée au compte, avec son **profil d'activité** et sa **position**
+   (migration `029_slice25.sql` : `community_cooperatives.organization_id`).
+2. **Agent sans employeur** : un agent créé depuis la fiche d'une organisation n'avait pas le lien
+   historique `users.company_id` — en-tête « employeur » en erreur (404), **carnet DF10 vide**,
+   **abandon DF10 refusé** (« arbre d'une autre entreprise »), groupe et accueil incomplets. Désormais
+   l'agent est relié au compte entreprise de son organisation (et les agents créés avant le dirigeant le
+   sont à la création de celui-ci) ; la migration répare les comptes existants.
+3. L'en-tête de l'espace entreprise affichait le **nom du dirigeant** au lieu du **nom de
+   l'organisation** — corrigé.
+
+## Ce que vérifient les tests (`test_agent_01_field.py` 9, `test_cooperative_01.py` 5)
+
+- **Agent** : accueil, groupe, arbres ; nom saisi **visible par le Ministère** ; rattachement à
+  l'employeur (organisation, titres, pièces) ; carte et espèces ; registre limité à son entreprise ;
+  carnet DF10 et PDF, états ; **abandon d'une tige au DF10 vu par le Ministère** ; chantier où il est
+  invité ; limites du rôle (pas d'ouverture de chantier, d'invitation, de clôture, aucune AAC à choisir).
+- **Coopérative** : compte relié à sa coopérative (profil « briquettes énergétiques ») ; **résidus
+  attribués par une entreprise, vus à proximité puis collectés**, double collecte refusée, **statut
+  « collecté » vu par l'entreprise** ; accueil, carte, espèces, nom remonté au Ministère ; participation
+  aux projets ; limites du rôle.
+
 ## Bilan
 
-Suite de bout en bout : **166 tests** (parcours, règles, Ministère, Entreprise), tous passés.
-Couverture : **Ministère 92/92**, **Entreprise 94/94** — imposée à chaque exécution GitHub.
-Prochaines cibles affichées dans le rapport : **agent de terrain** et **coopérative**.
+Suite de bout en bout : **180 tests**, tous passés (environnement identique à la CI, sans clé externe).
+Couverture **imposée à 100 % pour les quatre rôles** à chaque exécution GitHub : Ministère 92/92,
+Entreprise 94/94, Agent 37/37, Coopérative 30/30.

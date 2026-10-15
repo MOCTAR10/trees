@@ -281,13 +281,13 @@ being the rule. It publishes a job summary (rule-by-rule checklist and every exp
 refusal) built by `scripts/regression_summary.py`, and uploads JUnit, step logs and
 service logs as the `regression-reports` artifact. A new workflow rule = a new
 regression test with a one-line French docstring.
-The Ministry and Company roles are held to **100 % coverage**: `scripts/role_coverage.py
---role admin|company` lists every endpoint open to the role and fails the Régression job
-if one is not exercised by an account of that role (pilot aliases: `admin`/`mef.*`,
-`*.dg`/`*.chef`); it also maps each screen of the role to its endpoints. Field agent and
-cooperative coverage are reported for information (next targets). A new endpoint needs a
-test in `tests_e2e/test_admin_0*.py` or `test_company_0*.py`; keep `set -o pipefail` in
-front of any `… | tee` gate (see `docs/AUDIT_REGRESSION_ROLES.md`). `concurrency.cancel-in-progress`
+**Every role is held to 100 % coverage**: `scripts/role_coverage.py --role
+admin|company|operator|cooperative` lists every endpoint open to the role and fails the
+Régression job if one is not exercised by an account of that role (pilot aliases:
+`admin`/`mef.*`, `*.dg`/`*.chef`, `*.agent*`, `*.pres`); it also maps each screen of the
+role to its endpoints. A new endpoint needs a test in `tests_e2e/test_admin_0*.py`,
+`test_company_0*.py`, `test_agent_0*.py` or `test_cooperative_0*.py`; keep
+`set -o pipefail` in front of any `… | tee` gate (see `docs/AUDIT_REGRESSION_ROLES.md`). `concurrency.cancel-in-progress`
 cancels superseded runs, so **wait for the previous run to finish before
 pushing**.
 
@@ -359,6 +359,12 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
   (`docker exec -e GFW_API_KEY= -e GROQ_API_KEY= -e PLANTNET_API_KEY= -e AI_MODELS_ENABLED=false …`).
   With the live `.env` keys, external services answer and a test can pass locally yet
   fail on GitHub (e.g. `/api/map/point-check` is 503 without a GFW key — by design).
+- Accounts created by the Ministry from an organisation sheet
+  (`POST /api/organizations/{id}/accounts`) get the legacy links many screens still use:
+  an `operator` gets `company_id` = the organisation's company account (agents created
+  first are linked when the manager is created), a `cooperative` gets `cooperative_id` =
+  the organisation's community cooperative (created once, `community_cooperatives.organization_id`).
+  New code should scope by `organization_id`, not by these legacy links.
 - Pilot authority model: the Ministère des Eaux et Forêts (`admin`) performs every
   administrative action; each one carries `acting_authority` + `competent_codes` +
   `competence_note` from `services/authorities.py`. Keep that on any new Ministry action
