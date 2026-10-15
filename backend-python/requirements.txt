@@ -20,6 +20,7 @@ earthengine-api==1.7.47 # optional: guarded import, GEE_ENABLED=false uses mock
 
 # Reporting (PDF export)
 reportlab==5.0.1
+cryptography==50.0.2
 
 # RAG embeddings (multilingual-e5-small, 384-dim) + scanner AI (SAM 2.1, Depth
 # Anything V2 via transformers, Apache-2.0) — CPU build of torch

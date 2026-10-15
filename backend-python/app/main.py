@@ -32,6 +32,7 @@ from app.api import (
     traceability,
     transport,
     trees,
+    updates,
     v1,
     v2,
 )
@@ -141,6 +142,7 @@ app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
 app.include_router(home.router, prefix="/api/home", tags=["home"])
 app.include_router(controls.router, prefix="/api/controls", tags=["controls"])
 app.include_router(mill.router, prefix="/api/mill", tags=["mill"])
+app.include_router(updates.router, prefix="/updates", tags=["mobile-updates"])
 
 
 @app.get("/health")

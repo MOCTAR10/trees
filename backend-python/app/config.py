@@ -45,6 +45,11 @@ class Settings(BaseSettings):
     # Reference-labelled DBH photos (tape/caliper) kept as training data.
     scan_media_dir: str = ""
 
+    # Over-the-air updates of the mobile app (Expo Updates protocol, self-hosted).
+    # updates_dir holds <runtimeVersion>/<build>/ exports; the private key signs manifests.
+    updates_dir: str = ""
+    updates_private_key: str = ""
+
     embedding_model: str = "intfloat/multilingual-e5-small"
 
     # IUCN Red List status enrichment (optional, tools only)
