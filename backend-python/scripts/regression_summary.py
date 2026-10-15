@@ -25,6 +25,8 @@ DOMAINS = {
     "test_company_01_home_titles": "Entreprise · accueil, profil, carte, espèces, titres et actes",
     "test_company_02_operations": "Entreprise · déclarations, DF10, états, transport, RDUE, social, fiscalité",
     "test_company_03_projects_residues": "Entreprise · chantiers, projets, résidus et coopératives",
+    "test_agent_01_field": "Agent de terrain · accueil, employeur, carte, registre, DF10, chantier, limites",
+    "test_cooperative_01": "Coopérative · espace, résidus collectés, projets, limites",
 }
 
 
