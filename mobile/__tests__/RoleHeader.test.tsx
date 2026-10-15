@@ -32,7 +32,7 @@ describe("RoleHeader", () => {
     const { getByText, getByLabelText } = render(
       <RoleHeader
         title="Foresterie Numérique"
-        roleLabel="Opérateur"
+        roleLabel="Agent de terrain"
         orgName="Terrain"
         onOpenProfile={() => undefined}
         onOpenProjects={onOpenProjects}
@@ -41,7 +41,7 @@ describe("RoleHeader", () => {
 
     expect(getByText("FORESTERIE NUMÉRIQUE")).toBeTruthy();
     expect(getByText("Ministère des Eaux et Forêts")).toBeTruthy();
-    expect(getByText("Opérateur")).toBeTruthy();
+    expect(getByText("Agent de terrain")).toBeTruthy();
     expect(getByText("Terrain")).toBeTruthy();
     expect(getByText("Projets")).toBeTruthy();
     expect(getByText("Profil")).toBeTruthy();
@@ -65,7 +65,7 @@ describe("RoleHeader", () => {
     expect(queryByTestId("rank-stripes")?.children).toHaveLength(2);
     rerender(<RoleHeader title="T" roleLabel="Entreprise" role="company" />);
     expect(queryByTestId("rank-stripes")?.children).toHaveLength(1);
-    rerender(<RoleHeader title="T" roleLabel="Opérateur" role="operator" />);
+    rerender(<RoleHeader title="T" roleLabel="Agent de terrain" role="operator" />);
     expect(queryByTestId("rank-stripes")).toBeNull();
   });
 

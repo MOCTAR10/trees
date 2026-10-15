@@ -27,6 +27,7 @@ import { exportDf10Pdf, exportTransportPdf, sharePdf } from "../pdf";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
 import Badge, { Tone } from "./Badge";
+import { frDate } from "../design/format";
 
 const FELLED = new Set(["abattu", "transporte", "receptionne", "transforme"]);
 const ABANDON_CHOICES: AbandonCode[] = [
@@ -220,7 +221,7 @@ export default function CompanyTraceability() {
                     </Text>
                   ) : null}
                   {entry.felled_at ? (
-                    <Text style={styles.meta}>{`${fr.traceability.df10} · ${entry.felled_at.slice(0, 10)}`}</Text>
+                    <Text style={styles.meta}>{`${fr.traceability.df10} · ${frDate(entry.felled_at)}`}</Text>
                   ) : null}
                   {!FELLED.has(entry.status) ? (
                     <TouchableOpacity

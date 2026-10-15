@@ -23,6 +23,7 @@ import { fr } from "../i18n/fr";
 import { exportConventionPdf, sharePdf } from "../pdf";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { conventionTone } from "./Badge";
+import { frDate, shown } from "../design/format";
 
 /** Conventions (provisoire / définitive) + attestation de conformité of a
  * title (Loi 016/01).
@@ -161,7 +162,7 @@ export default function TitleConventions({
             </Text>
             {conv.signed_at ? (
               <Text style={styles.meta}>
-                {`${fr.titles.convention.signedAt} : ${conv.signed_at.slice(0, 10)}`}
+                {`${shown(fr.titles.convention.signedAt)} : ${frDate(conv.signed_at)}`}
               </Text>
             ) : null}
             {conv.start_date || conv.end_date ? (
@@ -177,7 +178,7 @@ export default function TitleConventions({
             {conv.attestation_ref ? (
               <Text style={styles.meta}>
                 {`${fr.titles.convention.attestation} : ${conv.attestation_ref}`}
-                {conv.attestation_issued_at ? ` (${conv.attestation_issued_at.slice(0, 10)})` : ""}
+                {conv.attestation_issued_at ? ` (${frDate(conv.attestation_issued_at)})` : ""}
               </Text>
             ) : null}
             {conv.decision_motif ? <Text style={styles.meta}>{conv.decision_motif}</Text> : null}

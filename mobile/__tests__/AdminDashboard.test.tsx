@@ -56,7 +56,7 @@ describe("AdminDashboard", () => {
     await waitFor(() => expect(getByTestId("admin-dashboard")).toBeTruthy());
 
     expect(getByTestId("dashboard-card-transform")).toBeTruthy();
-    expect(getByText("33.3 %")).toBeTruthy();
+    expect(getByText("33,3 %")).toBeTruthy();
     expect(getByText("Aucoumea klaineana")).toBeTruthy();
     expect(getByText("900 000 FCFA")).toBeTruthy();
     expect(getByText("FSC")).toBeTruthy();
@@ -83,8 +83,8 @@ describe("AdminDashboard", () => {
     });
     const { getByTestId, getByText } = render(<AdminDashboard />);
     await waitFor(() => expect(getByTestId("dashboard-carbon")).toBeTruthy());
-    expect(getByText("70.36 t CO₂e")).toBeTruthy();
+    expect(getByText("70,36 t CO₂e")).toBeTruthy();
     expect(getByText("DEMO-AAC-2026-01 · DEMO-CFAD-01")).toBeTruthy();
-    expect(getByText("70.36 t (3)")).toBeTruthy();
+    expect(getByText("70,36 t (3)")).toBeTruthy();
   });
 });

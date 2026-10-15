@@ -2922,7 +2922,7 @@ export interface OrganisationSheetFull {
     is_active: boolean;
   }[];
   certifications: { id: number; scheme: string; cert_type: string; status: string; valid_to: string | null }[];
-  warnings: { kind: string; doc_type?: string; status?: string; tax_type?: string; period_year?: number }[];
+  warnings: { kind: string; doc_type?: string; status?: string; tax_type?: string; period_year?: number; label?: string }[];
 }
 
 async function getLabeled<T>(path: string, label: string): Promise<T> {

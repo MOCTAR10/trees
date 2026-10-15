@@ -15,7 +15,7 @@ describe("i18n (fr)", () => {
   it("formats dynamic strings", () => {
     expect(fr.company.biomass(125)).toBe("125 kg");
     expect(fr.company.allocatedTo("Coop A")).toContain("Coop A");
-    expect(fr.cooperative.distance(1.23)).toBe("1.2 km");
+    expect(fr.cooperative.distance(1.23)).toBe("1,2 km");
     expect(fr.cooperative.relevant(300.4)).toBe("300 kg pertinents");
     expect(fr.cooperative.match(0.75)).toBe("Pertinence 75 %");
   });

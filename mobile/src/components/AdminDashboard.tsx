@@ -19,9 +19,9 @@ function fmtInt(value: number | null | undefined): string {
 }
 
 function fmtNum(value: number | null | undefined, digits: number): string {
-  return Number(value ?? 0)
-    .toFixed(digits)
-    .replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  const [int, frac] = Number(value ?? 0).toFixed(digits).split(".");
+  const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  return frac ? `${grouped},${frac}` : grouped;
 }
 
 /** Ministry view: cross-cutting operational rollup (workflow analysis §7.2 pt 7). */

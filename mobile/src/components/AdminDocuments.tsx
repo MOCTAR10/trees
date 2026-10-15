@@ -21,6 +21,7 @@ import {
 import { fr } from "../i18n/fr";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { docTone } from "./Badge";
+import { frDate } from "../design/format";
 
 type Filter = "soumis" | "all";
 
@@ -141,7 +142,7 @@ export default function AdminDocuments() {
               {doc.authority ? <Text style={styles.meta}>{doc.authority}</Text> : null}
               {doc.issued_at || doc.expires_at ? (
                 <Text style={styles.meta}>
-                  {doc.issued_at ?? "—"} → {doc.expires_at ?? "—"}
+                  {frDate(doc.issued_at) || "—"} → {frDate(doc.expires_at) || "—"}
                 </Text>
               ) : null}
               {doc.notes ? <Text style={styles.note}>{doc.notes}</Text> : null}

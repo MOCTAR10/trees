@@ -30,7 +30,6 @@ import {
 import { fr } from "../i18n/fr";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import AacAuthorizations from "./AacAuthorizations";
-import OrgBackfill from "./OrgBackfill";
 import TitleConventions from "./TitleConventions";
 import TitleStudies from "./TitleStudies";
 import UfaDme from "./UfaDme";
@@ -207,7 +206,6 @@ export default function AdminTitles() {
     <View style={styles.container}>
       {message ? <Text style={styles.message}>{message}</Text> : null}
       <ScrollView contentContainerStyle={styles.list}>
-        <OrgBackfill onBackfilled={load} />
         {titles.length === 0 ? (
           <Text style={styles.dim}>{fr.titles.noTitles}</Text>
         ) : (

@@ -171,7 +171,9 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
             style={[styles.chip, permitType === p && styles.chipOn]}
             onPress={() => setPermitType(p)}
           >
-            <Text style={[styles.chipText, permitType === p && styles.chipTextOn]}>{p}</Text>
+            <Text style={[styles.chipText, permitType === p && styles.chipTextOn]}>
+              {p === "foret_communautaire" ? t.permitCommunity : p}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>

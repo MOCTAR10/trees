@@ -14,6 +14,7 @@ import { listTaxes, recordTax, TaxReceipt, TaxType } from "../api/client";
 import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
 import Badge, { taxTone } from "./Badge";
+import { frDate } from "../design/format";
 
 const TAX_TYPES: TaxType[] = [
   "superficie",
@@ -95,7 +96,7 @@ export default function OrgTaxes() {
               {tax.amount_fcfa != null ? `${Math.round(tax.amount_fcfa).toLocaleString("fr-FR")} FCFA` : "—"}
               {tax.receipt_ref ? ` · ${tax.receipt_ref}` : ""}
             </Text>
-            {tax.paid_at ? <Text style={styles.meta}>{tax.paid_at}</Text> : null}
+            {tax.paid_at ? <Text style={styles.meta}>{frDate(tax.paid_at)}</Text> : null}
           </View>
         ))
       )}

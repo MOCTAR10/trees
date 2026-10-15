@@ -24,6 +24,7 @@ export const fr = {
     tabAnomalies: "Anomalies",
     newDeclaration: "Nouvelle déclaration",
     permitType: "Titre d'exploitation",
+    permitCommunity: "Forêt communautaire",
     permitNumber: "N° du titre / permis",
     ufa: "UFA",
     aac: "AAC (assiette annuelle)",
@@ -330,10 +331,10 @@ export const fr = {
   },
 
   roles: {
-    operator: "Opérateur",
+    operator: "Agent de terrain",
     company: "Entreprise",
     cooperative: "Coopérative",
-    admin: "Administrateur",
+    admin: "Ministère",
   },
 
   company: {
@@ -362,7 +363,7 @@ export const fr = {
     subtitle: "Résidus à proximité, classés par pertinence",
     locate: "Me localiser",
     empty: "Aucun résidu à proximité.",
-    distance: (km: number) => `${km.toFixed(1)} km`,
+    distance: (km: number) => `${km.toFixed(1).replace(".", ",")} km`,
     relevant: (kg: number) => `${Math.round(kg)} kg pertinents`,
     match: (pct: number) => `Pertinence ${Math.round(pct * 100)} %`,
     onlyMatching: "Filtrer par pertinence",
@@ -1184,7 +1185,7 @@ export const fr = {
     provinceGeom: "déduite de la géométrie",
     chooseProvince: "Choisir la province",
     warnDocument: (label: string, status: string) => `Pièce ${label} : ${status}`,
-    warnTax: (tax: string, year: number | undefined) => `Taxe ${tax}${year ? ` ${year}` : ""} en retard`,
+    warnTax: (tax: string, year: number | undefined) => `${tax}${year ? ` ${year}` : ""} en retard`,
     titleType: "Type de titre",
     titleRef: "Référence",
     titleSurface: "Surface (ha)",

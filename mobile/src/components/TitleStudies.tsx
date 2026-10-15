@@ -22,6 +22,7 @@ import { fr } from "../i18n/fr";
 import { exportStudyPdf, sharePdf } from "../pdf";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { studyTone } from "./Badge";
+import { frDate, shown } from "../design/format";
 
 /** Environmental studies (PPF / EIE) + certificat de conformité of a title
  * (Loi 016/01 ; Loi 007/2014).
@@ -162,7 +163,7 @@ export default function TitleStudies({
             </Text>
             {study.conducted_at ? (
               <Text style={styles.meta}>
-                {`${fr.titles.study.conductedAt} : ${study.conducted_at.slice(0, 10)}`}
+                {`${shown(fr.titles.study.conductedAt)} : ${frDate(study.conducted_at)}`}
               </Text>
             ) : null}
             {study.valid_from || study.valid_to ? (
@@ -174,7 +175,7 @@ export default function TitleStudies({
               <Text style={styles.meta}>
                 {`${fr.titles.study.certificate} : ${study.certificate_ref}`}
                 {study.certificate_issued_at
-                  ? ` (${study.certificate_issued_at.slice(0, 10)})`
+                  ? ` (${frDate(study.certificate_issued_at)})`
                   : ""}
               </Text>
             ) : null}

@@ -79,7 +79,7 @@ describe("LoginScreen", () => {
     fireEvent.press(getByTestId("verify-button"));
     await flush();
 
-    expect(getByText(/Opérateur/)).toBeTruthy();
+    expect(getByText(/Agent de terrain/)).toBeTruthy();
     expect(getByText(/Green Leave SARL/)).toBeTruthy();
   });
 

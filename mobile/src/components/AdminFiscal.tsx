@@ -32,6 +32,7 @@ import { fr } from "../i18n/fr";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { taxTone, Tone } from "./Badge";
 import EudrStems from "./EudrStems";
+import { frDate } from "../design/format";
 
 const TAX_TYPES: TaxType[] = [
   "superficie",
@@ -209,7 +210,7 @@ export default function AdminFiscal() {
                     {due.title_ref ? ` · ${due.title_ref}` : ""}
                   </Text>
                   {due.due_at ? (
-                    <Text style={styles.meta}>{`${fr.fiscal.due} ${due.due_at.slice(0, 10)}`}</Text>
+                    <Text style={styles.meta}>{`${fr.fiscal.due} ${frDate(due.due_at)}`}</Text>
                   ) : null}
                 </View>
               ))

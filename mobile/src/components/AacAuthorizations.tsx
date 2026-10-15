@@ -22,6 +22,7 @@ import { fr } from "../i18n/fr";
 import { exportAuthorizationPdf, sharePdf } from "../pdf";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { authTone } from "./Badge";
+import { frDate } from "../design/format";
 
 const TYPES: AuthorizationType[] = [
   "certificat_assiette",
@@ -176,7 +177,7 @@ export default function AacAuthorizations({
             {auth.decision_motif ? <Text style={styles.meta}>{auth.decision_motif}</Text> : null}
             {auth.startup_notified_at ? (
               <Text style={styles.meta}>
-                {`${fr.titles.auth.notifiedOn} : ${auth.startup_notified_at.slice(0, 10)}`}
+                {`${fr.titles.auth.notifiedOn} : ${frDate(auth.startup_notified_at)}`}
               </Text>
             ) : null}
 

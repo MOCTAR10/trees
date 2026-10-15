@@ -30,6 +30,7 @@ import { fr } from "../i18n/fr";
 import { colors, spacing, type } from "../theme";
 import Badge, { taxTone, Tone } from "./Badge";
 import EudrStems from "./EudrStems";
+import { frDate } from "../design/format";
 
 function agreementTone(status: string): Tone {
   if (status === "actif") return "success";
@@ -177,7 +178,7 @@ export default function CompanyFiscal() {
                   <Text style={styles.meta}>{fcfa(due.amount_fcfa)}</Text>
                   {due.title_ref ? <Text style={styles.meta}>{due.title_ref}</Text> : null}
                   {due.due_at ? (
-                    <Text style={styles.meta}>{`${fr.fiscal.due} ${due.due_at.slice(0, 10)}`}</Text>
+                    <Text style={styles.meta}>{`${fr.fiscal.due} ${frDate(due.due_at)}`}</Text>
                   ) : null}
                   {due.status === "en_retard" ? (
                     <Text style={styles.warn}>{`${fr.fiscal.surcharge} : ${fcfa(due.surcharge_fcfa)}`}</Text>

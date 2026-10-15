@@ -23,6 +23,7 @@ import { fr } from "../i18n/fr";
 import { exportAnomaliesPdf, sharePdf } from "../pdf";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { Tone } from "./Badge";
+import { frDate } from "../design/format";
 
 type SeverityFilter = AnomalySeverity | "all";
 
@@ -208,7 +209,7 @@ export default function AdminAnomalies() {
                 ) : null}
                 {item.detected_at ? (
                   <Text style={styles.meta}>
-                    {`${fr.anomaly.detectedAt} : ${item.detected_at.slice(0, 10)}`}
+                    {`${fr.anomaly.detectedAt} : ${frDate(item.detected_at)}`}
                   </Text>
                 ) : null}
                 <View style={styles.actionsRow}>

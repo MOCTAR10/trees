@@ -22,6 +22,7 @@ import { fr } from "../i18n/fr";
 import { exportCertificationPdf, sharePdf } from "../pdf";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { certTone } from "./Badge";
+import { frDate, shown } from "../design/format";
 
 type PendingDecision = { cert: Certification; action: "rejete" | "suspendu" };
 
@@ -162,7 +163,7 @@ export default function AdminCertifications() {
               ) : null}
               {c.valid_from || c.valid_to ? (
                 <Text style={styles.meta}>
-                  {`${fr.cert.validFrom} : ${c.valid_from ?? "—"} → ${c.valid_to ?? "—"}`}
+                  {`${shown(fr.cert.validFrom)} : ${frDate(c.valid_from) || "—"} → ${frDate(c.valid_to) || "—"}`}
                 </Text>
               ) : null}
               {c.decision_motif ? <Text style={styles.meta}>{c.decision_motif}</Text> : null}

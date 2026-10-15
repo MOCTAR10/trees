@@ -144,7 +144,10 @@ export default function OrganisationScreen({ id, onBack }: Props) {
                       : t.noProvince}
                   </Txt>
                 </View>
-                <Pill tone={ti.status === "actif" ? "ok" : ti.status === "rejete" || ti.status === "retire" ? "risk" : "warn"} label={ti.status} />
+                <Pill
+                  tone={ti.status === "actif" ? "ok" : ti.status === "rejete" || ti.status === "retire" ? "risk" : "warn"}
+                  label={fr.titles.status[ti.status] ?? ti.status}
+                />
                 <Pressable
                   testID={`org-title-province-${ti.id}`}
                   onPress={() => setProvinceFor(ti.id)}
@@ -168,8 +171,8 @@ export default function OrganisationScreen({ id, onBack }: Props) {
             <Txt key={i} variant="small" tone="warn">
               {`• ${
                 w.kind === "tax"
-                  ? t.warnTax(w.tax_type ?? "", w.period_year)
-                  : t.warnDocument(w.doc_type ?? "", w.status ?? "manquant")
+                  ? t.warnTax(w.label ?? `Taxe ${w.tax_type ?? ""}`, w.period_year)
+                  : t.warnDocument(w.label ?? w.doc_type ?? "", w.status ?? "manquant")
               }`}
             </Txt>
           ))}
@@ -201,7 +204,11 @@ export default function OrganisationScreen({ id, onBack }: Props) {
               {t.sheetCerts}
             </Txt>
             {data.certifications.map((c) => (
-              <KeyValue key={c.id} label={`${c.scheme} · ${c.cert_type}`} value={c.status} />
+              <KeyValue
+                key={c.id}
+                label={`${c.scheme} · ${fr.cert.type[c.cert_type] ?? c.cert_type}`}
+                value={fr.cert.status[c.status] ?? c.status}
+              />
             ))}
           </Card>
         ) : null}
