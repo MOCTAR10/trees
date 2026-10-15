@@ -185,6 +185,12 @@ def reset(ns: str) -> None:
                 (orgs,),
             ),
             ("DELETE FROM tree_scans WHERE user_id = ANY($1::int[])", (users,)),
+            (
+                "DELETE FROM tree_scans_and_residues WHERE user_id = ANY($1::int[])"
+                " OR logging_company_id = ANY($1::int[])",
+                (users,),
+            ),
+            ("DELETE FROM community_cooperatives WHERE cooperative_name LIKE $1", (f"%[{ns}]%",)),
             ("DELETE FROM felling_declarations WHERE company_id = ANY($1::int[])", (users,)),
             ("DELETE FROM tree_registry WHERE tree_code LIKE $1", (pfx,)),
             (
@@ -234,6 +240,15 @@ def people(ctx: Ctx) -> None:
                 "first_name": first,
                 "last_name": last,
                 "matricule": mat,
+                **(
+                    {
+                        "cooperative_profile": "energy_briquettes",
+                        "latitude": 0.39,
+                        "longitude": 9.76,
+                    }
+                    if role == "cooperative"
+                    else {}
+                ),
             },
             expect=201,
             note=f"compte {alias}",
