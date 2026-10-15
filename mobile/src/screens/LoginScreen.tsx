@@ -41,6 +41,9 @@ export default function LoginScreen({ onLogin }: Props) {
   // is used, so the on-screen keyboard (which shrinks the window) changes nothing.
   const tallest = useRef(height);
   tallest.current = Math.max(tallest.current, height);
+  // Landscape computer screens: the official header becomes a full-height panel on the
+  // left (large seal and titles) and the form sits on the right — no shrinking needed.
+  const split = width >= 900 && width > height;
   const compact = tallest.current < 700;
   const tight = tallest.current < 620;
 
@@ -99,36 +102,53 @@ export default function LoginScreen({ onLogin }: Props) {
     ? (fr.roles[identity.role as keyof typeof fr.roles] ?? identity.role)
     : null;
 
+  const header = (
+        <View
+          style={[styles.officialSection, compact && !split && styles.officialCompact, split && styles.officialSplit]}
+          testID="login-header"
+        >
+          <View style={[styles.emblem, compact && styles.emblemCompact]}>
+            <Image
+              source={LEAF_LOGO}
+              style={[
+                styles.emblemSeal,
+                compact && !split && styles.emblemSealCompact,
+                tight && !split && styles.emblemSealTight,
+                split && styles.emblemSealSplit,
+              ]}
+              resizeMode="contain"
+            />
+          </View>
+          <Text style={[styles.republicText, split && styles.republicSplit]}>{fr.auth.republic}</Text>
+          <Text style={[styles.ministryText, compact && !split && styles.ministryCompact, split && styles.ministrySplit]}>
+            {fr.auth.official}
+          </Text>
+          <View style={[styles.tricolor, compact && !split && styles.tricolorCompact, split && styles.tricolorSplit]}>
+            <View style={[styles.tricolorStripe, { backgroundColor: FLAG.green }]} />
+            <View style={[styles.tricolorStripe, { backgroundColor: FLAG.gold }]} />
+            <View style={[styles.tricolorStripe, { backgroundColor: FLAG.blue }]} />
+          </View>
+          {split ? null : (
+            <View style={styles.goldRule}>
+              <View style={styles.goldLine} />
+              <View style={styles.goldLine} />
+            </View>
+          )}
+        </View>
+  );
+
   return (
     <KeyboardAvoidingView
-      style={styles.screen}
+      style={[styles.screen, split && styles.screenSplit]}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
+      {split ? header : null}
       <ScrollView
         contentContainerStyle={[styles.scroll, compact && styles.scrollCompact]}
         keyboardShouldPersistTaps="handled"
         bounces={false}
       >
-        <View style={[styles.officialSection, compact && styles.officialCompact]} testID="login-header">
-          <View style={[styles.emblem, compact && styles.emblemCompact]}>
-            <Image
-              source={LEAF_LOGO}
-              style={[styles.emblemSeal, compact && styles.emblemSealCompact, tight && styles.emblemSealTight]}
-              resizeMode="contain"
-            />
-          </View>
-          <Text style={styles.republicText}>{fr.auth.republic}</Text>
-          <Text style={[styles.ministryText, compact && styles.ministryCompact]}>{fr.auth.official}</Text>
-          <View style={[styles.tricolor, compact && styles.tricolorCompact]}>
-            <View style={[styles.tricolorStripe, { backgroundColor: FLAG.green }]} />
-            <View style={[styles.tricolorStripe, { backgroundColor: FLAG.gold }]} />
-            <View style={[styles.tricolorStripe, { backgroundColor: FLAG.blue }]} />
-          </View>
-          <View style={styles.goldRule}>
-            <View style={styles.goldLine} />
-            <View style={styles.goldLine} />
-          </View>
-        </View>
+        {split ? null : header}
 
         <View style={styles.middle}>
         <View style={[styles.card, compact && styles.cardCompact, { width: cardWidth }]}>
@@ -273,6 +293,21 @@ const useStyles = makeStyles((th) => ({
     paddingBottom: th.space.lg,
   },
   scrollCompact: { paddingBottom: th.space.sm },
+  screenSplit: { flexDirection: "row" },
+  officialSplit: {
+    alignSelf: "stretch",
+    width: "42%",
+    maxWidth: 560,
+    justifyContent: "center",
+    marginBottom: 0,
+    paddingHorizontal: th.space.xxl,
+    borderRightWidth: 3,
+    borderRightColor: th.c.gold,
+  },
+  emblemSealSplit: { width: 220, height: 148 },
+  republicSplit: { fontSize: 16, marginTop: th.space.md },
+  ministrySplit: { fontSize: 38, lineHeight: 44 },
+  tricolorSplit: { width: 180, height: 6, marginTop: th.space.xl },
   officialCompact: { paddingTop: th.space.lg, paddingBottom: th.space.lg, marginBottom: th.space.lg },
   emblemCompact: { marginBottom: th.space.sm },
   emblemSealCompact: { width: 84, height: 56 },
