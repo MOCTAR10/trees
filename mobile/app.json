@@ -25,7 +25,11 @@
       "permissions": [
         "CAMERA",
         "ACCESS_FINE_LOCATION"
-      ]
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon-foreground.png",
+        "backgroundImage": "./assets/adaptive-icon-background.png"
+      }
     },
     "plugins": [
       "expo-camera",
@@ -33,10 +37,27 @@
       "expo-location",
       "expo-sharing",
       "expo-status-bar",
-      "expo-font"
+      "expo-font",
+      "expo-updates"
     ],
     "extra": {
       "apiUrl": "http://localhost:3000"
+    },
+    "icon": "./assets/icon.png",
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "runtimeVersion": "0.1.0",
+    "updates": {
+      "enabled": true,
+      "url": "https://greenleaves.ga/updates/manifest",
+      "checkAutomatically": "NEVER",
+      "fallbackToCacheTimeout": 0,
+      "codeSigningCertificate": "./certs/certificate.pem",
+      "codeSigningMetadata": {
+        "keyid": "main",
+        "alg": "rsa-v1_5-sha256"
+      }
     }
   }
 }

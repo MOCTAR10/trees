@@ -29,6 +29,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import ReportScreen from './src/screens/ReportScreen';
 import BottomNav from './src/components/BottomNav';
 import DesktopFrame, { SideSection, useDesktop } from './src/web/DesktopFrame';
+import { useAppUpdate } from './src/utils/useAppUpdate';
 import { COMPANY_GROUPS, CompanyTab, groupOf } from './src/components/CompanyNav';
 import { Axe, House, Recycle, ShieldCheck, Wallet } from 'lucide-react-native';
 import WebFieldNotice from './src/web/WebFieldNotice';
@@ -115,6 +116,7 @@ function BottomInset({ kind }: { kind: 'nav' | 'page' | 'band' | 'legacy' }) {
 export default function App() {
   const fontsReady = useAppFonts();
   const desktop = useDesktop();
+  const appUpdate = useAppUpdate();
   const [companyTab, setCompanyTab] = useState<CompanyTab>('accueil');
   const [phase, setPhase] = useState<Phase>("home");
   const [valorization, setValorization] = useState<V2Response | null>(null);
@@ -746,6 +748,8 @@ export default function App() {
             pending={queueCount}
             onOpenProfile={() => requestPhase("profile")}
             onOpenProjects={() => requestPhase("projects")}
+            updateReady={appUpdate.ready}
+            onInstallUpdate={() => void appUpdate.install()}
           />
         )}
         {isPending && (

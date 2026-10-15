@@ -1558,6 +1558,15 @@ export const fr = {
     backToStart: "Retour à l'accueil",
   },
 
+  update: {
+    badge: "Mise à jour",
+    title: "Nouvelle version prête",
+    message:
+      "Une nouvelle version de l'application est téléchargée. L'application va redémarrer pour l'installer : terminez d'abord votre saisie en cours.",
+    install: "Installer maintenant",
+    later: "Plus tard",
+  },
+
   web: {
     fieldTitle: "Espace terrain : application mobile",
     fieldBody:

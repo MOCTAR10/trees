@@ -46,6 +46,25 @@ pipeline {
         }
       }
     }
+    stage('Mise à jour (OTA)') {
+      when { expression { env.SKIP != 'true' } }
+      steps {
+        dir('mobile') {
+          // Over-the-air update for the installed apps of the same runtime version:
+          // the phones download it silently and the user installs it when ready.
+          sh '''
+            set -e
+            RUNTIME=$(node -p "require('./app.json').expo.runtimeVersion")
+            rm -rf ota && npx expo export --platform android --output-dir ota
+            npx expo config --json --type public > ota/expoConfig.json
+            DEST="/var/www/trees-updates/$RUNTIME/$BUILD_NUMBER"
+            mkdir -p "$DEST" && cp -r ota/. "$DEST/"
+            ls -1d /var/www/trees-updates/$RUNTIME/* | sort -t/ -k6 -n | head -n -5 | xargs -r rm -rf
+            echo "Mise à jour publiée : runtime $RUNTIME, build $BUILD_NUMBER"
+          '''
+        }
+      }
+    }
     stage('Projet Android') {
       when { expression { env.SKIP != 'true' } }
       steps {

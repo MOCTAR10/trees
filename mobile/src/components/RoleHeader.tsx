@@ -1,6 +1,6 @@
-import { MapPin, Target, UserRound } from "lucide-react-native";
+import { Download, MapPin, Target, UserRound } from "lucide-react-native";
 import React from "react";
-import { Image, Pressable, Text, View } from "react-native";
+import { Alert, Image, Pressable, Text, View } from "react-native";
 
 import { Role } from "../api/client";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
@@ -35,6 +35,9 @@ interface Props {
   pending?: number;
   onOpenProfile?: () => void;
   onOpenProjects?: () => void;
+  /** A downloaded app update waits for the user's go-ahead (Slice 29). */
+  updateReady?: boolean;
+  onInstallUpdate?: () => void;
 }
 
 export default function RoleHeader({
@@ -45,6 +48,8 @@ export default function RoleHeader({
   orgName,
   coords,
   connection,
+  updateReady,
+  onInstallUpdate,
   pending = 0,
   onOpenProfile,
   onOpenProjects,
@@ -99,7 +104,7 @@ export default function RoleHeader({
           ) : null}
         </View>
       </View>
-      {coords !== undefined || connection ? (
+      {coords !== undefined || connection || updateReady ? (
         <View style={s.locRow}>
           {coords !== undefined ? (
             <>
@@ -108,6 +113,23 @@ export default function RoleHeader({
                 {coords ? `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}` : fr.header.locating}
               </Text>
             </>
+          ) : null}
+          {updateReady ? (
+            <Pressable
+              testID="update-badge"
+              accessibilityRole="button"
+              accessibilityLabel={fr.update.badge}
+              onPress={() =>
+                Alert.alert(fr.update.title, fr.update.message, [
+                  { text: fr.update.later, style: "cancel" },
+                  { text: fr.update.install, onPress: onInstallUpdate },
+                ])
+              }
+              style={s.updateBadge}
+            >
+              <Download size={12} color={t.c.forest} strokeWidth={2.6} />
+              <Text style={s.updateText}>{fr.update.badge}</Text>
+            </Pressable>
           ) : null}
           {connection ? <ConnectionBadge status={connection} pending={pending} /> : null}
         </View>
@@ -222,6 +244,16 @@ const useStyles = makeStyles((t) => ({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.18)",
   },
+  updateBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: t.c.gold,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  updateText: { color: t.c.forest, fontFamily: t.fonts.bodyBold, fontSize: 11.5 },
   badgeOffline: { backgroundColor: "rgba(224,165,58,0.18)", borderColor: "rgba(224,165,58,0.55)" },
   badgeDot: { width: 7, height: 7, borderRadius: 4 },
   badgeText: { color: t.c.onForest, fontFamily: t.fonts.bodyBold, fontSize: 11.5 },

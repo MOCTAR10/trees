@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -38,21 +37,13 @@ export default function LoginScreen({ onLogin }: Props) {
   const { width, height } = useWindowDimensions();
   // Fit the whole login (password step included) on screen without scrolling: the
   // official header keeps its full size; the notice and version sit right under the
-  // form. Only small phones (< 700 px) get a compact header.
-  const compact = height < 700;
-  const tight = height < 620;
-  // Phone keyboard open (or a very short window): keep only the form — a thin band
-  // instead of the seal, no footer — so the password and the button stay in view.
-  const [keyboard, setKeyboard] = useState(false);
-  useEffect(() => {
-    const shown = Keyboard.addListener("keyboardDidShow", () => setKeyboard(true));
-    const hidden = Keyboard.addListener("keyboardDidHide", () => setKeyboard(false));
-    return () => {
-      shown.remove();
-      hidden.remove();
-    };
-  }, []);
-  const mini = keyboard || height < 560;
+  // form. Only small phones (< 700 px) get a compact header. The tallest height seen
+  // is used, so the on-screen keyboard (which shrinks the window) changes nothing.
+  const tallest = useRef(height);
+  tallest.current = Math.max(tallest.current, height);
+  const compact = tallest.current < 700;
+  const tight = tallest.current < 620;
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -118,15 +109,6 @@ export default function LoginScreen({ onLogin }: Props) {
         keyboardShouldPersistTaps="handled"
         bounces={false}
       >
-        {mini ? (
-          <View style={styles.miniBand} testID="login-header-mini">
-            <Text style={styles.miniText}>{fr.auth.official}</Text>
-            <View style={styles.goldRule}>
-              <View style={styles.goldLine} />
-              <View style={styles.goldLine} />
-            </View>
-          </View>
-        ) : (
         <View style={[styles.officialSection, compact && styles.officialCompact]} testID="login-header">
           <View style={[styles.emblem, compact && styles.emblemCompact]}>
             <Image
@@ -147,7 +129,6 @@ export default function LoginScreen({ onLogin }: Props) {
             <View style={styles.goldLine} />
           </View>
         </View>
-        )}
 
         <View style={styles.middle}>
         <View style={[styles.card, compact && styles.cardCompact, { width: cardWidth }]}>
@@ -270,15 +251,13 @@ export default function LoginScreen({ onLogin }: Props) {
           </View>
         </View>
 
-          {mini ? null : (
-            <View style={styles.footer} testID="login-footer">
+          <View style={styles.footer} testID="login-footer">
               <View style={[styles.notice, compact && styles.noticeCompact]}>
                 <LockKeyhole size={tight ? 14 : 16} color={th.c.muted} strokeWidth={2} />
                 <Text style={[styles.noticeText, tight && styles.noticeTextTight]}>{fr.auth.footer}</Text>
               </View>
               <Text style={styles.version}>{`${fr.auth.version} · ${fr.auth.copyright}`}</Text>
             </View>
-          )}
         </View>
 
       </ScrollView>
@@ -303,14 +282,6 @@ const useStyles = makeStyles((th) => ({
   cardCompact: { paddingVertical: th.space.md },
   titleCompact: { fontSize: 22, lineHeight: 26 },
   subtitleCompact: { marginBottom: th.space.sm },
-  miniBand: {
-    alignSelf: "stretch",
-    alignItems: "center",
-    backgroundColor: th.c.forest,
-    paddingVertical: th.space.sm,
-    marginBottom: th.space.md,
-  },
-  miniText: { color: th.c.onForest, fontFamily: th.fonts.display, fontSize: 16 },
   middle: { flexGrow: 1, justifyContent: "center", alignItems: "center", alignSelf: "stretch" },
   footer: { alignItems: "center", alignSelf: "stretch", gap: th.space.xs, marginTop: th.space.md },
   noticeCompact: { paddingVertical: th.space.xs },
