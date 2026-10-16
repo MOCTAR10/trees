@@ -28,6 +28,13 @@ describe("AboutScreen — Green Leaves", () => {
     expect(getByText("077 72 44 99")).toBeTruthy();
     fireEvent.press(getByTestId("contact-sabine"));
     expect(open).toHaveBeenCalledWith("tel:077523717");
+    expect(getByText("Responsable du projet — développement et partie technique")).toBeTruthy();
+    fireEvent.press(getByTestId("contact-sidibe"));
+    expect(open).toHaveBeenCalledWith("tel:077724499");
+    fireEvent.press(getByTestId("link-web"));
+    expect(open).toHaveBeenCalledWith("https://foresterie-app.greenleaves.ga");
+    fireEvent.press(getByTestId("link-android"));
+    expect(open).toHaveBeenCalledWith("https://greenleaves.ga/app/foresterie.apk");
   });
 });
 

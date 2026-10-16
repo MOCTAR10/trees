@@ -1,5 +1,5 @@
 import Constants from "expo-constants";
-import { ChevronDown, ChevronUp, Phone } from "lucide-react-native";
+import { ChevronDown, ChevronUp, Globe, Phone, Smartphone } from "lucide-react-native";
 import React, { useState } from "react";
 import { Image, Linking, Pressable, ScrollView, View } from "react-native";
 
@@ -52,42 +52,69 @@ export default function AboutScreen({ onBack }: { onBack: () => void }) {
               <Txt variant="label" tone="gold">
                 {t.builtBy}
               </Txt>
-              <Txt variant="title" tone="onForest">
+              <Txt variant="title" tone="onForest" style={s.center}>
                 {t.company}
               </Txt>
               <Txt variant="small" tone="onForest" style={s.center}>
                 {t.builtByNote}
               </Txt>
-              <View style={s.contacts}>
-                <Txt variant="label" tone="gold">
-                  {t.contactsTitle}
-                </Txt>
-                {t.contacts.map((c) => (
-                  <Pressable
-                    key={c.name}
-                    testID={`contact-${c.name.split(" ")[0].toLowerCase()}`}
-                    accessibilityRole="button"
-                    accessibilityLabel={t.call(c.name)}
-                    onPress={() => void Linking.openURL(`tel:${c.phone.replace(/\s/g, "")}`)}
-                    style={s.contact}
-                  >
-                    <View style={s.contactTexts}>
-                      <Txt bold tone="onForest">
-                        {c.name}
-                      </Txt>
-                      <Txt variant="caption" tone="onForest">
-                        {c.role}
-                      </Txt>
-                    </View>
-                    <View style={s.phonePill}>
-                      <Phone size={14} color={theme.c.forest} />
-                      <Txt variant="small" bold numeric style={s.phoneText}>
-                        {c.phone}
-                      </Txt>
-                    </View>
-                  </Pressable>
-                ))}
+              <Txt variant="caption" tone="onForest" style={s.center}>
+                {t.pitch}
+              </Txt>
+            </Card>
+
+            <Card style={s.block} testID="about-team">
+              <Txt variant="label" tone="gold">
+                {t.teamTitle}
+              </Txt>
+              {t.contacts.map((c) => (
+                <Pressable
+                  key={c.name}
+                  testID={`contact-${c.name.split(" ")[0].toLowerCase()}`}
+                  accessibilityRole="button"
+                  accessibilityLabel={t.call(c.name)}
+                  onPress={() => void Linking.openURL(`tel:${c.phone.replace(/\s/g, "")}`)}
+                  style={({ pressed }) => [s.person, { borderLeftColor: c.accent === "gold" ? theme.c.gold : "#4664B2" }, pressed && s.pressed]}
+                >
+                  <View style={[s.avatar, { backgroundColor: c.accent === "gold" ? theme.c.gold : "#4664B2" }]}>
+                    <Txt bold style={s.avatarText}>
+                      {c.name.split(" ").map((w) => w[0]).join("")}
+                    </Txt>
+                  </View>
+                  <View style={s.personTexts}>
+                    <Txt bold>{c.name}</Txt>
+                    <Txt variant="caption" tone="muted">
+                      {c.role}
+                    </Txt>
+                  </View>
+                  <View style={s.phonePill}>
+                    <Phone size={14} color={theme.c.forest} />
+                    <Txt variant="small" bold numeric style={s.phoneText}>
+                      {c.phone}
+                    </Txt>
+                  </View>
+                </Pressable>
+              ))}
+              <Txt variant="label" tone="gold" style={s.linksTitle}>
+                {t.linksTitle}
+              </Txt>
+              <View style={s.links}>
+                <Pressable testID="link-web" accessibilityRole="link" onPress={() => void Linking.openURL(t.webUrl)} style={s.linkBtn}>
+                  <Globe size={16} color={theme.c.olive} />
+                  <Txt variant="small" bold tone="olive">
+                    {t.webApp}
+                  </Txt>
+                </Pressable>
+                <Pressable testID="link-android" accessibilityRole="link" onPress={() => void Linking.openURL(t.androidUrl)} style={s.linkBtn}>
+                  <Smartphone size={16} color={theme.c.olive} />
+                  <Txt variant="small" bold tone="olive">
+                    {t.androidApp}
+                  </Txt>
+                </Pressable>
               </View>
+              <Txt variant="caption" tone="muted" style={s.center}>
+                {t.pilot}
+              </Txt>
             </Card>
             {ABOUT_SECTIONS.map((section) => (
               <Card key={section.title} style={s.block}>
@@ -129,20 +156,22 @@ const useStyles = makeStyles((th) => ({
   block: { gap: th.space.xs },
   center: { textAlign: "center" },
   maker: { alignItems: "center", gap: th.space.xs, backgroundColor: th.c.forest, borderColor: th.c.gold, borderWidth: 1.5 },
-  makerLogo: { width: 220, height: 110, borderRadius: 12, backgroundColor: "#FFFFFF", marginBottom: th.space.sm },
-  contacts: { alignSelf: "stretch", gap: th.space.sm, marginTop: th.space.md },
-  contact: {
+  makerLogo: { width: 260, height: 130, borderRadius: 12, backgroundColor: "#FFFFFF", marginBottom: th.space.sm },
+  pressed: { opacity: 0.75 },
+  person: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     gap: th.space.sm,
-    backgroundColor: "rgba(255,255,255,0.1)",
+    borderLeftWidth: 4,
+    backgroundColor: th.c.surface2,
     borderRadius: th.radius.md,
     paddingHorizontal: th.space.md,
     paddingVertical: th.space.sm,
-    minHeight: 52,
+    minHeight: 64,
   },
-  contactTexts: { flex: 1 },
+  avatar: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
+  avatarText: { color: "#FFFFFF" },
+  personTexts: { flex: 1, minWidth: 0 },
   phonePill: {
     flexDirection: "row",
     alignItems: "center",
@@ -151,6 +180,19 @@ const useStyles = makeStyles((th) => ({
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 6,
+  },
+  linksTitle: { marginTop: th.space.sm },
+  links: { flexDirection: "row", gap: th.space.sm, flexWrap: "wrap" },
+  linkBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    borderWidth: 1,
+    borderColor: th.c.olive,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    minHeight: 40,
   },
   phoneText: { color: th.c.forest },
   question: { flexDirection: "row", alignItems: "center", gap: th.space.sm },
