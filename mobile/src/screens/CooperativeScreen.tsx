@@ -11,7 +11,7 @@ import {
 } from "../api/client";
 import RoleHeader from "../components/RoleHeader";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
-import { Button, Card, EmptyState, Pill, PillTone, Txt } from "../design/ui";
+import { Button, Card, EmptyState, Pill, PillTone, Segmented, Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
 
 interface Props {
@@ -22,6 +22,8 @@ interface Props {
 
 const DEFAULT_COORDS = { latitude: 0.4162, longitude: 9.4541 };
 const RADIUS_KM = 150;
+const RADII = ["50", "150", "1000"] as const;
+type Radius = (typeof RADII)[number];
 
 const STATUS_TONE: Record<string, PillTone> = {
   available: "ok",
@@ -35,15 +37,16 @@ export default function CooperativeScreen({ showHeader = true }: Props) {
   const [coords, setCoords] = useState(DEFAULT_COORDS);
   const [residues, setResidues] = useState<NearbyResidue[]>([]);
   const [onlyMatching, setOnlyMatching] = useState(false);
+  const [radius, setRadius] = useState<Radius>("150");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async (lat: number, lon: number, matching: boolean) => {
+  const load = useCallback(async (lat: number, lon: number, matching: boolean, km: number = RADIUS_KM) => {
     setLoading(true);
     setError(null);
     try {
       const resp = await cooperativeResidues(lat, lon, {
-        radiusKm: RADIUS_KM,
+        radiusKm: km,
         onlyMatching: matching,
       });
       setResidues(resp.residues);
@@ -67,9 +70,9 @@ export default function CooperativeScreen({ showHeader = true }: Props) {
     } catch (err) {
       console.error("location failed", err);
     }
-    await load(next.latitude, next.longitude, onlyMatching);
+    await load(next.latitude, next.longitude, onlyMatching, Number(radius));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [coords, onlyMatching, load]);
+  }, [coords, onlyMatching, load, radius]);
 
   useEffect(() => {
     load(DEFAULT_COORDS.latitude, DEFAULT_COORDS.longitude, false);
@@ -77,20 +80,25 @@ export default function CooperativeScreen({ showHeader = true }: Props) {
 
   const toggleMatching = async (value: boolean) => {
     setOnlyMatching(value);
-    await load(coords.latitude, coords.longitude, value);
+    await load(coords.latitude, coords.longitude, value, Number(radius));
+  };
+
+  const changeRadius = async (value: Radius) => {
+    setRadius(value);
+    await load(coords.latitude, coords.longitude, onlyMatching, Number(value));
   };
 
   const collect = async (id: number) => {
     try {
       await collectResidue(id);
-      await load(coords.latitude, coords.longitude, onlyMatching);
+      await load(coords.latitude, coords.longitude, onlyMatching, Number(radius));
     } catch (err) {
       console.error("collect failed", err);
       setError(fr.cooperative.error);
     }
   };
 
-  const reload = () => void load(coords.latitude, coords.longitude, onlyMatching);
+  const reload = () => void load(coords.latitude, coords.longitude, onlyMatching, Number(radius));
 
   return (
     <View style={s.container}>
@@ -107,9 +115,15 @@ export default function CooperativeScreen({ showHeader = true }: Props) {
             </Txt>
           </View>
           <Txt variant="small" tone="muted">
-            {fr.cooperative.intro(RADIUS_KM)}
+            {fr.cooperative.intro(Number(radius))}
           </Txt>
         </Card>
+        <Segmented
+          testID="coop-radius"
+          options={RADII.map((key) => ({ key, label: fr.cooperative.radius(Number(key)) }))}
+          value={radius}
+          onChange={(key) => void changeRadius(key)}
+        />
         <View style={s.controls}>
           <Button label={fr.cooperative.locate} variant="secondary" compact onPress={() => void locate()} />
           <View style={s.switchRow}>

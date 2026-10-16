@@ -366,7 +366,8 @@ export const fr = {
     locate: "Me localiser",
     introTitle: "Résidus de bois à valoriser",
     intro: (km: number) =>
-      `Chutes, branches et sciure proposées par les entreprises à moins de ${km} km. Réservez un lot, collectez-le, transformez-le en mobilier, briquettes ou biochar.`,
+      `Chutes, branches et sciure proposées par les entreprises ${km >= 1000 ? "dans tout le Gabon" : `à moins de ${km} km`}. Réservez un lot, collectez-le, transformez-le en mobilier, briquettes ou biochar.`,
+    radius: (km: number) => (km >= 1000 ? "Tout le Gabon" : `${km} km`),
     empty: "Aucun résidu disponible à proximité pour le moment.",
     emptyHint: "Les entreprises publient leurs résidus au fil de l'exploitation : revenez régulièrement.",
     refresh: "Actualiser",
