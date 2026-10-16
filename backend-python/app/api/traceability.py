@@ -64,7 +64,8 @@ async def _df10_rows(
     rows = await db.fetch_all(
         "SELECT tree_code, species_scientific_name, measured_dbh_cm, marking_type, status,"
         " hammer_mark, felled_at, df10_entry_no, abandon_code, df10_notes, permit_number,"
-        " aac_label, title_id, aac_id"
+        " COALESCE(aac_label, (SELECT b.label FROM annual_cut_blocks b WHERE b.id = tree_registry.aac_id))"
+        " AS aac_label, title_id, aac_id"
         f" FROM tree_registry{where}"
         " ORDER BY df10_entry_no NULLS LAST, felled_at NULLS LAST, tree_code LIMIT 2000",
         *values,

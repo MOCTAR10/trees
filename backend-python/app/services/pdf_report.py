@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from io import BytesIO
+from pathlib import Path
 from typing import Any
 
 from reportlab.lib import colors
@@ -41,6 +42,7 @@ BRAND = "Foresterie Numérique"
 AUTHORITY = "République gabonaise · Ministère des Eaux et Forêts"
 TAGLINE = "Traçabilité du bois du Gabon — loi 016/01 et règlement européen (RDUE)"
 FLAG = ("#009E60", "#FCD116", "#3A75C4")
+SEAL = Path(__file__).resolve().parent.parent / "assets" / "seal.jpg"
 
 TREE_STATUS_LABEL = {
     "inventorie": "Inventorié",
@@ -132,15 +134,27 @@ def _header_footer(title: str):
         for i, hex_color in enumerate(FLAG):
             canvas.setFillColor(colors.HexColor(hex_color))
             canvas.rect(i * third, height - 27.2 * mm, third, 1.2 * mm, stroke=0, fill=1)
+        text_x = 18 * mm
+        if SEAL.is_file():
+            canvas.drawImage(
+                str(SEAL),
+                18 * mm,
+                height - 23 * mm,
+                width=27 * mm,
+                height=18 * mm,
+                preserveAspectRatio=True,
+                mask="auto",
+            )
+            text_x = 49 * mm
         canvas.setFillColor(colors.HexColor("#D9B04A"))
         canvas.setFont("Helvetica-Bold", 7)
-        canvas.drawString(18 * mm, height - 8.5 * mm, _safe(AUTHORITY.upper()))
+        canvas.drawString(text_x, height - 8.5 * mm, _safe(AUTHORITY.upper()))
         canvas.setFillColor(colors.white)
         canvas.setFont("Helvetica-Bold", 13)
-        canvas.drawString(18 * mm, height - 15.5 * mm, _safe(BRAND))
+        canvas.drawString(text_x, height - 15.5 * mm, _safe(BRAND))
         canvas.setFont("Helvetica", 8)
         canvas.setFillColor(LIGHT)
-        canvas.drawString(18 * mm, height - 21.5 * mm, _safe(title))
+        canvas.drawString(text_x, height - 21.5 * mm, _safe(title))
         canvas.setStrokeColor(LINE)
         canvas.setLineWidth(0.5)
         canvas.line(18 * mm, 14 * mm, width - 18 * mm, 14 * mm)
@@ -564,7 +578,10 @@ def _fmt_date(value: Any) -> str:
         return ""
     if hasattr(value, "strftime"):
         return value.strftime("%d/%m/%Y")
-    return str(value)[:10]
+    text = str(value)[:10]
+    if len(text) == 10 and text[4] == "-" and text[7] == "-":
+        return f"{text[8:10]}/{text[5:7]}/{text[0:4]}"
+    return text
 
 
 def render_df10_pdf(
@@ -579,12 +596,10 @@ def render_df10_pdf(
         r for r in rows if r.get("status") in ("abattu", "transporte", "receptionne", "transforme")
     ]
     abandoned = [r for r in rows if r.get("abandon_code")]
-
-    scope = org_name or "—"
-    if title_id is not None:
-        scope += f" · Titre #{title_id}"
-    if aac_id is not None:
-        scope += f" · AAC #{aac_id}"
+    titles = sorted({r["permit_number"] for r in rows if r.get("permit_number")})
+    aacs = sorted({r["aac_label"] for r in rows if r.get("aac_label")})
+    dates = sorted(str(r["felled_at"])[:10] for r in rows if r.get("felled_at"))
+    period = f"du {_fmt_date(dates[0])} au {_fmt_date(dates[-1])}" if dates else "—"
 
     story: list = [
         Paragraph("Carnet de chantier (DF10)", S_TITLE),
@@ -592,50 +607,96 @@ def render_df10_pdf(
         Spacer(1, 6 * mm),
         _kv_table(
             [
-                ("Opérateur", org_name or "—"),
-                ("Périmètre", scope),
-                ("Nombre de lignes", str(len(rows))),
+                ("Société exploitante", org_name or "—"),
+                ("Titre(s) d'exploitation", " · ".join(titles) or "—"),
+                ("Assiette(s) annuelle(s) de coupe", " · ".join(aacs) or "—"),
+                ("Période d'abattage", period),
+                ("Arbres inscrits", str(len(rows))),
                 ("Arbres abattus", str(len(felled))),
                 ("Arbres abandonnés", str(len(abandoned))),
             ]
         ),
-        Spacer(1, 4 * mm),
-        Paragraph("Registre des arbres marqués", S_H2),
     ]
 
+    if len(aacs) > 1:
+        story += [
+            Spacer(1, 4 * mm),
+            Paragraph("Récapitulatif par AAC", S_H2),
+            _grid_table(
+                ["AAC", "Arbres inscrits", "Arbres abattus"],
+                [
+                    [
+                        label,
+                        str(sum(1 for r in rows if r.get("aac_label") == label)),
+                        str(sum(1 for r in felled if r.get("aac_label") == label)),
+                    ]
+                    for label in aacs
+                ],
+                widths=[None, 35 * mm, 35 * mm],
+            ),
+        ]
+
+    story += [Spacer(1, 4 * mm), Paragraph("Registre des arbres marqués", S_H2)]
     grid_rows = [
         [
             r.get("df10_entry_no") or "—",
             r.get("tree_code"),
             r.get("species_scientific_name"),
             _fr_num(r.get("measured_dbh_cm"), 1),
+            r.get("aac_label") or "—",
             _fmt_date(r.get("felled_at")),
-            r.get("abandon_label") or r.get("abandon_code") or "",
-            _tree_status(r.get("status")),
+            (r.get("abandon_label") or r.get("abandon_code") or _tree_status(r.get("status"))),
         ]
         for r in rows
     ]
     if grid_rows:
         story.append(
             _grid_table(
-                ["N° DF10", "Code", "Espèce", "DBH", "Abattu le", "Abandon", "Statut"],
+                ["N° DF10", "Plaque", "Essence", "DBH (cm)", "AAC", "Abattu le", "Statut"],
                 grid_rows,
-                widths=[22 * mm, 20 * mm, None, 14 * mm, 20 * mm, 32 * mm, 20 * mm],
+                widths=[30 * mm, 27 * mm, None, 14 * mm, 24 * mm, 20 * mm, 22 * mm],
             )
         )
     else:
         story.append(Paragraph("Aucun arbre enregistré pour ce périmètre.", S_BODY))
 
+    visa = Table(
+        [
+            [
+                Paragraph(_safe("Le responsable du chantier"), S_CELLB),
+                Paragraph(_safe("Visa de l'administration forestière"), S_CELLB),
+            ],
+            [
+                Paragraph(_safe("Nom, date et signature"), S_SMALL),
+                Paragraph(_safe("Nom, date, cachet et signature"), S_SMALL),
+            ],
+        ],
+        colWidths=[None, None],
+        rowHeights=[None, 22 * mm],
+    )
+    visa.setStyle(
+        TableStyle(
+            [
+                ("BOX", (0, 0), (0, -1), 0.6, LINE),
+                ("BOX", (1, 0), (1, -1), 0.6, LINE),
+                ("BACKGROUND", (0, 0), (-1, 0), SAND),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ]
+        )
+    )
     story += [
-        Spacer(1, 5 * mm),
+        Spacer(1, 6 * mm),
         KeepTogether(
             [
+                visa,
+                Spacer(1, 4 * mm),
                 Paragraph("Base légale", S_H2),
                 Paragraph(
                     _safe(
                         "Carnet de chantier obligatoire — Code forestier gabonais (Loi 016/01, "
                         "art. 130 à 133). Toute mauvaise tenue du carnet est sanctionnée (art. 275). "
-                        "Le présent carnet numérique reprend les mentions du DF10 papier."
+                        "Le présent carnet numérique reprend les mentions du DF10 papier ; chaque "
+                        "ligne est créée à l'abattage, au pied de l'arbre."
                     ),
                     S_SMALL,
                 ),
