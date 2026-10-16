@@ -388,6 +388,11 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
   / in isolation. Unrelated to feature work.
 - Map layers must stay viewport + zoom bounded (`/api/map/layers?zoom&bbox`):
   the full Gabon GFW layers are ~65 000 vertices (7.5 MB) unsimplified.
+- **Maps**: `react-native-maps` is never used natively (its Android build needs a Google Maps key). `metro.config.js` resolves it to
+  `src/native/WebViewMaps.tsx` (Leaflet in `react-native-webview`, same API) on the phone and to `src/web/LeafletMaps.tsx` on the web.
+  A native change needs a new APK **and** a new `runtimeVersion` (now `0.2.0`; APK 0.2.0-37 is the first with the WebView map).
+- *Activités / Mes scans* is local storage (`storage/history`); with nothing stored it shows three labelled demo scans
+  (`src/data/demoScans.ts`, pilot trees `GA-PILOTE-0004/0006/0016`) whose report loads the real custody trail (`TreeTrailCard`).
 - `mobile/modules/depth-sensor` is native (Swift/Kotlin) and only compiles in
   an Expo **Development Build** (`npx expo install expo-dev-client`,
   `npx expo run:android` / `eas build --profile development`); Expo Go simply
