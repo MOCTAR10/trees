@@ -35,3 +35,10 @@ def test_le_ministere_voit_les_alertes_de_rendement(world):
     """Le Ministère liste les usines dont les sorties dépassent les entrées."""
     alerts = world.p.get("admin", "/api/mill/alerts")
     assert isinstance(alerts, list)
+
+
+def test_le_ministere_consulte_la_memoire_des_especes(world):
+    """Le Ministère consulte les espèces que la plateforme a identifiées et mémorisées."""
+    memory = world.p.get("admin", "/api/species/learned/list")
+    assert memory["count"] == len(memory["species"])
+    world.p.call("hob.dg", "GET", "/api/species/learned/list", expect=403)
