@@ -28,7 +28,8 @@ describe("AboutScreen — Green Leaves", () => {
     expect(getByText("077 72 44 99")).toBeTruthy();
     fireEvent.press(getByTestId("contact-sabine"));
     expect(open).toHaveBeenCalledWith("tel:077523717");
-    expect(getByText("Responsable du projet — conception, développement et direction technique")).toBeTruthy();
+    expect(getByText("Responsable du projet")).toBeTruthy();
+    expect(getByText("Conception, développement et direction technique")).toBeTruthy();
     fireEvent.press(getByTestId("contact-sidibe"));
     expect(open).toHaveBeenCalledWith("tel:077724499");
     fireEvent.press(getByTestId("link-web"));

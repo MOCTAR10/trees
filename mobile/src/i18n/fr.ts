@@ -1429,9 +1429,9 @@ export const fr = {
     teamTitle: "L'équipe Green Leaves Gabon",
     contactsTitle: "Contacts",
     contacts: [
-      { name: "Sabine Anotho", role: "Directrice générale (CEO)", phone: "077 52 37 17", accent: "gold" },
-      { name: "Sidibe Moctar", role: "Responsable du projet — conception, développement et direction technique", phone: "077 72 44 99", accent: "blue" },
-    ] as { name: string; role: string; phone: string; accent: "gold" | "blue" }[],
+      { name: "Sabine Anotho", role: "Directrice générale (CEO)", detail: "", phone: "077 52 37 17", accent: "gold" },
+      { name: "Sidibe Moctar", role: "Responsable du projet", detail: "Conception, développement et direction technique", phone: "077 72 44 99", accent: "blue" },
+    ] as { name: string; role: string; detail: string; phone: string; accent: "gold" | "blue" }[],
     linksTitle: "Accès à la plateforme",
     webApp: "Application web",
     webUrl: "https://foresterie-app.greenleaves.ga",
