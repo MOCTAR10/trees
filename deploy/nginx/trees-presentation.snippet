@@ -2,6 +2,13 @@
 location = /foresterie-app/presentation {
     return 301 /foresterie-app/presentation/;
 }
+# Images are versioned (?v=<build>): cache them for a long time.
+location ~ ^/foresterie-app/presentation/((slides|thumbs|assets)/.+)$ {
+    alias /var/www/trees/deploy/presentation/site/$1;
+    expires 30d;
+    add_header Cache-Control "public, max-age=2592000, immutable";
+    add_header X-Robots-Tag "noindex";
+}
 location /foresterie-app/presentation/ {
     alias /var/www/trees/deploy/presentation/site/;
     index index.html;
