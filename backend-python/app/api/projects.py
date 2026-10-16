@@ -22,7 +22,7 @@ _PROJECT_COLUMNS = """
     (SELECT b.label FROM annual_cut_blocks b WHERE b.id = p.aac_id) AS aac_label,
     (SELECT ST_Y(ST_Centroid(b.geom)) FROM annual_cut_blocks b WHERE b.id = p.aac_id) AS aac_lat,
     (SELECT ST_X(ST_Centroid(b.geom)) FROM annual_cut_blocks b WHERE b.id = p.aac_id) AS aac_lon,
-    (SELECT b.surface_ha FROM annual_cut_blocks b WHERE b.id = p.aac_id) AS aac_surface_ha,
+    (SELECT ST_Area(b.geom::geography) / 10000 FROM annual_cut_blocks b WHERE b.id = p.aac_id) AS aac_surface_ha,
     (SELECT b.status FROM annual_cut_blocks b WHERE b.id = p.aac_id) AS aac_status,
     (SELECT o.name FROM annual_cut_blocks b
        JOIN management_units u ON u.id = b.ufa_id

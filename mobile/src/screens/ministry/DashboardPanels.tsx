@@ -76,7 +76,7 @@ function Bars({ rows, testID }: { rows: { label: string; value: number; text: st
 function rollupRows(map: Record<string, StatusRollup> | undefined, labels: Record<string, string>) {
   return Object.values(map ?? {})
     .filter((r) => num(r.count) > 0)
-    .map((r) => ({ label: labels[r.status] ?? r.status, value: num(r.count), text: String(num(r.count)) }));
+    .map((r) => ({ label: labels[r.status] ?? r.status.charAt(0).toUpperCase() + r.status.slice(1).replace(/_/g, " "), value: num(r.count), text: String(num(r.count)) }));
 }
 
 function Ratio({ label, part, total, testID }: { label: string; part: number; total: number; testID?: string }) {
@@ -202,7 +202,7 @@ export default function DashboardPanels({ overview: o }: { overview: DashboardOv
         <View style={s.grid}>
           <Tile value={String(num(o.community?.agreements))} label={d.agreementsLabel} hint={d.active(num(o.community?.active))} />
           <Tile value={short(num(o.community?.contribution_fcfa))} label={d.contribution} hint="FCFA" />
-          <Tile value={`${dec(num(o.community?.avg_fdl_rate), 1)} %`} label={d.fdl} />
+          <Tile value={dec(num(o.community?.avg_fdl_rate), 0)} label={d.fdl} hint="FCFA / m³" />
           <Tile value={short(num(o.community?.annual_volume_m3))} label={d.annualVolume} hint="m³" />
         </View>
       </Section>
@@ -222,7 +222,7 @@ const useStyles = makeStyles((th) => ({
   grid: { flexDirection: "row", flexWrap: "wrap", gap: th.space.sm },
   tile: {
     flexGrow: 1,
-    flexBasis: 150,
+    flexBasis: "23%",
     minWidth: 140,
     backgroundColor: th.c.surface,
     borderRadius: th.radius.lg,

@@ -651,7 +651,7 @@ export default function MapScreen({ onOpenProject }: { onOpenProject?: (p: Proje
                   <View key={k} style={styles.kv}>
                     <Text style={styles.kvLabel}>{t.attrLabels[k]}</Text>
                     <Text style={styles.kvValue} numberOfLines={1}>
-                      {String(v)}
+                      {k === "status" ? String(v).charAt(0).toUpperCase() + String(v).slice(1) : String(v)}
                     </Text>
                   </View>
                 ))}
@@ -945,6 +945,7 @@ const useStyles = makeStyles((th) => ({
     bottom: th.space.lg,
     left: th.space.lg,
     right: th.space.lg,
+    maxWidth: 560,
     backgroundColor: th.c.surface,
     borderRadius: 14,
     padding: th.space.lg,
