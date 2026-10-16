@@ -63,6 +63,18 @@ if [ -f /etc/nginx/sites-available/trees-web.conf ]; then
   bash deploy/web/build.sh || echo "!! construction de l'application web en échec (l'API est à jour)"
 fi
 
+echo "== Présentation en ligne"
+SITE_CONF=/etc/nginx/sites-available/trees.conf
+if [ -f deploy/nginx/trees-presentation.snippet ] && [ -f "$SITE_CONF" ]; then
+  cp deploy/nginx/trees-presentation.snippet /etc/nginx/snippets/trees-presentation.conf
+  if ! grep -q "snippets/trees-presentation.conf" "$SITE_CONF"; then
+    cp -p "$SITE_CONF" "$SITE_CONF.bak"
+    sed -i '0,/location \/ {/s//include snippets\/trees-presentation.conf;\n\n    location \/ {/' "$SITE_CONF"
+    nginx -t >/dev/null 2>&1 || { cp -p "$SITE_CONF.bak" "$SITE_CONF"; echo "!! configuration nginx de la présentation annulée"; }
+  fi
+  nginx -t >/dev/null 2>&1 && systemctl reload nginx || echo "!! nginx non rechargé (la présentation reste inchangée)"
+fi
+
 echo "== Health"
 curl -fsS http://127.0.0.1:3000/health && echo
 echo "Deployed $(git rev-parse --short HEAD) at $(date -Is)"

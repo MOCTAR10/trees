@@ -250,6 +250,10 @@ new APK **and a new `runtimeVersion`** in `app.json`, otherwise old installs wou
 **Continuous deployment**: the `trees-autodeploy.timer` (systemd, every 5 min) runs `deploy/autodeploy.sh`, which
 deploys the newest commit of `main` **only once its « CI » workflow is green** (log `/var/log/trees-deploy.log`).
 So a push to `main` reaches production about 5 minutes after CI passes — keep CI green.
+**Online presentation**: `https://greenleaves.ga/presentation/` — static pages in `deploy/presentation/site/` (menu, search,
+overview, zoom, PDF; see `deploy/presentation/README.md`), served by nginx through `deploy/nginx/trees-presentation.snippet`,
+which `deploy.sh` installs and reloads. It is a public copy of the deck (pilot demo accounts and team phone numbers included, by decision):
+re-render it when the deck changes.
 **App incidents**: the apps report uncaught JS errors, slow starts (> 8 s) and slow catalogue builds
 (> 2 s) to `POST /api/v1/client-log` (written to the API log, nothing stored). Read them with
 `ssh greenleaves /var/www/trees/deploy/client-logs.sh [24h]`.

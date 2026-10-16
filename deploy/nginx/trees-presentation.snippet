@@ -1,0 +1,11 @@
+# Online presentation (static pages): https://<domaine>/presentation/ — built from the deck, no API, no key.
+location = /presentation {
+    return 301 /presentation/;
+}
+location /presentation/ {
+    alias /var/www/trees/deploy/presentation/site/;
+    index index.html;
+    try_files $uri $uri/ =404;
+    add_header Cache-Control "no-cache";
+    add_header X-Robots-Tag "noindex";
+}
