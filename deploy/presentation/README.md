@@ -1,6 +1,6 @@
 # Présentation en ligne
 
-`site/` is the static public version of the deck, served by nginx at `https://greenleaves.ga/presentation/`
+`site/` is the static public version of the deck, served by nginx at `https://greenleaves.ga/foresterie-app/presentation/`
 (`deploy/nginx/trees-presentation.snippet`, installed by `deploy.sh`). Nothing runs here: `index.html`
 (menu, search, overview, zoom, keyboard and swipe navigation), `slides/` (one 1920×1080 JPEG per page),
 `thumbs/` (overview) and `Foresterie-Numerique-Presentation.pdf` (the same pages as a PDF).
