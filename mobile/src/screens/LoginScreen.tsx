@@ -108,9 +108,14 @@ export default function LoginScreen({ onLogin }: Props) {
           style={[styles.officialSection, compact && !split && styles.officialCompact, split && styles.officialSplit]}
           testID="login-header"
         >
-          {split ? (
-            <Image source={FOREST} style={styles.forest} resizeMode="cover" accessibilityElementsHidden importantForAccessibility="no" />
-          ) : null}
+          <Image
+            source={FOREST}
+            style={[styles.forest, !split && styles.forestPhone]}
+            resizeMode="cover"
+            accessibilityElementsHidden
+            importantForAccessibility="no"
+            testID="login-forest"
+          />
           <View style={[styles.emblem, compact && styles.emblemCompact]}>
             <Image
               source={LEAF_LOGO}
@@ -299,6 +304,7 @@ const useStyles = makeStyles((th) => ({
   scrollCompact: { paddingBottom: th.space.sm },
   screenSplit: { flexDirection: "row" },
   forest: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, width: "100%", height: "100%", opacity: 0.22 },
+  forestPhone: { opacity: 0.28 },
   officialSplit: {
     alignSelf: "stretch",
     width: "42%",
@@ -333,6 +339,7 @@ const useStyles = makeStyles((th) => ({
     alignSelf: "stretch",
     alignItems: "center",
     backgroundColor: th.c.forest,
+    overflow: "hidden",
     paddingTop: th.space.xxl,
     paddingBottom: th.space.xl + 4,
     paddingHorizontal: th.space.xl,

@@ -44,6 +44,7 @@ import SpeciesDetailScreen from './src/screens/SpeciesDetailScreen';
 // Heavy native modules (camera, maps) load only when first opened,
 // keeping cold start fast.
 const CaptureScreen = React.lazy(() => import('./src/screens/CaptureScreen'));
+const PlantScanScreen = React.lazy(() => import('./src/screens/PlantScanScreen'));
 const MapScreen = React.lazy(() => import('./src/screens/MapScreen'));
 const ValorizationScreen = React.lazy(() => import('./src/screens/ValorizationScreen'));
 const ProjectDetailScreen = React.lazy(() => import('./src/screens/ProjectDetailScreen'));
@@ -89,10 +90,11 @@ type Phase =
   | 'decision'
   | 'custody'
   | 'organisation'
-  | 'glossary';
+  | 'glossary'
+  | 'plant';
 
 const TAB_PHASES: Phase[] = ['home', 'species', 'map', 'history', 'inbox', 'orgs', 'menu'];
-const DESIGNED_PHASES: Phase[] = ['report', 'profile', 'valorization', 'analyzing', 'valorizing', 'error', 'capture', 'chantier', 'domain', 'decision', 'custody', 'organisation', 'glossary'];
+const DESIGNED_PHASES: Phase[] = ['report', 'profile', 'valorization', 'analyzing', 'valorizing', 'error', 'capture', 'chantier', 'domain', 'decision', 'custody', 'organisation', 'glossary', 'plant'];
 
 
 function Shell({ band, children }: { band: boolean; children: React.ReactNode }) {
@@ -893,7 +895,19 @@ export default function App() {
       {phase === "capture" && (
         <Suspense fallback={<RouteLoader message={fr.common.openingCamera} />}>
           <ThemeProvider force="dark">
-            <CaptureScreen onCaptured={handleCaptured} onBack={goHome} project={scanProject} />
+            <CaptureScreen
+              onCaptured={handleCaptured}
+              onBack={goHome}
+              project={scanProject}
+              onPlantMode={scanProject ? undefined : () => requestPhase("plant")}
+            />
+          </ThemeProvider>
+        </Suspense>
+      )}
+      {phase === "plant" && (
+        <Suspense fallback={<RouteLoader message={fr.common.openingCamera} />}>
+          <ThemeProvider force="dark">
+            <PlantScanScreen onBack={goHome} onTreeMode={() => requestPhase("capture")} />
           </ThemeProvider>
         </Suspense>
       )}

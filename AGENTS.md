@@ -315,6 +315,9 @@ So a push to `main` reaches production about 5 minutes after CI passes — keep 
   Ministry record — photo, GPS and time from the same moment at the tree;
   roadmap §10 decision 16). Do not re-add an import path to the official scan.
   The Groq narrative is labelled as AI-written and indicative in the report.
+  A free scan offers an « Arbre | Plante » switch: `PlantScanScreen` is **recognition only**
+  (1–5 live photos tagged leaf/flower/fruit/bark/whole → `POST /api/v1/identify-plant`, Pl@ntNet
+  re-ranked for Gabon); nothing is written to the registry. Scans for a chantier/project stay tree-only.
 
 ## 6. CI, push, verification
 

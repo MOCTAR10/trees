@@ -350,6 +350,45 @@ export async function processScanV1(
   return resp.json();
 }
 
+export type PlantOrgan = "leaf" | "flower" | "fruit" | "bark" | "whole";
+
+export interface PlantCandidate {
+  scientific_name: string;
+  common_name_fr?: string | null;
+  score: number;
+  combined: number;
+}
+
+export interface PlantIdentification {
+  scientific_name: string | null;
+  score: number | null;
+  candidates: PlantCandidate[];
+  flora: string | null;
+}
+
+export async function identifyPlant(params: {
+  photos: { uri: string; organ: PlantOrgan }[];
+  latitude?: number;
+  longitude?: number;
+}): Promise<PlantIdentification> {
+  const form = new FormData();
+  params.photos.forEach((photo) => {
+    form.append("images", new File(photo.uri) as unknown as Blob);
+    form.append("organs", photo.organ);
+  });
+  if (params.latitude != null && params.longitude != null) {
+    form.append("latitude", String(params.latitude));
+    form.append("longitude", String(params.longitude));
+  }
+  const resp = await timedFetch(
+    `${API_BASE}/api/v1/identify-plant`,
+    { method: "POST", body: form, headers: headers() },
+    UPLOAD_TIMEOUT_MS,
+  );
+  if (!resp.ok) throw new Error(`Plant ${resp.status}`);
+  return resp.json();
+}
+
 export async function processScanV2(params: {
   species_scientific_name: string;
   measured_dbh_cm: number;

@@ -57,7 +57,7 @@ describe("RoleHeader", () => {
     expect(getByText("0.4162, 9.4541")).toBeTruthy();
 
     rerender(<RoleHeader title="Foresterie Numérique" coords={null} />);
-    expect(getByText("Localisation…")).toBeTruthy();
+    expect(getByText("Recherche de votre position…")).toBeTruthy();
   });
 
   it("shows the uniform rank stripes for Ministry and company roles only", () => {
@@ -84,6 +84,6 @@ describe("RoleHeader", () => {
 
   it("hides the GPS row when coords are not provided", () => {
     const { queryByText } = render(<RoleHeader title="Titre" />);
-    expect(queryByText("Localisation…")).toBeNull();
+    expect(queryByText("Recherche de votre position…")).toBeNull();
   });
 });

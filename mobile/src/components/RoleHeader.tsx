@@ -1,6 +1,6 @@
 import { Download, MapPin, Target, UserRound } from "lucide-react-native";
 import React from "react";
-import { Alert, Image, Pressable, Text, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, Alert, Image, Pressable, Text, useWindowDimensions, View } from "react-native";
 
 import { Role } from "../api/client";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
@@ -106,13 +106,20 @@ export default function RoleHeader({
       </View>
       {coords !== undefined || connection || updateReady ? (
         <View style={s.locRow}>
-          {coords !== undefined ? (
+          {coords ? (
             <>
               <MapPin size={13} color={t.c.gold} strokeWidth={2.5} />
               <Text style={s.locText} numberOfLines={1}>
-                {coords ? `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}` : fr.header.locating}
+                {`${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`}
               </Text>
             </>
+          ) : coords === null ? (
+            <View style={s.locating} testID="header-locating" accessibilityRole="progressbar" accessibilityLabel={fr.header.locating}>
+              <ActivityIndicator size="small" color={t.c.forest} />
+              <Text style={s.locatingText} numberOfLines={1}>
+                {fr.header.locating}
+              </Text>
+            </View>
           ) : null}
           {updateReady ? (
             <Pressable
@@ -265,6 +272,16 @@ const useStyles = makeStyles((t) => ({
     paddingVertical: 3,
   },
   updateText: { color: t.c.forest, fontFamily: t.fonts.bodyBold, fontSize: 11.5 },
+  locating: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: t.c.gold,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  locatingText: { color: t.c.forest, fontFamily: t.fonts.bodyBold, fontSize: 11.5 },
   badgeOffline: { backgroundColor: "rgba(224,165,58,0.18)", borderColor: "rgba(224,165,58,0.55)" },
   badgeDot: { width: 7, height: 7, borderRadius: 4 },
   badgeText: { color: t.c.onForest, fontFamily: t.fonts.bodyBold, fontSize: 11.5 },

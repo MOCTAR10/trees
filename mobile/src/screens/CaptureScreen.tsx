@@ -109,6 +109,8 @@ interface Props {
   onBack: () => void;
   /** Scan made for a chantier / project (null for a free scan). */
   project?: Pick<HomeProject, "id" | "title" | "kind"> | null;
+  /** Switch to plant recognition (free scans only). */
+  onPlantMode?: () => void;
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -129,7 +131,7 @@ function nextAfter(shots: Record<string, StepShot>, key: string): string {
   return CORE_STEPS.find((s) => !shots[s.key])?.key ?? REVIEW;
 }
 
-export default function CaptureScreen({ onCaptured, onBack, project }: Props) {
+export default function CaptureScreen({ onCaptured, onBack, project, onPlantMode }: Props) {
   const th = useTheme();
   const s = useStyles();
   const [permission, requestPermission] = useCameraPermissions();
@@ -544,6 +546,15 @@ export default function CaptureScreen({ onCaptured, onBack, project }: Props) {
             <Text style={s.projectBannerText} numberOfLines={1}>
               {t.forProject(project.kind, project.title)}
             </Text>
+          </View>
+        ) : onPlantMode ? (
+          <View style={s.modes} testID="scan-modes">
+            <View style={[s.mode, s.modeOn]} accessibilityState={{ selected: true }}>
+              <Text style={[s.modeText, s.modeTextOn]}>{fr.plant.modeTree}</Text>
+            </View>
+            <Pressable testID="mode-plant" onPress={onPlantMode} style={s.mode} accessibilityRole="button">
+              <Text style={s.modeText}>{fr.plant.modePlant}</Text>
+            </Pressable>
           </View>
         ) : null}
         <View style={s.rail}>
@@ -968,9 +979,13 @@ function GpsChip({ status, onRetry }: { status: "waiting" | "ok" | "error"; onRe
   const color = status === "ok" ? th.c.ok : status === "waiting" ? th.c.warn : th.c.risk;
   const label = status === "ok" ? t.gpsOk : status === "waiting" ? t.gpsWaiting : t.gpsUnavailable;
   return (
-    <View style={s.chip} testID="gps-chip">
-      <View style={[s.dot, { backgroundColor: color }]} />
-      <Text style={s.chipLabel}>{label}</Text>
+    <View style={[s.chip, status === "waiting" && s.chipGold]} testID="gps-chip">
+      {status === "waiting" ? (
+        <ActivityIndicator size="small" color="#1B2114" testID="gps-spinner" />
+      ) : (
+        <View style={[s.dot, { backgroundColor: color }]} />
+      )}
+      <Text style={[s.chipLabel, status === "waiting" && s.chipLabelDark]}>{label}</Text>
       {status === "error" ? (
         <Pressable testID="retry-gps-button" onPress={onRetry} hitSlop={8}>
           <Text style={s.chipAction}>{t.retry}</Text>
@@ -1302,6 +1317,18 @@ const useStyles = makeStyles((th) => ({
   },
   roundBtnOn: { backgroundColor: th.c.gold, borderColor: th.c.gold },
   roundSpacer: { width: 40 },
+  modes: {
+    flexDirection: "row",
+    alignSelf: "center",
+    backgroundColor: "rgba(255,255,255,0.12)",
+    borderRadius: 999,
+    padding: 3,
+    marginBottom: 6,
+  },
+  mode: { paddingHorizontal: 18, paddingVertical: 6, borderRadius: 999 },
+  modeOn: { backgroundColor: th.c.gold },
+  modeText: { color: th.c.onForest, fontFamily: th.fonts.bodyBold, fontSize: 14 },
+  modeTextOn: { color: "#1B2114" },
   projectBanner: {
     alignSelf: "center",
     marginTop: th.space.sm,
