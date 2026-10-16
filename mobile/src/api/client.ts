@@ -373,10 +373,14 @@ export async function identifyPlant(params: {
   longitude?: number;
 }): Promise<PlantIdentification> {
   const form = new FormData();
-  params.photos.forEach((photo) => {
-    form.append("images", new File(photo.uri) as unknown as Blob);
+  for (const photo of params.photos) {
+    if (Platform.OS === "web") {
+      form.append("images", await (await fetch(photo.uri)).blob(), "plante.jpg");
+    } else {
+      form.append("images", new File(photo.uri) as unknown as Blob);
+    }
     form.append("organs", photo.organ);
-  });
+  }
   if (params.latitude != null && params.longitude != null) {
     form.append("latitude", String(params.latitude));
     form.append("longitude", String(params.longitude));

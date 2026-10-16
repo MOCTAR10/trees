@@ -90,7 +90,8 @@ export default function PlantScanScreen({ onBack, onTreeMode }: Props) {
   );
 
   if (result) {
-    const [best, ...others] = result.candidates;
+    const [best, ...rest] = result.candidates;
+    const others = rest.filter((c) => c.combined >= 0.01);
     return (
       <View style={s.screen} testID="plant-result">
         {header}
