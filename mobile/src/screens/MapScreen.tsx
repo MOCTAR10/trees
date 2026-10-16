@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
-import { Crosshair, Layers, Maximize, Search, X } from "lucide-react-native";
+import { ChartColumn, Crosshair, Layers, Maximize, Search, X } from "lucide-react-native";
 import React from "react";
 import {
   ActivityIndicator,
@@ -31,6 +31,8 @@ import {
   getNationalContext,
   listGroupTrees,
   listMyTrees,
+  listProjects,
+  Project,
   MapFeatureDetail,
   MapLayers,
   MapSearchResult,
@@ -71,13 +73,23 @@ interface Prefs {
   enabled: string[];
   mapType: MapType;
   verdicts: Verdict[];
+  projects: boolean;
 }
 
 const DEFAULT_PREFS: Prefs = {
   enabled: ["aac", "protected_areas"],
   mapType: "standard",
   verdicts: [...VERDICTS],
+  projects: true,
 };
+
+const PROJECT_COLORS = { chantier: "#C99A1E", open: "#1F6FB2" };
+
+function projectPosition(p: Project): { latitude: number; longitude: number } | null {
+  const latitude = p.latitude ?? p.aac_lat ?? null;
+  const longitude = p.longitude ?? p.aac_lon ?? null;
+  return latitude != null && longitude != null ? { latitude, longitude } : null;
+}
 
 type PointState =
   | { status: "loading"; lat: number; lon: number }
@@ -89,9 +101,27 @@ function verdictOf(tree: MapTree): Verdict {
   return v === "conforme" || v === "a_verifier" || v === "risque_deforestation" ? v : "none";
 }
 
-export default function MapScreen() {
+function isTouchScreen(): boolean {
+  const nav = (globalThis as { navigator?: { maxTouchPoints?: number } }).navigator;
+  return (nav?.maxTouchPoints ?? 0) > 0;
+}
+
+export default function MapScreen({ onOpenProject }: { onOpenProject?: (p: Project) => void } = {}) {
   const th = useTheme();
   const styles = useStyles();
+  const [projects, setProjects] = React.useState<Project[]>([]);
+  const [project, setProject] = React.useState<Project | null>(null);
+  React.useEffect(() => {
+    let alive = true;
+    listProjects()
+      .then((rows) => {
+        if (alive) setProjects(rows);
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, []);
   const [mode, setMode] = React.useState<Mode>("mine");
   const [trees, setTrees] = React.useState<MapTree[]>(() => mapCache.get("mine") ?? []);
   const [loading, setLoading] = React.useState(() => !mapCache.has("mine"));
@@ -106,6 +136,9 @@ export default function MapScreen() {
   const [results, setResults] = React.useState<MapSearchResult[] | null>(null);
   const [feature, setFeature] = React.useState<MapFeatureDetail | null>(null);
   const [point, setPoint] = React.useState<PointState | null>(null);
+  React.useEffect(() => {
+    if (feature || point) setProject(null);
+  }, [feature, point]);
   const [context, setContext] = React.useState<NationalContext | null>(null);
   const [contextOpen, setContextOpen] = React.useState(false);
   const mapRef = React.useRef<MapView>(null);
@@ -372,9 +405,6 @@ export default function MapScreen() {
               <Text style={[styles.segText, mode === m && styles.segTextOn]}>{m === "mine" ? t.mine : t.group}</Text>
             </TouchableOpacity>
           ))}
-          <TouchableOpacity testID="context-button" style={styles.segBtn} onPress={() => void openContext()}>
-            <Text style={styles.segText}>{t.context}</Text>
-          </TouchableOpacity>
         </View>
       </View>
 
@@ -470,6 +500,29 @@ export default function MapScreen() {
                 </Marker>
               ),
             )}
+            {prefs.projects
+              ? projects.map((p) => {
+                  const position = projectPosition(p);
+                  if (!position) return null;
+                  const chantier = p.kind === "chantier";
+                  return (
+                    <Marker
+                      key={`project-${p.id}`}
+                      testID={`project-pin-${p.id}`}
+                      coordinate={position}
+                      title={p.title}
+                      description={chantier ? fr.home.kindChantier : fr.home.kindOpen}
+                      pinColor={chantier ? PROJECT_COLORS.chantier : PROJECT_COLORS.open}
+                      zIndex={12}
+                      onPress={() => {
+                        setFeature(null);
+                        setPoint(null);
+                        setProject(p);
+                      }}
+                    />
+                  );
+                })
+              : null}
             {point ? (
               <Marker
                 coordinate={{ latitude: point.lat, longitude: point.lon }}
@@ -489,6 +542,15 @@ export default function MapScreen() {
             <TouchableOpacity testID="fit-button" style={styles.fab} onPress={fit}>
               <Maximize size={20} color={th.c.onOlive} />
             </TouchableOpacity>
+            <TouchableOpacity
+              testID="context-button"
+              style={styles.fab}
+              onPress={() => void openContext()}
+              accessibilityRole="button"
+              accessibilityLabel={t.contextTitle}
+            >
+              <ChartColumn size={20} color={th.c.onOlive} />
+            </TouchableOpacity>
           </View>
 
           {loading || fetching ? (
@@ -498,7 +560,48 @@ export default function MapScreen() {
             </View>
           ) : null}
 
-          {feature ? (
+          {project ? (
+            <View style={styles.sheet} testID="project-sheet">
+              <View style={styles.sheetHead}>
+                <View
+                  style={[
+                    styles.swatch,
+                    { backgroundColor: project.kind === "chantier" ? PROJECT_COLORS.chantier : PROJECT_COLORS.open },
+                  ]}
+                />
+                <Text style={styles.sheetTitle} numberOfLines={2}>
+                  {project.title}
+                </Text>
+              </View>
+              <Text style={styles.dimSmall}>
+                {`${project.kind === "chantier" ? fr.home.kindChantier : fr.home.kindOpen} · ${t.projectStatus[project.status] ?? project.status}`}
+              </Text>
+              {project.aac_label ? (
+                <View style={styles.kv}>
+                  <Text style={styles.kvLabel}>AAC</Text>
+                  <Text style={styles.kvValue}>{project.aac_label}</Text>
+                </View>
+              ) : null}
+              <View style={styles.kv}>
+                <Text style={styles.kvLabel}>{t.projectsSection}</Text>
+                <Text style={styles.kvValue}>
+                  {project.kind === "chantier" && project.registry_trees
+                    ? fr.home.chantierProgress(project.registry_scanned ?? 0, project.registry_trees)
+                    : `${fr.home.participants(project.participant_count)} · ${t.scansCount(project.scan_count)}`}
+                </Text>
+              </View>
+              <View style={styles.sheetActions}>
+                {onOpenProject ? (
+                  <TouchableOpacity testID="project-open" style={styles.primaryBtn} onPress={() => onOpenProject(project)}>
+                    <Text style={styles.primaryText}>{t.openProject}</Text>
+                  </TouchableOpacity>
+                ) : null}
+                <TouchableOpacity testID="project-close" onPress={() => setProject(null)}>
+                  <Text style={styles.link}>{t.close}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : feature ? (
             <View style={styles.sheet} testID="feature-sheet">
               <View style={styles.sheetHead}>
                 <View style={[styles.swatch, { backgroundColor: LAYER_STYLE[feature.layer]?.stroke ?? th.c.olive }]} />
@@ -564,7 +667,7 @@ export default function MapScreen() {
           ) : (
             <View style={styles.hintBadge}>
               <Text style={styles.hintText}>
-                {`${t.shownOf(filtered.length, trees.length)} · ${Platform.OS === "web" ? t.rightClickHint : t.longPressHint}`}
+                {`${t.shownOf(filtered.length, trees.length)} · ${Platform.OS === "web" && !isTouchScreen() ? t.rightClickHint : t.longPressHint}`}
               </Text>
             </View>
           )}
@@ -621,6 +724,16 @@ export default function MapScreen() {
               />
             ))}
 
+            <Text style={styles.section}>{t.projectsSection}</Text>
+            <LegendRow
+              testID="layer-projects"
+              color={PROJECT_COLORS.chantier}
+              label={t.projectsLayer}
+              count={projects.filter((p) => projectPosition(p) != null).length}
+              on={prefs.projects}
+              onPress={() => updatePrefs({ projects: !prefs.projects })}
+            />
+
             <Text style={styles.section}>{t.scansFilter}</Text>
             {VERDICTS.map((v) => (
               <LegendRow
@@ -633,6 +746,16 @@ export default function MapScreen() {
                 onPress={() => toggleVerdict(v)}
               />
             ))}
+
+            <TouchableOpacity
+              testID="legend-context"
+              onPress={() => {
+                setLegendOpen(false);
+                void openContext();
+              }}
+            >
+              <Text style={styles.link}>{`${t.contextTitle} ›`}</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity testID="legend-close" onPress={() => setLegendOpen(false)}>
               <Text style={styles.link}>{t.close}</Text>
@@ -794,7 +917,7 @@ const useStyles = makeStyles((th) => ({
     borderRadius: 10,
     padding: th.space.sm,
   },
-  hintText: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body, textAlign: "center" },
+  hintText: { color: "#F4F3EC", fontSize: 12, fontFamily: th.fonts.body, textAlign: "center" },
   sheet: {
     position: "absolute",
     bottom: th.space.lg,

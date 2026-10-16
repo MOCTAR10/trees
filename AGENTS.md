@@ -281,8 +281,12 @@ So a push to `main` reaches production about 5 minutes after CI passes — keep 
   comma). Fonts: Barlow Semi Condensed (titles, figures) + Atkinson Hyperlegible
   (body), loaded by `fonts.ts`. The operator space follows the phone's
   light/dark setting; the camera screen is always dark. The Ministry and company
-  spaces follow the device theme (Slice 28); only the **cooperative** space is still
-  forced dark on the legacy `src/theme.ts` (and a few operator screens use it). Header rank stripes: Ministry 2, company/cooperative 1,
+  spaces follow the device theme (Slice 28), and so does the cooperative space; the legacy
+  `src/theme.ts` remains only in a few utility screens. On phones (< 430 px) the header wraps the
+  ministry name, puts the name/organisation on its own line and shows icon-only actions. A
+  « Glossaire & sigles » screen (`GlossaryScreen`, data in `src/data/glossary.ts`) opens from the
+  profile for every role. The map pins chantiers and open projects (`/api/projects`, AAC centroid
+  as fallback position). Header rank stripes: Ministry 2, company/cooperative 1,
   field agent 0. Reference mockups: `docs/design/maquette_design_v1.html`
   (operator) and `docs/design/maquette_admin_v2.html` (Ministry). 
 - **Ministry space** (`mobile/src/screens/ministry/`): bottom bar Tableau de bord ·

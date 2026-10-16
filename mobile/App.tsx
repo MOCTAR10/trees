@@ -23,6 +23,7 @@ import { acceptProjectInvitation, AuthUser, companyProfile, cooperativeProfile, 
 import type { CaptureResult } from './src/screens/CaptureScreen';
 import CompanyScreen from './src/screens/CompanyScreen';
 import CooperativeScreen from './src/screens/CooperativeScreen';
+import GlossaryScreen from './src/screens/GlossaryScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
@@ -87,10 +88,11 @@ type Phase =
   | 'domain'
   | 'decision'
   | 'custody'
-  | 'organisation';
+  | 'organisation'
+  | 'glossary';
 
 const TAB_PHASES: Phase[] = ['home', 'species', 'map', 'history', 'inbox', 'orgs', 'menu'];
-const DESIGNED_PHASES: Phase[] = ['report', 'profile', 'valorization', 'analyzing', 'valorizing', 'error', 'capture', 'chantier', 'domain', 'decision', 'custody', 'organisation'];
+const DESIGNED_PHASES: Phase[] = ['report', 'profile', 'valorization', 'analyzing', 'valorizing', 'error', 'capture', 'chantier', 'domain', 'decision', 'custody', 'organisation', 'glossary'];
 
 
 function Shell({ band, children }: { band: boolean; children: React.ReactNode }) {
@@ -722,7 +724,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider force={user.role === 'cooperative' ? 'dark' : undefined}>
+      <ThemeProvider>
       <Shell band={designed}>
         <ErrorBoundary onHome={goHome}>
         <DesktopFrame
@@ -834,7 +836,13 @@ export default function App() {
       )}
       {phase === "map" && (
         <Suspense fallback={<RouteLoader message={fr.common.openingMap} />}>
-          <MapScreen />
+          <MapScreen
+            onOpenProject={(p) => {
+              setSelectedProject(p.id);
+              if (p.kind === "chantier") setChantierReturn("map");
+              requestPhase(p.kind === "chantier" ? "chantier" : "projectDetail");
+            }}
+          />
         </Suspense>
       )}
       {phase === "projects" && user && (
@@ -873,8 +881,15 @@ export default function App() {
         <CreateProjectScreen onDone={() => requestPhase("projects")} onBack={() => requestPhase("projects")} />
       )}
       {phase === "profile" && (
-        <ProfileScreen user={user} onLogout={handleLogout} onBack={goHome} onUserUpdate={handleUserUpdate} />
+        <ProfileScreen
+          user={user}
+          onLogout={handleLogout}
+          onBack={goHome}
+          onUserUpdate={handleUserUpdate}
+          onOpenGlossary={() => requestPhase("glossary")}
+        />
       )}
+      {phase === "glossary" && <GlossaryScreen onBack={() => requestPhase("profile")} />}
       {phase === "capture" && (
         <Suspense fallback={<RouteLoader message={fr.common.openingCamera} />}>
           <ThemeProvider force="dark">

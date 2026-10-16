@@ -1,14 +1,7 @@
 import * as Location from "expo-location";
+import { Recycle } from "lucide-react-native";
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ActivityIndicator, FlatList, Switch, View } from "react-native";
 
 import {
   AuthUser,
@@ -17,8 +10,9 @@ import {
   NearbyResidue,
 } from "../api/client";
 import RoleHeader from "../components/RoleHeader";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
+import { Button, Card, EmptyState, Pill, PillTone, Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
-import { colors, spacing, type } from "../theme";
 
 interface Props {
   user: AuthUser;
@@ -29,10 +23,17 @@ interface Props {
 const DEFAULT_COORDS = { latitude: 0.4162, longitude: 9.4541 };
 const RADIUS_KM = 150;
 
-export default function CooperativeScreen({ user, onLogout, showHeader = true }: Props) {
+const STATUS_TONE: Record<string, PillTone> = {
+  available: "ok",
+  allocated: "gold",
+  collected: "neutral",
+};
+
+export default function CooperativeScreen({ showHeader = true }: Props) {
+  const t = useTheme();
+  const s = useStyles();
   const [coords, setCoords] = useState(DEFAULT_COORDS);
   const [residues, setResidues] = useState<NearbyResidue[]>([]);
-  const [profileType, setProfileType] = useState<string | null>(null);
   const [onlyMatching, setOnlyMatching] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +47,6 @@ export default function CooperativeScreen({ user, onLogout, showHeader = true }:
         onlyMatching: matching,
       });
       setResidues(resp.residues);
-      setProfileType(resp.profile_type);
     } catch (err) {
       console.error("cooperative load failed", err);
       setError(fr.cooperative.error);
@@ -90,61 +90,87 @@ export default function CooperativeScreen({ user, onLogout, showHeader = true }:
     }
   };
 
+  const reload = () => void load(coords.latitude, coords.longitude, onlyMatching);
+
   return (
-    <View style={styles.container}>
+    <View style={s.container}>
       {showHeader && <RoleHeader title={fr.cooperative.title} subtitle={fr.cooperative.subtitle} />}
 
-      <View style={styles.controls}>
-        <TouchableOpacity onPress={locate} style={styles.locateBtn}>
-          <Text style={styles.locateText}>{fr.cooperative.locate}</Text>
-        </TouchableOpacity>
-        <View style={styles.switchRow}>
-          <Text style={styles.switchLabel}>{fr.cooperative.onlyMatching}</Text>
-          <Switch
-            value={onlyMatching}
-            onValueChange={toggleMatching}
-            trackColor={{ true: colors.accent, false: colors.border }}
-          />
+      <View style={s.top}>
+        <Card style={s.intro}>
+          <View style={s.introRow}>
+            <View style={s.introIcon}>
+              <Recycle size={20} color={t.c.onOlive} strokeWidth={2.2} />
+            </View>
+            <Txt variant="heading" style={s.flex}>
+              {fr.cooperative.introTitle}
+            </Txt>
+          </View>
+          <Txt variant="small" tone="muted">
+            {fr.cooperative.intro(RADIUS_KM)}
+          </Txt>
+        </Card>
+        <View style={s.controls}>
+          <Button label={fr.cooperative.locate} variant="secondary" compact onPress={() => void locate()} />
+          <View style={s.switchRow}>
+            <Txt variant="small" tone="muted">
+              {fr.cooperative.onlyMatching}
+            </Txt>
+            <Switch
+              value={onlyMatching}
+              onValueChange={toggleMatching}
+              trackColor={{ true: t.c.olive, false: t.c.line }}
+              thumbColor={t.c.surface}
+            />
+          </View>
         </View>
       </View>
 
       {loading ? (
-        <ActivityIndicator style={styles.center} color={colors.accent} />
+        <ActivityIndicator style={s.center} color={t.c.olive} />
       ) : error ? (
-        <View style={styles.center}>
-          <Text style={styles.error}>{error}</Text>
-          <TouchableOpacity onPress={() => load(coords.latitude, coords.longitude, onlyMatching)}>
-            <Text style={styles.link}>{fr.common.retry}</Text>
-          </TouchableOpacity>
-        </View>
+        <EmptyState message={error} tone="risk" action={{ label: fr.common.retry, onPress: reload }} />
       ) : residues.length === 0 ? (
-        <View style={styles.center}>
-          <Text style={styles.dim}>{fr.cooperative.empty}</Text>
+        <View style={s.center}>
+          <Txt variant="heading" style={s.centerText}>
+            {fr.cooperative.empty}
+          </Txt>
+          <Txt tone="muted" style={s.centerText}>
+            {fr.cooperative.emptyHint}
+          </Txt>
+          <Button label={fr.cooperative.refresh} variant="secondary" compact onPress={reload} />
         </View>
       ) : (
         <FlatList
           data={residues}
           keyExtractor={(item) => String(item.id)}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={s.list}
+          ListHeaderComponent={
+            <Txt variant="label" tone="gold">
+              {fr.cooperative.count(residues.length)}
+            </Txt>
+          }
           renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View style={styles.cardTop}>
-                <Text style={styles.species}>{item.species_scientific_name ?? "—"}</Text>
-                <Text style={styles.distance}>{fr.cooperative.distance(item.distance_km)}</Text>
+            <Card style={s.card}>
+              <View style={s.cardTop}>
+                <Txt bold style={[s.flex, s.species]} numberOfLines={1}>
+                  {item.species_scientific_name ?? "—"}
+                </Txt>
+                <Txt variant="small" tone="muted" numeric>
+                  {fr.cooperative.distance(item.distance_km)}
+                </Txt>
               </View>
-              <Text style={styles.meta}>
+              <Txt variant="small" tone="muted">
                 {fr.cooperative.relevant(item.relevant_mass_kg)} · {fr.cooperative.match(item.match_score)}
-              </Text>
-              <Text style={styles.status}>{fr.company.status[item.status]}</Text>
-              {item.assigned_to_me ? (
-                <Text style={styles.mine}>{fr.cooperative.mine}</Text>
-              ) : null}
+              </Txt>
+              <View style={s.pills}>
+                <Pill label={fr.company.status[item.status] ?? item.status} tone={STATUS_TONE[item.status] ?? "neutral"} />
+                {item.assigned_to_me ? <Pill label={fr.cooperative.mine} tone="info" /> : null}
+              </View>
               {item.assigned_to_me && item.status === "allocated" ? (
-                <TouchableOpacity style={styles.action} onPress={() => collect(item.id)}>
-                  <Text style={styles.actionText}>{fr.cooperative.collect}</Text>
-                </TouchableOpacity>
+                <Button label={fr.cooperative.collect} onPress={() => void collect(item.id)} />
               ) : null}
-            </View>
+            </Card>
           )}
         />
       )}
@@ -152,51 +178,32 @@ export default function CooperativeScreen({ user, onLogout, showHeader = true }:
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+const useStyles = makeStyles((t) => ({
+  container: { flex: 1, backgroundColor: t.c.bg },
+  top: { paddingHorizontal: t.space.lg, paddingTop: t.space.md, gap: t.space.sm },
+  intro: { gap: t.space.xs },
+  introRow: { flexDirection: "row", alignItems: "center", gap: t.space.sm },
+  introIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: t.c.olive,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  flex: { flex: 1 },
   controls: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    gap: t.space.sm,
   },
-  locateBtn: {
-    backgroundColor: colors.primaryLight,
-    borderRadius: 8,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  locateText: { color: colors.text, fontSize: type.caption, fontWeight: "700" },
-  switchRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  switchLabel: { color: colors.textDim, fontSize: type.caption },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.md },
-  dim: { color: colors.textDim, fontSize: type.body },
-  error: { color: colors.error, fontSize: type.body },
-  link: { color: colors.accent, fontSize: type.body, fontWeight: "700" },
-  list: { padding: spacing.md, gap: spacing.sm },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    gap: spacing.xs,
-  },
-  cardTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  species: { color: colors.text, fontSize: type.body, fontWeight: "700", fontStyle: "italic", flex: 1 },
-  distance: { color: colors.textDim, fontSize: type.caption },
-  meta: { color: colors.textDim, fontSize: type.caption },
-  status: { color: colors.text, fontSize: type.caption, fontWeight: "600" },
-  mine: { color: colors.success, fontSize: type.caption, fontWeight: "700" },
-  action: {
-    backgroundColor: colors.accent,
-    borderRadius: 10,
-    paddingVertical: spacing.sm,
-    alignItems: "center",
-    marginTop: spacing.xs,
-  },
-  actionText: { color: colors.primary, fontSize: type.body, fontWeight: "800" },
-});
+  switchRow: { flexDirection: "row", alignItems: "center", gap: t.space.sm, flexShrink: 1 },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: t.space.md, padding: t.space.xl },
+  centerText: { textAlign: "center" },
+  list: { padding: t.space.lg, gap: t.space.sm },
+  card: { gap: t.space.xs },
+  cardTop: { flexDirection: "row", alignItems: "center", gap: t.space.sm },
+  species: { fontStyle: "italic" },
+  pills: { flexDirection: "row", flexWrap: "wrap", gap: t.space.xs },
+}));

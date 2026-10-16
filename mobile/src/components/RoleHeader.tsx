@@ -1,6 +1,6 @@
 import { Download, MapPin, Target, UserRound } from "lucide-react-native";
 import React from "react";
-import { Alert, Image, Pressable, Text, View } from "react-native";
+import { Alert, Image, Pressable, Text, useWindowDimensions, View } from "react-native";
 
 import { Role } from "../api/client";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
@@ -57,6 +57,7 @@ export default function RoleHeader({
   const t = useTheme();
   const s = useStyles();
   const rank = rankForRole(role);
+  const compact = useWindowDimensions().width < 430;
   return (
     <View style={s.header}>
       <View style={s.row}>
@@ -67,28 +68,27 @@ export default function RoleHeader({
           <Text style={s.overline} numberOfLines={1}>
             {title.toUpperCase()}
           </Text>
-          <Text style={s.ministry} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+          <Text style={[s.ministry, compact && s.ministryCompact]} numberOfLines={2}>
             {fr.header.ministry}
           </Text>
           {roleLabel ? (
-            <View style={s.metaRow}>
-              {rank > 0 ? (
-                <View style={s.stripesChip}>
-                  <RankStripes count={rank} color={t.c.forest} testID="rank-stripes" />
-                </View>
-              ) : null}
-              <Text style={s.role} numberOfLines={1}>
-                {roleLabel}
-              </Text>
+            <>
+              <View style={s.metaRow}>
+                {rank > 0 ? (
+                  <View style={s.stripesChip}>
+                    <RankStripes count={rank} color={t.c.forest} testID="rank-stripes" />
+                  </View>
+                ) : null}
+                <Text style={s.role} numberOfLines={1}>
+                  {roleLabel}
+                </Text>
+              </View>
               {orgName ? (
-                <>
-                  <Text style={s.org}>·</Text>
-                  <Text style={s.org} numberOfLines={1}>
-                    {orgName}
-                  </Text>
-                </>
+                <Text style={s.org} numberOfLines={1} testID="header-org">
+                  {orgName}
+                </Text>
               ) : null}
-            </View>
+            </>
           ) : subtitle ? (
             <Text style={s.org} numberOfLines={1}>
               {subtitle}
@@ -97,10 +97,10 @@ export default function RoleHeader({
         </View>
         <View style={s.actions}>
           {onOpenProjects ? (
-            <HeaderAction label={fr.header.projects} onPress={onOpenProjects} icon={<Target size={18} color={t.c.gold} strokeWidth={2} />} />
+            <HeaderAction label={fr.header.projects} compact={compact} onPress={onOpenProjects} icon={<Target size={18} color={t.c.gold} strokeWidth={2} />} />
           ) : null}
           {onOpenProfile ? (
-            <HeaderAction label={fr.header.profile} onPress={onOpenProfile} icon={<UserRound size={18} color={t.c.gold} strokeWidth={2} />} />
+            <HeaderAction label={fr.header.profile} compact={compact} onPress={onOpenProfile} icon={<UserRound size={18} color={t.c.gold} strokeWidth={2} />} />
           ) : null}
         </View>
       </View>
@@ -168,7 +168,17 @@ function ConnectionBadge({ status, pending }: { status: ServerStatus; pending: n
   );
 }
 
-function HeaderAction({ label, icon, onPress }: { label: string; icon: React.ReactNode; onPress: () => void }) {
+function HeaderAction({
+  label,
+  icon,
+  onPress,
+  compact,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  onPress: () => void;
+  compact?: boolean;
+}) {
   const s = useStyles();
   return (
     <Pressable
@@ -179,7 +189,7 @@ function HeaderAction({ label, icon, onPress }: { label: string; icon: React.Rea
       hitSlop={4}
     >
       {icon}
-      <Text style={s.actionLabel}>{label}</Text>
+      {compact ? null : <Text style={s.actionLabel}>{label}</Text>}
     </Pressable>
   );
 }
@@ -208,6 +218,7 @@ const useStyles = makeStyles((t) => ({
     letterSpacing: 1.3,
   },
   ministry: { color: t.c.onForest, fontFamily: t.fonts.display, fontSize: 19, lineHeight: 23 },
+  ministryCompact: { fontSize: 17, lineHeight: 20 },
   metaRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 2 },
   stripesChip: {
     backgroundColor: "#EEF0E6",
@@ -216,7 +227,7 @@ const useStyles = makeStyles((t) => ({
     paddingVertical: 2,
   },
   role: { color: t.c.onForest, fontFamily: t.fonts.bodyBold, fontSize: 12.5 },
-  org: { color: t.c.onForest, opacity: 0.8, fontFamily: t.fonts.body, fontSize: 12.5, flexShrink: 1 },
+  org: { color: t.c.onForest, opacity: 0.8, fontFamily: t.fonts.body, fontSize: 12.5, flexShrink: 1, marginTop: 1 },
   actions: { flexDirection: "row", alignItems: "center", gap: t.space.xs },
   actionBtn: {
     minWidth: 48,

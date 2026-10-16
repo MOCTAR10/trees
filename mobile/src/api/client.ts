@@ -1106,6 +1106,8 @@ export interface Project {
   participation?: ProjectParticipation;
   aac_id?: number | null;
   aac_label?: string | null;
+  aac_lat?: number | null;
+  aac_lon?: number | null;
   registry_trees?: number;
   registry_scanned?: number;
   my_status?: ParticipantStatus | null;

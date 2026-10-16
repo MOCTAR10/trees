@@ -1,4 +1,4 @@
-import { LogOut, Pencil } from "lucide-react-native";
+import { BookOpen, LogOut, Pencil } from "lucide-react-native";
 import React, { useState } from "react";
 import { ScrollView, TextInput, View } from "react-native";
 
@@ -15,9 +15,10 @@ interface Props {
   onLogout: () => void;
   onBack: () => void;
   onUserUpdate?: (user: AuthUser) => void;
+  onOpenGlossary?: () => void;
 }
 
-export default function ProfileScreen({ user, onLogout, onBack, onUserUpdate }: Props) {
+export default function ProfileScreen({ user, onLogout, onBack, onUserUpdate, onOpenGlossary }: Props) {
   const theme = useTheme();
   const s = useStyles();
   const rank = rankForRole(user.role);
@@ -133,6 +134,15 @@ export default function ProfileScreen({ user, onLogout, onBack, onUserUpdate }: 
             </Txt>
           ) : null}
         </Card>
+        {onOpenGlossary ? (
+          <Button
+            testID="profile-glossary"
+            label={fr.glossary.entry}
+            variant="secondary"
+            onPress={onOpenGlossary}
+            icon={<BookOpen size={18} color={theme.c.olive} />}
+          />
+        ) : null}
         <Button
           label={fr.common.logout}
           variant="danger"

@@ -82,6 +82,18 @@ jest.mock("../src/api/client", () => ({
     provinces: [],
   })),
   checkMapPoint: jest.fn(async () => ({ verdict: "a_verifier", flags: ["aire_protegee"], protected_area: "Lopé" })),
+  listProjects: jest.fn(async () => [
+    {
+      id: 7, title: "Chantier AAC 2026-1", kind: "chantier", status: "open", latitude: null, longitude: null,
+      aac_lat: -0.6, aac_lon: 12.1, aac_label: "PILOTE-AAC 2026-1", registry_trees: 9, registry_scanned: 4,
+      participant_count: 2, scan_count: 4,
+    },
+    {
+      id: 8, title: "Cartographie du Moabi", kind: "participatif", status: "open", latitude: 0.4, longitude: 9.5,
+      participant_count: 3, scan_count: 11,
+    },
+    { id: 9, title: "Sans position", kind: "participatif", status: "open", latitude: null, longitude: null, participant_count: 0, scan_count: 0 },
+  ]),
 }));
 
 import * as client from "../src/api/client";
@@ -163,6 +175,25 @@ describe("MapScreen (fluid map)", () => {
     expect(mockMapProps.current.mapType).toBe("satellite");
     fireEvent.press(getByTestId("layer-tree_cover_loss"));
     expect(getAllByTestId("url-tile")[0].props.urlTemplate).toContain("{z}/{x}/{y}");
+  });
+
+  it("pins chantiers and open projects, opens their sheet and hides them from the legend", async () => {
+    const onOpenProject = jest.fn();
+    const { getByTestId, queryByTestId, getByText } = render(<MapScreen onOpenProject={onOpenProject} />);
+    await settle();
+    expect(getByTestId("project-pin-7")).toBeTruthy();
+    expect(getByTestId("project-pin-8")).toBeTruthy();
+    expect(queryByTestId("project-pin-9")).toBeNull();
+    await act(async () => {
+      getByTestId("project-pin-7").props.onPress();
+    });
+    expect(getByTestId("project-sheet")).toBeTruthy();
+    expect(getByText("4/9 tiges du registre mesurées")).toBeTruthy();
+    fireEvent.press(getByTestId("project-open"));
+    expect(onOpenProject).toHaveBeenCalledWith(expect.objectContaining({ id: 7 }));
+    fireEvent.press(getByTestId("legend-button"));
+    fireEvent.press(getByTestId("layer-projects"));
+    expect(queryByTestId("project-pin-8")).toBeNull();
   });
 
   it("long press runs a forest check; context panel shows national figures", async () => {
