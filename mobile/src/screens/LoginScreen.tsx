@@ -106,7 +106,12 @@ export default function LoginScreen({ onLogin }: Props) {
 
   const header = (
         <View
-          style={[styles.officialSection, compact && !split && styles.officialCompact, split && styles.officialSplit]}
+          style={[
+            styles.officialSection,
+            compact && !split && styles.officialCompact,
+            split && styles.officialSplit,
+            !split && { minHeight: Math.round(tallest.current * (tight ? 0.38 : 0.42)), justifyContent: "center" },
+          ]}
           testID="login-header"
           onLayout={(e) => {
             const { width: w, height: h } = e.nativeEvent.layout;
@@ -331,9 +336,9 @@ const useStyles = makeStyles((th) => ({
   tricolorSplit: { width: 180, height: 6, marginTop: th.space.xl },
   officialCompact: { paddingTop: th.space.lg, paddingBottom: th.space.lg, marginBottom: th.space.lg },
   emblemCompact: { marginBottom: th.space.sm },
-  emblemSealCompact: { width: 84, height: 56 },
-  emblemSealTight: { width: 60, height: 40 },
-  ministryCompact: { fontSize: 20, lineHeight: 24 },
+  emblemSealCompact: { width: 132, height: 88 },
+  emblemSealTight: { width: 108, height: 72 },
+  ministryCompact: { fontSize: 24, lineHeight: 28 },
   tricolorCompact: { marginTop: th.space.sm, height: 4 },
   cardCompact: { paddingVertical: th.space.md },
   titleCompact: { fontSize: 22, lineHeight: 26 },
@@ -359,7 +364,7 @@ const useStyles = makeStyles((th) => ({
     overflow: "hidden",
     marginBottom: th.space.lg,
   },
-  emblemSeal: { width: 160, height: 108 },
+  emblemSeal: { width: 210, height: 142 },
   republicText: {
     color: th.c.gold,
     fontSize: 14,
