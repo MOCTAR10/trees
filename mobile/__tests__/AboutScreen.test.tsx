@@ -20,7 +20,7 @@ describe("AboutScreen", () => {
 describe("AboutScreen — Green Leaves", () => {
   it("credits Green Leaves Gabon and offers a call to each contact", () => {
     const open = jest.spyOn(Linking, "openURL").mockResolvedValue(true as never);
-    const { getByText, getByTestId } = render(<AboutScreen onBack={jest.fn()} />);
+    const { getByText, getByTestId, queryByTestId } = render(<AboutScreen onBack={jest.fn()} />);
     expect(getByText("Green Leaves Gabon")).toBeTruthy();
     expect(getByText("Sabine Anotho")).toBeTruthy();
     expect(getByText("077 52 37 17")).toBeTruthy();
@@ -33,8 +33,7 @@ describe("AboutScreen — Green Leaves", () => {
     expect(open).toHaveBeenCalledWith("tel:077724499");
     fireEvent.press(getByTestId("link-web"));
     expect(open).toHaveBeenCalledWith("https://foresterie-app.greenleaves.ga");
-    fireEvent.press(getByTestId("link-android"));
-    expect(open).toHaveBeenCalledWith("https://greenleaves.ga/app/foresterie.apk");
+    expect(queryByTestId("link-android")).toBeNull();
   });
 });
 

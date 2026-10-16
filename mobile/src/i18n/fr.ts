@@ -1435,8 +1435,6 @@ export const fr = {
     linksTitle: "Accès à la plateforme",
     webApp: "Application web",
     webUrl: "https://foresterie-app.greenleaves.ga",
-    androidApp: "Application Android",
-    androidUrl: "https://greenleaves.ga/app/foresterie.apk",
     pilot: "Version pilote — jeu de données fictif",
     call: (name: string) => `Appeler ${name}`,
   },

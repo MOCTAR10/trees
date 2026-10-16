@@ -1,5 +1,5 @@
 import Constants from "expo-constants";
-import { ChevronDown, ChevronUp, Globe, Phone, Smartphone } from "lucide-react-native";
+import { ChevronDown, ChevronUp, Globe, Phone } from "lucide-react-native";
 import React, { useState } from "react";
 import { Image, Linking, Pressable, ScrollView, View } from "react-native";
 
@@ -103,12 +103,6 @@ export default function AboutScreen({ onBack }: { onBack: () => void }) {
                   <Globe size={16} color={theme.c.olive} />
                   <Txt variant="small" bold tone="olive">
                     {t.webApp}
-                  </Txt>
-                </Pressable>
-                <Pressable testID="link-android" accessibilityRole="link" onPress={() => void Linking.openURL(t.androidUrl)} style={s.linkBtn}>
-                  <Smartphone size={16} color={theme.c.olive} />
-                  <Txt variant="small" bold tone="olive">
-                    {t.androidApp}
                   </Txt>
                 </Pressable>
               </View>
