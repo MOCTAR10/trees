@@ -34,6 +34,8 @@ interface Props {
   /** Scans waiting to sync (shown while offline). */
   pending?: number;
   onOpenProfile?: () => void;
+  /** Extra full-width row under the location line (e.g. the pulsing update badge). */
+  footer?: React.ReactNode;
   onOpenProjects?: () => void;
 }
 
@@ -48,6 +50,7 @@ export default function RoleHeader({
   pending = 0,
   onOpenProfile,
   onOpenProjects,
+  footer,
 }: Props) {
   const t = useTheme();
   const s = useStyles();
@@ -119,6 +122,7 @@ export default function RoleHeader({
           {connection ? <ConnectionBadge status={connection} pending={pending} /> : null}
         </View>
       ) : null}
+      {footer}
       <View style={s.rule}>
         <View style={s.ruleLine} />
         <View style={s.ruleLine} />

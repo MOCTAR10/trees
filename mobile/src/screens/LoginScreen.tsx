@@ -51,13 +51,25 @@ export default function LoginScreen({ onLogin }: Props) {
 
   const [band, setBand] = useState({ width: 0, height: 0 });
   const scrollRef = useRef<ScrollView>(null);
+  const formY = useRef(0);
+  const [kb, setKb] = useState(0);
   useEffect(() => {
     if (Platform.OS === "web") return undefined;
-    const sub = Keyboard.addListener(Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow", () => {
-      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 60);
+    const show = Keyboard.addListener(Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow", (e) => {
+      setKb(e.endCoordinates?.height ?? 0);
+      [80, 380].forEach((ms) =>
+        setTimeout(() => scrollRef.current?.scrollTo({ y: Math.max(formY.current - 12, 0), animated: true }), ms),
+      );
     });
-    return () => sub.remove();
+    const hide = Keyboard.addListener(Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide", () => setKb(0));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
   }, []);
+  const typing = kb > 0 && Platform.OS !== "web";
+  const windowShrank = height < tallest.current - 80;
+  const lift = Platform.OS === "android" && typing && !windowShrank ? kb : 0;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -119,7 +131,8 @@ export default function LoginScreen({ onLogin }: Props) {
             styles.officialSection,
             compact && !split && styles.officialCompact,
             split && styles.officialSplit,
-            !split && { minHeight: Math.round(tallest.current * (tight ? 0.38 : 0.42)), justifyContent: "center" },
+            !split && { minHeight: typing ? 0 : Math.round(tallest.current * (tight ? 0.38 : 0.42)), justifyContent: "center" },
+            typing && !split && styles.officialTyping,
           ]}
           testID="login-header"
           onLayout={(e) => {
@@ -146,7 +159,7 @@ export default function LoginScreen({ onLogin }: Props) {
               style={[
                 styles.emblemSeal,
                 compact && !split && styles.emblemSealCompact,
-                tight && !split && styles.emblemSealTight,
+                (tight || typing) && !split && styles.emblemSealTight,
                 split && styles.emblemSealSplit,
               ]}
               resizeMode="contain"
@@ -172,8 +185,8 @@ export default function LoginScreen({ onLogin }: Props) {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.screen, split && styles.screenSplit]}
-      behavior={Platform.OS === "web" ? undefined : "padding"}
+      style={[styles.screen, split && styles.screenSplit, lift > 0 && { paddingBottom: lift }]}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       {split ? header : null}
       <ScrollView
@@ -184,7 +197,7 @@ export default function LoginScreen({ onLogin }: Props) {
       >
         {split ? null : header}
 
-        <View style={styles.middle}>
+        <View style={styles.middle} onLayout={(e) => (formY.current = e.nativeEvent.layout.y)}>
         <View style={[styles.card, compact && styles.cardCompact, { width: cardWidth }]}>
           <Text style={[styles.title, compact && styles.titleCompact]}>{fr.appTitle}</Text>
           <Text style={[styles.subtitle, compact && styles.subtitleCompact]}>{fr.auth.subtitle}</Text>
@@ -327,6 +340,7 @@ const useStyles = makeStyles((th) => ({
     paddingBottom: th.space.lg,
   },
   scrollCompact: { paddingBottom: th.space.sm },
+  officialTyping: { paddingTop: th.space.md, paddingBottom: th.space.md, marginBottom: th.space.sm },
   screenSplit: { flexDirection: "row" },
   forest: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%", opacity: 0.22 },
   forestPhone: { opacity: 0.28 },
