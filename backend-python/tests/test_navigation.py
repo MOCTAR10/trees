@@ -47,7 +47,8 @@ def _install(monkeypatch, users, coops, scans):
                     if owner is None:
                         continue
                     if (coop_id is not None and owner.get("cooperative_id") == coop_id) or (
-                        company_id is not None and owner.get("company_id") == company_id
+                        company_id is not None
+                        and (owner.get("company_id") == company_id or owner["id"] == company_id)
                     ):
                         out.append(
                             {**x, "owner_name": owner["display_name"], "owner_id": owner["id"]}
@@ -241,8 +242,23 @@ def test_group_trees_for_operator_company(client, monkeypatch):
     resp = client.get("/api/group/trees", headers=_auth(users[4]))
     assert resp.status_code == 200
     body = resp.json()
-    assert {s["id"] for s in body} == {100, 101}
-    assert all(s["owner_name"] == "Field" for s in body)
+    assert {s["id"] for s in body} == {100, 101, 102}
+    assert {s["owner_name"] for s in body} == {"Field", "Bois & Cie"}
+
+
+def test_group_trees_for_company_manager(client, monkeypatch):
+    users, _, _ = _setup(monkeypatch)
+    resp = client.get("/api/group/trees", headers=_auth(users[2]))
+    assert resp.status_code == 200
+    assert {s["id"] for s in resp.json()} == {100, 101, 102}
+
+
+def test_group_company_for_manager(client, monkeypatch):
+    users, _, _ = _setup(monkeypatch)
+    body = client.get("/api/group", headers=_auth(users[2])).json()
+    assert body["type"] == "company"
+    assert body["id"] == 2
+    assert {m["id"] for m in body["members"]} == {4, 5}
 
 
 def test_group_trees_empty_for_coop_and_admin(client, monkeypatch):

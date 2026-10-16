@@ -10,6 +10,11 @@ router = APIRouter()
 _MEMBER_COLS = "id, email, display_name, role, is_active"
 
 
+def _company_key(user: dict) -> int | None:
+    """Agents carry their manager's account in ``company_id``; the manager is the key itself."""
+    return user.get("company_id") or (user["id"] if user.get("role") == "company" else None)
+
+
 @router.get("")
 async def my_group(user: dict = Depends(get_current_user)):
     """Resolve the caller's affiliation (company or cooperative) and members."""
@@ -32,19 +37,20 @@ async def my_group(user: dict = Depends(get_current_user)):
             "members": [dict(m) for m in members],
         }
 
-    if user.get("company_id"):
+    company_key = _company_key(user)
+    if company_key:
         detail = await db.fetch_one(
             "SELECT u.id, COALESCE(o.name, u.display_name) AS display_name FROM users u"
             " LEFT JOIN organizations o ON o.id = u.organization_id WHERE u.id=$1",
-            user["company_id"],
+            company_key,
         )
         members = await db.fetch_all(
             f"SELECT {_MEMBER_COLS} FROM users WHERE company_id=$1 ORDER BY display_name",
-            user["company_id"],
+            company_key,
         )
         return {
             "type": "company",
-            "id": user["company_id"],
+            "id": company_key,
             "name": (detail or {}).get("display_name"),
             "detail": dict(detail) if detail else None,
             "members": [dict(m) for m in members],
@@ -69,12 +75,14 @@ async def group_trees(
                ts.co2e_kg, ts.tree_code, ts.forest_checks->>'verdict' AS eudr_verdict
         FROM tree_scans ts
         JOIN users u ON u.id = ts.user_id
-        WHERE u.cooperative_id = $1 OR u.company_id = $2
+        WHERE u.cooperative_id = $1 OR u.company_id = $2 OR u.id = $2
+           OR ($4::int IS NOT NULL AND u.organization_id = $4)
         ORDER BY ts.created_at DESC
         LIMIT $3
         """,
         user.get("cooperative_id"),
-        user.get("company_id"),
+        _company_key(user),
         limit,
+        user.get("organization_id") if user.get("role") != "admin" else None,
     )
     return [dict(r) for r in rows]
