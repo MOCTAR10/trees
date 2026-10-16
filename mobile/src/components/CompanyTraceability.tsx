@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Modal,
@@ -47,6 +47,23 @@ function transportTone(status: string): Tone {
   return "neutral";
 }
 
+function FilterChip({ label, on, onPress, testID }: { label: string; on: boolean; onPress: () => void; testID?: string }) {
+  const styles = useStyles();
+  return (
+    <TouchableOpacity
+      testID={testID}
+      onPress={onPress}
+      style={[styles.fchip, on && styles.fchipOn]}
+      accessibilityRole="button"
+      accessibilityState={{ selected: on }}
+    >
+      <Text style={[styles.fchipText, on && styles.fchipTextOn]} numberOfLines={1}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
 function registryTone(status: string): Tone {
   if (status === "transforme") return "success";
   if (status === "abattu" || status === "transporte") return "accent";
@@ -66,6 +83,8 @@ export default function CompanyTraceability() {
   const [message, setMessage] = useState<string | null>(null);
   const [abandonTarget, setAbandonTarget] = useState<Df10Entry | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [aacFilter, setAacFilter] = useState<number | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
   const [docs, setDocs] = useState<TransportDocument[]>([]);
   const [docLoading, setDocLoading] = useState(true);
@@ -104,12 +123,29 @@ export default function CompanyTraceability() {
     void loadDocs();
   }, [loadDf10, loadDocs]);
 
+  const aacOptions = useMemo(() => {
+    const seen = new Map<number, string>();
+    entries.forEach((e) => {
+      if (e.aac_id != null && !seen.has(e.aac_id)) seen.set(e.aac_id, e.aac_label ?? `AAC ${e.aac_id}`);
+    });
+    return [...seen.entries()].map(([id, label]) => ({ id, label }));
+  }, [entries]);
+  const statusOptions = useMemo(() => [...new Set(entries.map((e) => e.status))], [entries]);
+  const shown = useMemo(
+    () =>
+      entries.filter(
+        (e) => (aacFilter == null || e.aac_id === aacFilter) && (statusFilter == null || e.status === statusFilter),
+      ),
+    [entries, aacFilter, statusFilter],
+  );
+  const filtering = aacFilter != null || statusFilter != null;
+
   const exportDf10 = async () => {
     if (exporting) return;
     setExporting(true);
     setMessage(null);
     try {
-      await sharePdf(await exportDf10Pdf());
+      await sharePdf(await exportDf10Pdf({ aac_id: aacFilter, status: statusFilter }));
     } catch (err) {
       console.error("df10 export failed", err);
       setMessage(fr.traceability.error);
@@ -190,15 +226,55 @@ export default function CompanyTraceability() {
               testID="export-df10"
             >
               <Text style={styles.actionText}>
-                {exporting ? fr.common.exporting : fr.traceability.exportDf10}
+                {exporting ? fr.common.exporting : filtering ? fr.traceability.exportFiltered : fr.traceability.exportDf10}
               </Text>
             </TouchableOpacity>
             <Text style={styles.note}>{fr.traceability.estNote}</Text>
 
+            {aacOptions.length > 1 ? (
+              <View style={styles.filterBlock} testID="df10-aac-filter">
+                <Text style={styles.filterLabel}>{fr.traceability.filterChantier}</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.fchipRow}>
+                  <FilterChip label={fr.traceability.filterAll} on={aacFilter == null} onPress={() => setAacFilter(null)} testID="aac-all" />
+                  {aacOptions.map((o) => (
+                    <FilterChip
+                      key={o.id}
+                      label={o.label}
+                      on={aacFilter === o.id}
+                      onPress={() => setAacFilter(aacFilter === o.id ? null : o.id)}
+                      testID={`aac-${o.id}`}
+                    />
+                  ))}
+                </ScrollView>
+              </View>
+            ) : null}
+            {statusOptions.length > 1 ? (
+              <View style={styles.filterBlock} testID="df10-status-filter">
+                <Text style={styles.filterLabel}>{fr.traceability.filterStatus}</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.fchipRow}>
+                  <FilterChip label={fr.traceability.filterAll} on={statusFilter == null} onPress={() => setStatusFilter(null)} testID="status-all" />
+                  {statusOptions.map((st) => (
+                    <FilterChip
+                      key={st}
+                      label={fr.traceability.registryStatus[st] ?? st}
+                      on={statusFilter === st}
+                      onPress={() => setStatusFilter(statusFilter === st ? null : st)}
+                      testID={`status-${st}`}
+                    />
+                  ))}
+                </ScrollView>
+              </View>
+            ) : null}
+            {filtering ? (
+              <Text style={styles.note} testID="df10-count">
+                {fr.traceability.filterCount(shown.length, entries.length)}
+              </Text>
+            ) : null}
+
             {entries.length === 0 ? (
               <Text style={styles.dim}>{fr.traceability.noEntries}</Text>
             ) : (
-              entries.map((entry) => (
+              shown.map((entry) => (
                 <View key={entry.tree_code} style={styles.card}>
                   <View style={styles.cardTop}>
                     <Text style={styles.title}>
@@ -631,6 +707,20 @@ const useStyles = makeStyles((th) => ({
   link: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   list: { padding: th.space.lg, gap: th.space.sm, paddingBottom: th.space.xxl },
   note: { color: th.c.muted, fontSize: 12, fontStyle: "italic", fontFamily: th.fonts.body },
+  filterBlock: { gap: 4 },
+  filterLabel: { color: th.c.goldInk, fontSize: 12, letterSpacing: 1, fontFamily: th.fonts.displaySemi, textTransform: "uppercase" },
+  fchipRow: { gap: 8, paddingVertical: 2 },
+  fchip: {
+    borderWidth: 1,
+    borderColor: th.c.line,
+    backgroundColor: th.c.surface,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+  },
+  fchipOn: { backgroundColor: th.c.olive, borderColor: th.c.olive },
+  fchipText: { color: th.c.ink, fontSize: 13, fontFamily: th.fonts.bodyBold },
+  fchipTextOn: { color: th.c.onOlive },
   card: {
     backgroundColor: th.c.surface,
     borderRadius: 12,

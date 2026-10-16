@@ -123,9 +123,10 @@ async def set_df10_abandonance(
 async def df10_pdf(
     title_id: int | None = Query(None),
     aac_id: int | None = Query(None),
+    status: str | None = Query(None),
     user: dict = Depends(require_roles("company", "operator", "admin")),
 ):
-    rows = await _df10_rows(user, title_id, aac_id)
+    rows = await _df10_rows(user, title_id, aac_id, status)
     org_name = await _org_name(user)
     pdf = pdf_report.render_df10_pdf(rows, org_name=org_name, title_id=title_id, aac_id=aac_id)
     return Response(

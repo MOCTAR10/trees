@@ -152,4 +152,34 @@ describe("CompanyTraceability incoming slips", () => {
     fireEvent.press(view.getByTestId("transport-advance-7"));
     await waitFor(() => expect(mocked.actOnTransportDocument).toHaveBeenCalledWith(7, "receptionne"));
   });
+
+  it("filters the carnet by chantier and by status, and exports the selection", async () => {
+    mocked.listDf10.mockResolvedValue([
+      { ...DF10[0], tree_code: "GA-1", aac_id: 40, aac_label: "AAC-1", status: "abattu" },
+      { ...DF10[0], tree_code: "GA-2", aac_id: 41, aac_label: "AAC-2", status: "abattu" },
+      { ...DF10[0], tree_code: "GA-3", aac_id: 41, aac_label: "AAC-2", status: "declare" },
+    ]);
+    const view = render(<CompanyTraceability />);
+    await waitFor(() => view.getByText("GA-1"));
+    expect(view.getByText("GA-3")).toBeTruthy();
+
+    fireEvent.press(view.getByTestId("aac-41"));
+    expect(view.queryByText("GA-1")).toBeNull();
+    expect(view.getByText("GA-2")).toBeTruthy();
+    expect(view.getByTestId("df10-count")).toHaveTextContent("2 arbres sur 3");
+
+    fireEvent.press(view.getByTestId("status-declare"));
+    expect(view.queryByText("GA-2")).toBeNull();
+    expect(view.getByText("GA-3")).toBeTruthy();
+
+    fireEvent.press(view.getByTestId("export-df10"));
+    await waitFor(() => expect(mockedPdf.exportDf10Pdf).toHaveBeenCalledWith({ aac_id: 41, status: "declare" }));
+  });
+
+  it("shows no chantier filter for a single chantier", async () => {
+    mocked.listDf10.mockResolvedValue(DF10);
+    const view = render(<CompanyTraceability />);
+    await waitFor(() => view.getByText("GA-1"));
+    expect(view.queryByTestId("df10-aac-filter")).toBeNull();
+  });
 });

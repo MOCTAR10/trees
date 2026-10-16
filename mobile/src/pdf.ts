@@ -69,8 +69,14 @@ export async function exportPlanPdf(plan: unknown): Promise<string> {
 }
 
 /** Carnet de chantier (DF10) PDF for the caller's scope. */
-export async function exportDf10Pdf(): Promise<string> {
-  return getPdfToCache("/api/traceability/df10/pdf", `carnet_df10_${Date.now()}.pdf`);
+export async function exportDf10Pdf(
+  filter: { aac_id?: number | null; status?: string | null } = {},
+): Promise<string> {
+  const qs = new URLSearchParams();
+  if (filter.aac_id != null) qs.set("aac_id", String(filter.aac_id));
+  if (filter.status) qs.set("status", filter.status);
+  const suffix = qs.toString() ? `?${qs.toString()}` : "";
+  return getPdfToCache(`/api/traceability/df10/pdf${suffix}`, `carnet_df10_${Date.now()}.pdf`);
 }
 
 /** Periodic statement (état trimestriel/annuel) PDF. */
