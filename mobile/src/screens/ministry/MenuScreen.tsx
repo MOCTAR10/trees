@@ -28,7 +28,7 @@ const t = fr.ministry;
 
 type Icon = React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>;
 
-const GROUPS: { key: string; items: { key: DomainKey; icon: Icon }[] }[] = [
+export const MENU_GROUPS: { key: string; items: { key: DomainKey; icon: Icon }[] }[] = [
   { key: "titres", items: [{ key: "titres", icon: Landmark }, { key: "comptes", icon: Users }] },
   {
     key: "instruction",
@@ -86,7 +86,7 @@ export default function MenuScreen({ onOpen, onLogout }: Props) {
           </Txt>
         </View>
       </Pressable>
-      {GROUPS.map((g) => (
+      {MENU_GROUPS.map((g) => (
         <View key={g.key} style={s.group}>
           <Txt variant="label" tone="gold">
             {t.menuGroups[g.key]}

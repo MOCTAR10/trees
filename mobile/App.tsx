@@ -33,10 +33,10 @@ import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import ReportScreen from './src/screens/ReportScreen';
 import BottomNav from './src/components/BottomNav';
-import DesktopFrame, { SideSection, useDesktop } from './src/web/DesktopFrame';
+import DesktopFrame, { SideGroup, SideSection, useDesktop } from './src/web/DesktopFrame';
 import { useAppUpdate } from './src/utils/useAppUpdate';
 import { COMPANY_GROUPS, CompanyTab, groupOf } from './src/components/CompanyNav';
-import { Axe, House, Recycle, ShieldCheck, Wallet } from 'lucide-react-native';
+import { Axe, BarChart3, House, Recycle, ShieldCheck, Wallet } from 'lucide-react-native';
 import WebFieldNotice from './src/web/WebFieldNotice';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import LoadingScreen from './src/components/LoadingScreen';
@@ -60,7 +60,7 @@ import MinistryHomeScreen from './src/screens/ministry/MinistryHomeScreen';
 import InboxScreen from './src/screens/ministry/InboxScreen';
 import OrganisationsScreen from './src/screens/ministry/OrganisationsScreen';
 import OrganisationScreen from './src/screens/ministry/OrganisationScreen';
-import MenuScreen from './src/screens/ministry/MenuScreen';
+import MenuScreen, { MENU_GROUPS } from './src/screens/ministry/MenuScreen';
 import DomainScreen from './src/screens/ministry/DomainScreen';
 import DecisionScreen from './src/screens/ministry/DecisionScreen';
 import CustodyScreen from './src/screens/CustodyScreen';
@@ -642,7 +642,7 @@ export default function App() {
   // Desktop web: the side menu stays on sub-pages, with their parent area highlighted.
   const DESKTOP_PARENT: Partial<Record<Phase, Phase>> = { decision: 'inbox', organisation: 'orgs', domain: domainReturn, profile: 'menu' };
   const desktopFrame = desktop && (isTab || phase in DESKTOP_PARENT);
-  const desktopActive = DESKTOP_PARENT[phase] ?? phase;
+  const desktopActive = user.role === 'admin' && phase === 'domain' ? 'domain' : (DESKTOP_PARENT[phase] ?? phase);
   const COMPANY_ICONS = { accueil: House, exploitation: Axe, conformite: ShieldCheck, finances: Wallet, circulaire: Recycle };
   const companySections: SideSection[] | undefined =
     user.role === 'company'
@@ -655,6 +655,28 @@ export default function App() {
             setCompanyTab(g.tabs[0]);
             handleTabChange('home');
           },
+        }))
+      : undefined;
+
+  const ministryGroups: SideGroup[] | undefined =
+    user.role === 'admin'
+      ? [
+          {
+            key: 'pilotage',
+            title: 'Pilotage',
+            items: [{ key: 'stats', icon: BarChart3 }],
+          },
+          ...MENU_GROUPS,
+        ].map((g) => ({
+          key: g.key,
+          title: fr.ministry.menuGroups[g.key] ?? g.key,
+          items: g.items.map(({ key, icon }) => ({
+            key,
+            label: fr.ministry.domains[key],
+            icon,
+            active: phase === 'domain' && domainKey === key,
+            onPress: () => openDomain(key as DomainKey, 'home'),
+          })),
         }))
       : undefined;
 
@@ -745,6 +767,8 @@ export default function App() {
           enabled={desktopFrame}
           sections={companySections}
           sectionsTitle={user.role === 'company' ? fr.web.companySpace : undefined}
+          groups={ministryGroups}
+          hiddenTabs={ministryGroups ? ['menu'] : undefined}
           user={user}
           active={desktopActive}
           roleLabel={roleLabel}

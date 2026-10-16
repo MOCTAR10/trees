@@ -1317,6 +1317,7 @@ export const fr = {
     scanHint: "Visez le QR de l'arbre, de la grume ou du bordereau",
     menuTitle: "Menu",
     menuGroups: {
+      pilotage: "Pilotage",
       titres: "Titres",
       instruction: "Instruction",
       controle: "Contrôle",

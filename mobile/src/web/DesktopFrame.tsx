@@ -43,11 +43,19 @@ export interface SideSection {
   onPress: () => void;
 }
 
+export interface SideGroup {
+  key: string;
+  title: string;
+  items: SideSection[];
+}
+
 interface Props {
   enabled: boolean;
   /** Role-specific areas shown first (company: Accueil, Exploitation…); they replace the « home » entry. */
   sections?: SideSection[];
   sectionsTitle?: string;
+  groups?: SideGroup[];
+  hiddenTabs?: TabKey[];
   user: AuthUser;
   active: string;
   roleLabel: string;
@@ -62,6 +70,8 @@ export default function DesktopFrame({
   enabled,
   sections,
   sectionsTitle,
+  groups,
+  hiddenTabs,
   user,
   active,
   roleLabel,
@@ -104,7 +114,7 @@ export default function DesktopFrame({
             </View>
           ) : null}
           <View style={s.nav}>
-            {tabsForRole(user.role).filter((tab) => !(sections?.length && tab.key === "home")).map((tab) => {
+            {tabsForRole(user.role).filter((tab) => !(sections?.length && tab.key === "home") && !hiddenTabs?.includes(tab.key)).map((tab) => {
               const Icon = user.role === "admin" && tab.key === "home" ? LayoutDashboard : ICONS[tab.key];
               const on = active === tab.key;
               return (
@@ -122,6 +132,24 @@ export default function DesktopFrame({
               );
             })}
           </View>
+          {groups?.map((g) => (
+            <View key={g.key} style={s.nav}>
+              <Text style={s.sectionTitle}>{g.title}</Text>
+              {g.items.map((sec) => (
+                <Pressable
+                  key={sec.key}
+                  testID={`side-domain-${sec.key}`}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: sec.active }}
+                  onPress={sec.onPress}
+                  style={(state) => [s.item, sec.active && s.itemOn, (state as { hovered?: boolean }).hovered && !sec.active && s.itemHover]}
+                >
+                  <sec.icon size={20} color={sec.active ? t.c.gold : t.c.onForest} strokeWidth={sec.active ? 2.4 : 2} />
+                  <Text style={[s.itemLabel, sec.active && s.itemLabelOn]}>{sec.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+          ))}
         </ScrollView>
         <View style={s.footer}>
           <View style={s.status}>

@@ -56,6 +56,29 @@ describe("Web desktop layout", () => {
     expect(view.getByText("contenu")).toBeTruthy();
   });
 
+  it("lists every Ministry domain in the side menu instead of the Menu tab", () => {
+    const onPress = jest.fn();
+    const view = render(
+      <DesktopFrame
+        enabled
+        user={admin}
+        active="home"
+        roleLabel="Ministère"
+        onChange={jest.fn()}
+        onLogout={jest.fn()}
+        hiddenTabs={["menu"]}
+        groups={[{ key: "titres", title: "Titres", items: [{ key: "titres", label: "Titres forestiers", icon: () => null, active: true, onPress }] }]}
+      >
+        <Text>contenu</Text>
+      </DesktopFrame>,
+    );
+    expect(view.queryByTestId("side-menu")).toBeNull();
+    expect(view.getByText("Titres")).toBeTruthy();
+    expect(view.getByTestId("side-domain-titres").props.accessibilityState).toEqual({ selected: true });
+    fireEvent.press(view.getByTestId("side-domain-titres"));
+    expect(onPress).toHaveBeenCalled();
+  });
+
   it("sends field accounts to the Android app", () => {
     const open = jest.spyOn(Linking, "openURL").mockResolvedValue(true);
     const onLogout = jest.fn();
