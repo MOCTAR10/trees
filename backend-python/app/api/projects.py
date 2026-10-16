@@ -20,6 +20,8 @@ _PROJECT_COLUMNS = """
     p.latitude, p.longitude, p.radius_km, p.status, p.created_by, p.created_at,
     p.kind, p.participation, p.aac_id,
     (SELECT b.label FROM annual_cut_blocks b WHERE b.id = p.aac_id) AS aac_label,
+    (SELECT ST_Y(ST_Centroid(b.geom)) FROM annual_cut_blocks b WHERE b.id = p.aac_id) AS aac_lat,
+    (SELECT ST_X(ST_Centroid(b.geom)) FROM annual_cut_blocks b WHERE b.id = p.aac_id) AS aac_lon,
     (SELECT COUNT(*) FROM tree_registry r WHERE r.aac_id = p.aac_id) AS registry_trees,
     (SELECT COUNT(DISTINCT ts.tree_code) FROM tree_scans ts
        JOIN tree_registry r ON r.tree_code = ts.tree_code
