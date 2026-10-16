@@ -17,6 +17,7 @@ from app.api import (
     cooperative,
     dashboard,
     diagnostics,
+    docs_ui,
     documents,
     eudr,
     felling,
@@ -78,7 +79,7 @@ app = FastAPI(
     title="Foresterie Numérique — API",
     version="0.26.0",
     description=API_DESCRIPTION,
-    docs_url="/api/docs",
+    docs_url=None,
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
     lifespan=lifespan,
@@ -113,6 +114,7 @@ def _openapi() -> dict:
 
 app.openapi = _openapi
 
+app.include_router(docs_ui.router, prefix="/api")
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(v1.router, prefix="/api/v1", tags=["v1-measurement"])
 app.include_router(v2.router, prefix="/api/v2", tags=["v2-valorization"])

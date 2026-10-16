@@ -41,7 +41,7 @@ export function buildApp(opts = {}) {
   // API-key gate. Off by default (local dev); enable with REQUIRE_API_KEY=true.
   // The API documentation (Swagger, ReDoc, OpenAPI schema) stays readable without the key;
   // trying an endpoint from Swagger still sends X-API-Key through « Authorize ».
-  const PUBLIC_DOCS = new Set(["/docs", "/redoc", "/openapi.json"]);
+  const PUBLIC_DOCS = new Set(["/docs", "/redoc", "/openapi.json", "/docs/theme.css", "/docs/seal.jpg"]);
   const apiAuth = (req, res, next) => {
     if (!requireApiKey) return next();
     if (req.method === "GET" && PUBLIC_DOCS.has(req.path)) return next();
