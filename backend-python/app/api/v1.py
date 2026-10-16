@@ -873,3 +873,33 @@ async def report_pdf(report: V1Report = Body(...)):
         media_type="application/pdf",
         headers={"Content-Disposition": 'attachment; filename="rapport_forestier.pdf"'},
     )
+
+
+@router.post("/identify-plant")
+async def identify_plant(
+    images: list[UploadFile] = File(..., description="1 à 5 photos de la plante"),
+    organs: list[str] | None = Form(
+        None, description="Organe de chaque photo: leaf/flower/fruit/bark/whole"
+    ),
+    latitude: float | None = Form(None),
+    longitude: float | None = Form(None),
+    user: dict | None = Depends(get_optional_user),
+):
+    """Plant recognition only: Pl@ntNet re-ranked for Gabon; nothing is stored."""
+    if user is None:
+        raise HTTPException(status_code=401, detail="Connexion requise")
+    if not images or len(images) > _PLANTNET_MAX_IMAGES:
+        raise HTTPException(status_code=422, detail="Entre 1 et 5 photos")
+    limit = get_settings().max_image_bytes
+    views = []
+    for i, upload in enumerate(images):
+        data = await _read_capped(upload, limit)
+        _decode(data)
+        organ = _norm_organ(organs[i]) if organs and i < len(organs) else "auto"
+        views.append({"bytes": data, "organ": "leaf" if organ == "dbh" else organ})
+    lat = latitude if latitude is not None else 0.0
+    lon = longitude if longitude is not None else 11.6
+    name, score, ranked, project = await _identify_species(views, lat, lon)
+    if not ranked and not get_settings().plantnet_api_key:
+        raise HTTPException(status_code=503, detail="Reconnaissance des plantes indisponible")
+    return {"scientific_name": name, "score": score, "candidates": ranked, "flora": project}
