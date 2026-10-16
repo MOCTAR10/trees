@@ -17,6 +17,7 @@ import numpy as np
 from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
 from PIL import Image
+from pydantic import BaseModel, Field
 
 from app.config import get_settings
 from app.core.chapman_richards import estimate_age_for_species
@@ -903,3 +904,25 @@ async def identify_plant(
     if not ranked and not get_settings().plantnet_api_key:
         raise HTTPException(status_code=503, detail="Reconnaissance des plantes indisponible")
     return {"scientific_name": name, "score": score, "candidates": ranked, "flora": project}
+
+
+class ClientLog(BaseModel):
+    kind: str = Field(..., max_length=40)
+    message: str = Field(..., max_length=2000)
+    stack: str | None = Field(None, max_length=4000)
+    app_version: str | None = Field(None, max_length=40)
+    platform: str | None = Field(None, max_length=20)
+    timings_ms: dict[str, int] | None = None
+
+
+@router.post("/client-log", status_code=204)
+async def client_log(entry: ClientLog, user: dict | None = Depends(get_optional_user)):
+    """App-side errors and slow starts, written to the API log for diagnosis (nothing stored)."""
+    logger.warning(
+        "client-log %s",
+        json.dumps(
+            {**entry.model_dump(), "user_id": user["id"] if user else None},
+            ensure_ascii=False,
+        ),
+    )
+    return Response(status_code=204)

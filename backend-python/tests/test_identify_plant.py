@@ -74,3 +74,13 @@ def test_unavailable_without_plantnet_key(client, monkeypatch):
         "/api/v1/identify-plant", files=[("images", ("a.jpg", _jpg(), "image/jpeg"))]
     )
     assert resp.status_code == 503
+
+
+def test_client_log_is_accepted_and_logged(client, caplog):
+    with caplog.at_level("WARNING"):
+        resp = client.post(
+            "/api/v1/client-log",
+            json={"kind": "slow_boot", "message": "démarrage lent", "timings_ms": {"fonts": 120}},
+        )
+    assert resp.status_code == 204
+    assert "slow_boot" in caplog.text and '"user_id": 7' in caplog.text
