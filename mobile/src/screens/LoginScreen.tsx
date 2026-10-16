@@ -140,19 +140,20 @@ export default function LoginScreen({ onLogin }: Props) {
             setBand((prev) => (Math.abs(prev.width - w) < 1 && Math.abs(prev.height - h) < 1 ? prev : { width: w, height: h }));
           }}
         >
-          <Image
-            source={FOREST}
-            style={[
-              styles.forest,
-              !split && styles.forestPhone,
-              Platform.OS === "web" && band.width > 0 ? { width: band.width, height: band.height } : null,
-            ]}
-            resizeMode="cover"
-            resizeMethod="resize"
-            accessibilityElementsHidden
-            importantForAccessibility="no"
-            testID="login-forest"
-          />
+          <View style={styles.forestClip} pointerEvents="none">
+            <Image
+              source={FOREST}
+              style={[
+                styles.forest,
+                !split && styles.forestPhone,
+                band.width > 0 ? { width: band.width, height: band.height } : null,
+              ]}
+              resizeMode="cover"
+              accessibilityElementsHidden
+              importantForAccessibility="no"
+              testID="login-forest"
+            />
+          </View>
           <View style={[styles.emblem, compact && styles.emblemCompact]}>
             <Image
               source={LEAF_LOGO}
@@ -342,7 +343,8 @@ const useStyles = makeStyles((th) => ({
   scrollCompact: { paddingBottom: th.space.sm },
   officialTyping: { paddingTop: th.space.md, paddingBottom: th.space.md, marginBottom: th.space.sm },
   screenSplit: { flexDirection: "row" },
-  forest: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%", opacity: 0.22 },
+  forestClip: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, overflow: "hidden" },
+  forest: { width: "100%", height: "100%", opacity: 0.22 },
   forestPhone: { opacity: 0.28 },
   officialSplit: {
     alignSelf: "stretch",
