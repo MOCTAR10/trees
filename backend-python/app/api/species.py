@@ -4,8 +4,9 @@ from dataclasses import asdict
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from app.core.deps import get_current_user
+from app.core.deps import get_current_user, require_roles
 from app.core.species_data import SPECIES_DB, resolve_species
+from app.services import species_memory
 
 router = APIRouter()
 
@@ -41,6 +42,16 @@ async def list_species(
     ]
     profiles.sort(key=lambda p: (p.common_name_fr or p.scientific_name).lower())
     return {"count": len(profiles), "species": [_summary(p) for p in profiles[:limit]]}
+
+
+@router.get("/learned/list")
+async def learned_species(
+    limit: int = Query(100, ge=1, le=500),
+    user: dict = Depends(require_roles("admin")),
+):
+    """Species the platform has identified so far (its local memory), most seen first."""
+    rows = await species_memory.learned(limit)
+    return {"count": len(rows), "species": rows}
 
 
 @router.get("/{name}")

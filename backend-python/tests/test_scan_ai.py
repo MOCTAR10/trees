@@ -249,7 +249,7 @@ def test_unknown_code_scanned_by_a_company_is_inventoried(client, monkeypatch):
     assert "tree_inventoried" in body["measurement_notes"]
     registry = [a for s, a in calls if s.startswith("insert into tree_registry")]
     assert registry and registry[0][0] == "GA-NEW-001"
-    assert "'inventorie'" in calls[0][0]
+    assert "'inventorie'" in next(s for s, _ in calls if s.startswith("insert into tree_registry"))
     assert registry[0][5] == 7 and registry[0][9] == 10
     scan = [a for s, a in calls if s.startswith("insert into tree_scans")]
     assert "GA-NEW-001" in scan[0]

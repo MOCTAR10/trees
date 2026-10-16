@@ -18,7 +18,7 @@ import asyncio
 import logging
 
 from app.core.species_data import _CURATED_SPECIES, resolve_species
-from app.services import gbif
+from app.services import gbif, species_memory
 
 logger = logging.getLogger(__name__)
 
@@ -56,12 +56,18 @@ def prior(name: str | None) -> tuple[float, str]:
 
 
 async def _local_occurrences(name: str, latitude: float, longitude: float) -> int | None:
+    cached = await species_memory.cached_occurrences(name, latitude, longitude)
+    if cached is not None:
+        return cached
     try:
         check = await gbif.validate_species_for_location(name, latitude, longitude)
     except Exception as exc:  # GBIF down: no evidence either way
         logger.warning("GBIF occurrence check skipped for %s: %s", name, exc)
         return None
-    return check.get("occurrences")
+    count = check.get("occurrences")
+    if count is not None:
+        await species_memory.store_occurrences(name, latitude, longitude, count)
+    return count
 
 
 async def rerank(candidates: list[dict], latitude: float, longitude: float) -> list[dict]:

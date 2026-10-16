@@ -39,6 +39,7 @@ from app.services import (
     qr_plate,
     rag,
     soilgrids,
+    species_memory,
     species_rank,
 )
 from app.services.biomass_engine import living_carbon
@@ -388,6 +389,17 @@ async def _identify_species(
     if not ranked:
         return None, None, [], getattr(pn, "project", None)
     best = ranked[0]
+    raw_best = next(
+        (c for c in candidates if c.get("scientific_name") == best["scientific_name"]), {}
+    )
+    await species_memory.learn(
+        best["scientific_name"],
+        best["combined"],
+        latitude,
+        longitude,
+        family=raw_best.get("family"),
+        common_names=raw_best.get("common_names"),
+    )
     name = best["scientific_name"] if best["combined"] >= MIN_SPECIES_SCORE else None
     return name, best["score"], ranked[:SPECIES_CANDIDATES], getattr(pn, "project", None)
 
