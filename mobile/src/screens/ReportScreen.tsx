@@ -4,6 +4,7 @@ import { ScrollView, View } from "react-native";
 
 import { V1Report } from "../api/client";
 import ForestChecksCard from "../components/ForestChecksCard";
+import TreeTrailCard from "../components/TreeTrailCard";
 import { dec, signed } from "../design/format";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { Bullet, Button, Card, KeyValue, Pill, ScreenHeader, Stat, Txt } from "../design/ui";
@@ -97,6 +98,8 @@ export default function ReportScreen({ report, exporting, onValorize, onOpenPlan
             ) : null}
           </Card>
         ) : null}
+
+        {report.tree_code ? <TreeTrailCard code={report.tree_code} /> : null}
 
         <Card testID="measurement-card">
           <Txt variant="heading">{t.measurement}</Txt>

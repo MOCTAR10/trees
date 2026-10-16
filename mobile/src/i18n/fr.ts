@@ -1422,6 +1422,15 @@ export const fr = {
     tabAbout: "À propos",
     tabFaq: "Questions fréquentes",
     version: (v: string) => `Version ${v}`,
+    builtBy: "Conçu et développé par",
+    company: "Green Leaves Gabon",
+    builtByNote: "Application développée par Green Leaves Gabon pour le Ministère des Eaux et Forêts.",
+    contactsTitle: "Contacts",
+    contacts: [
+      { name: "Sabine Anotho", role: "Directrice générale (CEO)", phone: "077 52 37 17" },
+      { name: "Sidibe Moctar", role: "Chef de projet", phone: "077 72 44 99" },
+    ] as { name: string; role: string; phone: string }[],
+    call: (name: string) => `Appeler ${name}`,
   },
 
   glossary: {
@@ -1460,6 +1469,8 @@ export const fr = {
     mine: "Mes scans",
     group: "Groupe",
     empty: "Aucune analyse enregistrée pour l'instant.",
+    demoTitle: "Exemples de démonstration",
+    demoNote: "Voici trois scans d'exemple du chantier pilote. Ils disparaissent dès votre premier vrai scan.",
     emptyGroup: "Aucune activité d'équipe pour l'instant.",
     back: "← Retour",
     clear: "Effacer",
@@ -1549,6 +1560,16 @@ export const fr = {
   },
 
   report: {
+    trail: {
+      title: "Suivi de la grume",
+      df10: "Carnet de chantier (DF10)",
+      aac: "AAC",
+      holder: "Détenteur",
+      felled: "Abattage",
+      slip: "Bordereau de transport",
+      none: "—",
+      events: { abattu: "Abattage", transporte: "Mise en transport", receptionne: "Réception", transforme: "Transformation" } as Record<string, string>,
+    },
     title: "Rapport forestier",
     species: "Espèce",
     confidence: "Confiance",

@@ -4,6 +4,7 @@ import { ActivityIndicator, Alert, FlatList, Pressable, View } from "react-nativ
 
 import { GroupTree, listGroupTrees } from "../api/client";
 import { VERDICT_TONE } from "../components/ForestChecksCard";
+import { DEMO_SCANS, isDemoScan } from "../data/demoScans";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { Button, EmptyState, Pill, Segmented, Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
@@ -37,7 +38,9 @@ function initials(name: string | null | undefined): string {
   return (parts[0][0] + (parts[1]?.[0] ?? parts[0][1] ?? "")).toUpperCase();
 }
 
-export default function HistoryScreen({ scans, onOpen, onDelete, onClear, onBack }: Props) {
+export default function HistoryScreen({ scans: stored, onOpen, onDelete, onClear, onBack }: Props) {
+  const demo = stored.length === 0;
+  const scans = demo ? DEMO_SCANS : stored;
   const theme = useTheme();
   const s = useStyles();
   const [scope, setScope] = React.useState<Scope>("mine");
@@ -76,7 +79,7 @@ export default function HistoryScreen({ scans, onOpen, onDelete, onClear, onBack
         <Txt variant="title" style={s.title}>
           {t.title}
         </Txt>
-        {scope === "mine" && scans.length > 0 ? (
+        {scope === "mine" && !demo && scans.length > 0 ? (
           <Button label={t.clear} variant="ghost" compact onPress={confirmClear} />
         ) : null}
       </View>
@@ -99,6 +102,18 @@ export default function HistoryScreen({ scans, onOpen, onDelete, onClear, onBack
             data={scans}
             keyExtractor={(item) => item.id}
             contentContainerStyle={s.list}
+            ListHeaderComponent={
+              demo ? (
+                <View style={s.demoBanner} testID="history-demo">
+                  <Txt variant="small" bold tone="gold">
+                    {t.demoTitle}
+                  </Txt>
+                  <Txt variant="caption" tone="muted">
+                    {t.demoNote}
+                  </Txt>
+                </View>
+              ) : null
+            }
             renderItem={({ item }) => {
               const r = item.report;
               const species = r.species_common_name_fr ?? r.species_scientific_name ?? t.unknown;
@@ -131,6 +146,7 @@ export default function HistoryScreen({ scans, onOpen, onDelete, onClear, onBack
                       </View>
                     </View>
                   </Pressable>
+                  {isDemoScan(item.id) ? null : (
                   <Pressable
                     style={({ pressed }) => [s.delete, pressed && s.pressed]}
                     onPress={() => onDelete(item.id)}
@@ -140,6 +156,7 @@ export default function HistoryScreen({ scans, onOpen, onDelete, onClear, onBack
                   >
                     <Trash2 size={18} color={theme.c.risk} />
                   </Pressable>
+                  )}
                 </View>
               );
             }}
@@ -193,6 +210,7 @@ const useStyles = makeStyles((th) => ({
   title: { flex: 1 },
   segment: { paddingHorizontal: th.space.lg, paddingVertical: th.space.md },
   loader: { flex: 1 },
+  demoBanner: { gap: 2, padding: th.space.md, marginBottom: th.space.sm, borderRadius: th.radius.md, backgroundColor: th.c.goldSoft },
   list: { paddingHorizontal: th.space.lg, paddingBottom: th.space.xxl, gap: th.space.sm },
   row: {
     flexDirection: "row",

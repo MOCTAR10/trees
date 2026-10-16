@@ -1,7 +1,7 @@
 import Constants from "expo-constants";
-import { ChevronDown, ChevronUp } from "lucide-react-native";
+import { ChevronDown, ChevronUp, Phone } from "lucide-react-native";
 import React, { useState } from "react";
-import { Image, Pressable, ScrollView, View } from "react-native";
+import { Image, Linking, Pressable, ScrollView, View } from "react-native";
 
 import { ABOUT_SECTIONS, FAQ } from "../data/about";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
@@ -9,6 +9,7 @@ import { Card, ScreenHeader, Segmented, Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
 
 const SEAL = require("../../assets/leaf_logo.jpg");
+const GREEN_LEAVES = require("../../assets/greenleave_logo.png");
 const t = fr.about;
 
 type Tab = "about" | "faq";
@@ -45,6 +46,48 @@ export default function AboutScreen({ onBack }: { onBack: () => void }) {
               <Txt variant="small" tone="muted">
                 {t.version(Constants.expoConfig?.version ?? "—")}
               </Txt>
+            </Card>
+            <Card raised style={s.maker} testID="about-maker">
+              <Image source={GREEN_LEAVES} style={s.makerLogo} resizeMode="contain" accessibilityLabel={t.company} />
+              <Txt variant="label" tone="gold">
+                {t.builtBy}
+              </Txt>
+              <Txt variant="title" tone="onForest">
+                {t.company}
+              </Txt>
+              <Txt variant="small" tone="onForest" style={s.center}>
+                {t.builtByNote}
+              </Txt>
+              <View style={s.contacts}>
+                <Txt variant="label" tone="gold">
+                  {t.contactsTitle}
+                </Txt>
+                {t.contacts.map((c) => (
+                  <Pressable
+                    key={c.name}
+                    testID={`contact-${c.name.split(" ")[0].toLowerCase()}`}
+                    accessibilityRole="button"
+                    accessibilityLabel={t.call(c.name)}
+                    onPress={() => void Linking.openURL(`tel:${c.phone.replace(/\s/g, "")}`)}
+                    style={s.contact}
+                  >
+                    <View style={s.contactTexts}>
+                      <Txt bold tone="onForest">
+                        {c.name}
+                      </Txt>
+                      <Txt variant="caption" tone="onForest">
+                        {c.role}
+                      </Txt>
+                    </View>
+                    <View style={s.phonePill}>
+                      <Phone size={14} color={theme.c.forest} />
+                      <Txt variant="small" bold numeric style={s.phoneText}>
+                        {c.phone}
+                      </Txt>
+                    </View>
+                  </Pressable>
+                ))}
+              </View>
             </Card>
             {ABOUT_SECTIONS.map((section) => (
               <Card key={section.title} style={s.block}>
@@ -84,6 +127,32 @@ const useStyles = makeStyles((th) => ({
   hero: { alignItems: "center", gap: 4 },
   seal: { width: 96, height: 64, borderRadius: 8, marginBottom: th.space.sm },
   block: { gap: th.space.xs },
+  center: { textAlign: "center" },
+  maker: { alignItems: "center", gap: th.space.xs, backgroundColor: th.c.forest, borderColor: th.c.gold, borderWidth: 1.5 },
+  makerLogo: { width: 220, height: 110, borderRadius: 12, backgroundColor: "#FFFFFF", marginBottom: th.space.sm },
+  contacts: { alignSelf: "stretch", gap: th.space.sm, marginTop: th.space.md },
+  contact: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: th.space.sm,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: th.radius.md,
+    paddingHorizontal: th.space.md,
+    paddingVertical: th.space.sm,
+    minHeight: 52,
+  },
+  contactTexts: { flex: 1 },
+  phonePill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: th.c.gold,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  phoneText: { color: th.c.forest },
   question: { flexDirection: "row", alignItems: "center", gap: th.space.sm },
   flex: { flex: 1 },
 }));
