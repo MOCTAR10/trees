@@ -48,6 +48,7 @@ export default function LoginScreen({ onLogin }: Props) {
   const compact = tallest.current < 700;
   const tight = tallest.current < 620;
 
+  const [band, setBand] = useState({ width: 0, height: 0 });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -107,10 +108,18 @@ export default function LoginScreen({ onLogin }: Props) {
         <View
           style={[styles.officialSection, compact && !split && styles.officialCompact, split && styles.officialSplit]}
           testID="login-header"
+          onLayout={(e) => {
+            const { width: w, height: h } = e.nativeEvent.layout;
+            setBand((prev) => (Math.abs(prev.width - w) < 1 && Math.abs(prev.height - h) < 1 ? prev : { width: w, height: h }));
+          }}
         >
           <Image
             source={FOREST}
-            style={[styles.forest, !split && styles.forestPhone]}
+            style={[
+              styles.forest,
+              !split && styles.forestPhone,
+              band.width > 0 ? { width: band.width, height: band.height } : null,
+            ]}
             resizeMode="cover"
             accessibilityElementsHidden
             importantForAccessibility="no"
@@ -303,7 +312,7 @@ const useStyles = makeStyles((th) => ({
   },
   scrollCompact: { paddingBottom: th.space.sm },
   screenSplit: { flexDirection: "row" },
-  forest: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, width: "100%", height: "100%", opacity: 0.22 },
+  forest: { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", opacity: 0.22 },
   forestPhone: { opacity: 0.28 },
   officialSplit: {
     alignSelf: "stretch",
