@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react-native";
 import React from "react";
 
-import DashboardPanels from "../src/screens/ministry/DashboardPanels";
+import DashboardPanels, { DashboardTiles } from "../src/screens/ministry/DashboardPanels";
 
 const FULL: any = {
   harvest: {
@@ -24,7 +24,12 @@ const FULL: any = {
 
 describe("DashboardPanels", () => {
   it("shows the detailed sections from the overview", () => {
-    const { getByTestId, getByText } = render(<DashboardPanels overview={FULL} />);
+    const { getByTestId, getByText } = render(
+      <>
+        <DashboardTiles overview={FULL} />
+        <DashboardPanels overview={FULL} />
+      </>,
+    );
     expect(getByTestId("tile-stems")).toBeTruthy();
     expect(getByText("Titres forestiers")).toBeTruthy();
     expect(getByText("Okoumé")).toBeTruthy();
@@ -35,6 +40,6 @@ describe("DashboardPanels", () => {
 
   it("tolerates a partial overview", () => {
     const { getByTestId } = render(<DashboardPanels overview={{ harvest: { estimated_volume_m3: 1 } } as any} />);
-    expect(getByTestId("ministry-panels")).toBeTruthy();
+    expect(getByTestId("ministry-details")).toBeTruthy();
   });
 });

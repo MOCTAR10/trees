@@ -10,7 +10,7 @@ jest.mock("expo-updates", () => ({
   reloadAsync: jest.fn(async () => undefined),
 }));
 
-import RoleHeader from "../src/components/RoleHeader";
+import UpdateBanner from "../src/components/UpdateBanner";
 import { useAppUpdate } from "../src/utils/useAppUpdate";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -81,7 +81,7 @@ describe("Over-the-air updates applied by the user", () => {
     const alert = jest.spyOn(Alert, "alert").mockImplementation(() => undefined);
     const onInstall = jest.fn();
     const view = render(
-      <RoleHeader title="Foresterie" connection="online" updateReady onInstallUpdate={onInstall} />,
+      <UpdateBanner ready onInstall={onInstall} />,
     );
     fireEvent.press(view.getByTestId("update-badge"));
     const [title, message, buttons] = alert.mock.calls[0];
@@ -90,7 +90,7 @@ describe("Over-the-air updates applied by the user", () => {
     const install = (buttons as { text: string; onPress?: () => void }[]).find((b) => b.text === "Installer maintenant");
     install?.onPress?.();
     expect(onInstall).toHaveBeenCalled();
-    const without = render(<RoleHeader title="Foresterie" connection="online" />);
+    const without = render(<UpdateBanner />);
     expect(without.queryByTestId("update-badge")).toBeNull();
   });
 });

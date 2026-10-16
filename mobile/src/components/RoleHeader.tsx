@@ -1,6 +1,6 @@
-import { MapPin, RefreshCw, Target, UserRound } from "lucide-react-native";
+import { MapPin, Target, UserRound } from "lucide-react-native";
 import React from "react";
-import { ActivityIndicator, Alert, Image, Pressable, Text, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, Text, useWindowDimensions, View } from "react-native";
 
 import { Role } from "../api/client";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
@@ -35,9 +35,6 @@ interface Props {
   pending?: number;
   onOpenProfile?: () => void;
   onOpenProjects?: () => void;
-  /** A downloaded app update waits for the user's go-ahead (Slice 29). */
-  updateReady?: boolean;
-  onInstallUpdate?: () => void;
 }
 
 export default function RoleHeader({
@@ -48,8 +45,6 @@ export default function RoleHeader({
   orgName,
   coords,
   connection,
-  updateReady,
-  onInstallUpdate,
   pending = 0,
   onOpenProfile,
   onOpenProjects,
@@ -71,26 +66,6 @@ export default function RoleHeader({
           <Text style={[s.ministry, compact && s.ministryCompact]} numberOfLines={2}>
             {fr.header.ministry}
           </Text>
-          {updateReady ? (
-            <Pressable
-              testID="update-badge"
-              accessibilityRole="button"
-              accessibilityLabel={fr.update.badge}
-              onPress={() =>
-                Alert.alert(fr.update.title, fr.update.message, [
-                  { text: fr.update.later, style: "cancel" },
-                  { text: fr.update.install, onPress: onInstallUpdate },
-                ])
-              }
-              style={s.updateBadge}
-              hitSlop={6}
-            >
-              <RefreshCw size={13} color={t.c.forest} strokeWidth={2.6} />
-              <Text style={s.updateText} numberOfLines={1}>
-                {fr.update.badge}
-              </Text>
-            </Pressable>
-          ) : null}
           {roleLabel ? (
             <>
               <View style={s.metaRow}>
@@ -265,18 +240,6 @@ const useStyles = makeStyles((t) => ({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.18)",
   },
-  updateBadge: {
-    alignSelf: "flex-start",
-    marginVertical: 3,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: t.c.gold,
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-  },
-  updateText: { color: t.c.forest, fontFamily: t.fonts.bodyBold, fontSize: 11.5 },
   locating: {
     flexDirection: "row",
     alignItems: "center",

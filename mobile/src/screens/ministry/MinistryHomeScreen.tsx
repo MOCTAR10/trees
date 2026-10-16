@@ -1,6 +1,6 @@
 import { BarChart3, ChevronRight, TriangleAlert } from "lucide-react-native";
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from "react-native";
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, useWindowDimensions, View } from "react-native";
 
 import {
   AdminInbox,
@@ -15,7 +15,7 @@ import { dec } from "../../design/format";
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
 import { Card, Divider, EmptyState, Txt } from "../../design/ui";
 import { fr } from "../../i18n/fr";
-import DashboardPanels, { short } from "./DashboardPanels";
+import DashboardPanels, { DashboardTiles, short } from "./DashboardPanels";
 import { daysSince, DomainKey, QUEUE_DOMAIN } from "./shared";
 
 const t = fr.ministry;
@@ -46,6 +46,8 @@ function Kpi({ value, label, tone, testID }: { value: string; label: string; ton
 export default function MinistryHomeScreen({ firstName, onOpenInbox, onOpenOrgs, onOpenDomain, now }: Props) {
   const theme = useTheme();
   const s = useStyles();
+  const { width } = useWindowDimensions();
+  const wide = width >= 1100;
   const [inbox, setInbox] = useState<AdminInbox | null>(null);
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [provinces, setProvinces] = useState<ProvinceSummary[]>([]);
@@ -127,13 +129,16 @@ export default function MinistryHomeScreen({ firstName, onOpenInbox, onOpenOrgs,
         </Pressable>
       ))}
 
+      {overview ? <DashboardTiles overview={overview} /> : null}
+
       {loading && !inbox ? <ActivityIndicator color={theme.c.olive} /> : null}
       {error ? (
         <EmptyState message={fr.admin.error} tone="risk" action={{ label: fr.common.retry, onPress: () => void load() }} />
       ) : null}
 
+      <View style={wide ? s.twoCol : s.oneCol}>
       {inbox ? (
-        <Card style={s.compact}>
+        <Card style={[s.compact, wide && s.col]}>
           <View style={s.head}>
             <Txt variant="label" tone="muted">
               {t.toProcess(inbox.total)}
@@ -184,7 +189,7 @@ export default function MinistryHomeScreen({ firstName, onOpenInbox, onOpenOrgs,
       ) : null}
 
       {provinces.length ? (
-        <Card style={s.compact} testID="ministry-provinces">
+        <Card style={[s.compact, wide && s.col]} testID="ministry-provinces">
           <View style={s.head}>
             <Txt variant="label" tone="muted">
               {t.provincesTitle}
@@ -217,6 +222,7 @@ export default function MinistryHomeScreen({ firstName, onOpenInbox, onOpenOrgs,
           ))}
         </Card>
       ) : null}
+      </View>
 
       {overview ? <DashboardPanels overview={overview} /> : null}
 
@@ -268,6 +274,9 @@ const useStyles = makeStyles((th) => ({
   alertRisk: { backgroundColor: th.c.riskSoft },
   alertWarn: { backgroundColor: th.c.warnSoft },
   compact: { padding: th.space.md, gap: th.space.xs },
+  twoCol: { flexDirection: "row", gap: th.space.md, alignItems: "flex-start" },
+  oneCol: { gap: th.space.md },
+  col: { flex: 1 },
   head: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   link: { flexDirection: "row", alignItems: "center", gap: 2, minHeight: 28 },
   queue: { flexDirection: "row", alignItems: "center", gap: th.space.md, paddingVertical: th.space.sm, minHeight: 52 },

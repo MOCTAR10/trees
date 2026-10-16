@@ -42,6 +42,7 @@ import ErrorBoundary from './src/components/ErrorBoundary';
 import LoadingScreen from './src/components/LoadingScreen';
 import RouteLoader from './src/components/RouteLoader';
 import RoleHeader, { HeaderCoords } from './src/components/RoleHeader';
+import UpdateBanner from './src/components/UpdateBanner';
 import SpeciesScreen from './src/screens/SpeciesScreen';
 import SpeciesDetailScreen from './src/screens/SpeciesDetailScreen';
 
@@ -788,10 +789,9 @@ export default function App() {
             pending={queueCount}
             onOpenProfile={() => requestPhase("profile")}
             onOpenProjects={() => requestPhase("projects")}
-            updateReady={appUpdate.ready}
-            onInstallUpdate={() => void appUpdate.install()}
           />
         )}
+        {isTab && !desktop && <UpdateBanner ready={appUpdate.ready} onInstall={() => void appUpdate.install()} />}
         {isPending && (
           <View style={styles.pendingBar} accessibilityRole="progressbar" accessibilityLabel={fr.common.switchingTab}>
             <View style={styles.pendingFill} />

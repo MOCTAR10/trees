@@ -95,15 +95,9 @@ function Ratio({ label, part, total, testID }: { label: string; part: number; to
   );
 }
 
-export default function DashboardPanels({ overview: o }: { overview: DashboardOverview }) {
+export function DashboardTiles({ overview: o }: { overview: DashboardOverview }) {
   const s = useStyles();
-  const species = (o.harvest?.by_species ?? []).slice(0, 6);
-  const treeStatus = Object.entries(o.harvest?.by_status ?? {}).filter(([, n]) => num(n) > 0);
   const schemes = o.certifications?.by_scheme ?? [];
-  const carbonByAac = (o.carbon?.by_aac ?? []).slice(0, 5);
-  const overdueAmount = num(o.taxes?.overdue_amount_fcfa);
-  const transformation = Math.round(num(o.harvest?.transformation_rate) * 100);
-
   return (
     <View style={s.stack} testID="ministry-panels">
       <View style={s.grid}>
@@ -122,7 +116,21 @@ export default function DashboardPanels({ overview: o }: { overview: DashboardOv
         <Tile testID="tile-community" value={String(num(o.community?.active))} label={d.community} hint={d.agreements(num(o.community?.agreements))} />
         <Tile testID="tile-carbon-scans" value={short(num(o.carbon?.scans))} label={d.scans} hint={d.linked(num(o.carbon?.linked_scans))} />
       </View>
+    </View>
+  );
+}
 
+export default function DashboardPanels({ overview: o }: { overview: DashboardOverview }) {
+  const s = useStyles();
+  const species = (o.harvest?.by_species ?? []).slice(0, 6);
+  const treeStatus = Object.entries(o.harvest?.by_status ?? {}).filter(([, n]) => num(n) > 0);
+  const schemes = o.certifications?.by_scheme ?? [];
+  const carbonByAac = (o.carbon?.by_aac ?? []).slice(0, 5);
+  const overdueAmount = num(o.taxes?.overdue_amount_fcfa);
+  const transformation = Math.round(num(o.harvest?.transformation_rate) * 100);
+
+  return (
+    <View style={s.sections} testID="ministry-details">
       <Section title={d.exploitation} testID="panel-exploitation">
         <Ratio label={d.transformation} part={transformation} total={100} testID="ratio-transformation" />
         {species.length ? (
@@ -210,6 +218,7 @@ export default function DashboardPanels({ overview: o }: { overview: DashboardOv
 
 const useStyles = makeStyles((th) => ({
   stack: { gap: th.space.md },
+  sections: { flexDirection: "row", flexWrap: "wrap", gap: th.space.md, alignItems: "flex-start" },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: th.space.sm },
   tile: {
     flexGrow: 1,
@@ -222,7 +231,7 @@ const useStyles = makeStyles((th) => ({
     padding: th.space.md,
     gap: 2,
   },
-  section: { padding: th.space.md, gap: th.space.sm },
+  section: { padding: th.space.md, gap: th.space.sm, flexGrow: 1, flexBasis: 420, minWidth: 280 },
   bars: { gap: th.space.xs },
   bar: { flexDirection: "row", alignItems: "center", gap: th.space.sm, minHeight: 28 },
   barLabel: { width: 112 },
