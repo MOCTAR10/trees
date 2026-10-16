@@ -32,6 +32,59 @@ export const FILE_FLOW: FlowStep[] = [
   { label: "Retour", who: "Entreprise", detail: "La décision s'affiche dans « Décisions reçues »." },
 ];
 
+export const MORE_FLOWS: { title: string; intro: string; steps: FlowStep[] }[] = [
+  {
+    title: "La plaque QR",
+    intro: "Une plaque, un arbre, une histoire : la plaque porte seulement le code national de l'arbre.",
+    steps: [
+      { label: "Production", who: "Ministère", detail: "Plaques gravées sur métal ou imprimées, pour les codes du registre." },
+      { label: "Pose", who: "Agent", detail: "Clouée et lue : l'arbre entre au registre." },
+      { label: "Lectures", who: "Tous", detail: "Mesure, abattage, contrôle, réception : chaque lecture est datée et localisée." },
+      { label: "Fiche", who: "Application", detail: "Essence, titre, AAC, détenteur, DF10, bordereau, historique — selon votre rôle." },
+    ],
+  },
+  {
+    title: "Le scan d'un arbre",
+    intro: "Toujours le même parcours guidé, photo, position et heure prises au même instant.",
+    steps: [
+      { label: "Arbre", who: "Photo", detail: "La silhouette entière." },
+      { label: "Écorce", who: "Photo", detail: "Sa texture aide à reconnaître l'essence." },
+      { label: "Feuilles", who: "Photo", detail: "Fleurs et fruits en option." },
+      { label: "Diamètre à 1,30 m", who: "Agent", detail: "Les deux bords du tronc validés ; plaque QR ou capteur pour la distance." },
+      { label: "Rapport", who: "Plateforme", detail: "Espèce, diamètre, hauteur, carbone, contrôle RDUE." },
+    ],
+  },
+  {
+    title: "Un contrôle sur le terrain",
+    intro: "Du constat à la sanction, tout est tracé et le procès-verbal est produit en PDF.",
+    steps: [
+      { label: "Contrôle", who: "Inspecteur", detail: "Lecture de la plaque ou du bordereau : vérifications immédiates." },
+      { label: "Procès-verbal", who: "Ministère", detail: "Conforme, avec réserve ou non conforme, avec la base légale." },
+      { label: "Suite", who: "Ministère", detail: "Mise en demeure, amende, saisie… avec une échéance." },
+      { label: "Contestation", who: "Entreprise", detail: "Une fois, depuis « À faire » ; elle arrive dans « À traiter »." },
+    ],
+  },
+  {
+    title: "L'économie circulaire",
+    intro: "Les résidus de l'exploitation deviennent des revenus locaux.",
+    steps: [
+      { label: "Résidus", who: "Entreprise", detail: "Chutes, branches, sciure déclarées avec leur position." },
+      { label: "Réservation", who: "Coopérative", detail: "Les lots proches sont proposés et réservés." },
+      { label: "Collecte", who: "Coopérative", detail: "Enregistrée dans l'application." },
+      { label: "Valorisation", who: "Artisans", detail: "Mobilier, briquettes, biochar." },
+    ],
+  },
+  {
+    title: "Travailler sans réseau",
+    intro: "En forêt, l'application continue de fonctionner.",
+    steps: [
+      { label: "Saisie", who: "Agent", detail: "Scans et abattage enregistrés sur le téléphone." },
+      { label: "Attente", who: "Application", detail: "Le badge indique le nombre d'envois en attente." },
+      { label: "Envoi", who: "Application", detail: "Automatique dès le retour du réseau." },
+    ],
+  },
+];
+
 export const WORK_MODES: { title: string; points: string[] }[] = [
   {
     title: "Chantier",

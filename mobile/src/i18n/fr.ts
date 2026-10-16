@@ -1363,6 +1363,14 @@ export const fr = {
     note: "Reconnaissance seule : rien n'est enregistré au registre.",
   },
 
+  about: {
+    entry: "À propos & FAQ",
+    title: "À propos & FAQ",
+    tabAbout: "À propos",
+    tabFaq: "Questions fréquentes",
+    version: (v: string) => `Version ${v}`,
+  },
+
   glossary: {
     entry: "Glossaire & sigles",
     title: "Glossaire & sigles",
@@ -1384,6 +1392,7 @@ export const fr = {
     firstName: "Prénom",
     lastName: "Nom",
     matricule: "Matricule",
+    organisation: "Organisation",
     matriculeNone: "Non attribué (géré par l'administration)",
     editNames: "Modifier mon nom",
     saveNames: "Enregistrer",

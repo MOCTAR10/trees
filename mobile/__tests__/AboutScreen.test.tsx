@@ -1,0 +1,30 @@
+import { fireEvent, render } from "@testing-library/react-native";
+import React from "react";
+
+import AboutScreen from "../src/screens/AboutScreen";
+import ProfileScreen from "../src/screens/ProfileScreen";
+
+describe("AboutScreen", () => {
+  it("presents the app, then answers the FAQ one question at a time", () => {
+    const { getByText, getByTestId, queryByText } = render(<AboutScreen onBack={jest.fn()} />);
+    expect(getByText("Pour qui")).toBeTruthy();
+    fireEvent.press(getByText("Questions fréquentes"));
+    expect(getByText(/Les scans et l'abattage s'enregistrent/)).toBeTruthy();
+    fireEvent.press(getByTestId("faq-2"));
+    expect(getByText(/Uniquement le code national/)).toBeTruthy();
+    expect(queryByText(/Les scans et l'abattage s'enregistrent/)).toBeNull();
+  });
+});
+
+describe("ProfileScreen", () => {
+  it("shows the organisation and opens À propos", () => {
+    const onOpenAbout = jest.fn();
+    const user = { id: 1, email: "a@b", role: "operator", first_name: "Jean", last_name: "Ndong" } as any;
+    const { getByTestId } = render(
+      <ProfileScreen user={user} onLogout={jest.fn()} onBack={jest.fn()} orgName="Bois du Haut-Ogooué" onOpenAbout={onOpenAbout} />,
+    );
+    expect(getByTestId("profile-org")).toHaveTextContent(/Bois du Haut-Ogooué/);
+    fireEvent.press(getByTestId("profile-about"));
+    expect(onOpenAbout).toHaveBeenCalled();
+  });
+});

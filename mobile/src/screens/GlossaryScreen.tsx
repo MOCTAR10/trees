@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { ScrollView, TextInput, View } from "react-native";
 
-import { FILE_FLOW, FlowStep, GLOSSARY, LOG_LIFECYCLE, WORK_MODES } from "../data/glossary";
+import { FILE_FLOW, FlowStep, GLOSSARY, LOG_LIFECYCLE, MORE_FLOWS, WORK_MODES } from "../data/glossary";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { Card, ScreenHeader, Segmented, Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
@@ -63,6 +63,15 @@ export default function GlossaryScreen({ onBack }: Props) {
             <Txt variant="heading">{t.fileFlow}</Txt>
             <Flow steps={FILE_FLOW} testID="glossary-file-flow" />
           </Card>
+          {MORE_FLOWS.map((flow) => (
+            <Card raised style={s.block} key={flow.title}>
+              <Txt variant="heading">{flow.title}</Txt>
+              <Txt variant="small" tone="muted">
+                {flow.intro}
+              </Txt>
+              <Flow steps={flow.steps} />
+            </Card>
+          ))}
           <Card raised style={s.block}>
             <Txt variant="heading">{t.workModes}</Txt>
             <View style={s.modes}>

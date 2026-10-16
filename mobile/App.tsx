@@ -27,6 +27,7 @@ import type { CaptureResult } from './src/screens/CaptureScreen';
 import CompanyScreen from './src/screens/CompanyScreen';
 import CooperativeScreen from './src/screens/CooperativeScreen';
 import GlossaryScreen from './src/screens/GlossaryScreen';
+import AboutScreen from './src/screens/AboutScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
@@ -94,10 +95,11 @@ type Phase =
   | 'custody'
   | 'organisation'
   | 'glossary'
+  | 'about'
   | 'plant';
 
 const TAB_PHASES: Phase[] = ['home', 'species', 'map', 'history', 'inbox', 'orgs', 'menu'];
-const DESIGNED_PHASES: Phase[] = ['report', 'profile', 'valorization', 'analyzing', 'valorizing', 'error', 'capture', 'chantier', 'domain', 'decision', 'custody', 'organisation', 'glossary', 'plant'];
+const DESIGNED_PHASES: Phase[] = ['report', 'profile', 'valorization', 'analyzing', 'valorizing', 'error', 'capture', 'chantier', 'domain', 'decision', 'custody', 'organisation', 'glossary', 'about', 'plant'];
 
 
 function Shell({ band, children }: { band: boolean; children: React.ReactNode }) {
@@ -899,9 +901,12 @@ export default function App() {
           onBack={goHome}
           onUserUpdate={handleUserUpdate}
           onOpenGlossary={() => requestPhase("glossary")}
+          onOpenAbout={() => requestPhase("about")}
+          orgName={user.role === "admin" ? fr.header.ministry : headerOrg}
         />
       )}
       {phase === "glossary" && <GlossaryScreen onBack={() => requestPhase("profile")} />}
+      {phase === "about" && <AboutScreen onBack={() => requestPhase("profile")} />}
       {phase === "capture" && (
         <Suspense fallback={<RouteLoader message={fr.common.openingCamera} />}>
           <ThemeProvider force="dark">

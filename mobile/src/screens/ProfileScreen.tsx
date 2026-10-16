@@ -1,4 +1,4 @@
-import { BookOpen, LogOut, Pencil } from "lucide-react-native";
+import { BookOpen, Info, LogOut, Pencil } from "lucide-react-native";
 import React, { useState } from "react";
 import { ScrollView, TextInput, View } from "react-native";
 
@@ -16,9 +16,12 @@ interface Props {
   onBack: () => void;
   onUserUpdate?: (user: AuthUser) => void;
   onOpenGlossary?: () => void;
+  onOpenAbout?: () => void;
+  /** Company, cooperative or Ministry the account belongs to. */
+  orgName?: string | null;
 }
 
-export default function ProfileScreen({ user, onLogout, onBack, onUserUpdate, onOpenGlossary }: Props) {
+export default function ProfileScreen({ user, onLogout, onBack, onUserUpdate, onOpenGlossary, onOpenAbout, orgName }: Props) {
   const theme = useTheme();
   const s = useStyles();
   const rank = rankForRole(user.role);
@@ -70,8 +73,8 @@ export default function ProfileScreen({ user, onLogout, onBack, onUserUpdate, on
               </Txt>
               <View style={s.roleRow}>
                 {rank > 0 ? <RankStripes count={rank} color={theme.c.forest} /> : null}
-                <Txt variant="small" tone="muted">
-                  {fr.roles[user.role]}
+                <Txt variant="small" tone="muted" numberOfLines={1} style={s.flex}>
+                  {orgName ? `${fr.roles[user.role]} · ${orgName}` : fr.roles[user.role]}
                 </Txt>
               </View>
             </View>
@@ -112,6 +115,7 @@ export default function ProfileScreen({ user, onLogout, onBack, onUserUpdate, on
               <KeyValue label={t.matricule} value={user.matricule || t.matriculeNone} />
               <KeyValue label={t.email} value={user.email} />
               <KeyValue label={t.role} value={fr.roles[user.role]} />
+              <KeyValue label={t.organisation} value={orgName || "—"} testID="profile-org" />
               <Button
                 testID="profile-edit-names"
                 label={t.editNames}
@@ -141,6 +145,15 @@ export default function ProfileScreen({ user, onLogout, onBack, onUserUpdate, on
             variant="secondary"
             onPress={onOpenGlossary}
             icon={<BookOpen size={18} color={theme.c.olive} />}
+          />
+        ) : null}
+        {onOpenAbout ? (
+          <Button
+            testID="profile-about"
+            label={fr.about.entry}
+            variant="secondary"
+            onPress={onOpenAbout}
+            icon={<Info size={18} color={theme.c.olive} />}
           />
         ) : null}
         <Button
