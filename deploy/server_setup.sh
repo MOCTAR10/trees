@@ -93,6 +93,12 @@ cp deploy/systemd/trees-autodeploy.service deploy/systemd/trees-autodeploy.timer
 systemctl daemon-reload
 systemctl enable --now trees-autodeploy.timer
 
+echo "== Nightly database backup (/var/backups/trees, 14 days)"
+chmod +x deploy/backup.sh
+cp deploy/systemd/trees-backup.service deploy/systemd/trees-backup.timer /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now trees-backup.timer
+
 echo "== Reference data"
 docker compose -f docker-compose.yml -f docker-compose.prod.yml exec -T api python -m tools.import_provinces
 echo "Setup terminé."

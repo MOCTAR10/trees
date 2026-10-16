@@ -1,0 +1,8 @@
+[Unit]
+Description=Foresterie Numérique — daily database backup
+Wants=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/var/www/trees/deploy/backup.sh
