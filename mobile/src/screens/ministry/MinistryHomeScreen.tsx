@@ -15,6 +15,7 @@ import { dec } from "../../design/format";
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
 import { Card, Divider, EmptyState, Txt } from "../../design/ui";
 import { fr } from "../../i18n/fr";
+import DashboardPanels, { short } from "./DashboardPanels";
 import { daysSince, DomainKey, QUEUE_DOMAIN } from "./shared";
 
 const t = fr.ministry;
@@ -25,13 +26,6 @@ interface Props {
   onOpenOrgs: (province?: string) => void;
   onOpenDomain: (key: DomainKey) => void;
   now?: Date;
-}
-
-function short(n: number): string {
-  if (n >= 1e9) return `${dec(n / 1e9, 1)} Md`;
-  if (n >= 1e6) return `${dec(n / 1e6, 1)} M`;
-  if (n >= 1e4) return `${dec(n / 1e3, 0)} k`;
-  return Math.round(n).toLocaleString("fr-FR");
 }
 
 function Kpi({ value, label, tone, testID }: { value: string; label: string; tone?: "ok" | "warn"; testID?: string }) {
@@ -223,6 +217,8 @@ export default function MinistryHomeScreen({ firstName, onOpenInbox, onOpenOrgs,
           ))}
         </Card>
       ) : null}
+
+      {overview ? <DashboardPanels overview={overview} /> : null}
 
       <Pressable
         testID="ministry-stats"
