@@ -895,9 +895,15 @@ async def identify_plant(
     views = []
     for i, upload in enumerate(images):
         data = await _read_capped(upload, limit)
-        _decode(data)
+        gray = cv2.cvtColor(_decode(data), cv2.COLOR_BGR2GRAY)
         organ = _norm_organ(organs[i]) if organs and i < len(organs) else "auto"
-        views.append({"bytes": data, "organ": "leaf" if organ == "dbh" else organ})
+        views.append(
+            {
+                "bytes": data,
+                "organ": "leaf" if organ == "dbh" else organ,
+                "sharpness": float(cv2.Laplacian(gray, cv2.CV_64F).var()),
+            }
+        )
     lat = latitude if latitude is not None else 0.0
     lon = longitude if longitude is not None else 11.6
     name, score, ranked, project = await _identify_species(views, lat, lon)

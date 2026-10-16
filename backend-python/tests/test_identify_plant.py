@@ -1,4 +1,5 @@
 import io
+import types
 
 import pytest
 from fastapi.testclient import TestClient
@@ -84,3 +85,30 @@ def test_client_log_is_accepted_and_logged(client, caplog):
         )
     assert resp.status_code == 204
     assert "slow_boot" in caplog.text and '"user_id": 7' in caplog.text
+
+
+def test_goes_through_view_selection_and_reranking(client, monkeypatch):
+    calls = {}
+
+    async def fake_regional(images, organs, lang="fr"):
+        calls["organs"] = organs
+        return types.SimpleNamespace(
+            scientific_name="Mangifera indica",
+            score=0.62,
+            candidates=[{"scientific_name": "Mangifera indica", "score": 0.62}],
+            project="k-west-central-tropical-africa",
+        )
+
+    async def fake_rerank(candidates, lat, lon):
+        return [{**c, "combined": c["score"]} for c in candidates]
+
+    monkeypatch.setattr(v1.plantnet, "identify_regional", fake_regional)
+    monkeypatch.setattr(v1.species_rank, "rerank", fake_rerank)
+    resp = client.post(
+        "/api/v1/identify-plant",
+        files=[("images", ("a.jpg", _jpg(), "image/jpeg"))],
+        data={"organs": ["leaf"]},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["scientific_name"] == "Mangifera indica"
+    assert calls["organs"] == ["leaf"]
