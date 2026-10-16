@@ -2,7 +2,7 @@
   "expo": {
     "name": "Foresterie",
     "slug": "foresterie-numerique",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#0E1512",
@@ -49,7 +49,7 @@
       "name": "Foresterie Numérique",
       "shortName": "Foresterie"
     },
-    "runtimeVersion": "0.1.0",
+    "runtimeVersion": "0.2.0",
     "updates": {
       "enabled": true,
       "url": "https://greenleaves.ga/updates/manifest",
