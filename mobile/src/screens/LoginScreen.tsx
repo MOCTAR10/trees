@@ -1,7 +1,8 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -49,6 +50,14 @@ export default function LoginScreen({ onLogin }: Props) {
   const tight = tallest.current < 620;
 
   const [band, setBand] = useState({ width: 0, height: 0 });
+  const scrollRef = useRef<ScrollView>(null);
+  useEffect(() => {
+    if (Platform.OS === "web") return undefined;
+    const sub = Keyboard.addListener(Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow", () => {
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 60);
+    });
+    return () => sub.remove();
+  }, []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -123,9 +132,10 @@ export default function LoginScreen({ onLogin }: Props) {
             style={[
               styles.forest,
               !split && styles.forestPhone,
-              band.width > 0 ? { width: band.width, height: band.height } : null,
+              Platform.OS === "web" && band.width > 0 ? { width: band.width, height: band.height } : null,
             ]}
             resizeMode="cover"
+            resizeMethod="resize"
             accessibilityElementsHidden
             importantForAccessibility="no"
             testID="login-forest"
@@ -163,10 +173,11 @@ export default function LoginScreen({ onLogin }: Props) {
   return (
     <KeyboardAvoidingView
       style={[styles.screen, split && styles.screenSplit]}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "web" ? undefined : "padding"}
     >
       {split ? header : null}
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={[styles.scroll, compact && styles.scrollCompact]}
         keyboardShouldPersistTaps="handled"
         bounces={false}
@@ -317,7 +328,7 @@ const useStyles = makeStyles((th) => ({
   },
   scrollCompact: { paddingBottom: th.space.sm },
   screenSplit: { flexDirection: "row" },
-  forest: { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", opacity: 0.22 },
+  forest: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%", opacity: 0.22 },
   forestPhone: { opacity: 0.28 },
   officialSplit: {
     alignSelf: "stretch",
