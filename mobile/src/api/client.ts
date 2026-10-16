@@ -936,6 +936,7 @@ export interface SpeciesDetail {
   eu_listing: string;
   native_to_africa: boolean | null;
   countries: string[];
+  type?: string;
 }
 
 export async function getSpecies(name: string): Promise<SpeciesDetail> {

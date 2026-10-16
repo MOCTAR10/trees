@@ -70,6 +70,8 @@ export default function SpeciesDetailScreen({ name, onBack }: Props) {
   }, [name, load]);
 
   const status = detail?.iucn_status || "NE";
+  const kind = detail?.type === "plante" ? "plante" : detail?.type && detail.type !== "arbre" ? "autre" : "arbre";
+  const sheetLabel = kind === "arbre" ? "Fiche arbre" : kind === "plante" ? "Fiche plante" : "Fiche biodiversité";
 
   return (
     <View style={s.screen}>
@@ -92,7 +94,7 @@ export default function SpeciesDetailScreen({ name, onBack }: Props) {
         <ScrollView contentContainerStyle={s.content}>
           <Card raised>
             <Txt variant="label" tone="gold">
-              Fiche espèce
+              {sheetLabel}
             </Txt>
             <Txt variant="title" style={s.sci}>
               {detail.scientific_name}
@@ -111,23 +113,35 @@ export default function SpeciesDetailScreen({ name, onBack }: Props) {
             <KeyValue label="Noms vernaculaires" value={detail.aliases.length ? detail.aliases.join(", ") : "—"} />
           </Section>
 
-          <Section title="Caractéristiques">
-            <KeyValue label="Densité du bois" value={`${dec(detail.wood_density_g_cm3, 2)} g/cm³`} />
-            <KeyValue label="Hauteur maximale" value={`${dec(detail.max_height_m, 0)} m`} />
-          </Section>
+          {kind === "arbre" ? (
+            <>
+              <Section title="Caractéristiques">
+                <KeyValue label="Densité du bois" value={`${dec(detail.wood_density_g_cm3, 2)} g/cm³`} />
+                <KeyValue label="Hauteur maximale" value={`${dec(detail.max_height_m, 0)} m`} />
+              </Section>
 
-          <Section title="Croissance (Chapman-Richards)">
-            <View style={s.formula}>
-              <Txt variant="small" style={s.mono}>
-                D(t) = {detail.cr_asymptote_a_cm} · (1 − e^(−{detail.cr_rate_k}·t))^{detail.cr_shape_p}
+              <Section title="Croissance (Chapman-Richards)">
+                <View style={s.formula}>
+                  <Txt variant="small" style={s.mono}>
+                    D(t) = {detail.cr_asymptote_a_cm} · (1 − e^(−{detail.cr_rate_k}·t))^{detail.cr_shape_p}
+                  </Txt>
+                </View>
+                <KeyValue label="Asymptote A" value={`${detail.cr_asymptote_a_cm} cm`} />
+                <KeyValue label="Taux k" value={String(detail.cr_rate_k)} />
+                <KeyValue label="Forme p" value={String(detail.cr_shape_p)} />
+                <KeyValue label="Hauteur-diamètre" value={`H = 1.3 + ${detail.hd_a}·D / (${detail.hd_b} + D)`} />
+                <KeyValue label="Source" value={detail.cr_source || "—"} />
+              </Section>
+            </>
+          ) : (
+            <Section title={kind === "plante" ? "Plante" : "Biodiversité"}>
+              <KeyValue label="Catégorie" value={kind === "plante" ? "Plante non ligneuse" : (detail.type ?? "—")} />
+              <KeyValue label="Bois d'œuvre" value="Non : pas de volume ni de carbone mesuré" />
+              <Txt variant="caption" tone="muted">
+                Une plante se reconnaît par photo (feuille, fleur, fruit) : l'identification ne crée aucune ligne dans le registre des grumes.
               </Txt>
-            </View>
-            <KeyValue label="Asymptote A" value={`${detail.cr_asymptote_a_cm} cm`} />
-            <KeyValue label="Taux k" value={String(detail.cr_rate_k)} />
-            <KeyValue label="Forme p" value={String(detail.cr_shape_p)} />
-            <KeyValue label="Hauteur-diamètre" value={`H = 1.3 + ${detail.hd_a}·D / (${detail.hd_b} + D)`} />
-            <KeyValue label="Source" value={detail.cr_source || "—"} />
-          </Section>
+            </Section>
+          )}
 
           <Section title="Conservation">
             <KeyValue label="Statut IUCN" value={`${status} · ${IUCN_LABELS[status] ?? "—"}`} />
