@@ -1708,6 +1708,8 @@ export const fr = {
   },
 
   common: {
+    starting: "Démarrage de l'application…",
+    slowLoading: "Connexion lente : le chargement continue, merci de patienter.",
     loading: "Chargement…",
     retry: "Réessayer",
     exporting: "Préparation du PDF…",

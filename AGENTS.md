@@ -250,6 +250,9 @@ new APK **and a new `runtimeVersion`** in `app.json`, otherwise old installs wou
 **Continuous deployment**: the `trees-autodeploy.timer` (systemd, every 5 min) runs `deploy/autodeploy.sh`, which
 deploys the newest commit of `main` **only once its « CI » workflow is green** (log `/var/log/trees-deploy.log`).
 So a push to `main` reaches production about 5 minutes after CI passes — keep CI green.
+**App incidents**: the apps report uncaught JS errors, slow starts (> 8 s) and slow catalogue builds
+(> 2 s) to `POST /api/v1/client-log` (written to the API log, nothing stored). Read them with
+`ssh greenleaves /var/www/trees/deploy/client-logs.sh [24h]`.
 **Backups**: `trees-backup.timer` (systemd, nightly 02:30) runs `deploy/backup.sh` — `pg_dump -Fc` into
 `/var/backups/trees` (mode 600, kept 14 days, log `/var/log/trees-backup.log`). Restore with
 `pg_restore --clean -d forestry`. The copies live on the same server: an off-site copy is still to be set up.

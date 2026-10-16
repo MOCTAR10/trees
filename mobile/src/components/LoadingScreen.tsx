@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Image, View } from "react-native";
 
 import { makeStyles, useTheme } from "../design/ThemeProvider";
@@ -7,9 +7,16 @@ import { fr } from "../i18n/fr";
 
 const SEAL = require("../../assets/leaf_logo.jpg");
 
+const SLOW_AFTER_MS = 6000;
+
 export default function LoadingScreen({ message }: { message?: string }) {
   const theme = useTheme();
   const s = useStyles();
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setSlow(true), SLOW_AFTER_MS);
+    return () => clearTimeout(timer);
+  }, []);
   return (
     <View style={s.container}>
       <View style={s.plate}>
@@ -25,7 +32,12 @@ export default function LoadingScreen({ message }: { message?: string }) {
       <Txt tone="onForest" style={[s.center, s.message]}>
         {message ?? fr.appTitle}
       </Txt>
-      <ActivityIndicator color={theme.c.gold} size="large" style={s.spinner} />
+      <ActivityIndicator color={theme.c.gold} size="large" style={s.spinner} testID="loading-spinner" />
+      {slow ? (
+        <Txt variant="small" tone="onForest" style={[s.center, s.message]} testID="loading-slow">
+          {fr.common.slowLoading}
+        </Txt>
+      ) : null}
     </View>
   );
 }

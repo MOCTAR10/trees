@@ -595,7 +595,7 @@ export default function App() {
   }, []);
 
   if (bootstrapping || !fontsReady) {
-    return <LoadingScreen />;
+    return <LoadingScreen message={fr.common.starting} />;
   }
 
   if (!user) {
