@@ -151,9 +151,9 @@ const styles = StyleSheet.create({
   panel: {
     position: "absolute",
     right: 14,
-    top: 64,
+    top: 10,
     gap: 3,
-    backgroundColor: "rgba(8,20,14,0.42)",
+    backgroundColor: "rgba(8,20,14,0.62)",
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 6,
