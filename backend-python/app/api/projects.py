@@ -22,6 +22,17 @@ _PROJECT_COLUMNS = """
     (SELECT b.label FROM annual_cut_blocks b WHERE b.id = p.aac_id) AS aac_label,
     (SELECT ST_Y(ST_Centroid(b.geom)) FROM annual_cut_blocks b WHERE b.id = p.aac_id) AS aac_lat,
     (SELECT ST_X(ST_Centroid(b.geom)) FROM annual_cut_blocks b WHERE b.id = p.aac_id) AS aac_lon,
+    (SELECT b.surface_ha FROM annual_cut_blocks b WHERE b.id = p.aac_id) AS aac_surface_ha,
+    (SELECT b.status FROM annual_cut_blocks b WHERE b.id = p.aac_id) AS aac_status,
+    (SELECT o.name FROM annual_cut_blocks b
+       JOIN management_units u ON u.id = b.ufa_id
+       JOIN forest_titles t ON t.id = u.title_id
+       JOIN organizations o ON o.id = t.holder_org_id
+      WHERE b.id = p.aac_id) AS company_name,
+    (SELECT t.reference FROM annual_cut_blocks b
+       JOIN management_units u ON u.id = b.ufa_id
+       JOIN forest_titles t ON t.id = u.title_id
+      WHERE b.id = p.aac_id) AS title_ref,
     (SELECT COUNT(*) FROM tree_registry r WHERE r.aac_id = p.aac_id) AS registry_trees,
     (SELECT COUNT(DISTINCT ts.tree_code) FROM tree_scans ts
        JOIN tree_registry r ON r.tree_code = ts.tree_code

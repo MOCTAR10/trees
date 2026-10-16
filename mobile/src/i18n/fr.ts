@@ -1489,6 +1489,8 @@ export const fr = {
     vectorLayers: "Territoire",
     scansFilter: "Arbres scannés (verdict RDUE)",
     projectsSection: "Travail de terrain",
+    company: "Entreprise",
+    titleRef: "Titre",
     projectsLayer: "Chantiers et projets ouverts",
     openProject: "Ouvrir",
     projectStatus: { draft: "En préparation", open: "En cours", closed: "Clôturé" } as Record<string, string>,

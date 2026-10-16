@@ -582,6 +582,28 @@ export default function MapScreen({ onOpenProject }: { onOpenProject?: (p: Proje
                   <Text style={styles.kvValue}>{project.aac_label}</Text>
                 </View>
               ) : null}
+              {project.company_name ? (
+                <View style={styles.kv} testID="project-company">
+                  <Text style={styles.kvLabel}>{t.company}</Text>
+                  <Text style={styles.kvValue} numberOfLines={1}>
+                    {project.company_name}
+                  </Text>
+                </View>
+              ) : null}
+              {project.title_ref ? (
+                <View style={styles.kv}>
+                  <Text style={styles.kvLabel}>{t.titleRef}</Text>
+                  <Text style={styles.kvValue} numberOfLines={1}>
+                    {project.title_ref}
+                  </Text>
+                </View>
+              ) : null}
+              {project.aac_surface_ha != null ? (
+                <View style={styles.kv}>
+                  <Text style={styles.kvLabel}>{t.area}</Text>
+                  <Text style={styles.kvValue}>{`${compactFr(project.aac_surface_ha)} ha`}</Text>
+                </View>
+              ) : null}
               <View style={styles.kv}>
                 <Text style={styles.kvLabel}>{t.projectsSection}</Text>
                 <Text style={styles.kvValue}>

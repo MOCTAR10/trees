@@ -1152,6 +1152,10 @@ export interface Project {
   aac_label?: string | null;
   aac_lat?: number | null;
   aac_lon?: number | null;
+  aac_surface_ha?: number | null;
+  aac_status?: string | null;
+  company_name?: string | null;
+  title_ref?: string | null;
   registry_trees?: number;
   registry_scanned?: number;
   my_status?: ParticipantStatus | null;

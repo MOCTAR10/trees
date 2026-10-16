@@ -85,7 +85,7 @@ jest.mock("../src/api/client", () => ({
   listProjects: jest.fn(async () => [
     {
       id: 7, title: "Chantier AAC 2026-1", kind: "chantier", status: "open", latitude: null, longitude: null,
-      aac_lat: -0.6, aac_lon: 12.1, aac_label: "PILOTE-AAC 2026-1", registry_trees: 9, registry_scanned: 4,
+      aac_lat: -0.6, aac_lon: 12.1, aac_label: "PILOTE-AAC 2026-1", company_name: "Bois du Haut-Ogooué", title_ref: "CFAD-07", aac_surface_ha: 2500, registry_trees: 9, registry_scanned: 4,
       participant_count: 2, scan_count: 4,
     },
     {
@@ -189,6 +189,8 @@ describe("MapScreen (fluid map)", () => {
     });
     expect(getByTestId("project-sheet")).toBeTruthy();
     expect(getByText("4/9 tiges du registre mesurées")).toBeTruthy();
+    expect(getByText("Bois du Haut-Ogooué")).toBeTruthy();
+    expect(getByText("CFAD-07")).toBeTruthy();
     fireEvent.press(getByTestId("project-open"));
     expect(onOpenProject).toHaveBeenCalledWith(expect.objectContaining({ id: 7 }));
     fireEvent.press(getByTestId("legend-button"));
