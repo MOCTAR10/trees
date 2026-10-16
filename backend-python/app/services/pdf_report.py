@@ -652,9 +652,9 @@ def render_df10_pdf(
     if grid_rows:
         story.append(
             _grid_table(
-                ["N° DF10", "Plaque", "Essence", "DBH (cm)", "AAC", "Abattu le", "Statut"],
+                ["N° DF10", "Plaque", "Essence", "DBH", "AAC", "Abattu le", "Statut"],
                 grid_rows,
-                widths=[30 * mm, 27 * mm, None, 14 * mm, 24 * mm, 20 * mm, 22 * mm],
+                widths=[34 * mm, 29 * mm, 30 * mm, 12 * mm, 24 * mm, 22 * mm, 23 * mm],
             )
         )
     else:
