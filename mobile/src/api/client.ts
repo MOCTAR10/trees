@@ -1,5 +1,6 @@
 import Constants from "expo-constants";
 import { File } from "expo-file-system";
+import { Platform } from "react-native";
 
 const configured =
   (process.env.EXPO_PUBLIC_API_URL as string | undefined) ??
@@ -3394,3 +3395,33 @@ export const setFollowupStatus = (id: number, status: "execute" | "annule" | "no
 export const contestFollowup = (id: number, reply: string) =>
   postJson<ControlFollowup>(`/api/controls/followups/${id}/contest`, { reply }, "Contest");
 
+
+export interface ClientLogEntry {
+  kind: string;
+  message: string;
+  stack?: string;
+  timings_ms?: Record<string, number>;
+}
+
+/** Fire-and-forget report of an app error or a slow start (never throws). */
+export async function sendClientLog(entry: ClientLogEntry): Promise<void> {
+  try {
+    await timedFetch(
+      `${API_BASE}/api/v1/client-log`,
+      {
+        method: "POST",
+        headers: headers(true),
+        body: JSON.stringify({
+          ...entry,
+          message: entry.message.slice(0, 2000),
+          stack: entry.stack?.slice(0, 4000),
+          app_version: Constants.expoConfig?.version ?? null,
+          platform: Platform.OS,
+        }),
+      },
+      8000,
+    );
+  } catch {
+    // diagnostics must never disturb the user
+  }
+}

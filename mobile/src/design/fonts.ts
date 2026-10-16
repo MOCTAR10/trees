@@ -4,10 +4,13 @@ import { AtkinsonHyperlegible_700Bold } from "@expo-google-fonts/atkinson-hyperl
 import { BarlowSemiCondensed_600SemiBold } from "@expo-google-fonts/barlow-semi-condensed/600SemiBold";
 import { BarlowSemiCondensed_700Bold } from "@expo-google-fonts/barlow-semi-condensed/700Bold";
 import { useFonts } from "expo-font";
+import { useEffect, useState } from "react";
 
 import { fonts } from "./tokens";
 
-/** Only the five faces the design uses are bundled. */
+const FONT_TIMEOUT_MS = 6000;
+
+/** Only the five faces the design uses are bundled; after 6 s the app starts with system fonts. */
 export function useAppFonts(): boolean {
   const [loaded, error] = useFonts({
     [fonts.display]: BarlowSemiCondensed_700Bold,
@@ -16,5 +19,10 @@ export function useAppFonts(): boolean {
     [fonts.bodyBold]: AtkinsonHyperlegible_700Bold,
     [fonts.bodyItalic]: AtkinsonHyperlegible_400Regular_Italic,
   });
-  return loaded || !!error;
+  const [timedOut, setTimedOut] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setTimedOut(true), FONT_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, []);
+  return loaded || !!error || timedOut;
 }

@@ -13,6 +13,9 @@ import {
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAppFonts } from './src/design/fonts';
+import { finishBoot, installErrorReporting, markBoot } from './src/utils/diagnostics';
+
+installErrorReporting();
 import { useServerStatus } from './src/utils/useServerStatus';
 import { ThemeProvider, useTheme } from './src/design/ThemeProvider';
 import { EmptyState } from './src/design/ui';
@@ -119,6 +122,9 @@ function BottomInset({ kind }: { kind: 'nav' | 'page' | 'band' | 'legacy' }) {
 
 export default function App() {
   const fontsReady = useAppFonts();
+  useEffect(() => {
+    if (fontsReady) markBoot('fonts');
+  }, [fontsReady]);
   const desktop = useDesktop();
   const appUpdate = useAppUpdate();
   const [companyTab, setCompanyTab] = useState<CompanyTab>('accueil');
@@ -149,6 +155,10 @@ export default function App() {
   const [orgName, setOrgName] = useState<string | null>(null);
   const [headerCoords, setHeaderCoords] = useState<HeaderCoords | null>(null);
   const [bootstrapping, setBootstrapping] = useState(true);
+  useEffect(() => {
+    if (!bootstrapping) markBoot('session');
+    if (!bootstrapping && fontsReady) finishBoot('ready');
+  }, [bootstrapping, fontsReady]);
   const [isPending, startTransition] = React.useTransition();
 
   const requestPhase = useCallback((next: Phase) => {

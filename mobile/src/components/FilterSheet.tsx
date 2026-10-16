@@ -12,7 +12,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { makeStyles, useTheme } from "../design/ThemeProvider";
-import { normalize } from "../utils/text";
+import { normalize, sortByText } from "../utils/text";
 
 export interface FilterOption {
   value: string;
@@ -54,7 +54,7 @@ export default function FilterSheet({
   }, [options, query]);
 
   const sections = React.useMemo(() => {
-    const sorted = [...filtered].sort((a, b) => a.label.localeCompare(b.label, "fr"));
+    const sorted = sortByText(filtered, (o) => o.label);
     const groups: Record<string, FilterOption[]> = {};
     for (const o of sorted) {
       const first = normalize(o.label).charAt(0).toUpperCase();

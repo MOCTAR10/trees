@@ -1606,7 +1606,7 @@ export const fr = {
   },
 
   update: {
-    badge: "Mise à jour",
+    badge: "Nouvelle mise à jour disponible",
     title: "Nouvelle version prête",
     message:
       "Une nouvelle version de l'application est téléchargée. L'application va redémarrer pour l'installer : terminez d'abord votre saisie en cours.",

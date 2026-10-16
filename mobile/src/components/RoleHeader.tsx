@@ -1,4 +1,4 @@
-import { Download, MapPin, Target, UserRound } from "lucide-react-native";
+import { MapPin, RefreshCw, Target, UserRound } from "lucide-react-native";
 import React from "react";
 import { ActivityIndicator, Alert, Image, Pressable, Text, useWindowDimensions, View } from "react-native";
 
@@ -71,6 +71,26 @@ export default function RoleHeader({
           <Text style={[s.ministry, compact && s.ministryCompact]} numberOfLines={2}>
             {fr.header.ministry}
           </Text>
+          {updateReady ? (
+            <Pressable
+              testID="update-badge"
+              accessibilityRole="button"
+              accessibilityLabel={fr.update.badge}
+              onPress={() =>
+                Alert.alert(fr.update.title, fr.update.message, [
+                  { text: fr.update.later, style: "cancel" },
+                  { text: fr.update.install, onPress: onInstallUpdate },
+                ])
+              }
+              style={s.updateBadge}
+              hitSlop={6}
+            >
+              <RefreshCw size={13} color={t.c.forest} strokeWidth={2.6} />
+              <Text style={s.updateText} numberOfLines={1}>
+                {fr.update.badge}
+              </Text>
+            </Pressable>
+          ) : null}
           {roleLabel ? (
             <>
               <View style={s.metaRow}>
@@ -104,7 +124,7 @@ export default function RoleHeader({
           ) : null}
         </View>
       </View>
-      {coords !== undefined || connection || updateReady ? (
+      {coords !== undefined || connection ? (
         <View style={s.locRow}>
           {coords ? (
             <>
@@ -120,23 +140,6 @@ export default function RoleHeader({
                 {fr.header.locating}
               </Text>
             </View>
-          ) : null}
-          {updateReady ? (
-            <Pressable
-              testID="update-badge"
-              accessibilityRole="button"
-              accessibilityLabel={fr.update.badge}
-              onPress={() =>
-                Alert.alert(fr.update.title, fr.update.message, [
-                  { text: fr.update.later, style: "cancel" },
-                  { text: fr.update.install, onPress: onInstallUpdate },
-                ])
-              }
-              style={s.updateBadge}
-            >
-              <Download size={12} color={t.c.forest} strokeWidth={2.6} />
-              <Text style={s.updateText}>{fr.update.badge}</Text>
-            </Pressable>
           ) : null}
           {connection ? <ConnectionBadge status={connection} pending={pending} /> : null}
         </View>
@@ -263,9 +266,11 @@ const useStyles = makeStyles((t) => ({
     borderColor: "rgba(255,255,255,0.18)",
   },
   updateBadge: {
+    alignSelf: "flex-start",
+    marginVertical: 3,
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 6,
     backgroundColor: t.c.gold,
     borderRadius: 999,
     paddingHorizontal: 10,

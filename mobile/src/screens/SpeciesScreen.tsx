@@ -26,7 +26,7 @@ import {
   useCatalogue,
 } from "../storage/catalogueStore";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
-import { normalize } from "../utils/text";
+import { normalize, sortByText } from "../utils/text";
 
 interface Props {
   onOpenSpecies?: (species: SpeciesSummary) => void;
@@ -138,9 +138,7 @@ export default function SpeciesScreen({ onOpenSpecies, onBack, showHeader = fals
   // Filtered: only the small subset is sorted/grouped.
   const speciesSections = React.useMemo(() => {
     if (!hasActiveFilters) return preSections;
-    const sorted = [...filtered].sort((a, b) =>
-      a.scientific_name.localeCompare(b.scientific_name, "fr"),
-    );
+    const sorted = sortByText(filtered, (s) => s.scientific_name);
     const groups: Record<string, EnrichedSpecies[]> = {};
     for (const s of sorted) {
       const first = normalize(s.scientific_name).charAt(0).toUpperCase();

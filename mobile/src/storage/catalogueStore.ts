@@ -5,12 +5,13 @@ import {
   isGatewayReachable,
   listMyTrees,
   listSpecies,
+  sendClientLog,
   MyTree,
   SpeciesSummary,
 } from "../api/client";
 import { CONTINENT_BY_COUNTRY, COUNTRY_NAMES } from "../data/countries";
 import { IUCN_LABELS } from "../data/iucn";
-import { normalize } from "../utils/text";
+import { normalize, sortByText } from "../utils/text";
 import { loadSpeciesCache, saveSpeciesCache } from "./speciesCache";
 
 export type CatalogScope = "arbres" | "plantes" | "biodiversite";
@@ -114,8 +115,7 @@ function toOptions(
   counts: Record<string, number>,
   labelFor?: (value: string) => string,
 ): FacetOption[] {
-  return Object.entries(counts)
-    .sort((a, b) => a[0].localeCompare(b[0], "fr"))
+  return sortByText(Object.entries(counts), (e) => e[0])
     .map(([value, count]) => ({
       value,
       label: labelFor ? labelFor(value) : value,
@@ -124,7 +124,7 @@ function toOptions(
 }
 
 export function buildSections(list: EnrichedSpecies[]): SpeciesSection[] {
-  const sorted = [...list].sort((a, b) => a.scientific_name.localeCompare(b.scientific_name, "fr"));
+  const sorted = sortByText(list, (s) => s.scientific_name);
   const groups: Record<string, EnrichedSpecies[]> = {};
   for (const s of sorted) {
     const first = normalize(s.scientific_name).charAt(0).toUpperCase();
@@ -206,7 +206,12 @@ function enrich(list: SpeciesSummary[]): Pick<
 }
 
 function applySpecies(list: SpeciesSummary[], fromCache: boolean) {
+  const started = Date.now();
   const built = enrich(list);
+  const spent = Date.now() - started;
+  if (spent > 2000) {
+    void sendClientLog({ kind: "slow_catalogue", message: `Catalogue préparé en ${spent} ms`, timings_ms: { enrich: spent, species: list.length } });
+  }
   memoryWarm = list.length > 0;
   setState({
     ...built,
