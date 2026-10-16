@@ -90,6 +90,7 @@ export const fr = {
 
   capture: {
     stepOf: (n: number, total: number) => `Étape ${n} sur ${total}`,
+    hudLabel: "Affichage des capteurs (HUD)",
     forProject: (kind: string, title: string) => `${kind === "chantier" ? "Chantier" : "Projet"} · ${title}`,
     railWhole: "Arbre",
     railBark: "Écorce",

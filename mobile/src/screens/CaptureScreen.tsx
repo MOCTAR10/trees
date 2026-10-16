@@ -48,6 +48,7 @@ import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { Button, Pill, Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
 import { isDepthSensorAvailable, measureCenterDistance } from "../../modules/depth-sensor";
+import SensorHud from "../components/SensorHud";
 import { dbhFromEdges, isPlausibleDbh } from "../utils/dbh";
 import {
   ALL_STEPS,
@@ -141,6 +142,7 @@ export default function CaptureScreen({ onCaptured, onBack, project, onPlantMode
   const [gpsStatus, setGpsStatus] = useState<"waiting" | "ok" | "error">("waiting");
   const [caps, setCaps] = useState<ScanCapabilities>({ ai_segmentation: false, ai_distance: false });
   const [sensorAvailable, setSensorAvailable] = useState(false);
+  const [hudOn, setHudOn] = useState(true);
   const [sensorBusy, setSensorBusy] = useState(false);
   const [sensorNote, setSensorNote] = useState<string | null>(null);
   const [depthText, setDepthText] = useState("");
@@ -637,6 +639,15 @@ export default function CaptureScreen({ onCaptured, onBack, project, onPlantMode
             ) : step ? (
               <>
                 <FramingGuide frame={step.frame} left={bracketLeft} right={bracketRight} />
+                {hudOn ? (
+                  <SensorHud
+                    gps={gpsStatus}
+                    position={position}
+                    depthSensor={sensorAvailable}
+                    aiSegmentation={caps.ai_segmentation}
+                    clearCentre={guiding}
+                  />
+                ) : null}
                 {guiding ? (
                   <View style={s.dbhGuide} pointerEvents="none" testID="dbh-guide">
                     <Text style={s.guideTag}>{t.guideTag}</Text>
@@ -651,6 +662,16 @@ export default function CaptureScreen({ onCaptured, onBack, project, onPlantMode
                 <View style={s.chips} pointerEvents="box-none">
                   <GpsChip status={gpsStatus} onRetry={() => void locate(true)} />
                   {treeCode ? <TreeChip code={treeCode} onUnlink={unlinkTree} /> : null}
+                  <Pressable
+                    testID="hud-toggle"
+                    onPress={() => setHudOn((v) => !v)}
+                    style={[s.chip, hudOn && s.chipGold]}
+                    accessibilityRole="switch"
+                    accessibilityLabel={t.hudLabel}
+                    accessibilityState={{ checked: hudOn }}
+                  >
+                    <Text style={[s.chipLabel, hudOn && s.chipLabelDark]}>HUD</Text>
+                  </Pressable>
                   {step.key === "dbh" ? (
                     <Pressable
                       testID="dbh-why"
