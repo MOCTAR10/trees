@@ -37,8 +37,25 @@ GOLD = colors.HexColor("#B8860B")
 GREY = colors.HexColor("#5A5A5A")
 LINE = colors.HexColor("#CBD5C9")
 
-BRAND = "Digital Forestry"
-TAGLINE = "Mesure, identification et économie circulaire du bois — Bassin du Congo"
+BRAND = "Foresterie Numérique"
+AUTHORITY = "République gabonaise · Ministère des Eaux et Forêts"
+TAGLINE = "Traçabilité du bois du Gabon — loi 016/01 et règlement européen (RDUE)"
+FLAG = ("#009E60", "#FCD116", "#3A75C4")
+
+TREE_STATUS_LABEL = {
+    "inventorie": "Inventorié",
+    "declare": "Déclaré",
+    "autorise": "Autorisé",
+    "abattu": "Abattu",
+    "transporte": "En transport",
+    "receptionne": "Réceptionné",
+    "transforme": "Transformé",
+}
+
+
+def _tree_status(value: Any) -> str:
+    return TREE_STATUS_LABEL.get(value, value or "—")
+
 
 _ss = getSampleStyleSheet()
 S_TITLE = ParagraphStyle(
@@ -111,12 +128,19 @@ def _header_footer(title: str):
         width, height = A4
         canvas.setFillColor(DARK)
         canvas.rect(0, height - 26 * mm, width, 26 * mm, stroke=0, fill=1)
+        third = width / 3
+        for i, hex_color in enumerate(FLAG):
+            canvas.setFillColor(colors.HexColor(hex_color))
+            canvas.rect(i * third, height - 27.2 * mm, third, 1.2 * mm, stroke=0, fill=1)
+        canvas.setFillColor(colors.HexColor("#D9B04A"))
+        canvas.setFont("Helvetica-Bold", 7)
+        canvas.drawString(18 * mm, height - 8.5 * mm, _safe(AUTHORITY.upper()))
         canvas.setFillColor(colors.white)
         canvas.setFont("Helvetica-Bold", 13)
-        canvas.drawString(18 * mm, height - 15 * mm, BRAND)
+        canvas.drawString(18 * mm, height - 15.5 * mm, _safe(BRAND))
         canvas.setFont("Helvetica", 8)
         canvas.setFillColor(LIGHT)
-        canvas.drawString(18 * mm, height - 21 * mm, _safe(title))
+        canvas.drawString(18 * mm, height - 21.5 * mm, _safe(title))
         canvas.setStrokeColor(LINE)
         canvas.setLineWidth(0.5)
         canvas.line(18 * mm, 14 * mm, width - 18 * mm, 14 * mm)
@@ -140,7 +164,7 @@ def _build(story: list, title: str) -> bytes:
         topMargin=32 * mm,
         bottomMargin=18 * mm,
         title=title,
-        author=BRAND,
+        author=f"{BRAND} — {AUTHORITY}",
     )
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="main")
     on_page = _header_footer(title)
@@ -150,7 +174,10 @@ def _build(story: list, title: str) -> bytes:
 
 
 def _kv_table(rows: list[tuple[str, str]], col0: float = 55 * mm) -> Table:
-    data = [[Paragraph(_safe(k), S_CELLB), Paragraph(_safe(v) or "N/D", S_CELL)] for k, v in rows]
+    data = [
+        [Paragraph(_safe(k), S_CELLB), Paragraph(_safe(v) or "Non renseigné", S_CELL)]
+        for k, v in rows
+    ]
     table = Table(data, colWidths=[col0, None])
     table.setStyle(
         TableStyle(
@@ -584,7 +611,7 @@ def render_df10_pdf(
             _fr_num(r.get("measured_dbh_cm"), 1),
             _fmt_date(r.get("felled_at")),
             r.get("abandon_label") or r.get("abandon_code") or "",
-            r.get("status"),
+            _tree_status(r.get("status")),
         ]
         for r in rows
     ]
@@ -633,8 +660,8 @@ def render_transport_pdf(doc: dict, trees: list[dict]) -> bytes:
                 ("Référence", doc.get("reference")),
                 ("Type", DOC_TYPE_LABEL.get(doc_type, doc_type)),
                 ("Statut", TRANSPORT_STATUS_LABEL.get(doc.get("status"), doc.get("status"))),
-                ("Origine", doc.get("from_label")),
-                ("Destination", doc.get("to_label")),
+                ("Origine", doc.get("from_label") or doc.get("org_name")),
+                ("Destination", doc.get("to_label") or doc.get("destination_name")),
                 ("Transporteur", doc.get("transporter")),
                 ("Véhicule", doc.get("vehicle_ref")),
                 ("Nombre de grumes", str(len(trees))),
@@ -651,7 +678,7 @@ def render_transport_pdf(doc: dict, trees: list[dict]) -> bytes:
             t.get("species_scientific_name"),
             _fr_num(t.get("measured_dbh_cm"), 1),
             t.get("hammer_mark"),
-            t.get("status"),
+            _tree_status(t.get("status")),
         ]
         for t in trees
     ]
@@ -718,7 +745,8 @@ def render_statement_pdf(data: dict, org_name: str | None = None) -> bytes:
         Paragraph("Répartition par statut", S_H2),
         _grid_table(
             ["Statut", "Arbres"],
-            [[status, str(by_status.get(status, 0))] for status in by_status] or [["—", "0"]],
+            [[_tree_status(status), str(count)] for status, count in by_status.items()]
+            or [["—", "0"]],
             widths=[None, 30 * mm],
         ),
         Spacer(1, 4 * mm),
@@ -1243,7 +1271,8 @@ def render_dashboard_pdf(data: dict | None = None) -> bytes:
                 ("Taux de transformation", _pct(harvest.get("transformation_rate"))),
                 (
                     "Répartition par statut",
-                    " · ".join(f"{k} : {v}" for k, v in harvest_status.items()) or "—",
+                    " · ".join(f"{_tree_status(k)} : {v}" for k, v in harvest_status.items())
+                    or "—",
                 ),
             ]
         ),

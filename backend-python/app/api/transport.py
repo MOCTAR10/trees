@@ -354,6 +354,14 @@ async def transport_document_pdf(
         " FROM tree_registry WHERE tree_code = ANY($1::text[]) ORDER BY tree_code",
         codes,
     )
+    names = await db.fetch_one(
+        "SELECT (SELECT name FROM organizations WHERE id = $1) AS org_name,"
+        " (SELECT name FROM organizations WHERE id = $2) AS destination_name",
+        doc.get("org_id"),
+        doc.get("destination_org_id"),
+    )
+    if names:
+        doc = {**doc, **dict(names)}
     pdf = pdf_report.render_transport_pdf(doc, [dict(t) for t in trees])
     filename = f"{doc['doc_type']}_{doc_id}.pdf"
     return Response(
