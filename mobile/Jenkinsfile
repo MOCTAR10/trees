@@ -23,27 +23,17 @@ pipeline {
   }
   stages {
     stage('Changements natifs') {
-      when {
-        not {
-          anyOf {
-            changeset 'mobile/package.json'
-            changeset 'mobile/package-lock.json'
-            changeset 'mobile/app.json'
-            changeset 'mobile/modules/**'
-            changeset 'mobile/assets/icon.png'
-            changeset 'mobile/assets/adaptive-icon-*'
-            changeset 'mobile/certs/**'
-            changeset 'mobile/Jenkinsfile'
-            triggeredBy 'UserIdCause'
-            expression { currentBuild.previousSuccessfulBuild == null }
-          }
-        }
-      }
       steps {
         script {
-          currentBuild.result = 'NOT_BUILT'
-          currentBuild.description = 'Pas de changement natif : mise à jour OTA seulement'
-          env.SKIP = 'true'
+          def last = sh(script: 'cat /var/www/trees-apk/.last-commit 2>/dev/null || true', returnStdout: true).trim()
+          def manual = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+          def nativePaths = 'mobile/package.json mobile/package-lock.json mobile/app.json mobile/modules mobile/assets/icon.png mobile/assets/adaptive-icon-foreground.png mobile/assets/adaptive-icon-background.png mobile/certs'
+          def unchanged = last && sh(script: "git diff --quiet ${last} ${env.GIT_COMMIT} -- ${nativePaths}", returnStatus: true) == 0
+          if (unchanged && !manual) {
+            currentBuild.result = 'NOT_BUILT'
+            currentBuild.description = 'Pas de changement natif depuis le dernier APK : mise à jour OTA seulement'
+            env.SKIP = 'true'
+          }
         }
       }
     }
@@ -107,6 +97,7 @@ pipeline {
             "$BT/apksigner" verify "$OUT"
             cp "$OUT" /var/www/trees-apk/
             ln -sfn "$OUT" /var/www/trees-apk/foresterie.apk
+            echo "${GIT_COMMIT}" > /var/www/trees-apk/.last-commit
             ls -1t /var/www/trees-apk/foresterie-*.apk | tail -n +6 | xargs -r rm -f
             echo "Publié : https://greenleaves.ga/app/foresterie.apk ($OUT)"
           '''

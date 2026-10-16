@@ -15,19 +15,16 @@ pipeline {
   }
   stages {
     stage('Changements mobiles') {
-      when {
-        not {
-          anyOf {
-            changeset 'mobile/**'
-            triggeredBy 'UserIdCause'
-          }
-        }
-      }
       steps {
         script {
-          currentBuild.result = 'NOT_BUILT'
-          currentBuild.description = 'Aucun changement dans mobile/'
-          env.SKIP = 'true'
+          def last = sh(script: 'cat /var/www/trees-updates/.last-commit 2>/dev/null || true', returnStdout: true).trim()
+          def manual = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+          def unchanged = last && sh(script: "git diff --quiet ${last} ${env.GIT_COMMIT} -- mobile/", returnStatus: true) == 0
+          if (unchanged && !manual) {
+            currentBuild.result = 'NOT_BUILT'
+            currentBuild.description = 'Aucun changement dans mobile/ depuis la dernière mise à jour publiée'
+            env.SKIP = 'true'
+          }
         }
       }
     }
@@ -60,6 +57,7 @@ pipeline {
             DEST="/var/www/trees-updates/$RUNTIME/$STAMP"
             mkdir -p "$DEST" && cp -r ota/. "$DEST/"
             ls -1d /var/www/trees-updates/$RUNTIME/* | sort -t/ -k6 -n | head -n -5 | xargs -r rm -rf
+            echo "${GIT_COMMIT}" > /var/www/trees-updates/.last-commit
             echo "Mise à jour publiée : runtime $RUNTIME, version $STAMP (${GIT_COMMIT})"
           '''
           script { currentBuild.description = "OTA ${env.GIT_COMMIT.take(7)}" }
