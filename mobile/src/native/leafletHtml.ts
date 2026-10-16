@@ -55,10 +55,10 @@ html, body, #map { margin: 0; padding: 0; height: 100%; width: 100%; background:
     return { color: p.strokeColor || "#3B5A1E", weight: p.strokeWidth || 1.5, fillColor: p.fillColor || "transparent", fillOpacity: 1, dashArray: p.lineDashPattern ? p.lineDashPattern.join(" ") : undefined };
   }
 
-  function press(layer, id) {
+  function press(layer) {
     layer.on("click", function (e) {
       L.DomEvent.stopPropagation(e);
-      post({ t: "press", id: id, c: pt(e.latlng) });
+      post({ t: "press", id: layer.__id, c: pt(e.latlng) });
     });
     return layer;
   }
@@ -71,19 +71,19 @@ html, body, #map { margin: 0; padding: 0; height: 100%; width: 100%; background:
       if (p.title || p.description) m.bindTooltip([p.title, p.description].filter(Boolean).join("<br>"));
       m.on("click", function (e) {
         L.DomEvent.stopPropagation(e);
-        post({ t: "press", id: it.id, c: p.coordinate });
+        post({ t: "press", id: m.__id, c: p.coordinate });
       });
       return m;
     }
     if (it.k === "polygon") {
       var rings = [p.coordinates.map(ll)].concat((p.holes || []).map(function (h) { return h.map(ll); }));
-      return press(L.polygon(rings, pathOpts(p)), it.id);
+      return press(L.polygon(rings, pathOpts(p)));
     }
-    if (it.k === "polyline") return press(L.polyline(p.coordinates.map(ll), pathOpts(p)), it.id);
+    if (it.k === "polyline") return press(L.polyline(p.coordinates.map(ll), pathOpts(p)));
     if (it.k === "circle") {
       var o = pathOpts(p);
       o.radius = p.radius;
-      return press(L.circle(ll(p.center), o), it.id);
+      return press(L.circle(ll(p.center), o));
     }
     if (it.k === "tile") {
       return L.tileLayer(p.urlTemplate, { maxNativeZoom: p.maximumZ || 19, maxZoom: 19, zIndex: (p.zIndex || 1) + 10, opacity: p.opacity == null ? 1 : p.opacity });
@@ -91,18 +91,27 @@ html, body, #map { margin: 0; padding: 0; height: 100%; width: 100%; background:
     return null;
   }
 
-  var layers = [];
+  var layerMap = {};
+  var userLayer = null;
   function render() {
-    layers.forEach(function (l) { l.remove(); });
-    layers = [];
+    var seen = {};
     items.forEach(function (it) {
+      var key = it.k + ":" + JSON.stringify(it.p);
+      seen[key] = true;
+      if (layerMap[key]) { layerMap[key].__id = it.id; return; }
       var l = build(it);
-      if (l) { l.addTo(map); layers.push(l); }
+      if (!l) return;
+      l.__id = it.id;
+      l.addTo(map);
+      layerMap[key] = l;
     });
+    Object.keys(layerMap).forEach(function (k) {
+      if (!seen[k]) { layerMap[k].remove(); delete layerMap[k]; }
+    });
+    if (userLayer) { userLayer.remove(); userLayer = null; }
     if (user) {
-      var u = L.circleMarker([user.latitude, user.longitude], { radius: 7, color: "#ffffff", weight: 3, fillColor: "#1F6FB2", fillOpacity: 1 });
-      u.addTo(map);
-      layers.push(u);
+      userLayer = L.circleMarker([user.latitude, user.longitude], { radius: 7, color: "#ffffff", weight: 3, fillColor: "#1F6FB2", fillOpacity: 1 });
+      userLayer.addTo(map);
     }
   }
 
@@ -114,7 +123,11 @@ html, body, #map { margin: 0; padding: 0; height: 100%; width: 100%; background:
   function zoomFor(r) { return Math.max(1, Math.min(18, Math.round(Math.log2(360 / Math.max(r.longitudeDelta, 1e-4))))); }
 
   map.on("click", function (e) { post({ t: "map", c: pt(e.latlng) }); });
-  map.on("moveend", function () { post({ t: "region", r: regionOf() }); });
+  var regionTimer = null;
+  map.on("moveend", function () {
+    clearTimeout(regionTimer);
+    regionTimer = setTimeout(function () { post({ t: "region", r: regionOf() }); }, 280);
+  });
 
   var lastLong = 0;
   function long(c) {

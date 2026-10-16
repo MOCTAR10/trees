@@ -130,6 +130,7 @@ export default function MapScreen({ onOpenProject }: { onOpenProject?: (p: Proje
   const [tiles, setTiles] = React.useState<MapTileLayer[]>([]);
   const [layers, setLayers] = React.useState<MapLayers | null>(null);
   const [fetching, setFetching] = React.useState(false);
+  const lastFetch = React.useRef<{ box: [number, number, number, number]; zoom: number; key: string } | null>(null);
   const [region, setRegion] = React.useState<Region>(GABON);
   const [legendOpen, setLegendOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
@@ -202,16 +203,38 @@ export default function MapScreen({ onOpenProject }: { onOpenProject?: (p: Proje
     fetchTimer.current = setTimeout(() => {
       const id = ++requestId.current;
       if (!enabledKey) {
+        lastFetch.current = null;
         setLayers((prev) => (prev ? { ...prev, layers: {} } : prev));
         return;
       }
-      setFetching(true);
-      void getMapLayers({ zoom: zoomFor(region), bbox: bboxFor(region), layers: enabledKey.split(",") })
+      const view = bboxFor(region, 0);
+      const zoom = zoomFor(region);
+      const last = lastFetch.current;
+      if (
+        last &&
+        last.key === enabledKey &&
+        Math.abs(last.zoom - zoom) < 0.9 &&
+        view[0] >= last.box[0] &&
+        view[1] >= last.box[1] &&
+        view[2] <= last.box[2] &&
+        view[3] <= last.box[3]
+      ) {
+        return;
+      }
+      const box = bboxFor(region, 1);
+      const showTimer = setTimeout(() => {
+        if (id === requestId.current) setFetching(true);
+      }, 600);
+      void getMapLayers({ zoom, bbox: box, layers: enabledKey.split(",") })
         .then((data) => {
-          if (id === requestId.current) setLayers(data);
+          if (id === requestId.current) {
+            lastFetch.current = { box, zoom, key: enabledKey };
+            setLayers(data);
+          }
         })
         .catch((err) => console.error("map layers failed", err))
         .finally(() => {
+          clearTimeout(showTimer);
           if (id === requestId.current) setFetching(false);
         });
     }, FETCH_DEBOUNCE_MS);

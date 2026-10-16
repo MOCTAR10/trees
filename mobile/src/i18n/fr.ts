@@ -1430,7 +1430,7 @@ export const fr = {
     contactsTitle: "Contacts",
     contacts: [
       { name: "Sabine Anotho", role: "Directrice générale (CEO)", phone: "077 52 37 17", accent: "gold" },
-      { name: "Sidibe Moctar", role: "Responsable du projet — développement et partie technique", phone: "077 72 44 99", accent: "blue" },
+      { name: "Sidibe Moctar", role: "Responsable du projet — conception, développement et direction technique", phone: "077 72 44 99", accent: "blue" },
     ] as { name: string; role: string; phone: string; accent: "gold" | "blue" }[],
     linksTitle: "Accès à la plateforme",
     webApp: "Application web",
@@ -1703,6 +1703,7 @@ export const fr = {
       "Une nouvelle version de l'application est téléchargée. L'application va redémarrer pour l'installer : terminez d'abord votre saisie en cours.",
     install: "Installer maintenant",
     later: "Plus tard",
+    cta: "Installer",
   },
 
   web: {
