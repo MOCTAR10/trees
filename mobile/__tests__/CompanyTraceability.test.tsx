@@ -176,10 +176,10 @@ describe("CompanyTraceability incoming slips", () => {
     await waitFor(() => expect(mockedPdf.exportDf10Pdf).toHaveBeenCalledWith({ aac_id: 41, status: "declare" }));
   });
 
-  it("shows no chantier filter for a single chantier", async () => {
+  it("still offers the chantier filter for a single chantier", async () => {
     mocked.listDf10.mockResolvedValue(DF10);
     const view = render(<CompanyTraceability />);
     await waitFor(() => view.getByText("GA-1"));
-    expect(view.queryByTestId("df10-aac-filter")).toBeNull();
+    expect(view.getByTestId("df10-aac-filter")).toBeTruthy();
   });
 });

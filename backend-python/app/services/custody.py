@@ -81,7 +81,8 @@ async def lookup(code: str, user: dict) -> dict | None:
         """
         SELECT r.tree_code, r.status, r.species_scientific_name, r.measured_dbh_cm,
                r.marking_type, r.hammer_mark, r.df10_entry_no, r.felled_at,
-               r.company_id, r.custodian_org_id, r.aac_id, r.aac_label,
+               r.company_id, r.custodian_org_id, r.aac_id,
+               COALESCE(r.aac_label, (SELECT b.label FROM annual_cut_blocks b WHERE b.id = r.aac_id)) AS aac_label,
                ST_Y(r.geom) AS latitude, ST_X(r.geom) AS longitude,
                o.name AS custodian_name
         FROM tree_registry r

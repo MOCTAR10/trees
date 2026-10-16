@@ -231,7 +231,7 @@ export default function CompanyTraceability() {
             </TouchableOpacity>
             <Text style={styles.note}>{fr.traceability.estNote}</Text>
 
-            {aacOptions.length > 1 ? (
+            {aacOptions.length >= 1 ? (
               <View style={styles.filterBlock} testID="df10-aac-filter">
                 <Text style={styles.filterLabel}>{fr.traceability.filterChantier}</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.fchipRow}>
