@@ -74,7 +74,7 @@ export default function RoleHeader({
               <View style={s.metaRow}>
                 {rank > 0 ? (
                   <View style={s.stripesChip}>
-                    <RankStripes count={rank} color={t.c.forest} testID="rank-stripes" />
+                    <RankStripes count={rank} color={t.c.gold} testID="rank-stripes" />
                   </View>
                 ) : null}
                 <Text style={s.role} numberOfLines={1}>
@@ -209,12 +209,8 @@ const useStyles = makeStyles((t) => ({
   ministry: { color: t.c.onForest, fontFamily: t.fonts.display, fontSize: 19, lineHeight: 23 },
   ministryCompact: { fontSize: 17, lineHeight: 20 },
   metaRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 2 },
-  stripesChip: {
-    backgroundColor: "#EEF0E6",
-    borderRadius: 5,
-    paddingHorizontal: 5,
-    paddingVertical: 2,
-  },
+  stripesChip: { paddingVertical: 1 },
+
   role: { color: t.c.onForest, fontFamily: t.fonts.bodyBold, fontSize: 12.5 },
   org: { color: t.c.onForest, opacity: 0.8, fontFamily: t.fonts.body, fontSize: 12.5, flexShrink: 1, marginTop: 1 },
   actions: { flexDirection: "row", alignItems: "center", gap: t.space.xs },

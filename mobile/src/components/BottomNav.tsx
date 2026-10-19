@@ -10,7 +10,7 @@ import {
   Trees,
 } from "lucide-react-native";
 import React, { useEffect } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Platform, Pressable, Text, View } from "react-native";
 import Animated, {
   ReduceMotion,
   useAnimatedStyle,
@@ -120,8 +120,8 @@ function TabItem({
         </View>
       )}
       <Text
-        style={[s.label, isActive && s.labelActive, isCenter && s.labelCenter]}
-        numberOfLines={1}
+        style={[s.label, isActive && s.labelActive, isCenter && s.labelCenter, Platform.OS === "web" && s.labelWeb]}
+        numberOfLines={Platform.OS === "web" ? 2 : 1}
         adjustsFontSizeToFit
         minimumFontScale={0.8}
       >
@@ -183,4 +183,6 @@ const useStyles = makeStyles((t) => ({
   label: { color: t.c.muted, fontFamily: t.fonts.body, fontSize: 12, textAlign: "center", paddingHorizontal: 2 },
   labelActive: { color: t.c.olive, fontFamily: t.fonts.bodyBold },
   labelCenter: { color: t.c.ink, fontFamily: t.fonts.bodyBold },
+  // The browser ignores adjustsFontSizeToFit: a long label wraps instead of being cut.
+  labelWeb: { fontSize: 11, lineHeight: 13 },
 }));
