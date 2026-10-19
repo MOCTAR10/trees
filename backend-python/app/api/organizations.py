@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 from app.core import fr_format, security
 from app.core.deps import require_roles
-from app.services import compliance, db, ministry, org_backfill
+from app.services import compliance, db, inventory_import, ministry, org_backfill
 from app.services.compliance import DOC_STATUS_SQL
 
 router = APIRouter()
@@ -285,6 +285,7 @@ async def organisation_sheet(org_id: int, _admin: dict = Depends(require_roles("
         "titles": [dict(t) for t in titles],
         "accounts": [dict(a) for a in accounts],
         "certifications": [dict(c) for c in certifications],
+        "inventory_imports": await inventory_import.list_imports(org_id),
         "warnings": await _labelled_warnings(org_id),
     }
 

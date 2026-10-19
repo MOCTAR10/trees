@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 
 from app.config import get_settings
 from app.core.deps import require_roles
-from app.core.dme import dme_for
+from app.core.inventory_model import KEPT_DESTINATIONS
 from app.core.reserved_species import reserved_species_for
 from app.core.species_data import resolve_species
 from app.services import compliance, custody, db, dme, plate_print
@@ -89,13 +89,8 @@ async def _check_line(
     against the declaration's AAC geometry (spatial check batched per request).
     """
     violations: list[str] = []
-    dme_cm, source = dme_for(line.species_scientific_name)
+    dme_cm, source = dme.floor_for(line.species_scientific_name, ufa_dme)
     profile = resolve_species(line.species_scientific_name)
-    if ufa_dme is not None and profile is not None:
-        override = ufa_dme.get(profile.scientific_name)
-        if override is not None:
-            dme_cm = float(override["dme_cm"])
-            source = override.get("source") or source
     if line.species_scientific_name and line.measured_dbh_cm is None:
         violations.append("no_measurement")
     if dme_cm is not None and line.measured_dbh_cm is not None and line.measured_dbh_cm < dme_cm:
@@ -113,9 +108,12 @@ async def _check_line(
     if spatial and spatial.get("outside_concession"):
         violations.append("outside_concession")
     existing = await db.fetch_one(
-        "SELECT tree_code, status, company_id FROM tree_registry WHERE tree_code=$1",
+        "SELECT tree_code, status, company_id, inventory_destination FROM tree_registry"
+        " WHERE tree_code=$1",
         line.tree_code,
     )
+    if existing is not None and existing.get("inventory_destination") in KEPT_DESTINATIONS:
+        violations.append("kept_tree")
     own_inventory = (
         existing is not None
         and existing.get("status") == "inventorie"
@@ -424,6 +422,11 @@ async def record_event(
         raise HTTPException(status_code=404, detail="Arbre inconnu au registre")
     if not custody.holds(await custody.acting_user(user), dict(tree)):
         raise HTTPException(status_code=403, detail="Grume détenue par une autre organisation")
+    if tree.get("inventory_destination") in KEPT_DESTINATIONS:
+        raise HTTPException(
+            status_code=409,
+            detail="Arbre à préserver (tige d'avenir, en réserve ou semencier — art. 122)",
+        )
     reason = custody.refusal(body.event, tree["status"])
     if reason is not None:
         raise HTTPException(status_code=409, detail=reason)
@@ -483,7 +486,8 @@ async def list_trees(
     if user["role"] == "admin":
         rows = await db.fetch_all(
             "SELECT id, tree_code, marking_type, species_scientific_name, measured_dbh_cm,"
-            " status, permit_number, aac_label, aac_id, ST_Y(geom) AS latitude,"
+            " status, permit_number, aac_label, aac_id, inventory_destination, painted_number,"
+            " ST_Y(geom) AS latitude,"
             " ST_X(geom) AS longitude, created_at FROM tree_registry"
             + (" WHERE status = $1" if status else "")
             + " ORDER BY created_at DESC LIMIT 500",
@@ -492,7 +496,8 @@ async def list_trees(
     else:
         rows = await db.fetch_all(
             "SELECT id, tree_code, marking_type, species_scientific_name, measured_dbh_cm,"
-            " status, permit_number, aac_label, aac_id, ST_Y(geom) AS latitude,"
+            " status, permit_number, aac_label, aac_id, inventory_destination, painted_number,"
+            " ST_Y(geom) AS latitude,"
             " ST_X(geom) AS longitude, created_at FROM tree_registry"
             " WHERE (custodian_org_id = $2 OR (custodian_org_id IS NULL AND company_id = $1))"
             + (" AND status = $3" if status else "")

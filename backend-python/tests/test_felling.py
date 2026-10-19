@@ -133,7 +133,7 @@ def _install_fake_db(monkeypatch, users, state):
                 "decided_by": None,
             }
             return {"id": did, "status": "soumise"}
-        if "select tree_code, status, company_id from tree_registry where tree_code" in s:
+        if "select tree_code, status, company_id, inventory_destination from tree_registry" in s:
             row = state["registry"].get(args[0])
             return dict(row) if row else None
         if "select * from felling_declarations where id" in s:
@@ -585,6 +585,41 @@ def test_own_inventoried_stem_can_be_declared(client, monkeypatch):
     resp = client.post("/api/felling/declarations", json=_declare_payload(), headers=headers)
     assert resp.status_code == 200, resp.text
     assert state["registry"]["GA-2026-0001"]["status"] == "declare"
+
+
+def test_tree_to_preserve_is_never_declarable(client, monkeypatch):
+    users, state = _setup(monkeypatch)
+    headers = {"Authorization": f"Bearer {_token(users[2])}"}
+    state["registry"]["GA-2026-0001"] = {
+        "tree_code": "GA-2026-0001",
+        "status": "inventorie",
+        "company_id": users[2]["id"],
+        "inventory_destination": "avenir",
+    }
+    resp = client.post("/api/felling/declarations", json=_declare_payload(), headers=headers)
+    assert resp.status_code == 422
+    blockers = resp.json()["detail"]["blockers"]
+    assert {"tree_code": "GA-2026-0001", "code": "kept_tree"} in blockers
+    state["registry"]["GA-2026-0001"]["inventory_destination"] = "abattre"
+    resp = client.post("/api/felling/declarations", json=_declare_payload(), headers=headers)
+    assert resp.status_code == 200, resp.text
+
+
+def test_tree_to_preserve_is_never_felled(client, monkeypatch):
+    users, state = _setup(monkeypatch)
+    state["registry"]["GA-2026-0009"] = {
+        "tree_code": "GA-2026-0009",
+        "status": "autorise",
+        "company_id": users[2]["id"],
+        "inventory_destination": "semencier",
+    }
+    resp = client.post(
+        "/api/felling/events",
+        json={"tree_code": "GA-2026-0009", "event": "abattu"},
+        headers={"Authorization": f"Bearer {_token(users[4])}"},
+    )
+    assert resp.status_code == 409
+    assert "préserver" in resp.json()["detail"]
 
 
 def test_declare_forbidden_roles(client, monkeypatch):

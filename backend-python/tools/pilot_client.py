@@ -81,10 +81,11 @@ class Pilot:
         json: Any = None,
         expect: int | tuple[int, ...] = (200, 201),
         note: str = "",
+        files: Any = None,
     ) -> Any:
         headers = {"Authorization": f"Bearer {self.tokens[actor]}"} if actor in self.tokens else {}
         started = time.perf_counter()
-        r = self.http.request(method, path, json=json, headers=headers)
+        r = self.http.request(method, path, json=json, files=files, headers=headers)
         elapsed = (time.perf_counter() - started) * 1000
         expected = (expect,) if isinstance(expect, int) else expect
         ok = r.status_code in expected

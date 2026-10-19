@@ -11,7 +11,7 @@ a UFA the app falls back to the provisional literature defaults of
 
 from __future__ import annotations
 
-from app.core.dme import DME_SOURCE_PROVISIONAL, PROVISIONAL_DME_CM
+from app.core.dme import DME_SOURCE_PROVISIONAL, PROVISIONAL_DME_CM, dme_for
 from app.core.species_data import resolve_species
 from app.services import db
 
@@ -51,6 +51,18 @@ async def overrides(ufa_id: int | None) -> dict[str, dict]:
         r["species_scientific_name"]: {"dme_cm": float(r["dme_cm"]), "source": r["source"]}
         for r in rows
     }
+
+
+def floor_for(name: str | None, ufa_dme: dict[str, dict] | None) -> tuple[float | None, str | None]:
+    """DME floor of a stem: the UFA's official entry over the provisional default."""
+    dme_cm, source = dme_for(name)
+    profile = resolve_species(name)
+    if ufa_dme is not None and profile is not None:
+        override = ufa_dme.get(profile.scientific_name)
+        if override is not None:
+            dme_cm = float(override["dme_cm"])
+            source = override.get("source") or source
+    return dme_cm, source
 
 
 async def map_for_ufa(ufa_id: int | None) -> dict[str, dict]:

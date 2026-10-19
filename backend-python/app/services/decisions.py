@@ -19,6 +19,7 @@ CODE_LABELS = {
     "duplicate_code": "Code arbre en doublon",
     "outside_aac": "Arbre hors de l'AAC",
     "no_measurement": "Diamètre non mesuré",
+    "kept_tree": "Arbre à préserver (art. 122)",
     "cites_listed": "Espèce CITES",
     "cites_without_permit": "Espèce CITES sans permis d'exportation",
     "in_protected_area": "Dans une aire protégée",

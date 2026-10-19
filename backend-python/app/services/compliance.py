@@ -11,8 +11,16 @@ from datetime import date
 
 from app.services import db
 
+#: ``kept_tree``: a stem inventoried as a tree to preserve (art. 122).
 HARD_LINE_VIOLATIONS = frozenset(
-    {"duplicate_code", "no_measurement", "below_dme", "outside_aac", "reserved_species"}
+    {
+        "duplicate_code",
+        "no_measurement",
+        "below_dme",
+        "outside_aac",
+        "reserved_species",
+        "kept_tree",
+    }
 )
 #: ``in_protected_area`` / ``outside_concession`` come from the GFW layers
 #: imported for Gabon (parks, logging concessions): warnings — the Ministry
@@ -50,6 +58,10 @@ DOC_STATUS_SQL = (
     "CASE WHEN status = 'valide' AND expires_at IS NOT NULL AND expires_at < CURRENT_DATE"
     " THEN 'expire' ELSE status END"
 )
+
+#: The exploitation inventory comes before the PAO and the authorization
+#: (art. 62, 121): only these stop an import, never a missing authorization.
+INVENTORY_BLOCKERS = frozenset({"no_aac", "aac_not_held", "aac_closed", "title_not_exploitable"})
 
 GATE_LABELS = {
     "no_aac": "Arbre sans AAC enregistrée",
@@ -102,6 +114,12 @@ async def authorization_gate(aac_id: int | None, org_id: int | None) -> str | No
     if not any(r["startup_notified_at"] for r in delivered):
         return "startup_not_notified"
     return None
+
+
+async def inventory_gate(aac_id: int | None, org_id: int | None) -> str | None:
+    """Blocker code for importing an AAC's inventory, or None when allowed."""
+    gate = await authorization_gate(aac_id, org_id)
+    return gate if gate in INVENTORY_BLOCKERS else None
 
 
 def line_impact(violations: list[str] | str | None) -> tuple[list[str], list[str]]:

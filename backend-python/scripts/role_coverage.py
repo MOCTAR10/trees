@@ -45,6 +45,7 @@ DOMAIN_OF = [
     ("/api/cooperative", "Coopérative et résidus"),
     ("/api/organizations", "Organisations"),
     ("/api/titles", "Titres, UFA, AAC, conventions, études"),
+    ("/api/inventory", "Inventaire d'exploitation (import)"),
     ("/api/felling", "Déclarations, registre et chaîne de garde"),
     ("/api/compliance", "Déclarations, registre et chaîne de garde"),
     ("/api/documents", "Pièces légales"),

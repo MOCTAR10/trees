@@ -192,6 +192,11 @@ def reset(ns: str) -> None:
             ),
             ("DELETE FROM community_cooperatives WHERE cooperative_name LIKE $1", (f"%[{ns}]%",)),
             ("DELETE FROM felling_declarations WHERE company_id = ANY($1::int[])", (users,)),
+            (
+                "DELETE FROM tree_registry WHERE inventory_import_id IN"
+                " (SELECT id FROM inventory_imports WHERE organization_id = ANY($1::int[]))",
+                (orgs,),
+            ),
             ("DELETE FROM tree_registry WHERE tree_code LIKE $1", (pfx,)),
             (
                 "DELETE FROM projects WHERE created_by = ANY($1::int[]) OR description LIKE $2",
@@ -1613,6 +1618,78 @@ def team_mill_followups(ctx: Ctx) -> None:
     )
 
 
+def _inventory_csv(ctx: Ctx, rows: list[tuple]) -> bytes:
+    head = "code_arbre;essence;dhp_cm;hauteur_fut_m;latitude;longitude;destination;numero_peint;layon;placette;qualite"
+    lines = [head]
+    for i, (species, dbh, destination, quality) in enumerate(rows):
+        lon, lat = _point(ctx, "hob2", 10 + i)
+        values = [
+            ctx.code(),
+            species,
+            dbh,
+            18.5,
+            lat,
+            lon,
+            destination,
+            f"{ctx.seq}",
+            "L3",
+            "P3-0" + str(i % 4 + 1),
+            quality,
+        ]
+        lines.append(";".join(str(v).replace(".", ",") for v in values))
+    return ("\n".join(lines) + "\n").encode("utf-8")
+
+
+def inventory_import(ctx: Ctx) -> None:
+    """The inventory of the next AAC (PAO submitted) arrives as a spreadsheet."""
+    p = ctx.p
+    path = f"/api/inventory/aacs/{ctx.aac['hob2']}"
+    model = p.get("hob.dg", "/api/inventory/model")
+    assert {c["key"] for c in model["columns"] if c["required"]} >= {
+        "essence",
+        "dhp_cm",
+        "destination",
+    }
+    template = p.call("hob.dg", "GET", "/api/inventory/template.xlsx", expect=200)
+    assert bytes(template).startswith(b"PK")
+    bad = _inventory_csv(ctx, [("Aucoumea klaineana", 45, "abattre", 1)])
+    p.call(
+        "hob.dg",
+        "POST",
+        f"{path}/import",
+        files={"file": ("inventaire_brouillon.csv", bad, "text/csv")},
+        expect=422,
+        note="import refusé : tige à abattre sous le DME",
+    )
+    good = _inventory_csv(
+        ctx,
+        [
+            ("Aucoumea klaineana", 96, "abattre", 1),
+            ("Aucoumea klaineana", 104, "abattre", 1),
+            ("Lophira alata", 88, "abattre", 2),
+            ("Aucoumea klaineana", 52, "avenir", 1),
+            ("Baillonella toxisperma", 118, "reserve", 1),
+            ("Lophira alata", 79, "semencier", 1),
+        ],
+    )
+    file = {"file": ("inventaire_AAC_2026-2.csv", good, "text/csv")}
+    preview = p.post(
+        "hob.dg", f"{path}/preview", files=file, expect=200, note="aperçu de l'inventaire"
+    )
+    assert preview["can_confirm"] and preview["summary"]["kept"] == 3, preview["summary"]
+    out = p.post("hob.dg", f"{path}/import", files=file, expect=201, note="inventaire importé")
+    ctx.trees["inventaire"] = out["import"]["tree_codes"]
+    pdf = p.call(
+        "hob.dg", "GET", f"/api/inventory/imports/{out['import']['id']}/plates.pdf", expect=200
+    )
+    assert bytes(pdf).startswith(b"%PDF")
+    sheet = p.get("admin", f"/api/organizations/{ctx.org['hob']}/sheet")
+    assert any(i["id"] == out["import"]["id"] for i in sheet["inventory_imports"])
+    ctx.note(
+        "inventaire : AAC 2026-2 importée d'un tableur (3 à abattre, 3 à préserver), plaques imprimées"
+    )
+
+
 STAGES = [
     people,
     titles,
@@ -1626,6 +1703,7 @@ STAGES = [
     deadlines_and_reports,
     projects,
     team_mill_followups,
+    inventory_import,
 ]
 
 

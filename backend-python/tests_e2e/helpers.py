@@ -109,3 +109,60 @@ def detail(response) -> str:
     """Error detail of a refused call, whatever its shape."""
     d = response.get("detail") if isinstance(response, dict) else response
     return str(d)
+
+
+INVENTORY_HEAD = (
+    "code_arbre",
+    "essence",
+    "dhp_cm",
+    "latitude",
+    "longitude",
+    "destination",
+    "numero_peint",
+)
+
+
+def inventory_rows(world, specs: list[tuple], aac: str = "hob2", start: int = 0) -> list[dict]:
+    """Rows of an inventory file: (species, dbh, destination) placed inside the AAC."""
+    rows = []
+    for i, (species, dbh, destination) in enumerate(specs):
+        lon, lat = seed_pilot._point(world, aac, start + i)
+        code = world.code()
+        rows.append(
+            {
+                "code_arbre": code,
+                "essence": species,
+                "dhp_cm": str(dbh).replace(".", ","),
+                "latitude": str(lat).replace(".", ","),
+                "longitude": str(lon).replace(".", ","),
+                "destination": destination,
+                "numero_peint": code.rsplit("-", 1)[-1],
+            }
+        )
+    return rows
+
+
+def inventory_csv(rows: list[dict], head: tuple[str, ...] = INVENTORY_HEAD) -> bytes:
+    lines = [";".join(head)] + [";".join(str(r.get(k, "")) for k in head) for r in rows]
+    return ("\n".join(lines) + "\n").encode("utf-8")
+
+
+def inventory_upload(
+    world,
+    rows: list[dict],
+    step: str = "preview",
+    aac: str = "hob2",
+    actor: str = "hob.dg",
+    expect=200,
+):
+    return world.p.call(
+        actor,
+        "POST",
+        f"/api/inventory/aacs/{world.aac[aac]}/{step}",
+        files={"file": ("inventaire.csv", inventory_csv(rows), "text/csv")},
+        expect=expect,
+    )
+
+
+def issue_codes(preview: dict) -> list[list[str]]:
+    return [[i["code"] for i in r["issues"]] for r in preview["rows"]]

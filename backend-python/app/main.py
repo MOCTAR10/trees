@@ -23,6 +23,7 @@ from app.api import (
     felling,
     group,
     home,
+    inventory,
     knowledge,
     mill,
     organizations,
@@ -144,6 +145,7 @@ app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
 app.include_router(home.router, prefix="/api/home", tags=["home"])
 app.include_router(controls.router, prefix="/api/controls", tags=["controls"])
 app.include_router(mill.router, prefix="/api/mill", tags=["mill"])
+app.include_router(inventory.router, prefix="/api/inventory", tags=["inventory"])
 app.include_router(updates.router, prefix="/updates", tags=["mobile-updates"])
 
 
