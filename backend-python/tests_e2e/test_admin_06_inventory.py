@@ -15,7 +15,7 @@ def test_le_ministere_lit_le_modele_d_import_propose(world):
 
 def test_le_ministere_voit_les_imports_sur_la_fiche_de_l_organisation(world):
     """Chaque import confirmé (qui, quand, fichier, nombres) apparaît au Ministère sur la fiche de l'organisation."""
-    rows = inventory_rows(world, [("Aucoumea klaineana", 97, "abattre")], start=14)
+    rows = inventory_rows(world, [("Aucoumea klaineana", 97, "oui")], start=14)
     out = inventory_upload(world, rows, step="import", expect=201)
     sheet = world.p.get("mef.dp2", f"/api/organizations/{world.org['hob']}/sheet")
     entry = next(i for i in sheet["inventory_imports"] if i["id"] == out["import"]["id"])

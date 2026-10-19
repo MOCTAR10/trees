@@ -112,31 +112,32 @@ def detail(response) -> str:
 
 
 INVENTORY_HEAD = (
-    "code_arbre",
+    "reference_aac",
+    "numero_arbre",
     "essence",
-    "dhp_cm",
     "latitude",
     "longitude",
-    "destination",
-    "numero_peint",
+    "diametre_cm",
+    "a_abattre",
 )
+#: Reference of each pilot AAC in its plan d'aménagement (label without the namespace).
+AAC_REF = {"hob1": "AAC 2026-1", "hob2": "AAC 2026-2", "hob0": "AAC 2025-1"}
 
 
 def inventory_rows(world, specs: list[tuple], aac: str = "hob2", start: int = 0) -> list[dict]:
-    """Rows of an inventory file: (species, dbh, destination) placed inside the AAC."""
+    """Rows of an inventory file: (species, diameter, « à abattre » oui/non) inside the AAC."""
     rows = []
-    for i, (species, dbh, destination) in enumerate(specs):
+    for i, (species, dbh, answer) in enumerate(specs):
         lon, lat = seed_pilot._point(world, aac, start + i)
-        code = world.code()
         rows.append(
             {
-                "code_arbre": code,
+                "reference_aac": AAC_REF[aac],
+                "numero_arbre": world.code(),
                 "essence": species,
-                "dhp_cm": str(dbh).replace(".", ","),
                 "latitude": str(lat).replace(".", ","),
                 "longitude": str(lon).replace(".", ","),
-                "destination": destination,
-                "numero_peint": code.rsplit("-", 1)[-1],
+                "diametre_cm": str(dbh).replace(".", ","),
+                "a_abattre": answer,
             }
         )
     return rows
@@ -166,3 +167,9 @@ def inventory_upload(
 
 def issue_codes(preview: dict) -> list[list[str]]:
     return [[i["code"] for i in r["issues"]] for r in preview["rows"]]
+
+
+def imported(world, number: str, actor: str = "hob.dg") -> dict | None:
+    """Registry row of an imported stem, found by its tree number."""
+    rows = world.p.get(actor, "/api/felling/trees?status=inventorie")
+    return next((t for t in rows if t.get("painted_number") == number), None)

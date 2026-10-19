@@ -2,12 +2,13 @@
 
 A company uploads the inventory of one AAC (``.xlsx`` or ``.csv``, French
 Excel: ``;`` separator and decimal comma accepted). Every row is checked with
-the registry rules — DME of the UFA, reserved species, CITES, outside the AAC,
-missing position, duplicate code — before anything is written; the import is
-confirmed only when no row is in error, and enters every stem in the registry
-(``inventorie``) with its destination: trees to preserve (art. 122) are kept
-there and can never be declared nor felled. Each confirmed import is recorded
-(who, when, which file, counts) for the Ministry.
+the registry rules — AAC reference, DME of the UFA, reserved species, CITES,
+outside the AAC, missing position, duplicate tree number — before anything is
+written; the import is confirmed only when no row is in error, and enters every
+stem in the registry (``inventorie``) with its destination: trees to preserve
+(« à abattre : non », art. 122) are kept there and can never be declared nor
+felled. Each confirmed import is recorded (who, when, which file, counts) for
+the Ministry.
 """
 
 from __future__ import annotations
@@ -18,21 +19,16 @@ import math
 import re
 import unicodedata
 from dataclasses import dataclass, field
-from datetime import date, datetime
 
 from app.core import inventory_model as model
 from app.core.reserved_species import reserved_species_for
 from app.core.species_data import resolve_species
 from app.services import compliance, db, dme
 
-CODE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{2,39}$")
-#: Codes attributed at import (``GA-I<import>-<n>``): refused in a file.
-GENERATED_CODE_RE = re.compile(r"^GA-I\d+-", re.IGNORECASE)
 TEXT_MAX = 500
 SHEET_NAME = "Inventaire"
 _VALUE_ALIASES = {
-    "destination": {"a_abattre": "abattre", "exploiter": "abattre", "tige_d_avenir": "avenir"},
-    "marquage": {"plaque": "qr", "plaque_qr": "qr", "gps": "gps_photo", "gps_photo": "gps_photo"},
+    "a_abattre": {"o": "oui", "n": "non", "yes": "oui", "no": "non", "1": "oui", "0": "non"},
 }
 
 
@@ -58,7 +54,7 @@ class Row:
 
     @property
     def key(self) -> str:
-        return str(self.values.get("code_arbre") or f"#ligne{self.line}")
+        return f"#ligne{self.line}"
 
 
 def normalise(text: object) -> str:
@@ -186,31 +182,15 @@ def parse_number(value: object) -> float | None:
     return number if math.isfinite(number) else None
 
 
-def parse_date(value: object) -> date | None:
-    if isinstance(value, datetime):
-        return value.date()
-    if isinstance(value, date):
-        return value
-    text = str(value).strip()
-    for fmt in ("%d/%m/%Y", "%d-%m-%Y", "%d.%m.%Y", "%Y-%m-%d", "%d/%m/%y"):
-        try:
-            return datetime.strptime(text, fmt).date()
-        except ValueError:
-            continue
-    return None
-
-
 def _text(value: object) -> str:
     if isinstance(value, float) and value.is_integer():
         return str(int(value))
     return str(value).strip()
 
 
-def check_values(row: Row, today: date | None = None) -> None:
+def check_values(row: Row) -> None:
     """Formats, lists and required values of one row (no database)."""
-    today = today or date.today()
-    cols = model.by_key()
-    for key, col in cols.items():
+    for key, col in model.by_key().items():
         raw = row.raw.get(key)
         if _blank(raw):
             if key in ("latitude", "longitude"):
@@ -232,38 +212,23 @@ def check_values(row: Row, today: date | None = None) -> None:
                 row.issue("error", "invalid_value", key)
                 continue
             row.values[key] = value
-        elif key == "date_releve":
-            parsed = parse_date(raw)
-            if parsed is None:
-                row.issue("error", "invalid_date", key)
-            elif parsed > today:
-                row.issue("error", "future_date", key)
-            else:
-                row.values[key] = parsed
         else:
             text = _text(raw)
             if len(text) > TEXT_MAX:
                 row.issue("error", "too_long", key)
                 continue
             row.values[key] = text
-    code = row.values.get("code_arbre")
-    if code is not None:
-        if GENERATED_CODE_RE.match(str(code)):
-            row.issue("error", "reserved_code", "code_arbre")
-        elif not CODE_RE.match(str(code)):
-            row.issue("error", "invalid_code", "code_arbre")
-    dbh = row.values.get("dhp_cm")
+    dbh = row.values.get("diametre_cm")
     if dbh is not None and dbh > 400:
-        row.issue("error", "invalid_number", "dhp_cm")
+        row.issue("error", "invalid_number", "diametre_cm")
     lat, lon = row.values.get("latitude"), row.values.get("longitude")
     if lat is not None and lon is not None and not (-90 <= lat <= 90 and -180 <= lon <= 180):
         row.issue("error", "invalid_position", "latitude")
         del row.values["latitude"]
         del row.values["longitude"]
-    row.values.setdefault("marquage", "qr")
-    if row.values["marquage"] == "peinture" and not row.values.get("numero_peint"):
-        row.issue("error", "painted_number_required", "numero_peint")
-    destination = row.values.get("destination")
+    answer = row.values.get("a_abattre")
+    destination = model.DESTINATION_OF.get(str(answer)) if answer else None
+    row.values["destination"] = destination
     species = row.values.get("essence")
     if species:
         profile = resolve_species(str(species))
@@ -275,8 +240,12 @@ def check_values(row: Row, today: date | None = None) -> None:
                 row.issue("warning", "cites_listed", "essence")
         if destination == "abattre" and reserved_species_for(str(species)) is not None:
             row.issue("error", "reserved_species", "essence")
-    if destination == "abattre" and row.values.get("qualite") == model.UNUSABLE_QUALITY:
-        row.issue("warning", "unusable_quality", "qualite")
+
+
+def same_aac(reference: object, label: str) -> bool:
+    """The AAC reference typed in the file names the chosen AAC (case, accents, spacing ignored)."""
+    given, own = normalise(reference), normalise(label)
+    return bool(given) and (given == own or own.endswith("_" + given))
 
 
 async def aac_context(aac_id: int) -> dict | None:
@@ -302,44 +271,30 @@ async def check_rows(aac: dict, rows: list[Row]) -> list[dict]:
         file_issues.append(_file_issue("aac_without_geometry"))
     if aac.get("status") in ("autorise", "ouvert"):
         file_issues.append(_file_issue("aac_open"))
-    codes = [str(r.values["code_arbre"]) for r in rows if r.values.get("code_arbre")]
+    numbers = [str(r.values["numero_arbre"]) for r in rows if r.values.get("numero_arbre")]
     taken = (
-        {
-            r["tree_code"]
-            for r in await db.fetch_all(
-                "SELECT tree_code FROM tree_registry WHERE tree_code = ANY($1::text[])", codes
-            )
-        }
-        if codes
-        else set()
-    )
-    painted = [str(r.values["numero_peint"]) for r in rows if r.values.get("numero_peint")]
-    painted_taken = (
         {
             r["painted_number"]
             for r in await db.fetch_all(
                 "SELECT painted_number FROM tree_registry WHERE aac_id = $1"
                 " AND painted_number = ANY($2::text[])",
                 aac["id"],
-                painted,
+                numbers,
             )
         }
-        if painted
+        if numbers
         else set()
     )
-    seen_codes: set[str] = set()
-    seen_painted: set[str] = set()
+    seen: set[str] = set()
     for row in rows:
-        code = row.values.get("code_arbre")
-        if code is not None:
-            if code in taken or code in seen_codes:
-                row.issue("error", "duplicate_code", "code_arbre")
-            seen_codes.add(str(code))
-        number = row.values.get("numero_peint")
+        reference = row.values.get("reference_aac")
+        if reference is not None and not same_aac(reference, aac["label"]):
+            row.issue("error", "aac_mismatch", "reference_aac")
+        number = row.values.get("numero_arbre")
         if number is not None:
-            if number in painted_taken or number in seen_painted:
-                row.issue("error", "duplicate_painted_number", "numero_peint")
-            seen_painted.add(str(number))
+            if number in taken or number in seen:
+                row.issue("error", "duplicate_number", "numero_arbre")
+            seen.add(str(number))
     located = [r for r in rows if "latitude" in r.values and "longitude" in r.values]
     points = [(r.key, r.values["longitude"], r.values["latitude"]) for r in located]
     outside = await compliance.lines_outside_aac(aac["id"], points)
@@ -354,11 +309,11 @@ async def check_rows(aac: dict, rows: list[Row]) -> list[dict]:
         if context.get("outside_concession"):
             row.issue("warning", "outside_concession", "latitude")
     for row in rows:
-        if row.values.get("destination") != "abattre" or row.values.get("dhp_cm") is None:
+        if row.values.get("destination") != "abattre" or row.values.get("diametre_cm") is None:
             continue
         floor, _source = dme.floor_for(str(row.values.get("essence") or ""), ufa_dme)
-        if floor is not None and row.values["dhp_cm"] < floor:
-            row.issue("error", "below_dme", "dhp_cm")
+        if floor is not None and row.values["diametre_cm"] < floor:
+            row.issue("error", "below_dme", "diametre_cm")
             row.values["dme_cm"] = floor
     return file_issues
 
@@ -383,13 +338,13 @@ def preview(
         out_rows.append(
             {
                 "line": row.line,
-                "tree_code": row.values.get("code_arbre"),
+                "reference_aac": row.values.get("reference_aac"),
+                "numero_arbre": row.values.get("numero_arbre"),
                 "essence": row.values.get("essence"),
                 "scientific_name": row.values.get("scientific_name"),
-                "dhp_cm": row.values.get("dhp_cm"),
+                "diametre_cm": row.values.get("diametre_cm"),
                 "dme_cm": row.values.get("dme_cm"),
                 "destination": row.values.get("destination"),
-                "numero_peint": row.values.get("numero_peint"),
                 "level": level,
                 "issues": [{**e, "level": "error"} for e in row.errors]
                 + [{**w, "level": "warning"} for w in row.warnings],
@@ -465,17 +420,14 @@ async def confirm(
                 (tree_code, marking_type, geom, species_scientific_name, measured_dbh_cm,
                  company_id, status, permit_number, aac_label, aac_id, title_id,
                  custodian_org_id, inventory_destination, inventory_import_id, painted_number,
-                 bole_height_m, inventory_layon, inventory_placette, inventory_quality,
-                 surveyed_on, inventory_notes)
-            SELECT COALESCE(r.code, 'GA-I' || $1::int || '-' || lpad(r.ord::text, 5, '0')),
-                   r.marking, ST_SetSRID(ST_MakePoint(r.lon, r.lat), 4326), r.species, r.dbh,
-                   $2, 'inventorie', $3, $4, $5, $6, $7, r.dest, $1, r.painted, r.height,
-                   r.layon, r.placette, r.quality, r.surveyed, r.notes
-            FROM unnest($8::text[], $9::text[], $10::float8[], $11::float8[], $12::text[],
-                        $13::float8[], $14::text[], $15::text[], $16::float8[], $17::text[],
-                        $18::text[], $19::text[], $20::date[], $21::text[])
-                 WITH ORDINALITY AS r(code, marking, lon, lat, species, dbh, dest, painted,
-                                      height, layon, placette, quality, surveyed, notes, ord)
+                 inventory_notes)
+            SELECT 'GA-I' || $1::int || '-' || lpad(r.ord::text, 5, '0'),
+                   'qr', ST_SetSRID(ST_MakePoint(r.lon, r.lat), 4326), r.species, r.dbh,
+                   $2, 'inventorie', $3, $4, $5, $6, $7, r.dest, $1, r.number, r.notes
+            FROM unnest($8::float8[], $9::float8[], $10::text[], $11::float8[], $12::text[],
+                        $13::text[], $14::text[])
+                 WITH ORDINALITY AS r(lon, lat, species, dbh, dest, number, notes, ord)
+            ORDER BY r.ord
             RETURNING tree_code
             """,
             header["id"],
@@ -485,19 +437,12 @@ async def confirm(
             aac["id"],
             aac["title_id"],
             user.get("organization_id"),
-            col("code_arbre"),
-            col("marquage"),
             col("longitude"),
             col("latitude"),
             [r.values.get("scientific_name") or r.values.get("essence") for r in rows],
-            col("dhp_cm"),
+            col("diametre_cm"),
             col("destination"),
-            col("numero_peint"),
-            col("hauteur_fut_m"),
-            col("layon"),
-            col("placette"),
-            col("qualite"),
-            col("date_releve"),
+            col("numero_arbre"),
             col("observations"),
         )
     except Exception:
@@ -535,59 +480,43 @@ async def list_imports(org_id: int | None = None) -> list[dict]:
 
 EXAMPLE_ROWS: tuple[dict[str, object], ...] = (
     {
-        "code_arbre": "",
-        "essence": "Aucoumea klaineana",
-        "dhp_cm": 87.5,
-        "hauteur_fut_m": 18.5,
+        "reference_aac": "AAC 2026-2",
+        "numero_arbre": "412",
+        "essence": "Okoumé",
         "latitude": -0.6912,
         "longitude": 13.2145,
-        "destination": "abattre",
-        "marquage": "qr",
-        "numero_peint": "412",
-        "layon": "L12",
-        "placette": "P12-04",
-        "qualite": "1",
-        "date_releve": "14/02/2026",
-        "observations": "",
+        "diametre_cm": 87.5,
+        "a_abattre": "oui",
     },
     {
+        "reference_aac": "AAC 2026-2",
+        "numero_arbre": "413",
         "essence": "Okoumé",
-        "dhp_cm": 52,
         "latitude": -0.6915,
         "longitude": 13.2151,
-        "destination": "avenir",
-        "numero_peint": "413",
-        "layon": "L12",
-        "placette": "P12-04",
-        "qualite": "1",
-        "date_releve": "14/02/2026",
-        "observations": "Tige d'avenir sous le DME",
+        "diametre_cm": 52,
+        "a_abattre": "non",
+        "observations": "Tige d'avenir",
     },
     {
+        "reference_aac": "AAC 2026-2",
+        "numero_arbre": "414",
         "essence": "Moabi",
-        "dhp_cm": 110,
         "latitude": -0.6921,
         "longitude": 13.2160,
-        "destination": "reserve",
-        "marquage": "peinture",
-        "numero_peint": "414",
-        "layon": "L13",
-        "placette": "P13-01",
-        "date_releve": "15/02/2026",
+        "diametre_cm": 110,
+        "a_abattre": "non",
         "observations": "Essence mise en réserve",
     },
     {
-        "essence": "Pterocarpus soyauxii",
-        "dhp_cm": 74,
+        "reference_aac": "AAC 2026-2",
+        "numero_arbre": "415",
+        "essence": "Padouk",
         "latitude": -0.6930,
         "longitude": 13.2172,
-        "destination": "semencier",
-        "numero_peint": "415",
-        "layon": "L13",
-        "placette": "P13-02",
-        "qualite": "2",
-        "date_releve": "15/02/2026",
-        "observations": "Semencier à conserver",
+        "diametre_cm": 74,
+        "a_abattre": "non",
+        "observations": "Semencier",
     },
 )
 
@@ -648,7 +577,7 @@ def template_xlsx() -> bytes:
         [
             f"Remplir la feuille « {SHEET_NAME} » : une ligne par tige, {model.MAX_ROWS} tiges au plus"
             f" par fichier ({model.MAX_FILE_BYTES // (1024 * 1024)} Mo). La feuille « Exemple » montre"
-            " une ligne de chaque destination ; elle n'est jamais importée."
+            " un arbre à abattre et des arbres à préserver ; elle n'est jamais importée."
         ]
     )
     readme.append([])

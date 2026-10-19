@@ -1619,23 +1619,13 @@ def team_mill_followups(ctx: Ctx) -> None:
 
 
 def _inventory_csv(ctx: Ctx, rows: list[tuple]) -> bytes:
-    head = "code_arbre;essence;dhp_cm;hauteur_fut_m;latitude;longitude;destination;numero_peint;layon;placette;qualite"
+    head = (
+        "reference_aac;numero_arbre;essence;latitude;longitude;diametre_cm;a_abattre;observations"
+    )
     lines = [head]
-    for i, (species, dbh, destination, quality) in enumerate(rows):
+    for i, (species, dbh, answer, note) in enumerate(rows):
         lon, lat = _point(ctx, "hob2", 10 + i)
-        values = [
-            ctx.code(),
-            species,
-            dbh,
-            18.5,
-            lat,
-            lon,
-            destination,
-            f"{ctx.seq}",
-            "L3",
-            "P3-0" + str(i % 4 + 1),
-            quality,
-        ]
+        values = ["AAC 2026-2", ctx.code(), species, lat, lon, dbh, answer, note]
         lines.append(";".join(str(v).replace(".", ",") for v in values))
     return ("\n".join(lines) + "\n").encode("utf-8")
 
@@ -1646,13 +1636,14 @@ def inventory_import(ctx: Ctx) -> None:
     path = f"/api/inventory/aacs/{ctx.aac['hob2']}"
     model = p.get("hob.dg", "/api/inventory/model")
     assert {c["key"] for c in model["columns"] if c["required"]} >= {
+        "reference_aac",
         "essence",
-        "dhp_cm",
-        "destination",
+        "diametre_cm",
+        "a_abattre",
     }
     template = p.call("hob.dg", "GET", "/api/inventory/template.xlsx", expect=200)
     assert bytes(template).startswith(b"PK")
-    bad = _inventory_csv(ctx, [("Aucoumea klaineana", 45, "abattre", 1)])
+    bad = _inventory_csv(ctx, [("Aucoumea klaineana", 45, "oui", "")])
     p.call(
         "hob.dg",
         "POST",
@@ -1664,12 +1655,12 @@ def inventory_import(ctx: Ctx) -> None:
     good = _inventory_csv(
         ctx,
         [
-            ("Aucoumea klaineana", 96, "abattre", 1),
-            ("Aucoumea klaineana", 104, "abattre", 1),
-            ("Lophira alata", 88, "abattre", 2),
-            ("Aucoumea klaineana", 52, "avenir", 1),
-            ("Baillonella toxisperma", 118, "reserve", 1),
-            ("Lophira alata", 79, "semencier", 1),
+            ("Aucoumea klaineana", 96, "oui", ""),
+            ("Aucoumea klaineana", 104, "oui", ""),
+            ("Lophira alata", 88, "oui", ""),
+            ("Aucoumea klaineana", 52, "non", "tige d'avenir"),
+            ("Baillonella toxisperma", 118, "non", "essence mise en réserve"),
+            ("Lophira alata", 79, "non", "semencier"),
         ],
     )
     file = {"file": ("inventaire_AAC_2026-2.csv", good, "text/csv")}
