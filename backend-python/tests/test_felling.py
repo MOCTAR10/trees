@@ -165,10 +165,16 @@ def _install_fake_db(monkeypatch, users, state):
             return {"ufa_id": ufa_id} if ufa_id is not None else None
         if "select status from annual_cut_blocks" in s:
             return {"status": state["aac_status"].get(args[0])}
+        if "select b.label as aac_label" in s:
+            return state.get("aac_context", {}).get(args[0])
         if "select t.holder_org_id" in s:
             if args[0] not in state["aac_holder"]:
                 return None
-            return {"holder_org_id": state["aac_holder"][args[0]]}
+            return {
+                "holder_org_id": state["aac_holder"][args[0]],
+                "title_status": state.get("title_status", {}).get(args[0], "actif"),
+                "aac_status": state["aac_status"].get(args[0]),
+            }
         return None
 
     async def fetch_all(sql, *args):
@@ -283,6 +289,8 @@ def _install_fake_db(monkeypatch, users, state):
                 "status": "declare",
                 "permit_number": args[7],
                 "aac_label": args[8],
+                "aac_id": args[9],
+                "custodian_org_id": args[11],
             }
             return "INSERT 1"
         if "update tree_registry set status='autorise'" in s:
@@ -837,3 +845,87 @@ def test_art14_aac_of_another_organisation_is_blocked(client, monkeypatch):
     assert _blocker(_declare_with(client, users, _declare_payload())) == "aac_not_held"
     state["aac_holder"][11] = 12
     assert _declare_with(client, users, _declare_payload()).status_code == 200
+
+
+def test_declaration_takes_title_fields_from_the_aac(client, monkeypatch):
+    users, state = _setup(monkeypatch)
+    state["aac_context"] = {
+        11: {
+            "aac_label": "AAC 2026-1",
+            "campaign_year": 2026,
+            "ufa_label": "UFA Oyem",
+            "title_id": 5,
+            "title_type": "FC",
+            "title_reference": "FC-OI-03",
+        }
+    }
+    payload = _declare_payload()
+    payload.pop("permit_type")
+    payload.pop("permit_number")
+    resp = _declare_with(client, users, payload)
+    assert resp.status_code == 200, resp.text
+    decl = state["declarations"][resp.json()["id"]]
+    assert decl["permit_type"] == "foret_communautaire"
+    assert decl["permit_number"] == "FC-OI-03"
+    assert (decl["ufa_label"], decl["aac_label"], decl["title_id"]) == ("UFA Oyem", "AAC 2026-1", 5)
+
+
+def test_declaration_without_title_context_needs_permit(client, monkeypatch):
+    users, _ = _setup(monkeypatch)
+    payload = _declare_payload()
+    payload.pop("permit_number")
+    assert _declare_with(client, users, payload).status_code == 422
+
+
+def test_stem_without_position_is_flagged_not_blocked(client, monkeypatch):
+    users, _ = _setup(monkeypatch)
+    payload = _declare_payload()
+    payload["lines"][1].pop("latitude")
+    payload["lines"][1].pop("longitude")
+    resp = _declare_with(client, users, payload)
+    assert resp.status_code == 200, resp.text
+    flags = {ln["tree_code"]: ln["violations"] for ln in resp.json()["lines_checked"]}
+    assert "missing_position" in flags["GA-2026-0002"]
+    assert "missing_position" not in flags["GA-2026-0001"]
+
+
+def test_closed_aac_or_title_without_rights_is_blocked(client, monkeypatch):
+    users, state = _setup(monkeypatch)
+    state["aac_status"][11] = "ferme"
+    assert _blocker(_declare_with(client, users, _declare_payload())) == "aac_closed"
+    state["aac_status"][11] = "ouvert"
+    for status in ("demande", "exploration", "expire", "retire"):
+        state["title_status"] = {11: status}
+        assert _blocker(_declare_with(client, users, _declare_payload())) == "title_not_exploitable"
+    state["title_status"] = {11: "provisoire"}
+    assert _declare_with(client, users, _declare_payload()).status_code == 200
+
+
+def test_felling_rechecks_authorization_at_the_stump(client, monkeypatch):
+    users, state = _setup(monkeypatch)
+    co, op, admin = _token(users[2]), _token(users[4]), _token(users[1])
+    decl = client.post(
+        "/api/felling/declarations",
+        json=_declare_payload(),
+        headers={"Authorization": f"Bearer {co}"},
+    ).json()
+    client.patch(
+        f"/api/felling/declarations/{decl['id']}",
+        json={"decision": "autorisee"},
+        headers={"Authorization": f"Bearer {admin}"},
+    )
+    state["aac_status"][11] = "ferme"
+    refused = client.post(
+        "/api/felling/events",
+        json={"tree_code": "GA-2026-0001", "event": "abattu", "latitude": 0.41, "longitude": 9.45},
+        headers={"Authorization": f"Bearer {op}"},
+    )
+    assert refused.status_code == 409
+    assert "AAC fermée" in refused.json()["detail"]
+    state["aac_status"][11] = "ouvert"
+    done = client.post(
+        "/api/felling/events",
+        json={"tree_code": "GA-2026-0001", "event": "abattu", "latitude": 0.41, "longitude": 9.45},
+        headers={"Authorization": f"Bearer {op}"},
+    )
+    assert done.status_code == 200

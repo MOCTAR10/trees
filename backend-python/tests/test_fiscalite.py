@@ -109,6 +109,14 @@ def _setup(monkeypatch):
                 "paid_at": args[6],
             }
             return {"id": rid}
+        if "select id from tax_dues where org_id" in s:
+            org, tax_type, year, title = args
+            for d in state["dues"].values():
+                if (d["org_id"], d["tax_type"], d["period_year"]) == (org, tax_type, year) and (
+                    d["receipt_id"] is None and (title is None or d["title_id"] == title)
+                ):
+                    return {"id": d["id"]}
+            return None
         if "select * from tax_dues where id" in s:
             d = state["dues"].get(args[0])
             return dict(d) if d else None
@@ -252,3 +260,51 @@ def test_settle_without_organization_is_conflict(client, monkeypatch):
         ).status_code
         == 409
     )
+
+
+def test_settle_twice_is_conflict(client, monkeypatch):
+    users, state = _setup(monkeypatch)
+    due_id = _create_due(client, _token(users[1])).json()["id"]
+    co = _token(users[2])
+    first = client.post(
+        f"/api/taxes/dues/{due_id}/settle",
+        json={"amount_fcfa": 1_500_000},
+        headers={"Authorization": f"Bearer {co}"},
+    )
+    assert first.status_code == 200
+    again = client.post(
+        f"/api/taxes/dues/{due_id}/settle",
+        json={"amount_fcfa": 1_500_000},
+        headers={"Authorization": f"Bearer {co}"},
+    )
+    assert again.status_code == 409
+    assert len(state["receipts"]) == 1
+
+
+def test_paid_receipt_settles_the_matching_due(client, monkeypatch):
+    users, state = _setup(monkeypatch)
+    due_id = _create_due(client, _token(users[1])).json()["id"]
+    resp = client.post(
+        "/api/taxes",
+        json={
+            "tax_type": "superficie",
+            "period_year": 2026,
+            "amount_fcfa": 1_500_000,
+            "paid_at": date.today().isoformat(),
+            "title_id": 30,
+        },
+        headers={"Authorization": f"Bearer {_token(users[2])}"},
+    )
+    assert resp.status_code == 201, resp.text
+    assert resp.json()["settled_due_id"] == due_id
+    assert state["dues"][due_id]["receipt_id"] is not None
+
+
+def test_receipt_on_another_organisations_title_is_refused(client, monkeypatch):
+    users, _ = _setup(monkeypatch)
+    resp = client.post(
+        "/api/taxes",
+        json={"tax_type": "superficie", "period_year": 2026, "amount_fcfa": 10, "title_id": 30},
+        headers={"Authorization": f"Bearer {_token(users[6])}"},
+    )
+    assert resp.status_code == 403

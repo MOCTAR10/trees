@@ -44,8 +44,34 @@ def test_code_arbre_en_doublon_bloque(world):
 
 
 def test_aac_fermee_bloquee(world):
-    """Une AAC fermée n'accepte plus de déclaration."""
-    declare(world, [line(world, "Aucoumea klaineana", 95, aac="hob0")], aac="hob0", expect=422)
+    """Une AAC fermée n'accepte plus de déclaration, même avec une autorisation (motif « AAC fermée »)."""
+    r = declare(world, [line(world, "Aucoumea klaineana", 95, aac="hob0")], aac="hob0", expect=422)
+    assert "aac_closed" in _blockers(r)
+
+
+def test_titre_repris_de_l_aac(world):
+    """Le type et la référence du titre d'une déclaration sont ceux du titre de l'AAC, quelle que soit la saisie."""
+    out = world.p.post(
+        "hob.dg",
+        "/api/felling/declarations",
+        {
+            "permit_type": "PGG",
+            "permit_number": "SAISIE-LIBRE",
+            "aac_id": world.aac["hob1"],
+            "lines": [line(world, "Aucoumea klaineana", 96)],
+        },
+        expect=200,
+    )
+    mine = {d["id"]: d for d in world.p.get("hob.dg", "/api/felling/declarations")}
+    assert mine[out["id"]]["permit_type"] == "CFAD"
+    assert mine[out["id"]]["permit_number"] != "SAISIE-LIBRE"
+    assert mine[out["id"]]["title_id"] == world.title["hob"]
+
+
+def test_pied_sans_position_signale(world):
+    """Un pied déclaré sans position GPS est signalé (contrôle hors AAC non fait) sans bloquer."""
+    out = declare(world, [line(world, "Aucoumea klaineana", 96, latitude=None, longitude=None)])
+    assert "missing_position" in out["lines_checked"][0]["violations"]
 
 
 def test_essence_cites_signalee_sans_bloquer(world):

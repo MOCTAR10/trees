@@ -1,7 +1,7 @@
 """Compliance gate: two-tier conformance (Loi 016/01 + RDUE).
 
 Hard blockers make submission impossible (no authorization to exploit the AAC
-— art. 14 —, duplicate code, missing measurement, tree below DME, tree outside
+— art. 14 —, AAC closed, title without exploitation rights, duplicate code, missing measurement, tree below DME, tree outside
 the AAC, reserved species). Warnings let the file through; the Ministry decides
 at instruction time (missing documents, unpaid taxes, CITES without permit).
 """
@@ -18,34 +18,71 @@ HARD_LINE_VIOLATIONS = frozenset(
 #: imported for Gabon (parks, logging concessions): warnings — the Ministry
 #: decides (frozen decision 6); whether felling inside a park must become a
 #: hard block is an open point for the métier.
-WARNING_LINE_VIOLATIONS = frozenset({"cites_listed", "in_protected_area", "outside_concession"})
+#: ``missing_position``: a stem without GPS cannot be checked against the AAC
+#: polygon — flagged so the Ministry knows the spatial check was not made.
+WARNING_LINE_VIOLATIONS = frozenset(
+    {"cites_listed", "in_protected_area", "outside_concession", "missing_position"}
+)
 
 _AAC_OPEN_STATUSES = ("autorise", "ouvert")
+#: Title statuses that confer exploitation rights (provisional convention or
+#: final convention — frozen decision 7).
+EXPLOITABLE_TITLE_STATUSES = ("provisoire", "actif")
 
 #: Declaration-level hard blockers (art. 14: no felling before an authorization
-#: is delivered for the AAC and the start of operations notified).
+#: is delivered for the AAC and the start of operations notified; none on a
+#: closed AAC or under a title that confers no exploitation right).
 AUTHORIZATION_BLOCKERS = frozenset(
-    {"no_aac", "aac_not_held", "no_authorization", "authorization_pending", "startup_not_notified"}
+    {
+        "no_aac",
+        "aac_not_held",
+        "aac_closed",
+        "title_not_exploitable",
+        "no_authorization",
+        "authorization_pending",
+        "startup_not_notified",
+    }
 )
+
+#: Read-time status of a legal document: a « valide » piece past its expiry
+#: date is « expire » (derived, never stored).
+DOC_STATUS_SQL = (
+    "CASE WHEN status = 'valide' AND expires_at IS NOT NULL AND expires_at < CURRENT_DATE"
+    " THEN 'expire' ELSE status END"
+)
+
+GATE_LABELS = {
+    "no_aac": "Arbre sans AAC enregistrée",
+    "aac_not_held": "AAC d'une autre organisation",
+    "aac_closed": "AAC fermée",
+    "title_not_exploitable": "Titre sans droit d'exploiter (ni convention provisoire ni définitive)",
+    "no_authorization": "Aucune autorisation délivrée (art. 14)",
+    "authorization_pending": "Autorisation en attente",
+    "startup_not_notified": "Démarrage non notifié (art. 14)",
+}
 
 
 async def authorization_gate(aac_id: int | None, org_id: int | None) -> str | None:
     """Art. 14 blocker code for a felling declaration, or None when allowed."""
     if aac_id is None:
         return "no_aac"
-    if org_id is not None:
-        holder = await db.fetch_one(
-            """
-            SELECT t.holder_org_id
-            FROM annual_cut_blocks b
-            JOIN management_units u ON u.id = b.ufa_id
-            JOIN forest_titles t ON t.id = u.title_id
-            WHERE b.id = $1
-            """,
-            aac_id,
-        )
-        if holder is None or holder["holder_org_id"] != org_id:
-            return "aac_not_held"
+    holder = await db.fetch_one(
+        """
+        SELECT t.holder_org_id, t.status AS title_status, b.status AS aac_status
+        FROM annual_cut_blocks b
+        JOIN management_units u ON u.id = b.ufa_id
+        JOIN forest_titles t ON t.id = u.title_id
+        WHERE b.id = $1
+        """,
+        aac_id,
+    )
+    if org_id is not None and (holder is None or holder["holder_org_id"] != org_id):
+        return "aac_not_held"
+    if holder is not None:
+        if holder.get("aac_status") == "ferme":
+            return "aac_closed"
+        if holder.get("title_status") not in EXPLOITABLE_TITLE_STATUSES:
+            return "title_not_exploitable"
     rows = await db.fetch_all(
         "SELECT status, valid_to, startup_notified_at FROM aac_authorizations WHERE aac_id = $1",
         aac_id,
@@ -97,7 +134,7 @@ async def assess_org_warnings(org_id: int | None) -> list[dict]:
         held = {
             row["doc_type"]: row["status"]
             for row in await db.fetch_all(
-                "SELECT doc_type, status FROM legal_documents"
+                f"SELECT doc_type, {DOC_STATUS_SQL} AS status FROM legal_documents"
                 " WHERE scope_type = 'company' AND scope_id = $1",
                 org_id,
             )

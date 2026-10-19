@@ -39,7 +39,16 @@ class TaxStatusIn(BaseModel):
 
 @router.post("", status_code=201)
 async def record_tax(body: TaxIn, user: dict = Depends(require_roles("company"))):
+    """Record a receipt; a paid one settles the matching open due (same title, tax, year)."""
     org_id = require_org(user)
+    if body.title_id is not None:
+        title = await db.fetch_one(
+            "SELECT holder_org_id FROM forest_titles WHERE id = $1", body.title_id
+        )
+        if title is None:
+            raise HTTPException(status_code=404, detail="Titre introuvable")
+        if title["holder_org_id"] != org_id:
+            raise HTTPException(status_code=403, detail="Titre d'une autre organisation")
     row = await db.fetch_one(
         """
         INSERT INTO tax_receipts
@@ -58,7 +67,24 @@ async def record_tax(body: TaxIn, user: dict = Depends(require_roles("company"))
         "paye" if body.paid_at is not None else "du",
         body.document_id,
     )
-    return dict(row)
+    out = dict(row)
+    out["settled_due_id"] = None
+    if body.paid_at is not None:
+        due = await db.fetch_one(
+            "SELECT id FROM tax_dues WHERE org_id = $1 AND tax_type = $2 AND period_year = $3"
+            " AND receipt_id IS NULL AND ($4::int IS NULL OR title_id = $4)"
+            " ORDER BY due_at NULLS LAST, id LIMIT 1",
+            org_id,
+            body.tax_type,
+            body.period_year,
+            body.title_id,
+        )
+        if due is not None:
+            await db.execute(
+                "UPDATE tax_dues SET receipt_id = $1 WHERE id = $2", row["id"], due["id"]
+            )
+            out["settled_due_id"] = due["id"]
+    return out
 
 
 @router.get("")
@@ -220,6 +246,8 @@ async def settle_due(
         raise HTTPException(status_code=404, detail="Échéance introuvable")
     if due["org_id"] != org_id:
         raise HTTPException(status_code=403, detail="Échéance d'une autre organisation")
+    if due["receipt_id"] is not None:
+        raise HTTPException(status_code=409, detail="Échéance déjà réglée")
     receipt = await db.fetch_one(
         """
         INSERT INTO tax_receipts

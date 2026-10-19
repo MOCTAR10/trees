@@ -26,6 +26,8 @@ router = APIRouter()
 MarkingType = Literal["qr", "peinture", "gps_photo"]
 PermitType = Literal["CFAD", "PFA", "PGG", "ASC", "ACBSL", "foret_communautaire"]
 CustodyEvent = Literal["abattu", "transporte", "receptionne", "transforme"]
+#: Declaration permit type of each forest title type (``FC`` = forêt communautaire).
+TITLE_PERMIT_TYPES = {"CFAD": "CFAD", "PFA": "PFA", "PGG": "PGG", "FC": "foret_communautaire"}
 
 
 class DeclarationLineIn(BaseModel):
@@ -38,8 +40,10 @@ class DeclarationLineIn(BaseModel):
 
 
 class DeclarationIn(BaseModel):
-    permit_type: PermitType
-    permit_number: str = Field(..., min_length=1)
+    """Title fields are taken from the AAC's title; sent values are a fallback only."""
+
+    permit_type: PermitType | None = None
+    permit_number: str | None = None
     ufa_label: str | None = None
     aac_label: str | None = None
     campaign_year: int | None = Field(None, ge=2000, le=2100)
@@ -100,6 +104,8 @@ async def _check_line(
         violations.append("reserved_species")
     if outside_aac:
         violations.append("outside_aac")
+    if line.latitude is None or line.longitude is None:
+        violations.append("missing_position")
     if profile is not None and profile.cites_appendix:
         violations.append("cites_listed")
     if spatial and spatial.get("protected_area"):
@@ -162,6 +168,26 @@ async def declare(
                 "blockers": [{"tree_code": None, "code": gate}],
             },
         )
+    context = await db.fetch_one(
+        """
+        SELECT b.label AS aac_label, b.campaign_year, u.label AS ufa_label,
+               t.id AS title_id, t.title_type, t.reference AS title_reference
+        FROM annual_cut_blocks b
+        JOIN management_units u ON u.id = b.ufa_id
+        JOIN forest_titles t ON t.id = u.title_id
+        WHERE b.id = $1
+        """,
+        body.aac_id,
+    )
+    if context is not None:
+        body.permit_type = TITLE_PERMIT_TYPES.get(context["title_type"], body.permit_type)
+        body.permit_number = context["title_reference"] or body.permit_number
+        body.ufa_label = context["ufa_label"]
+        body.aac_label = context["aac_label"]
+        body.title_id = context["title_id"]
+        body.campaign_year = context["campaign_year"] or body.campaign_year
+    if body.permit_type is None or not (body.permit_number or "").strip():
+        raise HTTPException(status_code=422, detail="Titre de l'AAC introuvable")
     points = [
         (line.tree_code.strip(), line.longitude, line.latitude)
         for line in body.lines
@@ -393,6 +419,16 @@ async def record_event(
     reason = custody.refusal(body.event, tree["status"])
     if reason is not None:
         raise HTTPException(status_code=409, detail=reason)
+    if body.event == "abattu" and tree.get("aac_id") is not None:
+        # The authorization is checked again when the tree is cut: an AAC closed,
+        # a title withdrawn or an authorization expired since the declaration
+        # was approved stops the felling (art. 14).
+        gate = await compliance.authorization_gate(tree["aac_id"], tree.get("custodian_org_id"))
+        if gate is not None:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Abattage refusé — {compliance.GATE_LABELS.get(gate, gate)}",
+            )
     event = await db.fetch_one(
         """
         INSERT INTO custody_events (tree_code, event, actor_id, geom, photo_url, note)

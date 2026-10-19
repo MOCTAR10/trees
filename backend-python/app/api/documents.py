@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from app.api.organizations import require_org
 from app.core.deps import require_roles
 from app.services import db
+from app.services.compliance import DOC_STATUS_SQL
 
 router = APIRouter()
 
@@ -127,7 +128,7 @@ async def company_checklist(
     if scope_type in ("company", "product", "social"):
         rows = await db.fetch_all(
             "SELECT id, scope_type, scope_id, doc_type, authority, reference,"
-            " issued_at, expires_at, status, created_at"
+            f" issued_at, expires_at, {DOC_STATUS_SQL} AS status, created_at"
             " FROM legal_documents WHERE scope_type = $1 AND scope_id = $2"
             " ORDER BY created_at DESC",
             scope_type,
@@ -139,7 +140,7 @@ async def company_checklist(
     await _owns_scope(user, scope_type, scope_id)
     rows = await db.fetch_all(
         "SELECT id, scope_type, scope_id, doc_type, authority, reference,"
-        " issued_at, expires_at, status, created_at"
+        f" issued_at, expires_at, {DOC_STATUS_SQL} AS status, created_at"
         " FROM legal_documents WHERE scope_type = $1 AND scope_id = $2"
         " ORDER BY created_at DESC",
         scope_type,
@@ -170,7 +171,7 @@ async def list_documents(
         conditions.append(f"scope_type = ${len(values) + 1}")
         values.append(scope_type)
     if status is not None:
-        conditions.append(f"status = ${len(values) + 1}")
+        conditions.append(f"({DOC_STATUS_SQL}) = ${len(values) + 1}")
         values.append(status)
     if org_id is not None:
         conditions.append(f"scope_id = ${len(values) + 1}")
@@ -178,7 +179,8 @@ async def list_documents(
     where = f" WHERE {' AND '.join(conditions)}" if conditions else ""
     rows = await db.fetch_all(
         "SELECT id, scope_type, scope_id, doc_type, authority, reference,"
-        " issued_at, expires_at, status, submitted_by, verified_by, verified_at, notes, created_at"
+        f" issued_at, expires_at, {DOC_STATUS_SQL} AS status, submitted_by, verified_by,"
+        " verified_at, notes, created_at"
         f" FROM legal_documents{where} ORDER BY created_at DESC LIMIT 500",
         *values,
     )

@@ -23,13 +23,7 @@ CONTROL_AUTHORITY: dict[str, str] = {
 CONTROL_TYPES = ("marquage", "visa_df10", "route", "transformation")
 RESULTS = ("conforme", "reserve", "non_conforme")
 _FELLED = ("abattu", "transporte", "receptionne", "transforme")
-GATE_LABELS = {
-    "no_aac": "Arbre sans AAC enregistrée",
-    "aac_not_held": "AAC d'une autre organisation",
-    "no_authorization": "Aucune autorisation délivrée (art. 14)",
-    "authorization_pending": "Autorisation en attente",
-    "startup_not_notified": "Démarrage non notifié (art. 14)",
-}
+GATE_LABELS = compliance.GATE_LABELS
 
 
 def _check(level: str, label: str) -> dict:

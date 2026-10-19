@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from app.core import fr_format, security
 from app.core.deps import require_roles
 from app.services import compliance, db, ministry, org_backfill
+from app.services.compliance import DOC_STATUS_SQL
 
 router = APIRouter()
 
@@ -437,7 +438,7 @@ async def my_documents(user: dict = Depends(require_roles("company", "operator")
     org_id = require_org(user)
     rows = await db.fetch_all(
         "SELECT id, scope_type, scope_id, doc_type, authority, reference,"
-        " issued_at, expires_at, status, created_at"
+        f" issued_at, expires_at, {DOC_STATUS_SQL} AS status, created_at"
         " FROM legal_documents WHERE scope_type = 'company' AND scope_id = $1"
         " ORDER BY created_at DESC",
         org_id,
@@ -463,7 +464,7 @@ async def _org_detail(org_id: int, _user: dict) -> dict:
     if row is None:
         raise HTTPException(status_code=404, detail="Organisation introuvable")
     docs = await db.fetch_all(
-        "SELECT doc_type, status FROM legal_documents"
+        f"SELECT doc_type, {DOC_STATUS_SQL} AS status FROM legal_documents"
         " WHERE scope_type = 'company' AND scope_id = $1",
         org_id,
     )
