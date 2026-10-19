@@ -40,6 +40,9 @@ jest.mock("../src/api/client", () => {
     recordCustodyEvent: jest.fn(async () => ({ id: 1 })),
     listTransportDocuments: jest.fn(async () => []),
     actOnTransportDocument: jest.fn(async () => ({ id: 18, status: "receptionne" })),
+    listRegistryTrees: jest.fn(async () => [
+      { id: 1, tree_code: "GA-REG-01", marking_type: "qr", species_scientific_name: "Aucoumea klaineana", measured_dbh_cm: 90, status: "abattu", permit_number: null, aac_label: "AAC 1", latitude: null, longitude: null, created_at: "2026-10-01" },
+    ]),
   };
 });
 
@@ -125,5 +128,17 @@ describe("CustodyScreen", () => {
     fireEvent.press(view.getByTestId("custody-record"));
     await flush();
     expect(view.getByTestId("custody-error")).toHaveTextContent("Abattage refusé : art. 14");
+  });
+
+  it("lists the organisation's logs and opens one on tap", async () => {
+    mocked.getTreeCustody.mockResolvedValue(tree({ tree_code: "GA-REG-01", status: "abattu", next_event: null }) as never);
+    const view = render(<CustodyScreen />);
+    await flush();
+    expect(view.getByTestId("custody-registry")).toBeTruthy();
+    expect(view.getByText("Abattu")).toBeTruthy();
+    fireEvent.press(view.getByTestId("custody-registry-GA-REG-01"));
+    await flush();
+    expect(mocked.getTreeCustody).toHaveBeenCalledWith("GA-REG-01");
+    expect(view.queryByTestId("custody-registry")).toBeNull();
   });
 });

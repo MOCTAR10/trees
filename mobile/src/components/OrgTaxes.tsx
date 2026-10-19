@@ -261,8 +261,11 @@ const useStyles = makeStyles((th) => ({
   newBtn: {
     backgroundColor: th.c.olive,
     borderRadius: 10,
-    paddingVertical: th.space.sm,
+    minHeight: 44,
+    justifyContent: "center",
+    paddingHorizontal: th.space.xl,
     alignItems: "center",
+    alignSelf: "flex-start",
   },
   newBtnText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   card: {

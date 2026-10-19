@@ -168,6 +168,7 @@ export default function CompanyHomeScreen({ onOpen }: Props) {
                   label={t.contest}
                   variant="secondary"
                   compact
+                  style={{ alignSelf: "flex-start" }}
                   onPress={() => {
                     setContesting(item.followup_id as number);
                     setReply("");

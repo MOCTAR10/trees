@@ -156,11 +156,15 @@ export default function DesktopFrame({
         <View style={s.side}>
           <ScrollView contentContainerStyle={s.sideContent}>
             <View style={s.brand}>
-              <Image source={SEAL} style={s.seal} resizeMode="contain" accessibilityLabel={fr.header.ministry} />
-              <View style={s.brandText}>
-                <Text style={s.eyebrow}>{fr.appTitle.toUpperCase()}</Text>
-                <Text style={s.ministry}>{fr.header.ministry}</Text>
+              <View style={s.brandTop}>
+                <Image source={SEAL} style={s.seal} resizeMode="contain" accessibilityLabel={fr.header.ministry} />
+                <Text style={s.eyebrow} numberOfLines={1}>
+                  {fr.appTitle.toUpperCase()}
+                </Text>
               </View>
+              <Text style={s.ministry} numberOfLines={1} testID="side-ministry">
+                {fr.header.ministry}
+              </Text>
             </View>
             <View style={s.rule} />
             {sections?.length ? (
@@ -274,13 +278,13 @@ export default function DesktopFrame({
 
 const useStyles = makeStyles((th) => ({
   row: { flex: 1, flexDirection: "row", backgroundColor: th.c.bg },
-  side: { width: 264, backgroundColor: th.c.forest, borderRightWidth: 3, borderRightColor: th.c.gold },
+  side: { width: 272, backgroundColor: th.c.forest, borderRightWidth: 3, borderRightColor: th.c.gold },
   sideContent: { paddingVertical: th.space.lg, gap: th.space.lg },
-  brand: { flexDirection: "row", alignItems: "center", gap: th.space.md, paddingHorizontal: th.space.lg },
-  brandText: { flex: 1, gap: 2 },
-  seal: { width: 52, height: 52 },
-  eyebrow: { color: th.c.gold, fontFamily: th.fonts.displaySemi, fontSize: 11, letterSpacing: 1.2 },
-  ministry: { color: th.c.onForest, fontFamily: th.fonts.display, fontSize: 16, lineHeight: 19 },
+  brand: { gap: th.space.sm, paddingHorizontal: th.space.lg },
+  brandTop: { flexDirection: "row", alignItems: "center", gap: th.space.sm },
+  seal: { width: 40, height: 40 },
+  eyebrow: { flex: 1, color: th.c.gold, fontFamily: th.fonts.displaySemi, fontSize: 11.5, letterSpacing: 1.4 },
+  ministry: { color: th.c.onForest, fontFamily: th.fonts.display, fontSize: 16, lineHeight: 20 },
   rule: { height: 2, backgroundColor: th.c.gold, marginHorizontal: th.space.lg, opacity: 0.85 },
   nav: { gap: 2, paddingHorizontal: th.space.sm },
   sectionTitle: {
@@ -288,6 +292,7 @@ const useStyles = makeStyles((th) => ({
     fontFamily: th.fonts.displaySemi,
     fontSize: 11,
     letterSpacing: 1.4,
+    textTransform: "uppercase",
     paddingHorizontal: th.space.md,
     paddingBottom: 6,
   },

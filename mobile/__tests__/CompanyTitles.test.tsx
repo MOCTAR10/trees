@@ -93,4 +93,22 @@ describe("CompanyTitles", () => {
       expect.objectContaining({ title_type: "CFAD", reference: "NEW-1", zone: "permanent" }),
     );
   });
+
+  it("derives the domain from the title type and shows its surface guideline", async () => {
+    mocked.listTitles.mockResolvedValue([]);
+    mocked.requestTitle.mockClear();
+    const { getByText, getByTestId, getByPlaceholderText } = render(<CompanyTitles />);
+    await waitFor(() => expect(getByText("Aucun titre enregistré.")).toBeTruthy());
+    fireEvent.press(getByTestId("new-title"));
+    expect(getByTestId("title-zone").props.children).toMatch(/permanent/);
+    fireEvent.press(getByText("FC"));
+    expect(getByTestId("title-type-name").props.children).toBe("Forêt communautaire");
+    expect(getByTestId("title-zone").props.children).toMatch(/rural/);
+    expect(getByTestId("title-surface-hint").props.children).toMatch(/5 000 ha/);
+    fireEvent.changeText(getByPlaceholderText("Référence"), "FC-1");
+    fireEvent.press(getByTestId("title-submit"));
+    await waitFor(() =>
+      expect(mocked.requestTitle).toHaveBeenCalledWith(expect.objectContaining({ title_type: "FC", zone: "rural" })),
+    );
+  });
 });

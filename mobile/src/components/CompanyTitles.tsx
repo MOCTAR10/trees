@@ -21,6 +21,8 @@ import {
   TitleType,
   TitleZone,
 } from "../api/client";
+import { ChevronDown, ChevronRight } from "lucide-react-native";
+
 import { fr } from "../i18n/fr";
 import AacAuthorizations from "./AacAuthorizations";
 import TitleConventions from "./TitleConventions";
@@ -30,7 +32,7 @@ import Badge, { aacTone, titleTone } from "./Badge";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 const TITLE_TYPES: TitleType[] = ["CFAD", "PFA", "PGG", "FC"];
-const ZONES: TitleZone[] = ["permanent", "rural"];
+const TYPE_ZONE: Record<TitleType, TitleZone> = { CFAD: "permanent", PFA: "permanent", PGG: "rural", FC: "rural" };
 
 const fmtSurface = (ha: number | null) =>
   ha == null ? null : `${ha.toLocaleString("fr-FR")} ${fr.titles.ha}`;
@@ -128,7 +130,7 @@ export default function CompanyTitles() {
   return (
     <ScrollView contentContainerStyle={styles.list}>
       <TouchableOpacity
-        style={styles.newBtn}
+        style={[styles.newBtn, styles.newBtnSize]}
         onPress={() => {
           setMessage(null);
           setCreating(true);
@@ -156,9 +158,20 @@ export default function CompanyTitles() {
                 />
               </View>
               <Text style={styles.meta}>
-                {title.zone ? fr.titles.zoneLabel[title.zone] : ""}
-                {fmtSurface(title.surface_ha) ? ` · ${fmtSurface(title.surface_ha)}` : ""}
+                {[fr.titles.typeLabel[title.title_type], title.zone ? fr.titles.zoneLabel[title.zone] : null, fmtSurface(title.surface_ha)]
+                  .filter(Boolean)
+                  .join(" · ")}
               </Text>
+              <View style={styles.toggle}>
+                {expandedTitle === title.id ? (
+                  <ChevronDown size={16} color={theme.c.olive} />
+                ) : (
+                  <ChevronRight size={16} color={theme.c.olive} />
+                )}
+                <Text style={styles.toggleText}>
+                  {expandedTitle === title.id ? fr.titles.closeDetail : fr.titles.openDetail}
+                </Text>
+              </View>
             </TouchableOpacity>
 
             {expandedTitle === title.id ? (
@@ -177,10 +190,19 @@ export default function CompanyTitles() {
                         onPress={() => void toggleUnit(unit.id)}
                         testID={`unit-${unit.id}`}
                       >
-                        <Text style={styles.subTitle}>{unit.label}</Text>
-                        {fmtSurface(unit.surface_ha) ? (
-                          <Text style={styles.meta}>{fmtSurface(unit.surface_ha)}</Text>
-                        ) : null}
+                        <View style={styles.cardTop}>
+                          <Text style={[styles.subTitle, styles.flex1]}>{unit.label}</Text>
+                          {expandedUnit === unit.id ? (
+                            <ChevronDown size={16} color={theme.c.olive} />
+                          ) : (
+                            <ChevronRight size={16} color={theme.c.olive} />
+                          )}
+                        </View>
+                        <Text style={styles.meta}>
+                          {[fmtSurface(unit.surface_ha), expandedUnit === unit.id ? null : fr.titles.openAacs]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </Text>
                       </TouchableOpacity>
 
                       {expandedUnit === unit.id ? (
@@ -278,7 +300,6 @@ function NewTitleModal({
   const theme = useTheme();
   const [titleType, setTitleType] = useState<TitleType>("CFAD");
   const [reference, setReference] = useState("");
-  const [zone, setZone] = useState<TitleZone>("permanent");
   const [surface, setSurface] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -287,7 +308,6 @@ function NewTitleModal({
     if (!visible) return;
     setTitleType("CFAD");
     setReference("");
-    setZone("permanent");
     setSurface("");
     setError(null);
   }, [visible]);
@@ -305,7 +325,7 @@ function NewTitleModal({
       await requestTitle({
         title_type: titleType,
         reference: reference.trim(),
-        zone,
+        zone: TYPE_ZONE[titleType],
         surface_ha: Number.isFinite(ha) ? ha : null,
       });
       onCreated();
@@ -335,6 +355,12 @@ function NewTitleModal({
                 </TouchableOpacity>
               ))}
             </View>
+            <Text style={styles.typeName} testID="title-type-name">
+              {fr.titles.typeLabel[titleType]}
+            </Text>
+            <Text style={styles.hint} testID="title-zone">
+              {fr.titles.zoneFromType(fr.titles.zoneLabel[TYPE_ZONE[titleType]])}
+            </Text>
 
             <TextInput
               style={styles.input}
@@ -345,21 +371,6 @@ function NewTitleModal({
               autoCapitalize="characters"
             />
 
-            <Text style={styles.fieldLabel}>{fr.titles.zone}</Text>
-            <View style={styles.chips}>
-              {ZONES.map((z) => (
-                <TouchableOpacity
-                  key={z}
-                  style={[styles.chip, zone === z && styles.chipOn]}
-                  onPress={() => setZone(z)}
-                >
-                  <Text style={[styles.chipText, zone === z && styles.chipTextOn]}>
-                    {fr.titles.zoneLabel[z]}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
             <TextInput
               style={styles.input}
               placeholder={fr.titles.surface}
@@ -368,6 +379,9 @@ function NewTitleModal({
               onChangeText={setSurface}
               keyboardType="numeric"
             />
+            <Text style={styles.hint} testID="title-surface-hint">
+              {fr.titles.surfaceHint[titleType]}
+            </Text>
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <View style={styles.actions}>
@@ -493,6 +507,12 @@ const useStyles = makeStyles((th) => ({
     alignItems: "center",
   },
   newBtnText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  newBtnSize: { alignSelf: "flex-start", paddingHorizontal: th.space.xl, minHeight: 44, justifyContent: "center" },
+  flex1: { flex: 1 },
+  toggle: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: th.space.xs },
+  toggleText: { color: th.c.olive, fontSize: 12, fontFamily: th.fonts.bodyBold },
+  typeName: { color: th.c.ink, fontSize: 15, fontFamily: th.fonts.bodyBold, marginBottom: 2 },
+  hint: { color: th.c.muted, fontSize: 12, fontFamily: th.fonts.body, marginBottom: th.space.sm },
   card: {
     backgroundColor: th.c.surface,
     borderRadius: 12,

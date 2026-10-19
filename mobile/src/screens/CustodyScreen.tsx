@@ -1,6 +1,6 @@
 import * as Location from "expo-location";
 import { Check, MapPin, QrCode, Search, Truck } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, TextInput, View } from "react-native";
 
 import {
@@ -11,6 +11,8 @@ import {
   recordCustodyEvent,
   TransportDocument,
   TreeCustody,
+  listRegistryTrees,
+  RegistryTree,
 } from "../api/client";
 import QrScanner from "../components/QrScanner";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
@@ -60,6 +62,18 @@ export default function CustodyScreen({ onBack }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [registry, setRegistry] = useState<RegistryTree[] | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    Promise.resolve()
+      .then(() => listRegistryTrees())
+      .then((rows) => alive && setRegistry(rows))
+      .catch(() => alive && setRegistry([]));
+    return () => {
+      alive = false;
+    };
+  }, [info]);
 
   const open = async (raw: string) => {
     const parsed = parseScannedCode(raw);
@@ -322,6 +336,40 @@ export default function CustodyScreen({ onBack }: Props) {
             </Card>
           </>
         ) : null}
+        {!tree && !slip && !loading && registry ? (
+          <Card testID="custody-registry">
+            <Txt variant="label" tone="olive">
+              {t.registryTitle}
+            </Txt>
+            <Txt variant="caption" tone="muted">
+              {registry.length ? t.registryHint : t.registryEmpty}
+            </Txt>
+            {registry.slice(0, 40).map((r, i) => (
+              <View key={r.tree_code}>
+                {i > 0 ? <Divider /> : null}
+                <Pressable
+                  testID={`custody-registry-${r.tree_code}`}
+                  accessibilityRole="button"
+                  onPress={() => void open(r.tree_code)}
+                  style={s.registryRow}
+                >
+                  <View style={s.flex}>
+                    <Txt variant="small" bold>
+                      {r.tree_code}
+                    </Txt>
+                    <Txt variant="caption" tone="muted">
+                      {[r.species_scientific_name, r.aac_label].filter(Boolean).join(" · ")}
+                    </Txt>
+                  </View>
+                  <Pill
+                    label={fr.traceability.registryStatus[r.status] ?? r.status}
+                    tone={r.status === "transforme" || r.status === "receptionne" ? "ok" : r.status === "abattu" || r.status === "transporte" ? "warn" : "info"}
+                  />
+                </Pressable>
+              </View>
+            ))}
+          </Card>
+        ) : null}
       </ScrollView>
       {scanning ? (
         <QrScanner
@@ -343,6 +391,7 @@ const useStyles = makeStyles((th) => ({
   screen: { flex: 1, backgroundColor: th.c.bg },
   content: { padding: th.space.lg, gap: th.space.md, paddingBottom: th.space.xxl },
   flex: { flex: 1 },
+  registryRow: { flexDirection: "row", alignItems: "center", gap: th.space.sm, paddingVertical: th.space.sm },
   italic: { fontStyle: "italic" },
   row: { flexDirection: "row", alignItems: "center", gap: th.space.sm },
   codeRow: { flexDirection: "row", gap: th.space.sm, alignItems: "center" },

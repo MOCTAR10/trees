@@ -384,11 +384,12 @@ const useStyles = makeStyles((th) => ({
     marginTop: th.space.sm,
   },
   action: {
-    flex: 1,
     backgroundColor: th.c.olive,
     borderRadius: 8,
     paddingVertical: th.space.sm,
+    paddingHorizontal: th.space.xl,
     alignItems: "center",
+    alignSelf: "flex-start",
   },
   actionSecondary: {
     backgroundColor: th.c.surface2,

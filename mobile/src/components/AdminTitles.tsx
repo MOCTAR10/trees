@@ -27,6 +27,8 @@ import {
   TitleDecision,
   TitleStatus,
 } from "../api/client";
+import { ChevronDown, ChevronRight } from "lucide-react-native";
+
 import { fr } from "../i18n/fr";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import AacAuthorizations from "./AacAuthorizations";
@@ -238,16 +240,31 @@ export default function AdminTitles() {
                   {DECISIONS[title.status].map((decision) => (
                     <TouchableOpacity
                       key={decision}
-                      style={[styles.decide, decision === "rejete" ? styles.reject : styles.approve]}
+                      style={[
+                        styles.decide,
+                        decision === "rejete" ? styles.reject : decision === "retire" ? styles.withdraw : styles.approve,
+                      ]}
                       disabled={busyId === title.id}
                       onPress={() => onDecision(title, decision)}
                       testID={`decide-${title.id}-${decision}`}
                     >
-                      <Text style={styles.decideText}>{fr.titles.decide[decision]}</Text>
+                      <Text style={[styles.decideText, decision === "retire" && styles.withdrawText]}>
+                        {fr.titles.decide[decision]}
+                      </Text>
                     </TouchableOpacity>
                   ))}
                 </View>
               ) : null}
+              <TouchableOpacity style={styles.toggle} onPress={() => void toggleTitle(title.id)}>
+                {expandedTitle === title.id ? (
+                  <ChevronDown size={16} color={th.c.olive} />
+                ) : (
+                  <ChevronRight size={16} color={th.c.olive} />
+                )}
+                <Text style={styles.toggleText}>
+                  {expandedTitle === title.id ? fr.titles.closeDetail : fr.titles.openDetail}
+                </Text>
+              </TouchableOpacity>
 
               {expandedTitle === title.id ? (
                 <View style={styles.detail}>
@@ -276,10 +293,19 @@ export default function AdminTitles() {
                           onPress={() => void toggleUnit(unit.id)}
                           testID={`unit-${unit.id}`}
                         >
-                          <Text style={styles.subTitle}>{unit.label}</Text>
-                          {fmtSurface(unit.surface_ha) ? (
-                            <Text style={styles.meta}>{fmtSurface(unit.surface_ha)}</Text>
-                          ) : null}
+                          <View style={styles.cardTop}>
+                            <Text style={[styles.subTitle, styles.flex1]}>{unit.label}</Text>
+                            {expandedUnit === unit.id ? (
+                              <ChevronDown size={16} color={th.c.olive} />
+                            ) : (
+                              <ChevronRight size={16} color={th.c.olive} />
+                            )}
+                          </View>
+                          <Text style={styles.meta}>
+                            {[fmtSurface(unit.surface_ha), expandedUnit === unit.id ? null : fr.titles.openAacs]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </Text>
                         </TouchableOpacity>
 
                         {expandedUnit === unit.id ? (
@@ -730,6 +756,11 @@ const useStyles = makeStyles((th) => ({
   approve: { backgroundColor: th.c.ok },
   reject: { backgroundColor: th.c.risk },
   decideText: { color: "#FFFFFF", fontSize: 12, fontFamily: th.fonts.bodyBold },
+  withdraw: { backgroundColor: "transparent", borderWidth: 1, borderColor: th.c.risk },
+  withdrawText: { color: th.c.risk },
+  flex1: { flex: 1 },
+  toggle: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: th.space.xs, alignSelf: "flex-start" },
+  toggleText: { color: th.c.olive, fontSize: 12, fontFamily: th.fonts.bodyBold },
   backdrop: { flex: 1, backgroundColor: "rgba(14,21,18,0.8)", justifyContent: "flex-end" },
   modal: {
     backgroundColor: th.c.surface,

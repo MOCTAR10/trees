@@ -12,6 +12,7 @@ import {
 
 import { makeStyles, useTheme } from "./ThemeProvider";
 import { Palette, TOUCH } from "./tokens";
+import { useDesktop } from "../web/DesktopFrame";
 
 // ---------------------------------------------------------------------------
 // Text
@@ -343,6 +344,59 @@ export function ScreenHeader({
   testID?: string;
 }) {
   const t = useTheme();
+  const desktop = useDesktop();
+  if (desktop) {
+    return (
+      <View
+        testID={testID}
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: t.space.md,
+          paddingHorizontal: t.space.lg,
+          paddingVertical: t.space.md,
+          borderBottomWidth: 1,
+          borderBottomColor: t.c.line,
+        }}
+      >
+        {onBack ? (
+          <Pressable
+            onPress={onBack}
+            accessibilityRole="button"
+            accessibilityLabel={backLabel ?? "Retour"}
+            style={({ pressed }) => ({
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 6,
+              paddingHorizontal: t.space.md,
+              minHeight: 36,
+              borderRadius: t.radius.pill,
+              borderWidth: 1,
+              borderColor: t.c.line,
+              backgroundColor: pressed ? t.c.surface2 : t.c.surface,
+            })}
+          >
+            <Text style={{ color: t.c.olive, fontFamily: t.fonts.display, fontSize: 18, lineHeight: 20 }}>‹</Text>
+            <Text style={{ color: t.c.olive, fontFamily: t.fonts.bodyBold, fontSize: 13.5 }}>{backLabel ?? "Retour"}</Text>
+          </Pressable>
+        ) : null}
+        <View style={{ flex: 1, minWidth: 0 }}>
+          {eyebrow ? (
+            <Text
+              numberOfLines={1}
+              style={{ color: t.c.goldInk, fontFamily: t.fonts.displaySemi, fontSize: 11, letterSpacing: 1.3, textTransform: "uppercase" }}
+            >
+              {eyebrow}
+            </Text>
+          ) : null}
+          <Text numberOfLines={1} style={{ color: t.c.ink, fontFamily: t.fonts.display, fontSize: 20, lineHeight: 24 }}>
+            {title}
+          </Text>
+        </View>
+        {right}
+      </View>
+    );
+  }
   return (
     <View
       testID={testID}
