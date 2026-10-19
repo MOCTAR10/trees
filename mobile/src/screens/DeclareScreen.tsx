@@ -8,6 +8,7 @@ import {
   DeclarationCreated,
   DeclarationLineInput,
   FellingAacOption,
+  isFellable,
   listFellingAacOptions,
   listRegistryTrees,
   MarkingType,
@@ -66,7 +67,7 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
   const selectedAac = aacOptions?.find((a) => a.id === aacId) ?? null;
   const listed = new Set(lines.map((l) => l.tree_code.trim()));
   const pending = inventory.filter(
-    (tree) => !listed.has(tree.tree_code) && (tree.aac_id == null || tree.aac_id === aacId),
+    (tree) => isFellable(tree) && !listed.has(tree.tree_code) && (tree.aac_id == null || tree.aac_id === aacId),
   );
 
   const takeInventory = () => {

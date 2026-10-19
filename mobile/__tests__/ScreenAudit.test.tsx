@@ -289,6 +289,7 @@ describe("Audit des écrans avec données réelles", () => {
     const Profile = require("../src/screens/ProfileScreen").default;
     const Custody = require("../src/screens/CustodyScreen").default;
     const Declare = require("../src/screens/DeclareScreen").default;
+    const InventoryImport = require("../src/screens/InventoryImportScreen").default;
     const CreateProject = require("../src/screens/CreateProjectScreen").default;
     const Species = require("../src/screens/SpeciesScreen").default;
     const SpeciesDetail = require("../src/screens/SpeciesDetailScreen").default;
@@ -347,6 +348,7 @@ describe("Audit des écrans avec données réelles", () => {
       }
       if (who === "company") {
         await audit("Entreprise · Déclarer", wrap(<Declare onDone={noop} onBack={noop} />, true));
+        await audit("Entreprise · Importer un inventaire", wrap(<InventoryImport onBack={noop} />, true));
         await audit("Entreprise · Projets", wrap(<Projets user={me} onOpenProject={noop} onCreateProject={noop} onBack={noop} />));
         await audit("Entreprise · Nouveau chantier", wrap(<CreateProject onDone={noop} onBack={noop} />));
       }

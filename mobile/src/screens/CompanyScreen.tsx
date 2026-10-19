@@ -34,6 +34,7 @@ import MillRegister from "../components/MillRegister";
 import CompanyHomeScreen from "./CompanyHomeScreen";
 import CustodyScreen from "./CustodyScreen";
 import DeclareScreen from "./DeclareScreen";
+import InventoryImportScreen from "./InventoryImportScreen";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { Button, Card, Pill, PillTone, Txt } from "../design/ui";
 
@@ -77,6 +78,7 @@ export default function CompanyScreen({ user, onLogout, showHeader = true, tab: 
   const [declLoading, setDeclLoading] = useState(false);
   const [declError, setDeclError] = useState<string | null>(null);
   const [declaring, setDeclaring] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   const loadDeclarations = useCallback(async () => {
     setDeclLoading(true);
@@ -92,8 +94,8 @@ export default function CompanyScreen({ user, onLogout, showHeader = true, tab: 
   }, []);
 
   useEffect(() => {
-    if (tab === "abattage" && !declaring) void loadDeclarations();
-  }, [tab, declaring, loadDeclarations]);
+    if (tab === "abattage" && !declaring && !importing) void loadDeclarations();
+  }, [tab, declaring, importing, loadDeclarations]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -193,7 +195,9 @@ export default function CompanyScreen({ user, onLogout, showHeader = true, tab: 
       ) : tab === "cert" ? (
         <CompanyCertifications />
       ) : tab === "abattage" ? (
-        declaring ? (
+        importing ? (
+          <InventoryImportScreen onBack={() => setImporting(false)} />
+        ) : declaring ? (
           <DeclareScreen
             onDone={() => {
               setDeclaring(false);
@@ -205,6 +209,12 @@ export default function CompanyScreen({ user, onLogout, showHeader = true, tab: 
           <View style={styles.flex1}>
             <View style={styles.declareBar}>
               <Button label={`+ ${fr.felling.newDeclaration}`} onPress={() => setDeclaring(true)} testID="new-declaration" />
+              <Button
+                variant="secondary"
+                label={fr.felling.importInventory}
+                onPress={() => setImporting(true)}
+                testID="import-inventory"
+              />
             </View>
             {declLoading ? (
               <ActivityIndicator style={styles.center} color={theme.c.olive} />
@@ -359,7 +369,13 @@ export default function CompanyScreen({ user, onLogout, showHeader = true, tab: 
 const useStyles = makeStyles((th) => ({
   container: { flex: 1, backgroundColor: th.c.bg },
   flex1: { flex: 1 },
-  declareBar: { paddingHorizontal: th.space.lg, paddingTop: th.space.lg, alignItems: "flex-start" },
+  declareBar: {
+    paddingHorizontal: th.space.lg,
+    paddingTop: th.space.lg,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: th.space.sm,
+  },
   cardHead: { flexDirection: "row", alignItems: "center", gap: th.space.sm },
   platesBtn: { alignSelf: "flex-start", marginTop: th.space.xs },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: th.space.lg },

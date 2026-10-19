@@ -30,6 +30,8 @@ import TitleStudies from "./TitleStudies";
 import UfaDme from "./UfaDme";
 import Badge, { aacTone, titleTone } from "./Badge";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
+import { Button } from "../design/ui";
+import InventoryImportScreen from "../screens/InventoryImportScreen";
 
 const TITLE_TYPES: TitleType[] = ["CFAD", "PFA", "PGG", "FC"];
 const TYPE_ZONE: Record<TitleType, TitleZone> = { CFAD: "permanent", PFA: "permanent", PGG: "rural", FC: "rural" };
@@ -55,6 +57,7 @@ export default function CompanyTitles() {
 
   const [creating, setCreating] = useState(false);
   const [paoFor, setPaoFor] = useState<AnnualCutBlock | null>(null);
+  const [inventoryFor, setInventoryFor] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -248,6 +251,16 @@ export default function CompanyTitles() {
                                     <Text style={styles.actionText}>{fr.titles.submitPao}</Text>
                                   </TouchableOpacity>
                                 ) : null}
+                                {aac.status !== "ferme" ? (
+                                  <Button
+                                    compact
+                                    variant="secondary"
+                                    label={fr.inventory.open}
+                                    onPress={() => setInventoryFor(aac.id)}
+                                    testID={`inventory-${aac.id}`}
+                                    style={styles.inventoryBtn}
+                                  />
+                                ) : null}
                                 <AacAuthorizations aacId={aac.id} mode="company" />
                               </View>
                             ))
@@ -273,6 +286,12 @@ export default function CompanyTitles() {
           void load();
         }}
       />
+
+      <Modal visible={inventoryFor != null} animationType="slide" onRequestClose={() => setInventoryFor(null)}>
+        {inventoryFor != null ? (
+          <InventoryImportScreen initialAacId={inventoryFor} onBack={() => setInventoryFor(null)} />
+        ) : null}
+      </Modal>
 
       <PaoModal
         aac={paoFor}
@@ -490,6 +509,7 @@ function PaoModal({
 }
 
 const useStyles = makeStyles((th) => ({
+  inventoryBtn: { alignSelf: "flex-start", marginTop: th.space.xs },
   center: {
     flex: 1,
     alignItems: "center",

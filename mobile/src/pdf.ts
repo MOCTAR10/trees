@@ -153,7 +153,26 @@ export async function exportDeclarationPlatesPdf(declarationId: number): Promise
   );
 }
 
+export async function exportInventoryPlatesPdf(importId: number): Promise<string> {
+  return getPdfToCache(`/api/inventory/imports/${importId}/plates.pdf`, `plaques_inventaire_${importId}.pdf`);
+}
+
+export const INVENTORY_TEMPLATE_TYPES = {
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  csv: "text/csv",
+} as const;
+
+/** The inventory template (Excel or CSV), cached like a PDF. */
+export async function exportInventoryTemplate(format: "xlsx" | "csv"): Promise<string> {
+  return getPdfToCache(`/api/inventory/template.${format}`, `modele_inventaire_aac.${format}`);
+}
+
 export async function sharePdf(uri: string): Promise<void> {
+  return shareFile(uri, "application/pdf");
+}
+
+/** Web: browser download; phone: system share sheet. */
+export async function shareFile(uri: string, mimeType: string): Promise<void> {
   if (Platform.OS === "web") {
     const link = document.createElement("a");
     link.href = uri;
@@ -169,8 +188,8 @@ export async function sharePdf(uri: string): Promise<void> {
   }
   if (await Sharing.isAvailableAsync()) {
     await Sharing.shareAsync(uri, {
-      mimeType: "application/pdf",
-      UTI: "com.adobe.pdf",
+      mimeType,
+      UTI: mimeType === "application/pdf" ? "com.adobe.pdf" : undefined,
       dialogTitle: "Document forestier",
     });
   }

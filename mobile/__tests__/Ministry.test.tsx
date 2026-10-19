@@ -42,6 +42,9 @@ jest.mock("../src/api/client", () => ({
     titles: [{ id: 5, title_type: "CFAD", reference: "CFAD-01", status: "actif", zone: "permanent", surface_ha: 64000, province_code: "GA-6", province_source: "geometrie", province_name: "Ogooué-Ivindo" }],
     accounts: [{ id: 14, email: "co@x", display_name: "SFD", first_name: null, last_name: null, matricule: null, role: "company", is_active: true }],
     certifications: [],
+    inventoryImports: [
+      { id: 3, organization_id: 10, organization_name: "Société Forestière Démo", aac_id: 29, aac_label: "AAC 2026-2", title_id: 5, title_reference: "CFAD-01", imported_by: 14, imported_by_name: "SFD", imported_by_email: "co@x", file_name: "inventaire_AAC.csv", file_format: "csv", model_version: "proposition-2026-10", rows_total: 6, stems_created: 6, to_fell_count: 3, kept_count: 3, warnings_count: 0, created_at: "2026-10-18T09:00:00Z" },
+    ],
     warnings: [{ kind: "tax", tax_type: "superficie", period_year: 2026 }],
   })),
   registerTitle: jest.fn(async () => ({ id: 6, status: "actif", province_code: "GA-7" })),
@@ -171,6 +174,8 @@ describe("Ministry space", () => {
     await flush();
     expect(view.getByTestId("org-title-5")).toHaveTextContent(/Ogooué-Ivindo \(déduite de la géométrie\)/);
     expect(view.getByTestId("org-compliance")).toHaveTextContent(/Taxe superficie 2026 en retard/);
+    expect(view.getByTestId("org-inventory-import-3")).toHaveTextContent(/inventaire_AAC\.csv · 18\/10\/2026/);
+    expect(view.getByTestId("org-inventory-import-3")).toHaveTextContent(/AAC 2026-2 · 6 tiges dont 3 à préserver/);
 
     fireEvent.press(view.getByTestId("org-register-title"));
     fireEvent.changeText(view.getByTestId("title-register-ref"), "CFAD-99");

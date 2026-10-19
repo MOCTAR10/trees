@@ -669,6 +669,8 @@ export interface RegistryTree {
   permit_number: string | null;
   aac_label: string | null;
   aac_id?: number | null;
+  inventory_destination?: InventoryDestination | null;
+  painted_number?: string | null;
   latitude: number | null;
   longitude: number | null;
   created_at: string;
@@ -806,6 +808,151 @@ export async function listRegistryTrees(status?: RegistryStatus): Promise<Regist
   const qs = status ? `?status=${status}` : "";
   const resp = await timedFetch(`${API_BASE}/api/felling/trees${qs}`, { headers: headers() });
   if (!resp.ok) throw new Error(`Registry ${resp.status}`);
+  return resp.json();
+}
+
+export type InventoryDestination = "abattre" | "avenir" | "reserve" | "semencier";
+
+/** Trees to preserve (art. 122): never taken into a felling declaration. */
+export const KEPT_DESTINATIONS: InventoryDestination[] = ["avenir", "reserve", "semencier"];
+
+export interface InventoryColumn {
+  key: string;
+  required: boolean;
+  kind: string;
+  example: string;
+  help: string;
+  legal: string;
+  values: string[];
+}
+
+export interface InventoryModel {
+  version: string;
+  max_rows: number;
+  max_file_mb: number;
+  help: string;
+  columns: InventoryColumn[];
+}
+
+export interface InventoryIssue {
+  code: string;
+  label: string;
+  column: string | null;
+  level: "error" | "warning";
+}
+
+export interface InventoryPreviewRow {
+  line: number;
+  tree_code: string | null;
+  essence: string | null;
+  scientific_name: string | null;
+  dhp_cm: number | null;
+  dme_cm: number | null;
+  destination: InventoryDestination | null;
+  numero_peint: string | null;
+  level: "ok" | "warning" | "error";
+  issues: InventoryIssue[];
+}
+
+export interface InventoryPreview {
+  aac: { id: number; label: string; status: string; ufa_label: string | null; title_reference: string | null };
+  file_name: string;
+  format: "xlsx" | "csv";
+  model_version: string;
+  summary: { rows: number; ok: number; warnings: number; errors: number; to_fell: number; kept: number };
+  file_issues: { code: string; label: string; detail: string | null }[];
+  can_confirm: boolean;
+  rows: InventoryPreviewRow[];
+  import?: { id: number; created_at: string; stems_created: number; tree_codes: string[] };
+}
+
+export interface InventoryImportRecord {
+  id: number;
+  organization_id: number;
+  organization_name: string;
+  aac_id: number | null;
+  aac_label: string | null;
+  title_reference: string | null;
+  imported_by: number | null;
+  imported_by_name: string | null;
+  imported_by_email: string | null;
+  file_name: string;
+  file_format: "xlsx" | "csv";
+  model_version: string;
+  rows_total: number;
+  stems_created: number;
+  to_fell_count: number;
+  kept_count: number;
+  warnings_count: number;
+  created_at: string;
+}
+
+/** Stems the declaration may take from the inventory: to fell (or scanned, no destination). */
+export function isFellable(tree: RegistryTree): boolean {
+  return !tree.inventory_destination || !KEPT_DESTINATIONS.includes(tree.inventory_destination);
+}
+
+export async function getInventoryModel(): Promise<InventoryModel> {
+  const resp = await timedFetch(`${API_BASE}/api/inventory/model`, { headers: headers() });
+  if (!resp.ok) throw new Error(`Inventory model ${resp.status}`);
+  return resp.json();
+}
+
+/** A file picked in the browser (web) — or any Blob with its name. */
+export interface InventoryFile {
+  name: string;
+  blob: Blob;
+}
+
+/** Thrown when the server refuses the file: its French message, as sent. */
+export class InventoryRefusal extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public preview?: Partial<InventoryPreview>,
+  ) {
+    super(message);
+  }
+}
+
+async function postInventory(aacId: number, step: "preview" | "import", file: InventoryFile): Promise<InventoryPreview> {
+  const form = new FormData();
+  form.append("file", file.blob, file.name);
+  const resp = await timedFetch(
+    `${API_BASE}/api/inventory/aacs/${aacId}/${step}`,
+    { method: "POST", body: form, headers: headers() },
+    UPLOAD_TIMEOUT_MS,
+  );
+  if (!resp.ok) {
+    let detail: unknown = null;
+    try {
+      detail = (await resp.json()).detail;
+    } catch {
+      detail = null;
+    }
+    const message =
+      typeof detail === "string"
+        ? detail
+        : detail && typeof detail === "object" && "message" in detail
+          ? String((detail as { message: string }).message)
+          : `Inventaire ${resp.status}`;
+    throw new InventoryRefusal(message, resp.status, (detail as Partial<InventoryPreview>) ?? undefined);
+  }
+  return resp.json();
+}
+
+export function previewInventory(aacId: number, file: InventoryFile): Promise<InventoryPreview> {
+  return postInventory(aacId, "preview", file);
+}
+
+export function confirmInventory(aacId: number, file: InventoryFile): Promise<InventoryPreview> {
+  return postInventory(aacId, "import", file);
+}
+
+export async function listInventoryImports(organizationId?: number): Promise<InventoryImportRecord[]> {
+  const qs = organizationId != null ? `?organization_id=${organizationId}` : "";
+  const resp = await timedFetch(`${API_BASE}/api/inventory/imports${qs}`, { headers: headers() });
+  if (!resp.ok) throw new Error(`Inventory imports ${resp.status}`);
   return resp.json();
 }
 
@@ -2976,6 +3123,7 @@ export interface OrganisationSheetFull {
     is_active: boolean;
   }[];
   certifications: { id: number; scheme: string; cert_type: string; status: string; valid_to: string | null }[];
+  inventoryImports: InventoryImportRecord[];
   warnings: { kind: string; doc_type?: string; status?: string; tax_type?: string; period_year?: number; label?: string }[];
 }
 
@@ -3030,15 +3178,17 @@ export async function getOrganisationSheet(id: number): Promise<OrganisationShee
       titles: OrganisationSheetFull["titles"];
       accounts: OrganisationSheetFull["accounts"];
       certifications: OrganisationSheetFull["certifications"];
+      inventory_imports?: InventoryImportRecord[];
       warnings: OrganisationSheetFull["warnings"];
     }
   >(`/api/organizations/${id}/sheet`, "Sheet");
-  const { titles, accounts, certifications, warnings, ...entry } = raw;
+  const { titles, accounts, certifications, inventory_imports, warnings, ...entry } = raw;
   return {
     entry: { ...(entry as unknown as OrganisationEntry), titles: titles.length, accounts: accounts.length },
     titles,
     accounts,
     certifications,
+    inventoryImports: inventory_imports ?? [],
     warnings,
   };
 }

@@ -14,7 +14,9 @@ import {
 import MillRegister from "../../components/MillRegister";
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
 import { Button, Card, Divider, EmptyState, KeyValue, Pill, ScreenHeader, Txt } from "../../design/ui";
+import { frDate } from "../../design/format";
 import { fr } from "../../i18n/fr";
+import { exportInventoryPlatesPdf, sharePdf } from "../../pdf";
 
 const t = fr.ministry;
 const TITLE_TYPES = ["CFAD", "PFA", "PGG", "FC"] as const;
@@ -211,6 +213,41 @@ export default function OrganisationScreen({ id, onBack }: Props) {
                 value={fr.cert.status[c.status] ?? c.status}
               />
             ))}
+          </Card>
+        ) : null}
+        {data.entry.org_type === "entreprise" ? (
+          <Card style={s.compact} testID="org-inventory-imports">
+            <Txt variant="label" tone="muted">
+              {fr.inventory.ministryTitle}
+            </Txt>
+            {data.inventoryImports.length === 0 ? (
+              <Txt variant="small" tone="muted">
+                {fr.inventory.ministryEmpty}
+              </Txt>
+            ) : (
+              data.inventoryImports.map((i) => (
+                <View key={i.id} style={s.importRow} testID={`org-inventory-import-${i.id}`}>
+                  <View style={s.importText}>
+                    <Txt variant="small" bold>
+                      {`${i.file_name} · ${frDate(i.created_at)}`}
+                    </Txt>
+                    <Txt variant="caption">
+                      {fr.inventory.ministryLine(i.aac_label ?? "—", i.stems_created, i.kept_count)}
+                    </Txt>
+                    <Txt variant="caption" tone="muted">
+                      {[i.imported_by_name ?? i.imported_by_email, i.model_version].filter(Boolean).join(" · ")}
+                    </Txt>
+                  </View>
+                  <Button
+                    compact
+                    variant="ghost"
+                    label={fr.inventory.plates}
+                    onPress={() => void exportInventoryPlatesPdf(i.id).then(sharePdf).catch((err) => console.error("plates", err))}
+                    testID={`org-inventory-plates-${i.id}`}
+                  />
+                </View>
+              ))
+            )}
           </Card>
         ) : null}
         {data.entry.org_type === "entreprise" ? (
@@ -550,6 +587,8 @@ const useStyles = makeStyles((th) => ({
   },
   actions: { flexDirection: "row", gap: th.space.sm },
   compact: { padding: th.space.md, gap: th.space.xs },
+  importRow: { flexDirection: "row", alignItems: "center", gap: th.space.sm, borderTopWidth: 1, borderTopColor: th.c.line, paddingTop: th.space.xs },
+  importText: { flex: 1, gap: 2 },
   row: { flexDirection: "row", alignItems: "center", gap: th.space.sm, paddingVertical: th.space.sm },
   iconBtn: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: th.space.xs },
