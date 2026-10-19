@@ -17,7 +17,7 @@ jest.mock("../src/api/client", () => ({
   listRegistryTrees: jest.fn(async () => [
     { id: 1, tree_code: "GA-INV-01", marking_type: "qr", species_scientific_name: "Aucoumea klaineana", measured_dbh_cm: 82, status: "inventorie", permit_number: null, aac_label: "DEMO-AAC-2026-01", aac_id: 29, latitude: -0.7, longitude: 13.6, created_at: "2026-10-01" },
     { id: 2, tree_code: "GA-INV-02", marking_type: "qr", species_scientific_name: null, measured_dbh_cm: null, status: "inventorie", permit_number: null, aac_label: "DEMO-AAC-2026-02", aac_id: 30, latitude: null, longitude: null, created_at: "2026-10-01" },
-    { id: 3, tree_code: "GA-INV-03", marking_type: "qr", species_scientific_name: "Baillonella toxisperma", measured_dbh_cm: 120, status: "inventorie", permit_number: null, aac_label: "DEMO-AAC-2026-01", aac_id: 29, inventory_destination: "reserve", latitude: -0.7, longitude: 13.6, created_at: "2026-10-01" },
+    { id: 3, tree_code: "GA-INV-03", marking_type: "qr", species_scientific_name: "Baillonella toxisperma", measured_dbh_cm: 120, status: "inventorie", permit_number: null, aac_label: "DEMO-AAC-2026-01", aac_id: 29, inventory_destination: "preserver", latitude: -0.7, longitude: 13.6, created_at: "2026-10-01" },
   ]),
   isFellable: (tree: { inventory_destination?: string | null }) =>
     !tree.inventory_destination || tree.inventory_destination === "abattre",

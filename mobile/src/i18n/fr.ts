@@ -129,7 +129,7 @@ export const fr = {
       no_authorization: "Aucune autorisation délivrée (art. 14)",
       authorization_pending: "Autorisation en attente de décision",
       startup_not_notified: "Démarrage non notifié (art. 14)",
-      kept_tree: "Arbre inventorié à préserver (avenir, réserve, semencier — art. 122)",
+      kept_tree: "Arbre inventorié à préserver (art. 122)",
     } as Record<string, string>,
     noAnomalies: "Aucune anomalie détectée.",
     belowDmeTitle: "Autorisés mais sous DME",
@@ -1892,7 +1892,9 @@ export const fr = {
     rowsTitle: "Lignes à revoir",
     allClear: "Toutes les lignes sont conformes.",
     line: (n: number) => `Ligne ${n}`,
-    generated: "code attribué à l'import",
+    generated: "sans numéro",
+    number: (n: string) => `arbre n° ${n}`,
+    diameter: "Diamètre",
     showMore: (n: number) => `Afficher ${n} lignes de plus`,
     errorsBlock: (n: number) =>
       `${n} ligne${n > 1 ? "s" : ""} en erreur : corrigez le fichier puis renvoyez-le. Rien n'est inscrit tant qu'une erreur demeure.`,
@@ -1911,6 +1913,7 @@ export const fr = {
     error: "Envoi impossible. Vérifiez le fichier et réessayez.",
     destination: {
       abattre: "À abattre",
+      preserver: "À préserver",
       avenir: "Tige d'avenir",
       reserve: "En réserve",
       semencier: "Semencier",

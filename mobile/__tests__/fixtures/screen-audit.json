@@ -174,7 +174,7 @@
     "longitude": 13.62
    },
    {
-    "id": 57,
+    "id": 59,
     "cooperative_name": "Coopérative des Artisans de Ntoum",
     "profile_type": "energy_briquettes",
     "capacity_kg_per_day": null,
@@ -265,7 +265,7 @@
      ],
      "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DP. Interface dédiée prévue après la phase pilote.",
      "count": 2,
-     "oldest_at": "2026-10-19T21:28:47.677099+00:00"
+     "oldest_at": "2026-10-19T23:11:48.891807+00:00"
     },
     {
      "key": "documents",
@@ -276,7 +276,7 @@
      "competent_names": [],
      "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : Selon la pièce. Interface dédiée prévue après la phase pilote.",
      "count": 1,
-     "oldest_at": "2026-10-19T21:28:42.193152+00:00"
+     "oldest_at": "2026-10-19T23:11:43.673749+00:00"
     },
     {
      "key": "authorizations",
@@ -293,7 +293,7 @@
      ],
      "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DGF / DP. Interface dédiée prévue après la phase pilote.",
      "count": 1,
-     "oldest_at": "2026-10-19T21:28:46.664873+00:00"
+     "oldest_at": "2026-10-19T23:11:48.264897+00:00"
     },
     {
      "key": "pao",
@@ -308,7 +308,7 @@
      ],
      "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DP. Interface dédiée prévue après la phase pilote.",
      "count": 1,
-     "oldest_at": "2026-10-19T21:28:46.593950+00:00"
+     "oldest_at": "2026-10-19T23:11:48.230715+00:00"
     },
     {
      "key": "studies",
@@ -340,7 +340,7 @@
      ],
      "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DGF. Interface dédiée prévue après la phase pilote.",
      "count": 1,
-     "oldest_at": "2026-10-19T21:28:49.000214+00:00"
+     "oldest_at": "2026-10-19T23:11:49.731670+00:00"
     },
     {
      "key": "eudr",
@@ -381,7 +381,7 @@
      ],
      "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DGF. Interface dédiée prévue après la phase pilote.",
      "count": 1,
-     "oldest_at": "2026-10-19T21:28:46.190342+00:00"
+     "oldest_at": "2026-10-19T23:11:47.959634+00:00"
     },
     {
      "key": "anomalies",
@@ -428,14 +428,14 @@
    ]
   }
  },
- "admin GET /api/admin/inbox/authorizations/453": {
+ "admin GET /api/admin/inbox/authorizations/465": {
   "status": 200,
   "body": {
-   "id": 453,
+   "id": 465,
    "label": "Certificat de vente de coupe · PILOTE-AAC CPAET 2026",
    "org_name": "Compagnie Forestière de la Nyanga",
-   "created_at": "2026-10-19T21:28:46.664873+00:00",
-   "title_id": 488,
+   "created_at": "2026-10-19T23:11:48.264897+00:00",
+   "title_id": 498,
    "province_code": "GA-5",
    "province_name": "Nyanga",
    "type": "authorizations",
@@ -483,13 +483,13 @@
    "blocking": false
   }
  },
- "admin GET /api/admin/inbox/certifications/247": {
+ "admin GET /api/admin/inbox/certifications/253": {
   "status": 200,
   "body": {
-   "id": 247,
+   "id": 253,
    "label": "LS · PILOTE-LS-12",
    "org_name": "Scierie de Lambaréné",
-   "created_at": "2026-10-19T21:28:49.000214+00:00",
+   "created_at": "2026-10-19T23:11:49.731670+00:00",
    "title_id": null,
    "province_code": null,
    "province_name": null,
@@ -532,14 +532,14 @@
    "blocking": false
   }
  },
- "admin GET /api/admin/inbox/declarations/1073": {
+ "admin GET /api/admin/inbox/declarations/1087": {
   "status": 200,
   "body": {
-   "id": 1073,
-   "label": "Déclaration n° 1073 · CFAD PILOTE-CFAD-HO-01",
+   "id": 1087,
+   "label": "Déclaration n° 1087 · CFAD PILOTE-CFAD-HO-01",
    "org_name": "Bois du Haut-Ogooué",
-   "created_at": "2026-10-19T21:28:47.677099+00:00",
-   "title_id": 487,
+   "created_at": "2026-10-19T23:11:48.891807+00:00",
+   "title_id": 497,
    "province_code": "GA-2",
    "province_name": "Haut-Ogooué",
    "type": "declarations",
@@ -592,13 +592,13 @@
    "blocking": false
   }
  },
- "admin GET /api/admin/inbox/documents/1311": {
+ "admin GET /api/admin/inbox/documents/1347": {
   "status": 200,
   "body": {
-   "id": 1311,
+   "id": 1347,
    "label": "Quittance de la taxe de superficie",
    "org_name": "Compagnie Forestière de la Nyanga",
-   "created_at": "2026-10-19T21:28:42.193152+00:00",
+   "created_at": "2026-10-19T23:11:43.673749+00:00",
    "title_id": null,
    "authority": "DGI",
    "province_code": null,
@@ -758,10 +758,10 @@
     "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DGF. Interface dédiée prévue après la phase pilote."
    },
    {
-    "id": 1311,
+    "id": 1347,
     "label": "Quittance de la taxe de superficie",
     "org_name": "Compagnie Forestière de la Nyanga",
-    "created_at": "2026-10-19T21:28:42.193152+00:00",
+    "created_at": "2026-10-19T23:11:43.673749+00:00",
     "title_id": null,
     "authority": "DGI",
     "province_code": null,
@@ -777,11 +777,11 @@
     "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DGI. Interface dédiée prévue après la phase pilote."
    },
    {
-    "id": 491,
+    "id": 501,
     "label": "PGG · PILOTE-PGG-NY-01",
     "org_name": "Compagnie Forestière de la Nyanga",
-    "created_at": "2026-10-19T21:28:46.190342+00:00",
-    "title_id": 491,
+    "created_at": "2026-10-19T23:11:47.959634+00:00",
+    "title_id": 501,
     "province_code": null,
     "province_name": null,
     "type": "titles",
@@ -796,11 +796,11 @@
     "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DGF. Interface dédiée prévue après la phase pilote."
    },
    {
-    "id": 405,
+    "id": 415,
     "label": "PAO · PILOTE-AAC 2026-2",
     "org_name": "Bois du Haut-Ogooué",
-    "created_at": "2026-10-19T21:28:46.593950+00:00",
-    "title_id": 487,
+    "created_at": "2026-10-19T23:11:48.230715+00:00",
+    "title_id": 497,
     "province_code": "GA-2",
     "province_name": "Haut-Ogooué",
     "type": "pao",
@@ -815,11 +815,11 @@
     "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DP. Interface dédiée prévue après la phase pilote."
    },
    {
-    "id": 453,
+    "id": 465,
     "label": "Certificat de vente de coupe · PILOTE-AAC CPAET 2026",
     "org_name": "Compagnie Forestière de la Nyanga",
-    "created_at": "2026-10-19T21:28:46.664873+00:00",
-    "title_id": 488,
+    "created_at": "2026-10-19T23:11:48.264897+00:00",
+    "title_id": 498,
     "province_code": "GA-5",
     "province_name": "Nyanga",
     "type": "authorizations",
@@ -836,11 +836,11 @@
     "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DGF / DP. Interface dédiée prévue après la phase pilote."
    },
    {
-    "id": 1073,
-    "label": "Déclaration n° 1073 · CFAD PILOTE-CFAD-HO-01",
+    "id": 1087,
+    "label": "Déclaration n° 1087 · CFAD PILOTE-CFAD-HO-01",
     "org_name": "Bois du Haut-Ogooué",
-    "created_at": "2026-10-19T21:28:47.677099+00:00",
-    "title_id": 487,
+    "created_at": "2026-10-19T23:11:48.891807+00:00",
+    "title_id": 497,
     "province_code": "GA-2",
     "province_name": "Haut-Ogooué",
     "type": "declarations",
@@ -855,11 +855,11 @@
     "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DP. Interface dédiée prévue après la phase pilote."
    },
    {
-    "id": 1075,
-    "label": "Déclaration n° 1075 · CFAD PILOTE-CFAD-NY-07",
+    "id": 1089,
+    "label": "Déclaration n° 1089 · CFAD PILOTE-CFAD-NY-07",
     "org_name": "Compagnie Forestière de la Nyanga",
-    "created_at": "2026-10-19T21:28:47.994411+00:00",
-    "title_id": 488,
+    "created_at": "2026-10-19T23:11:49.112484+00:00",
+    "title_id": 498,
     "province_code": "GA-5",
     "province_name": "Nyanga",
     "type": "declarations",
@@ -874,10 +874,10 @@
     "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DP. Interface dédiée prévue après la phase pilote."
    },
    {
-    "id": 247,
+    "id": 253,
     "label": "LS · PILOTE-LS-12",
     "org_name": "Scierie de Lambaréné",
-    "created_at": "2026-10-19T21:28:49.000214+00:00",
+    "created_at": "2026-10-19T23:11:49.731670+00:00",
     "title_id": null,
     "province_code": null,
     "province_name": null,
@@ -893,11 +893,11 @@
     "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DGF. Interface dédiée prévue après la phase pilote."
    },
    {
-    "id": 231,
+    "id": 237,
     "label": "EIE · PILOTE-CFAD-HO-01",
     "org_name": "Bois du Haut-Ogooué",
-    "created_at": "2026-10-19T21:28:49.095270+00:00",
-    "title_id": 487,
+    "created_at": "2026-10-19T23:11:49.780656+00:00",
+    "title_id": 497,
     "province_code": "GA-2",
     "province_name": "Haut-Ogooué",
     "type": "studies",
@@ -914,11 +914,11 @@
     "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DGFAP / DGE. Interface dédiée prévue après la phase pilote."
    },
    {
-    "id": 184,
-    "label": "Diligence RDUE n° 184",
+    "id": 188,
+    "label": "Diligence RDUE n° 188",
     "org_name": "Communauté de Massaha",
-    "created_at": "2026-10-19T21:28:49.221573+00:00",
-    "title_id": 489,
+    "created_at": "2026-10-19T23:11:49.894008+00:00",
+    "title_id": 499,
     "province_code": "GA-6",
     "province_name": "Ogooué-Ivindo",
     "type": "eudr",
@@ -934,14 +934,14 @@
    }
   ]
  },
- "admin GET /api/admin/inbox/pao/405": {
+ "admin GET /api/admin/inbox/pao/415": {
   "status": 200,
   "body": {
-   "id": 405,
+   "id": 415,
    "label": "PAO · PILOTE-AAC 2026-2",
    "org_name": "Bois du Haut-Ogooué",
-   "created_at": "2026-10-19T21:28:46.593950+00:00",
-   "title_id": 487,
+   "created_at": "2026-10-19T23:11:48.230715+00:00",
+   "title_id": 497,
    "province_code": "GA-2",
    "province_name": "Haut-Ogooué",
    "type": "pao",
@@ -1058,14 +1058,14 @@
    "blocking": false
   }
  },
- "admin GET /api/admin/inbox/titles/491": {
+ "admin GET /api/admin/inbox/titles/501": {
   "status": 200,
   "body": {
-   "id": 491,
+   "id": 501,
    "label": "PGG · PILOTE-PGG-NY-01",
    "org_name": "Compagnie Forestière de la Nyanga",
-   "created_at": "2026-10-19T21:28:46.190342+00:00",
-   "title_id": 491,
+   "created_at": "2026-10-19T23:11:47.959634+00:00",
+   "title_id": 501,
    "province_code": null,
    "province_name": null,
    "type": "titles",
@@ -1275,147 +1275,147 @@
     "created_at": "2026-10-13T21:41:11.896460+00:00"
    },
    {
-    "id": 816,
+    "id": 842,
     "email": "hob.dg@pilote.ga",
     "display_name": "Clarisse Moussavou",
     "role": "company",
     "is_active": true,
     "cooperative_id": null,
     "company_id": null,
-    "organization_id": 411,
+    "organization_id": 423,
     "first_name": "Clarisse",
     "last_name": "Moussavou",
     "matricule": null,
-    "created_at": "2026-10-19T21:28:42.498544+00:00"
+    "created_at": "2026-10-19T23:11:43.925429+00:00"
    },
    {
-    "id": 817,
+    "id": 843,
     "email": "hob.agent1@pilote.ga",
     "display_name": "Jean-Baptiste Ndong",
     "role": "operator",
     "is_active": true,
     "cooperative_id": null,
-    "company_id": 816,
-    "organization_id": 411,
+    "company_id": 842,
+    "organization_id": 423,
     "first_name": "Jean-Baptiste",
     "last_name": "Ndong",
     "matricule": "AGT-HOB-01",
-    "created_at": "2026-10-19T21:28:42.801130+00:00"
+    "created_at": "2026-10-19T23:11:44.310624+00:00"
    },
    {
-    "id": 818,
+    "id": 844,
     "email": "hob.agent2@pilote.ga",
     "display_name": "Prisca Mba",
     "role": "operator",
     "is_active": true,
     "cooperative_id": null,
-    "company_id": 816,
-    "organization_id": 411,
+    "company_id": 842,
+    "organization_id": 423,
     "first_name": "Prisca",
     "last_name": "Mba",
     "matricule": "AGT-HOB-02",
-    "created_at": "2026-10-19T21:28:43.113793+00:00"
+    "created_at": "2026-10-19T23:11:44.600556+00:00"
    },
    {
-    "id": 819,
+    "id": 845,
     "email": "cfn.dg@pilote.ga",
     "display_name": "Hervé Boussougou",
     "role": "company",
     "is_active": true,
     "cooperative_id": null,
     "company_id": null,
-    "organization_id": 412,
+    "organization_id": 424,
     "first_name": "Hervé",
     "last_name": "Boussougou",
     "matricule": null,
-    "created_at": "2026-10-19T21:28:43.376863+00:00"
+    "created_at": "2026-10-19T23:11:45.009066+00:00"
    },
    {
-    "id": 820,
+    "id": 846,
     "email": "cfn.agent1@pilote.ga",
     "display_name": "Rodrigue Mouketou",
     "role": "operator",
     "is_active": true,
     "cooperative_id": null,
-    "company_id": 819,
-    "organization_id": 412,
+    "company_id": 845,
+    "organization_id": 424,
     "first_name": "Rodrigue",
     "last_name": "Mouketou",
     "matricule": "AGT-CFN-01",
-    "created_at": "2026-10-19T21:28:43.655786+00:00"
+    "created_at": "2026-10-19T23:11:45.361098+00:00"
    },
    {
-    "id": 821,
+    "id": 847,
     "email": "sdl.dg@pilote.ga",
     "display_name": "Sylvie Nziengui",
     "role": "company",
     "is_active": true,
     "cooperative_id": null,
     "company_id": null,
-    "organization_id": 413,
+    "organization_id": 425,
     "first_name": "Sylvie",
     "last_name": "Nziengui",
     "matricule": null,
-    "created_at": "2026-10-19T21:28:44.016915+00:00"
+    "created_at": "2026-10-19T23:11:45.632255+00:00"
    },
    {
-    "id": 822,
+    "id": 848,
     "email": "gte.dg@pilote.ga",
     "display_name": "Marc Obame",
     "role": "company",
     "is_active": true,
     "cooperative_id": null,
     "company_id": null,
-    "organization_id": 414,
+    "organization_id": 426,
     "first_name": "Marc",
     "last_name": "Obame",
     "matricule": null,
-    "created_at": "2026-10-19T21:28:44.299260+00:00"
+    "created_at": "2026-10-19T23:11:45.920519+00:00"
    },
    {
-    "id": 823,
+    "id": 849,
     "email": "mas.chef@pilote.ga",
     "display_name": "Albert Ondo",
     "role": "company",
     "is_active": true,
     "cooperative_id": null,
     "company_id": null,
-    "organization_id": 415,
+    "organization_id": 427,
     "first_name": "Albert",
     "last_name": "Ondo",
     "matricule": null,
-    "created_at": "2026-10-19T21:28:44.572529+00:00"
+    "created_at": "2026-10-19T23:11:46.196107+00:00"
    },
    {
-    "id": 824,
+    "id": 850,
     "email": "mas.agent1@pilote.ga",
     "display_name": "Gaston Ella",
     "role": "operator",
     "is_active": true,
     "cooperative_id": null,
-    "company_id": 823,
-    "organization_id": 415,
+    "company_id": 849,
+    "organization_id": 427,
     "first_name": "Gaston",
     "last_name": "Ella",
     "matricule": "AGT-MAS-01",
-    "created_at": "2026-10-19T21:28:44.824929+00:00"
+    "created_at": "2026-10-19T23:11:46.455631+00:00"
    },
    {
-    "id": 825,
+    "id": 851,
     "email": "can.pres@pilote.ga",
     "display_name": "Esther Mabika",
     "role": "cooperative",
     "is_active": true,
-    "cooperative_id": 57,
+    "cooperative_id": 59,
     "company_id": null,
-    "organization_id": 416,
+    "organization_id": 428,
     "first_name": "Esther",
     "last_name": "Mabika",
     "matricule": null,
-    "created_at": "2026-10-19T21:28:45.181282+00:00"
+    "created_at": "2026-10-19T23:11:46.957263+00:00"
    },
    {
-    "id": 826,
+    "id": 852,
     "email": "mef.dp2@pilote.ga",
     "display_name": "Paul Nguema",
     "role": "admin",
@@ -1426,10 +1426,10 @@
     "first_name": "Paul",
     "last_name": "Nguema",
     "matricule": "MEF-DP2-01",
-    "created_at": "2026-10-19T21:28:45.456567+00:00"
+    "created_at": "2026-10-19T23:11:47.286192+00:00"
    },
    {
-    "id": 827,
+    "id": 853,
     "email": "mef.brigade@pilote.ga",
     "display_name": "Aline Kombila",
     "role": "admin",
@@ -1440,21 +1440,21 @@
     "first_name": "Aline",
     "last_name": "Kombila",
     "matricule": "MEF-BRG-01",
-    "created_at": "2026-10-19T21:28:45.705008+00:00"
+    "created_at": "2026-10-19T23:11:47.559421+00:00"
    },
    {
-    "id": 828,
+    "id": 854,
     "email": "hob.agent3@pilote.ga",
     "display_name": "Rodrigue Mintsa",
     "role": "operator",
     "is_active": false,
     "cooperative_id": null,
-    "company_id": 816,
-    "organization_id": 411,
+    "company_id": 842,
+    "organization_id": 423,
     "first_name": "Rodrigue",
     "last_name": "Mintsa",
     "matricule": "PILOTE-AGT-3",
-    "created_at": "2026-10-19T21:28:50.282243+00:00"
+    "created_at": "2026-10-19T23:11:50.806421+00:00"
    }
   ]
  },
@@ -1580,10 +1580,10 @@
     "type": "documents_expires",
     "severity": "warning",
     "label": "Document requis expiré",
-    "subject_key": "document:1312",
+    "subject_key": "document:1348",
     "subject": "Quittance de la redevance de surveillance",
     "detail": "Quittance de la redevance de surveillance — échéance 04/10/2026 (autorité : AGEOS / Trésor)",
-    "org_id": 412,
+    "org_id": 424,
     "org_name": "Compagnie Forestière de la Nyanga",
     "title_id": null,
     "title_ref": null,
@@ -1591,7 +1591,7 @@
     "aac_label": null,
     "detected_at": "2026-10-04",
     "document": {
-     "id": 1312,
+     "id": 1348,
      "doc_type": "quittance_redevance_surveillance",
      "label": "Quittance de la redevance de surveillance",
      "status": "valide",
@@ -1599,16 +1599,16 @@
     },
     "review_status": "traitee",
     "review_motif": "PV transmis à la Direction Provinciale",
-    "reviewed_at": "2026-10-19T21:28:49.740245+00:00"
+    "reviewed_at": "2026-10-19T23:11:50.280399+00:00"
    },
    {
     "type": "taxes_impayees",
     "severity": "warning",
     "label": "Échéance fiscale impayée",
-    "subject_key": "due:260",
+    "subject_key": "due:266",
     "subject": "Taxe de superficie 2026",
     "detail": "Échéance 20/08/2026 — 19 200 000 FCFA non réglés (double droit, art. 283)",
-    "org_id": 412,
+    "org_id": 424,
     "org_name": "Compagnie Forestière de la Nyanga",
     "title_id": null,
     "title_ref": null,
@@ -1617,7 +1617,7 @@
     "detected_at": "2026-08-20",
     "review_status": "ecartee",
     "review_motif": "Écart justifié : pièce en renouvellement",
-    "reviewed_at": "2026-10-19T21:28:49.757783+00:00"
+    "reviewed_at": "2026-10-19T23:11:50.295001+00:00"
    },
    {
     "type": "taxes_impayees",
@@ -1644,13 +1644,13 @@
     "subject_key": "GA-PILOTE-0005",
     "subject": "GA-PILOTE-0005",
     "detail": "Pterocarpus soyauxii CITES sans permis d'exportation valide",
-    "org_id": 411,
+    "org_id": 423,
     "org_name": "Bois du Haut-Ogooué",
     "title_id": null,
     "title_ref": null,
     "aac_id": null,
     "aac_label": null,
-    "detected_at": "2026-10-19T21:28:47.326041+00:00",
+    "detected_at": "2026-10-19T23:11:48.669561+00:00",
     "review_status": "ouverte",
     "review_motif": null,
     "reviewed_at": null
@@ -1731,16 +1731,16 @@
     "type": "controle_non_conforme",
     "severity": "hard",
     "label": "Contrôle terrain non conforme",
-    "subject_key": "control-333",
+    "subject_key": "control-341",
     "subject": "GA-PILOTE-0016",
     "detail": "marquage — Empreinte du marteau absente sur la tige",
-    "org_id": 411,
+    "org_id": 423,
     "org_name": "Bois du Haut-Ogooué",
     "title_id": null,
     "title_ref": null,
-    "aac_id": 404,
+    "aac_id": 414,
     "aac_label": "PILOTE-AAC 2026-1",
-    "detected_at": "2026-10-19T21:28:49.486084+00:00",
+    "detected_at": "2026-10-19T23:11:50.138046+00:00",
     "review_status": "ouverte",
     "review_motif": null,
     "reviewed_at": null
@@ -1785,14 +1785,14 @@
     "type": "aac_ouverture_depassee",
     "severity": "warning",
     "label": "AAC ouverte au-delà de 3 ans (art. 121)",
-    "subject_key": "aac:408",
+    "subject_key": "aac:418",
     "subject": "PILOTE-AAC FC 2026",
     "detail": "Ouverte le 29/09/2023 · limite 29/09/2026",
-    "org_id": 415,
+    "org_id": 427,
     "org_name": "Communauté de Massaha",
-    "title_id": 489,
+    "title_id": 499,
     "title_ref": "PILOTE-FC-OI-03",
-    "aac_id": 408,
+    "aac_id": 418,
     "aac_label": "PILOTE-AAC FC 2026",
     "detected_at": "2026-09-29",
     "review_status": "ouverte",
@@ -1839,10 +1839,10 @@
     "type": "etat_annuel_non_transmis",
     "severity": "warning",
     "label": "État annuel non transmis au 31 mars (art. 244)",
-    "subject_key": "etat:415:2025",
+    "subject_key": "etat:427:2025",
     "subject": "État annuel 2025",
     "detail": "Échéance dépassée : 31/03/2026",
-    "org_id": 415,
+    "org_id": 427,
     "org_name": "Communauté de Massaha",
     "title_id": null,
     "title_ref": null,
@@ -2004,8 +2004,8 @@
   "status": 200,
   "body": [
    {
-    "id": 247,
-    "org_id": 413,
+    "id": 253,
+    "org_id": 425,
     "title_id": null,
     "scheme": "LS",
     "cert_type": "legalite_plus",
@@ -2013,18 +2013,18 @@
     "surface_ha": null,
     "valid_from": null,
     "valid_to": "2028-09-18",
-    "declared_by": 821,
+    "declared_by": 847,
     "verified_by": null,
     "verified_at": null,
     "decision_motif": null,
-    "created_at": "2026-10-19T21:28:49.000214+00:00",
+    "created_at": "2026-10-19T23:11:49.731670+00:00",
     "status": "soumis",
     "org_name": "Scierie de Lambaréné",
     "title_ref": null
    },
    {
-    "id": 246,
-    "org_id": 414,
+    "id": 252,
+    "org_id": 426,
     "title_id": null,
     "scheme": "OLB",
     "cert_type": "legalite_plus",
@@ -2032,30 +2032,30 @@
     "surface_ha": null,
     "valid_from": null,
     "valid_to": null,
-    "declared_by": 822,
+    "declared_by": 848,
     "verified_by": 1,
-    "verified_at": "2026-10-19T21:28:48.985020+00:00",
+    "verified_at": "2026-10-19T23:11:49.725262+00:00",
     "decision_motif": "Certificat non vérifiable auprès de l'organisme",
-    "created_at": "2026-10-19T21:28:48.966465+00:00",
+    "created_at": "2026-10-19T23:11:49.717797+00:00",
     "status": "rejete",
     "org_name": "Gabon Timber Export",
     "title_ref": null
    },
    {
-    "id": 245,
-    "org_id": 411,
-    "title_id": 487,
+    "id": 251,
+    "org_id": 423,
+    "title_id": 497,
     "scheme": "FSC",
     "cert_type": "gestion_durable",
     "certificate_ref": "PILOTE-FSC-FM-0042",
     "surface_ha": 118500,
     "valid_from": "2025-12-23",
     "valid_to": "2026-11-28",
-    "declared_by": 816,
+    "declared_by": 842,
     "verified_by": 1,
-    "verified_at": "2026-10-19T21:28:48.958185+00:00",
+    "verified_at": "2026-10-19T23:11:49.711052+00:00",
     "decision_motif": null,
-    "created_at": "2026-10-19T21:28:48.935261+00:00",
+    "created_at": "2026-10-19T23:11:49.694238+00:00",
     "status": "actif",
     "org_name": "Bois du Haut-Ogooué",
     "title_ref": "PILOTE-CFAD-HO-01"
@@ -2122,9 +2122,9 @@
   "status": 200,
   "body": [
    {
-    "id": 97,
-    "title_id": 487,
-    "community_org_id": 415,
+    "id": 99,
+    "title_id": 497,
+    "community_org_id": 427,
     "ccc_ref": "PILOTE-CCC-2026",
     "ccc_signed_at": "2026-05-22",
     "fdl_rate_fcfa_m3": 800,
@@ -2132,7 +2132,7 @@
     "contribution_fcfa": 33600000,
     "cgsp_minutes_document_id": null,
     "status": "actif",
-    "created_at": "2026-10-19T21:28:49.267406+00:00",
+    "created_at": "2026-10-19T23:11:49.945305+00:00",
     "title_ref": "PILOTE-CFAD-HO-01",
     "community_name": "Communauté de Massaha"
    },
@@ -2191,19 +2191,19 @@
   "status": 200,
   "body": [
    {
-    "id": 335,
+    "id": 343,
     "control_type": "transformation",
     "result": "reserve",
     "tree_code": null,
     "transport_document_id": null,
     "aac_id": null,
     "aac_label": null,
-    "org_id": 413,
+    "org_id": 425,
     "org_name": "Scierie de Lambaréné",
     "notes": "Registre d'entrées incomplet pour mars",
     "pv_reference": "PILOTE-PV-T-004",
     "findings": "[]",
-    "controlled_at": "2026-10-19T21:28:49.533684+00:00",
+    "controlled_at": "2026-10-19T23:11:50.156821+00:00",
     "controlled_by_name": "Aline Kombila",
     "latitude": null,
     "longitude": null,
@@ -2217,19 +2217,19 @@
     "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DGICBVPF. Interface dédiée prévue après la phase pilote."
    },
    {
-    "id": 334,
+    "id": 342,
     "control_type": "visa_df10",
     "result": "conforme",
     "tree_code": null,
     "transport_document_id": null,
-    "aac_id": 404,
+    "aac_id": 414,
     "aac_label": "PILOTE-AAC 2026-1",
-    "org_id": 411,
+    "org_id": 423,
     "org_name": "Bois du Haut-Ogooué",
     "notes": "Carnet visé, entrées à jour",
     "pv_reference": "PILOTE-PV-V-003",
     "findings": "[]",
-    "controlled_at": "2026-10-19T21:28:49.505018+00:00",
+    "controlled_at": "2026-10-19T23:11:50.149487+00:00",
     "controlled_by_name": "Paul Nguema",
     "latitude": null,
     "longitude": null,
@@ -2243,19 +2243,19 @@
     "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DP. Interface dédiée prévue après la phase pilote."
    },
    {
-    "id": 333,
+    "id": 341,
     "control_type": "marquage",
     "result": "non_conforme",
     "tree_code": "GA-PILOTE-0016",
     "transport_document_id": null,
-    "aac_id": 404,
+    "aac_id": 414,
     "aac_label": "PILOTE-AAC 2026-1",
-    "org_id": 411,
+    "org_id": 423,
     "org_name": "Bois du Haut-Ogooué",
     "notes": "Empreinte du marteau absente sur la tige",
     "pv_reference": "PILOTE-PV-M-002",
     "findings": "[{\"label\": \"Arbre inscrit au registre\", \"level\": \"ok\"}, {\"label\": \"AAC autorisée (art. 14)\", \"level\": \"ok\"}, {\"label\": \"Empreinte du marteau non saisie\", \"level\": \"warn\"}]",
-    "controlled_at": "2026-10-19T21:28:49.486084+00:00",
+    "controlled_at": "2026-10-19T23:11:50.138046+00:00",
     "controlled_by_name": "Paul Nguema",
     "latitude": null,
     "longitude": null,
@@ -2269,19 +2269,19 @@
     "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DP. Interface dédiée prévue après la phase pilote."
    },
    {
-    "id": 332,
+    "id": 340,
     "control_type": "route",
     "result": "conforme",
     "tree_code": "GA-PILOTE-0004",
-    "transport_document_id": 422,
-    "aac_id": 404,
+    "transport_document_id": 430,
+    "aac_id": 414,
     "aac_label": "PILOTE-AAC 2026-1",
-    "org_id": 411,
+    "org_id": 423,
     "org_name": "Bois du Haut-Ogooué",
     "notes": null,
     "pv_reference": "PILOTE-PV-R-001",
-    "findings": "[{\"label\": \"Arbre inscrit au registre\", \"level\": \"ok\"}, {\"label\": \"AAC autorisée (art. 14)\", \"level\": \"ok\"}, {\"label\": \"Empreinte du marteau non saisie\", \"level\": \"warn\"}, {\"label\": \"Inscrit au DF10 (DF10-2026-001981)\", \"level\": \"ok\"}, {\"label\": \"Couvert par le bordereau PILOTE-BDR-002\", \"level\": \"ok\"}]",
-    "controlled_at": "2026-10-19T21:28:49.462475+00:00",
+    "findings": "[{\"label\": \"Arbre inscrit au registre\", \"level\": \"ok\"}, {\"label\": \"AAC autorisée (art. 14)\", \"level\": \"ok\"}, {\"label\": \"Empreinte du marteau non saisie\", \"level\": \"warn\"}, {\"label\": \"Inscrit au DF10 (DF10-2026-002040)\", \"level\": \"ok\"}, {\"label\": \"Couvert par le bordereau PILOTE-BDR-002\", \"level\": \"ok\"}]",
+    "controlled_at": "2026-10-19T23:11:50.111969+00:00",
     "controlled_by_name": "Aline Kombila",
     "latitude": -0.71,
     "longitude": 13.1,
@@ -2409,8 +2409,8 @@
     "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DGF. Interface dédiée prévue après la phase pilote."
    },
    {
-    "id": 77,
-    "control_id": 333,
+    "id": 81,
+    "control_id": 341,
     "action_type": "mise_en_demeure",
     "amount_fcfa": null,
     "reference": null,
@@ -2422,8 +2422,8 @@
     "decision_motif": null,
     "close_motif": null,
     "closed_at": null,
-    "created_at": "2026-10-19T21:28:50.840871+00:00",
-    "org_id": 411,
+    "created_at": "2026-10-19T23:11:51.246168+00:00",
+    "org_id": 423,
     "pv_reference": "PILOTE-PV-M-002",
     "control_type": "marquage",
     "org_name": "Bois du Haut-Ogooué",
@@ -2444,7 +2444,7 @@
  "admin GET /api/dashboard": {
   "status": 200,
   "body": {
-   "generated_at": "2026-10-19T21:50:38.101732+00:00",
+   "generated_at": "2026-10-19T23:16:03.081865+00:00",
    "harvest": {
     "registry_stems": 35,
     "stems_felled": 20,
@@ -2511,7 +2511,7 @@
     "linked_scans": 8,
     "by_aac": [
      {
-      "aac_id": 404,
+      "aac_id": 414,
       "aac_label": "PILOTE-AAC 2026-1",
       "title_ref": "PILOTE-CFAD-HO-01",
       "scans": 6,
@@ -2525,7 +2525,7 @@
       "co2e_kg": 70356.8
      },
      {
-      "aac_id": 408,
+      "aac_id": 418,
       "aac_label": "PILOTE-AAC FC 2026",
       "title_ref": "PILOTE-FC-OI-03",
       "scans": 1,
@@ -2661,9 +2661,9 @@
   "status": 200,
   "body": [
    {
-    "id": 1321,
+    "id": 1357,
     "scope_type": "company",
-    "scope_id": 415,
+    "scope_id": 427,
     "doc_type": "quittance_taxe_superficie",
     "authority": null,
     "reference": null,
@@ -2674,12 +2674,12 @@
     "verified_by": null,
     "verified_at": null,
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.325702+00:00"
+    "created_at": "2026-10-19T23:11:43.753779+00:00"
    },
    {
-    "id": 1320,
+    "id": 1356,
     "scope_type": "company",
-    "scope_id": 415,
+    "scope_id": 427,
     "doc_type": "certificat_annuel_exploitation_cae",
     "authority": null,
     "reference": null,
@@ -2690,12 +2690,12 @@
     "verified_by": null,
     "verified_at": null,
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.318859+00:00"
+    "created_at": "2026-10-19T23:11:43.750153+00:00"
    },
    {
-    "id": 1319,
+    "id": 1355,
     "scope_type": "company",
-    "scope_id": 415,
+    "scope_id": 427,
     "doc_type": "convention_gestion_fc",
     "authority": null,
     "reference": null,
@@ -2706,12 +2706,12 @@
     "verified_by": null,
     "verified_at": null,
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.309200+00:00"
+    "created_at": "2026-10-19T23:11:43.747237+00:00"
    },
    {
-    "id": 1318,
+    "id": 1354,
     "scope_type": "company",
-    "scope_id": 415,
+    "scope_id": 427,
     "doc_type": "plan_simple_gestion",
     "authority": null,
     "reference": null,
@@ -2722,12 +2722,12 @@
     "verified_by": null,
     "verified_at": null,
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.304140+00:00"
+    "created_at": "2026-10-19T23:11:43.741762+00:00"
    },
    {
-    "id": 1317,
+    "id": 1353,
     "scope_type": "company",
-    "scope_id": 414,
+    "scope_id": 426,
     "doc_type": "quittance_taxe_abattage_export",
     "authority": null,
     "reference": null,
@@ -2738,12 +2738,12 @@
     "verified_by": null,
     "verified_at": null,
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.281190+00:00"
+    "created_at": "2026-10-19T23:11:43.727000+00:00"
    },
    {
-    "id": 1316,
+    "id": 1352,
     "scope_type": "company",
-    "scope_id": 414,
+    "scope_id": 426,
     "doc_type": "agrement_vente",
     "authority": null,
     "reference": null,
@@ -2754,44 +2754,44 @@
     "verified_by": null,
     "verified_at": null,
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.270422+00:00"
+    "created_at": "2026-10-19T23:11:43.722773+00:00"
    },
    {
-    "id": 1315,
+    "id": 1351,
     "scope_type": "company",
-    "scope_id": 413,
+    "scope_id": 425,
     "doc_type": "certificat_conformite_pdi",
     "authority": null,
     "reference": "PILOTE-DOC-SDL-certificat_conformite_pdi",
     "issued_at": "2026-08-20",
     "expires_at": "2027-08-15",
     "status": "valide",
-    "submitted_by": 821,
+    "submitted_by": 847,
     "verified_by": 1,
-    "verified_at": "2026-10-19T21:28:47.163024+00:00",
+    "verified_at": "2026-10-19T23:11:48.558034+00:00",
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.244237+00:00"
+    "created_at": "2026-10-19T23:11:43.707324+00:00"
    },
    {
-    "id": 1314,
+    "id": 1350,
     "scope_type": "company",
-    "scope_id": 413,
+    "scope_id": 425,
     "doc_type": "certificat_conformite_pi",
     "authority": null,
     "reference": "PILOTE-DOC-SDL-certificat_conformite_pi",
     "issued_at": "2026-08-20",
     "expires_at": "2027-08-15",
     "status": "valide",
-    "submitted_by": 821,
+    "submitted_by": 847,
     "verified_by": 1,
-    "verified_at": "2026-10-19T21:28:47.185868+00:00",
+    "verified_at": "2026-10-19T23:11:48.573888+00:00",
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.238932+00:00"
+    "created_at": "2026-10-19T23:11:43.701857+00:00"
    },
    {
-    "id": 1313,
+    "id": 1349,
     "scope_type": "company",
-    "scope_id": 413,
+    "scope_id": 425,
     "doc_type": "agrement_transformation",
     "authority": null,
     "reference": null,
@@ -2802,44 +2802,44 @@
     "verified_by": null,
     "verified_at": null,
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.227361+00:00"
+    "created_at": "2026-10-19T23:11:43.696955+00:00"
    },
    {
-    "id": 1312,
+    "id": 1348,
     "scope_type": "company",
-    "scope_id": 412,
+    "scope_id": 424,
     "doc_type": "quittance_redevance_surveillance",
     "authority": null,
     "reference": "PILOTE-DOC-CFN-1",
     "issued_at": "2025-09-14",
     "expires_at": "2026-10-04",
     "status": "expire",
-    "submitted_by": 819,
+    "submitted_by": 845,
     "verified_by": 1,
-    "verified_at": "2026-10-19T21:28:47.118865+00:00",
+    "verified_at": "2026-10-19T23:11:48.527895+00:00",
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.202649+00:00"
+    "created_at": "2026-10-19T23:11:43.680025+00:00"
    },
    {
-    "id": 1311,
+    "id": 1347,
     "scope_type": "company",
-    "scope_id": 412,
+    "scope_id": 424,
     "doc_type": "quittance_taxe_superficie",
     "authority": null,
     "reference": "PILOTE-DOC-CFN-2",
     "issued_at": "2026-10-09",
     "expires_at": "2027-10-09",
     "status": "soumis",
-    "submitted_by": 819,
+    "submitted_by": 845,
     "verified_by": null,
     "verified_at": null,
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.193152+00:00"
+    "created_at": "2026-10-19T23:11:43.673749+00:00"
    },
    {
-    "id": 1310,
+    "id": 1346,
     "scope_type": "company",
-    "scope_id": 412,
+    "scope_id": 424,
     "doc_type": "agrement_exploitation",
     "authority": null,
     "reference": null,
@@ -2850,103 +2850,103 @@
     "verified_by": null,
     "verified_at": null,
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.187249+00:00"
+    "created_at": "2026-10-19T23:11:43.668479+00:00"
    },
    {
-    "id": 1309,
+    "id": 1345,
     "scope_type": "company",
-    "scope_id": 411,
+    "scope_id": 423,
     "doc_type": "certificat_conformite_pdi",
     "authority": null,
     "reference": "PILOTE-DOC-certificat_conformite_pdi-v2",
     "issued_at": "2026-04-02",
     "expires_at": "2028-03-02",
     "status": "valide",
-    "submitted_by": 816,
+    "submitted_by": 842,
     "verified_by": 1,
-    "verified_at": "2026-10-19T21:28:46.997649+00:00",
+    "verified_at": "2026-10-19T23:11:48.463010+00:00",
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.147510+00:00"
+    "created_at": "2026-10-19T23:11:43.657506+00:00"
    },
    {
-    "id": 1308,
+    "id": 1344,
     "scope_type": "company",
-    "scope_id": 411,
+    "scope_id": 423,
     "doc_type": "certificat_conformite_pi",
     "authority": null,
     "reference": "PILOTE-DOC-certificat_conformite_pi",
     "issued_at": "2026-04-02",
     "expires_at": "2028-03-02",
     "status": "valide",
-    "submitted_by": 816,
+    "submitted_by": 842,
     "verified_by": 1,
-    "verified_at": "2026-10-19T21:28:47.024299+00:00",
+    "verified_at": "2026-10-19T23:11:48.469207+00:00",
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.137689+00:00"
+    "created_at": "2026-10-19T23:11:43.654799+00:00"
    },
    {
-    "id": 1307,
+    "id": 1343,
     "scope_type": "company",
-    "scope_id": 411,
+    "scope_id": 423,
     "doc_type": "quittance_redevance_surveillance",
     "authority": null,
     "reference": "PILOTE-DOC-quittance_redevance_surveillance",
     "issued_at": "2026-04-02",
     "expires_at": "2028-03-02",
     "status": "valide",
-    "submitted_by": 816,
+    "submitted_by": 842,
     "verified_by": 1,
-    "verified_at": "2026-10-19T21:28:47.044416+00:00",
+    "verified_at": "2026-10-19T23:11:48.481537+00:00",
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.123960+00:00"
+    "created_at": "2026-10-19T23:11:43.652152+00:00"
    },
    {
-    "id": 1306,
+    "id": 1342,
     "scope_type": "company",
-    "scope_id": 411,
+    "scope_id": 423,
     "doc_type": "quittance_taxe_superficie",
     "authority": null,
     "reference": "PILOTE-DOC-quittance_taxe_superficie",
     "issued_at": "2026-04-02",
     "expires_at": "2028-03-02",
     "status": "valide",
-    "submitted_by": 816,
+    "submitted_by": 842,
     "verified_by": 1,
-    "verified_at": "2026-10-19T21:28:47.055437+00:00",
+    "verified_at": "2026-10-19T23:11:48.487618+00:00",
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.113189+00:00"
+    "created_at": "2026-10-19T23:11:43.649462+00:00"
    },
    {
-    "id": 1305,
+    "id": 1341,
     "scope_type": "company",
-    "scope_id": 411,
+    "scope_id": 423,
     "doc_type": "agrement_transformation",
     "authority": null,
     "reference": "PILOTE-DOC-agrement_transformation",
     "issued_at": "2026-04-02",
     "expires_at": "2028-03-02",
     "status": "valide",
-    "submitted_by": 816,
+    "submitted_by": 842,
     "verified_by": 1,
-    "verified_at": "2026-10-19T21:28:47.072958+00:00",
+    "verified_at": "2026-10-19T23:11:48.496308+00:00",
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.101416+00:00"
+    "created_at": "2026-10-19T23:11:43.646042+00:00"
    },
    {
-    "id": 1304,
+    "id": 1340,
     "scope_type": "company",
-    "scope_id": 411,
+    "scope_id": 423,
     "doc_type": "agrement_exploitation",
     "authority": null,
     "reference": "PILOTE-DOC-agrement_exploitation",
     "issued_at": "2026-04-02",
     "expires_at": "2028-03-02",
     "status": "valide",
-    "submitted_by": 816,
+    "submitted_by": 842,
     "verified_by": 1,
-    "verified_at": "2026-10-19T21:28:47.085968+00:00",
+    "verified_at": "2026-10-19T23:11:48.505186+00:00",
     "notes": null,
-    "created_at": "2026-10-19T21:28:42.084856+00:00"
+    "created_at": "2026-10-19T23:11:43.636611+00:00"
    },
    {
     "id": 1002,
@@ -3365,9 +3365,9 @@
   "status": 200,
   "body": [
    {
-    "id": 184,
-    "org_id": 415,
-    "title_id": 489,
+    "id": 188,
+    "org_id": 427,
+    "title_id": 499,
     "parcel_label": "PILOTE-Parcelle FC 2026",
     "consultation_document_id": null,
     "geolocated_stem_count": 1,
@@ -3377,19 +3377,19 @@
     "declared_volume_m3": null,
     "notes": null,
     "status": "soumis",
-    "submitted_by": 823,
+    "submitted_by": 849,
     "decided_by": null,
     "decided_at": null,
     "decision_motif": null,
-    "created_at": "2026-10-19T21:28:49.221573+00:00",
+    "created_at": "2026-10-19T23:11:49.894008+00:00",
     "parcel_wkt": "POLYGON((12.7 0.42,12.719999999999999 0.42,12.719999999999999 0.44,12.7 0.44,12.7 0.42))",
     "title_ref": "PILOTE-FC-OI-03",
     "org_name": "Communauté de Massaha"
    },
    {
-    "id": 183,
-    "org_id": 411,
-    "title_id": 487,
+    "id": 187,
+    "org_id": 423,
+    "title_id": 497,
     "parcel_label": "PILOTE-Parcelle AAC 2026-1",
     "consultation_document_id": null,
     "geolocated_stem_count": 7,
@@ -3399,11 +3399,11 @@
     "declared_volume_m3": 82.5,
     "notes": "Grumes géolocalisées à la souche",
     "status": "valide",
-    "submitted_by": 816,
+    "submitted_by": 842,
     "decided_by": 1,
-    "decided_at": "2026-10-19T21:28:49.206338+00:00",
+    "decided_at": "2026-10-19T23:11:49.882201+00:00",
     "decision_motif": null,
-    "created_at": "2026-10-19T21:28:49.176006+00:00",
+    "created_at": "2026-10-19T23:11:49.841222+00:00",
     "parcel_wkt": "POLYGON((13.6 -0.78,13.62 -0.78,13.62 -0.76,13.6 -0.76,13.6 -0.78))",
     "title_ref": "PILOTE-CFAD-HO-01",
     "org_name": "Bois du Haut-Ogooué"
@@ -3436,8 +3436,8 @@
   "status": 200,
   "body": [
    {
-    "id": 1076,
-    "company_id": 816,
+    "id": 1090,
+    "company_id": 842,
     "permit_type": "CFAD",
     "permit_number": "PILOTE-CFAD-HO-01",
     "ufa_label": "PILOTE-UFA Okondja I",
@@ -3446,16 +3446,16 @@
     "status": "autorisee",
     "decision_motif": null,
     "decided_by": 1,
-    "decided_at": "2026-10-19T21:28:50.431503+00:00",
-    "created_at": "2026-10-19T21:28:50.350799+00:00",
-    "title_id": 487,
-    "aac_id": 404,
-    "compliance": "{\"blockers\": [], \"warnings\": [], \"compliant\": true, \"declaration_id\": 1076}",
+    "decided_at": "2026-10-19T23:11:50.912043+00:00",
+    "created_at": "2026-10-19T23:11:50.858432+00:00",
+    "title_id": 497,
+    "aac_id": 414,
+    "compliance": "{\"blockers\": [], \"warnings\": [], \"compliant\": true, \"declaration_id\": 1090}",
     "line_count": 2
    },
    {
-    "id": 1075,
-    "company_id": 819,
+    "id": 1089,
+    "company_id": 845,
     "permit_type": "CFAD",
     "permit_number": "PILOTE-CFAD-NY-07",
     "ufa_label": "PILOTE-UFA Tchibanga",
@@ -3465,15 +3465,15 @@
     "decision_motif": null,
     "decided_by": null,
     "decided_at": null,
-    "created_at": "2026-10-19T21:28:47.994411+00:00",
-    "title_id": 488,
-    "aac_id": 407,
-    "compliance": "{\"blockers\": [], \"warnings\": [{\"kind\": \"document\", \"status\": \"manquant\", \"doc_type\": \"agrement_exploitation\"}, {\"kind\": \"document\", \"status\": \"soumis\", \"doc_type\": \"quittance_taxe_superficie\"}, {\"kind\": \"document\", \"status\": \"expire\", \"doc_type\": \"quittance_redevance_surveillance\"}, {\"id\": 488, \"kind\": \"title\", \"status\": \"provisoire\"}], \"compliant\": true, \"declaration_id\": 1075}",
+    "created_at": "2026-10-19T23:11:49.112484+00:00",
+    "title_id": 498,
+    "aac_id": 417,
+    "compliance": "{\"blockers\": [], \"warnings\": [{\"kind\": \"document\", \"status\": \"manquant\", \"doc_type\": \"agrement_exploitation\"}, {\"kind\": \"document\", \"status\": \"soumis\", \"doc_type\": \"quittance_taxe_superficie\"}, {\"kind\": \"document\", \"status\": \"expire\", \"doc_type\": \"quittance_redevance_surveillance\"}, {\"id\": 498, \"kind\": \"title\", \"status\": \"provisoire\"}], \"compliant\": true, \"declaration_id\": 1089}",
     "line_count": 2
    },
    {
-    "id": 1074,
-    "company_id": 823,
+    "id": 1088,
+    "company_id": 849,
     "permit_type": "foret_communautaire",
     "permit_number": "PILOTE-FC-OI-03",
     "ufa_label": "PILOTE-Série de production Massaha",
@@ -3482,16 +3482,16 @@
     "status": "autorisee",
     "decision_motif": null,
     "decided_by": 1,
-    "decided_at": "2026-10-19T21:28:47.947530+00:00",
-    "created_at": "2026-10-19T21:28:47.788632+00:00",
-    "title_id": 489,
-    "aac_id": 408,
-    "compliance": "{\"blockers\": [], \"warnings\": [{\"code\": \"in_protected_area\", \"tree_code\": \"GA-PILOTE-0021\"}, {\"code\": \"in_protected_area\", \"tree_code\": \"GA-PILOTE-0022\"}, {\"kind\": \"document\", \"status\": \"manquant\", \"doc_type\": \"plan_simple_gestion\"}, {\"kind\": \"document\", \"status\": \"manquant\", \"doc_type\": \"convention_gestion_fc\"}, {\"kind\": \"document\", \"status\": \"manquant\", \"doc_type\": \"certificat_annuel_exploitation_cae\"}, {\"kind\": \"document\", \"status\": \"manquant\", \"doc_type\": \"quittance_taxe_superficie\"}], \"compliant\": true, \"declaration_id\": 1074}",
+    "decided_at": "2026-10-19T23:11:49.082041+00:00",
+    "created_at": "2026-10-19T23:11:48.957505+00:00",
+    "title_id": 499,
+    "aac_id": 418,
+    "compliance": "{\"blockers\": [], \"warnings\": [{\"code\": \"in_protected_area\", \"tree_code\": \"GA-PILOTE-0021\"}, {\"code\": \"in_protected_area\", \"tree_code\": \"GA-PILOTE-0022\"}, {\"kind\": \"document\", \"status\": \"manquant\", \"doc_type\": \"plan_simple_gestion\"}, {\"kind\": \"document\", \"status\": \"manquant\", \"doc_type\": \"convention_gestion_fc\"}, {\"kind\": \"document\", \"status\": \"manquant\", \"doc_type\": \"certificat_annuel_exploitation_cae\"}, {\"kind\": \"document\", \"status\": \"manquant\", \"doc_type\": \"quittance_taxe_superficie\"}], \"compliant\": true, \"declaration_id\": 1088}",
     "line_count": 2
    },
    {
-    "id": 1073,
-    "company_id": 816,
+    "id": 1087,
+    "company_id": 842,
     "permit_type": "CFAD",
     "permit_number": "PILOTE-CFAD-HO-01",
     "ufa_label": "PILOTE-UFA Okondja I",
@@ -3501,15 +3501,15 @@
     "decision_motif": null,
     "decided_by": null,
     "decided_at": null,
-    "created_at": "2026-10-19T21:28:47.677099+00:00",
-    "title_id": 487,
-    "aac_id": 404,
-    "compliance": "{\"blockers\": [], \"warnings\": [], \"compliant\": true, \"declaration_id\": 1073}",
+    "created_at": "2026-10-19T23:11:48.891807+00:00",
+    "title_id": 497,
+    "aac_id": 414,
+    "compliance": "{\"blockers\": [], \"warnings\": [], \"compliant\": true, \"declaration_id\": 1087}",
     "line_count": 2
    },
    {
-    "id": 1072,
-    "company_id": 816,
+    "id": 1086,
+    "company_id": 842,
     "permit_type": "CFAD",
     "permit_number": "PILOTE-CFAD-HO-01",
     "ufa_label": "PILOTE-UFA Okondja I",
@@ -3517,17 +3517,17 @@
     "campaign_year": 2026,
     "status": "rejetee",
     "decision_motif": "Permis CITES d'exportation à joindre avant approbation",
-    "decided_by": 826,
-    "decided_at": "2026-10-19T21:28:47.931635+00:00",
-    "created_at": "2026-10-19T21:28:47.582006+00:00",
-    "title_id": 487,
-    "aac_id": 404,
-    "compliance": "{\"blockers\": [], \"warnings\": [{\"code\": \"cites_listed\", \"tree_code\": \"GA-PILOTE-0013\"}, {\"kind\": \"cites_without_permit\", \"tree_code\": \"GA-PILOTE-0013\"}], \"compliant\": true, \"declaration_id\": 1072}",
+    "decided_by": 852,
+    "decided_at": "2026-10-19T23:11:49.072674+00:00",
+    "created_at": "2026-10-19T23:11:48.820599+00:00",
+    "title_id": 497,
+    "aac_id": 414,
+    "compliance": "{\"blockers\": [], \"warnings\": [{\"code\": \"cites_listed\", \"tree_code\": \"GA-PILOTE-0013\"}, {\"kind\": \"cites_without_permit\", \"tree_code\": \"GA-PILOTE-0013\"}], \"compliant\": true, \"declaration_id\": 1086}",
     "line_count": 3
    },
    {
-    "id": 1071,
-    "company_id": 816,
+    "id": 1085,
+    "company_id": 842,
     "permit_type": "CFAD",
     "permit_number": "PILOTE-CFAD-HO-01",
     "ufa_label": "PILOTE-UFA Okondja I",
@@ -3535,12 +3535,12 @@
     "campaign_year": 2026,
     "status": "autorisee",
     "decision_motif": null,
-    "decided_by": 826,
-    "decided_at": "2026-10-19T21:28:47.908111+00:00",
-    "created_at": "2026-10-19T21:28:47.326041+00:00",
-    "title_id": 487,
-    "aac_id": 404,
-    "compliance": "{\"blockers\": [], \"warnings\": [{\"code\": \"cites_listed\", \"tree_code\": \"GA-PILOTE-0005\"}, {\"kind\": \"cites_without_permit\", \"tree_code\": \"GA-PILOTE-0005\"}], \"compliant\": true, \"declaration_id\": 1071}",
+    "decided_by": 852,
+    "decided_at": "2026-10-19T23:11:49.057704+00:00",
+    "created_at": "2026-10-19T23:11:48.669561+00:00",
+    "title_id": 497,
+    "aac_id": 414,
+    "compliance": "{\"blockers\": [], \"warnings\": [{\"code\": \"cites_listed\", \"tree_code\": \"GA-PILOTE-0005\"}, {\"kind\": \"cites_without_permit\", \"tree_code\": \"GA-PILOTE-0005\"}], \"compliant\": true, \"declaration_id\": 1085}",
     "line_count": 7
    },
    {
@@ -3598,16 +3598,16 @@
    }
   ]
  },
- "admin GET /api/mill/register?org_id=413": {
+ "admin GET /api/mill/register?org_id=425": {
   "status": 200,
   "body": {
-   "org_id": 413,
+   "org_id": 425,
    "year": 2026,
    "inputs": [
     {
-     "id": 424,
+     "id": 432,
      "reference": "PILOTE-BDR-003",
-     "received_at": "2026-10-19T21:28:50.599911+00:00",
+     "received_at": "2026-10-19T23:11:51.026897+00:00",
      "volume_m3": 16.459,
      "tree_codes": [
       "GA-PILOTE-0023",
@@ -3617,9 +3617,9 @@
      "logs": 2
     },
     {
-     "id": 421,
+     "id": 429,
      "reference": "PILOTE-BDR-001",
-     "received_at": "2026-10-19T21:28:48.520819+00:00",
+     "received_at": "2026-10-19T23:11:49.407004+00:00",
      "volume_m3": 24.47,
      "tree_codes": [
       "GA-PILOTE-0001",
@@ -3632,7 +3632,7 @@
    ],
    "outputs": [
     {
-     "id": 33,
+     "id": 35,
      "produced_on": "2026-10-19",
      "product_type": "sciage",
      "species_scientific_name": null,
@@ -3644,7 +3644,7 @@
      "lot_reference": "PILOTE-LOT-1",
      "destination": "local",
      "notes": null,
-     "created_at": "2026-10-19T21:28:50.678712+00:00",
+     "created_at": "2026-10-19T23:11:51.095004+00:00",
      "product_label": "Sciages"
     }
    ],
@@ -3737,7 +3737,7 @@
     "profile_label": null
    },
    {
-    "id": 411,
+    "id": 423,
     "org_type": "entreprise",
     "name": "Bois du Haut-Ogooué",
     "legal_form": null,
@@ -3749,11 +3749,11 @@
     "profile_code": "integre",
     "is_active": true,
     "created_by": 1,
-    "created_at": "2026-10-19T21:28:42.063433+00:00",
+    "created_at": "2026-10-19T23:11:43.615455+00:00",
     "profile_label": "Exploitant intégré"
    },
    {
-    "id": 412,
+    "id": 424,
     "org_type": "entreprise",
     "name": "Compagnie Forestière de la Nyanga",
     "legal_form": null,
@@ -3765,11 +3765,11 @@
     "profile_code": "exploitant_forestier",
     "is_active": true,
     "created_by": 1,
-    "created_at": "2026-10-19T21:28:42.176240+00:00",
+    "created_at": "2026-10-19T23:11:43.665173+00:00",
     "profile_label": "Exploitant forestier"
    },
    {
-    "id": 413,
+    "id": 425,
     "org_type": "entreprise",
     "name": "Scierie de Lambaréné",
     "legal_form": null,
@@ -3781,11 +3781,11 @@
     "profile_code": "transformateur",
     "is_active": true,
     "created_by": 1,
-    "created_at": "2026-10-19T21:28:42.221765+00:00",
+    "created_at": "2026-10-19T23:11:43.693725+00:00",
     "profile_label": "Transformateur"
    },
    {
-    "id": 414,
+    "id": 426,
     "org_type": "entreprise",
     "name": "Gabon Timber Export",
     "legal_form": null,
@@ -3797,11 +3797,11 @@
     "profile_code": "negoce_export",
     "is_active": true,
     "created_by": 1,
-    "created_at": "2026-10-19T21:28:42.263053+00:00",
+    "created_at": "2026-10-19T23:11:43.718684+00:00",
     "profile_label": "Négoce / Export"
    },
    {
-    "id": 415,
+    "id": 427,
     "org_type": "communaute",
     "name": "Communauté de Massaha",
     "legal_form": null,
@@ -3813,11 +3813,11 @@
     "profile_code": "foret_communautaire",
     "is_active": true,
     "created_by": 1,
-    "created_at": "2026-10-19T21:28:42.298012+00:00",
+    "created_at": "2026-10-19T23:11:43.736566+00:00",
     "profile_label": "Forêt communautaire"
    },
    {
-    "id": 416,
+    "id": 428,
     "org_type": "cooperative",
     "name": "Coopérative des Artisans de Ntoum",
     "legal_form": null,
@@ -3829,15 +3829,15 @@
     "profile_code": null,
     "is_active": true,
     "created_by": 1,
-    "created_at": "2026-10-19T21:28:42.342201+00:00",
+    "created_at": "2026-10-19T23:11:43.762093+00:00",
     "profile_label": null
    }
   ]
  },
- "admin GET /api/organizations/411/sheet": {
+ "admin GET /api/organizations/423/sheet": {
   "status": 200,
   "body": {
-   "id": 411,
+   "id": 423,
    "org_type": "entreprise",
    "name": "Bois du Haut-Ogooué",
    "profile_code": "integre",
@@ -3848,7 +3848,7 @@
    "phone": null,
    "titles": [
     {
-     "id": 487,
+     "id": 497,
      "title_type": "CFAD",
      "reference": "PILOTE-CFAD-HO-01",
      "status": "actif",
@@ -3865,7 +3865,7 @@
    ],
    "accounts": [
     {
-     "id": 816,
+     "id": 842,
      "email": "hob.dg@pilote.ga",
      "display_name": "Clarisse Moussavou",
      "first_name": "Clarisse",
@@ -3875,7 +3875,7 @@
      "is_active": true
     },
     {
-     "id": 817,
+     "id": 843,
      "email": "hob.agent1@pilote.ga",
      "display_name": "Jean-Baptiste Ndong",
      "first_name": "Jean-Baptiste",
@@ -3885,7 +3885,7 @@
      "is_active": true
     },
     {
-     "id": 818,
+     "id": 844,
      "email": "hob.agent2@pilote.ga",
      "display_name": "Prisca Mba",
      "first_name": "Prisca",
@@ -3895,7 +3895,7 @@
      "is_active": true
     },
     {
-     "id": 828,
+     "id": 854,
      "email": "hob.agent3@pilote.ga",
      "display_name": "Rodrigue Mintsa",
      "first_name": "Rodrigue",
@@ -3910,7 +3910,7 @@
    "taxes_overdue": 0,
    "certifications": [
     {
-     "id": 245,
+     "id": 251,
      "scheme": "FSC",
      "cert_type": "gestion_durable",
      "status": "actif",
@@ -3919,34 +3919,34 @@
    ],
    "inventory_imports": [
     {
-     "id": 2,
-     "organization_id": 411,
+     "id": 10,
+     "organization_id": 423,
      "organization_name": "Bois du Haut-Ogooué",
-     "aac_id": 405,
+     "aac_id": 415,
      "aac_label": "PILOTE-AAC 2026-2",
-     "title_id": 487,
+     "title_id": 497,
      "title_reference": "PILOTE-CFAD-HO-01",
-     "imported_by": 816,
+     "imported_by": 842,
      "imported_by_name": "Clarisse Moussavou",
      "imported_by_email": "hob.dg@pilote.ga",
      "file_name": "inventaire_AAC_2026-2.csv",
      "file_format": "csv",
-     "model_version": "proposition-2026-10",
+     "model_version": "proposition-2026-10-b",
      "rows_total": 6,
      "stems_created": 6,
      "to_fell_count": 3,
      "kept_count": 3,
      "warnings_count": 0,
-     "created_at": "2026-10-19T21:28:51.222683+00:00"
+     "created_at": "2026-10-19T23:11:51.755495+00:00"
     }
    ],
    "warnings": []
   }
  },
- "admin GET /api/organizations/413/sheet": {
+ "admin GET /api/organizations/425/sheet": {
   "status": 200,
   "body": {
-   "id": 413,
+   "id": 425,
    "org_type": "entreprise",
    "name": "Scierie de Lambaréné",
    "profile_code": "transformateur",
@@ -3960,7 +3960,7 @@
    "provinces": [],
    "accounts": [
     {
-     "id": 821,
+     "id": 847,
      "email": "sdl.dg@pilote.ga",
      "display_name": "Sylvie Nziengui",
      "first_name": "Sylvie",
@@ -3975,7 +3975,7 @@
    "taxes_overdue": 0,
    "certifications": [
     {
-     "id": 247,
+     "id": 253,
      "scheme": "LS",
      "cert_type": "legalite_plus",
      "status": "soumis",
@@ -3993,10 +3993,10 @@
    ]
   }
  },
- "admin GET /api/organizations/415/sheet": {
+ "admin GET /api/organizations/427/sheet": {
   "status": 200,
   "body": {
-   "id": 415,
+   "id": 427,
    "org_type": "communaute",
    "name": "Communauté de Massaha",
    "profile_code": "foret_communautaire",
@@ -4007,7 +4007,7 @@
    "phone": null,
    "titles": [
     {
-     "id": 489,
+     "id": 499,
      "title_type": "FC",
      "reference": "PILOTE-FC-OI-03",
      "status": "actif",
@@ -4024,7 +4024,7 @@
    ],
    "accounts": [
     {
-     "id": 823,
+     "id": 849,
      "email": "mas.chef@pilote.ga",
      "display_name": "Albert Ondo",
      "first_name": "Albert",
@@ -4034,7 +4034,7 @@
      "is_active": true
     },
     {
-     "id": 824,
+     "id": 850,
      "email": "mas.agent1@pilote.ga",
      "display_name": "Gaston Ella",
      "first_name": "Gaston",
@@ -4077,10 +4077,10 @@
    ]
   }
  },
- "admin GET /api/organizations/416/sheet": {
+ "admin GET /api/organizations/428/sheet": {
   "status": 200,
   "body": {
-   "id": 416,
+   "id": 428,
    "org_type": "cooperative",
    "name": "Coopérative des Artisans de Ntoum",
    "profile_code": null,
@@ -4094,7 +4094,7 @@
    "provinces": [],
    "accounts": [
     {
-     "id": 825,
+     "id": 851,
      "email": "can.pres@pilote.ga",
      "display_name": "Esther Mabika",
      "first_name": "Esther",
@@ -4116,7 +4116,7 @@
   "status": 200,
   "body": [
    {
-    "id": 411,
+    "id": 423,
     "org_type": "entreprise",
     "name": "Bois du Haut-Ogooué",
     "profile_code": "integre",
@@ -4136,7 +4136,7 @@
     "taxes_overdue": 0
    },
    {
-    "id": 415,
+    "id": 427,
     "org_type": "communaute",
     "name": "Communauté de Massaha",
     "profile_code": "foret_communautaire",
@@ -4174,7 +4174,7 @@
     "taxes_overdue": 0
    },
    {
-    "id": 412,
+    "id": 424,
     "org_type": "entreprise",
     "name": "Compagnie Forestière de la Nyanga",
     "profile_code": "exploitant_forestier",
@@ -4212,7 +4212,7 @@
     "taxes_overdue": 0
    },
    {
-    "id": 416,
+    "id": 428,
     "org_type": "cooperative",
     "name": "Coopérative des Artisans de Ntoum",
     "profile_code": null,
@@ -4230,7 +4230,7 @@
     "taxes_overdue": 0
    },
    {
-    "id": 414,
+    "id": 426,
     "org_type": "entreprise",
     "name": "Gabon Timber Export",
     "profile_code": "negoce_export",
@@ -4248,7 +4248,7 @@
     "taxes_overdue": 0
    },
    {
-    "id": 413,
+    "id": 425,
     "org_type": "entreprise",
     "name": "Scierie de Lambaréné",
     "profile_code": "transformateur",
@@ -4313,7 +4313,7 @@
   "status": 200,
   "body": [
    {
-    "id": 253,
+    "id": 257,
     "title": "Cartographie du Moabi",
     "description": "Projet participatif national [PILOTE]",
     "target_type": "species",
@@ -4324,7 +4324,7 @@
     "radius_km": null,
     "status": "open",
     "created_by": 1,
-    "created_at": "2026-10-19T21:28:50.009823+00:00",
+    "created_at": "2026-10-19T23:11:50.569058+00:00",
     "kind": "participatif",
     "participation": "open",
     "aac_id": null,
@@ -4342,7 +4342,7 @@
     "my_status": null
    },
    {
-    "id": 252,
+    "id": 256,
     "title": "Chantier AAC 2026-1",
     "description": "Mesure des tiges autorisées [PILOTE]",
     "target_type": "all",
@@ -4352,11 +4352,11 @@
     "longitude": null,
     "radius_km": null,
     "status": "open",
-    "created_by": 816,
-    "created_at": "2026-10-19T21:28:49.924294+00:00",
+    "created_by": 842,
+    "created_at": "2026-10-19T23:11:50.508985+00:00",
     "kind": "chantier",
     "participation": "invitation",
-    "aac_id": 404,
+    "aac_id": 414,
     "aac_label": "PILOTE-AAC 2026-1",
     "aac_lat": -0.77,
     "aac_lon": 13.610000000000001,
@@ -47282,16 +47282,16 @@
   "status": 200,
   "body": [
    {
-    "id": 260,
-    "org_id": 412,
-    "title_id": 488,
+    "id": 266,
+    "org_id": 424,
+    "title_id": 498,
     "tax_type": "superficie",
     "period_year": 2026,
     "amount_fcfa": 19200000,
     "due_at": "2026-08-20",
     "notes": null,
     "receipt_id": null,
-    "created_at": "2026-10-19T21:28:48.875690+00:00",
+    "created_at": "2026-10-19T23:11:49.633084+00:00",
     "paid_at": null,
     "receipt_ref": null,
     "receipt_amount_fcfa": null,
@@ -47301,16 +47301,16 @@
     "surcharge_fcfa": 19200000
    },
    {
-    "id": 259,
-    "org_id": 411,
-    "title_id": 487,
+    "id": 265,
+    "org_id": 423,
+    "title_id": 497,
     "tax_type": "abattage",
     "period_year": 2026,
     "amount_fcfa": 4200000,
     "due_at": "2026-12-03",
     "notes": null,
     "receipt_id": null,
-    "created_at": "2026-10-19T21:28:48.863739+00:00",
+    "created_at": "2026-10-19T23:11:49.625973+00:00",
     "paid_at": null,
     "receipt_ref": null,
     "receipt_amount_fcfa": null,
@@ -47320,16 +47320,16 @@
     "surcharge_fcfa": 0
    },
    {
-    "id": 258,
-    "org_id": 411,
-    "title_id": 487,
+    "id": 264,
+    "org_id": 423,
+    "title_id": 497,
     "tax_type": "superficie",
     "period_year": 2026,
     "amount_fcfa": 35550000,
     "due_at": "2026-09-19",
     "notes": "118 500 ha × 300 FCFA",
-    "receipt_id": 131,
-    "created_at": "2026-10-19T21:28:48.802526+00:00",
+    "receipt_id": 133,
+    "created_at": "2026-10-19T23:11:49.595948+00:00",
     "paid_at": "2026-09-14",
     "receipt_ref": "PILOTE-Q-SUP-2026",
     "receipt_amount_fcfa": 35550000,
@@ -47401,10 +47401,10 @@
   "status": 200,
   "body": [
    {
-    "id": 491,
+    "id": 501,
     "title_type": "PGG",
     "reference": "PILOTE-PGG-NY-01",
-    "holder_org_id": 412,
+    "holder_org_id": 424,
     "zone": "rural",
     "surface_ha": 2000,
     "status": "demande",
@@ -47415,13 +47415,13 @@
     "pa_approved_at": null,
     "grant_ref": null,
     "grant_date": null,
-    "created_at": "2026-10-19T21:28:46.190342+00:00"
+    "created_at": "2026-10-19T23:11:47.959634+00:00"
    },
    {
-    "id": 490,
+    "id": 500,
     "title_type": "PFA",
     "reference": "PILOTE-PFA-ES-02",
-    "holder_org_id": 414,
+    "holder_org_id": 426,
     "zone": "permanent",
     "surface_ha": 15000,
     "status": "rejete",
@@ -47432,13 +47432,13 @@
     "pa_approved_at": null,
     "grant_ref": null,
     "grant_date": null,
-    "created_at": "2026-10-19T21:28:46.159166+00:00"
+    "created_at": "2026-10-19T23:11:47.941060+00:00"
    },
    {
-    "id": 489,
+    "id": 499,
     "title_type": "FC",
     "reference": "PILOTE-FC-OI-03",
-    "holder_org_id": 415,
+    "holder_org_id": 427,
     "zone": "rural",
     "surface_ha": 4800,
     "status": "actif",
@@ -47449,13 +47449,13 @@
     "pa_approved_at": null,
     "grant_ref": "Arrêté d'attribution n° 004/MEF",
     "grant_date": "2022-09-10",
-    "created_at": "2026-10-19T21:28:46.149424+00:00"
+    "created_at": "2026-10-19T23:11:47.927884+00:00"
    },
    {
-    "id": 488,
+    "id": 498,
     "title_type": "CFAD",
     "reference": "PILOTE-CFAD-NY-07",
-    "holder_org_id": 412,
+    "holder_org_id": 424,
     "zone": "permanent",
     "surface_ha": 64000,
     "status": "provisoire",
@@ -47466,13 +47466,13 @@
     "pa_approved_at": null,
     "grant_ref": null,
     "grant_date": null,
-    "created_at": "2026-10-19T21:28:46.036406+00:00"
+    "created_at": "2026-10-19T23:11:47.859952+00:00"
    },
    {
-    "id": 487,
+    "id": 497,
     "title_type": "CFAD",
     "reference": "PILOTE-CFAD-HO-01",
-    "holder_org_id": 411,
+    "holder_org_id": 423,
     "zone": "permanent",
     "surface_ha": 118500,
     "status": "actif",
@@ -47483,7 +47483,7 @@
     "pa_approved_at": null,
     "grant_ref": "Convention provisoire n° 012/MEF",
     "grant_date": "2024-05-02",
-    "created_at": "2026-10-19T21:28:45.947618+00:00"
+    "created_at": "2026-10-19T23:11:47.797769+00:00"
    },
    {
     "id": 375,
@@ -47542,176 +47542,6 @@
     "abandon_label": null
    },
    {
-    "tree_code": "GA-PILOTE-0001",
-    "species_scientific_name": "Aucoumea klaineana",
-    "measured_dbh_cm": 92,
-    "marking_type": "qr",
-    "status": "transforme",
-    "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:48.090759+00:00",
-    "df10_entry_no": "DF10-2026-001978",
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0002",
-    "species_scientific_name": "Aucoumea klaineana",
-    "measured_dbh_cm": 104,
-    "marking_type": "qr",
-    "status": "transforme",
-    "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:48.126661+00:00",
-    "df10_entry_no": "DF10-2026-001979",
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0003",
-    "species_scientific_name": "Lophira alata",
-    "measured_dbh_cm": 98,
-    "marking_type": "qr",
-    "status": "receptionne",
-    "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:48.171405+00:00",
-    "df10_entry_no": "DF10-2026-001980",
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0004",
-    "species_scientific_name": "Milicia excelsa",
-    "measured_dbh_cm": 95,
-    "marking_type": "qr",
-    "status": "transporte",
-    "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:48.208270+00:00",
-    "df10_entry_no": "DF10-2026-001981",
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0005",
-    "species_scientific_name": "Pterocarpus soyauxii",
-    "measured_dbh_cm": 84,
-    "marking_type": "qr",
-    "status": "transporte",
-    "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:48.243868+00:00",
-    "df10_entry_no": "DF10-2026-001982",
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0006",
-    "species_scientific_name": "Terminalia superba",
-    "measured_dbh_cm": 88,
-    "marking_type": "qr",
-    "status": "abattu",
-    "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:48.278813+00:00",
-    "df10_entry_no": "DF10-2026-001983",
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0007",
-    "species_scientific_name": "Aucoumea klaineana",
-    "measured_dbh_cm": 110,
-    "marking_type": "qr",
-    "status": "abattu",
-    "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:48.305693+00:00",
-    "df10_entry_no": "DF10-2026-001984",
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0021",
-    "species_scientific_name": "Aucoumea klaineana",
-    "measured_dbh_cm": 88,
-    "marking_type": "qr",
-    "status": "abattu",
-    "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:48.680458+00:00",
-    "df10_entry_no": "DF10-2026-001990",
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-FC-OI-03",
-    "aac_label": "PILOTE-AAC FC 2026",
-    "title_id": 489,
-    "aac_id": 408,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0023",
-    "species_scientific_name": "Aucoumea klaineana",
-    "measured_dbh_cm": 96,
-    "marking_type": "qr",
-    "status": "transforme",
-    "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:50.476251+00:00",
-    "df10_entry_no": "DF10-2026-001994",
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0024",
-    "species_scientific_name": "Aucoumea klaineana",
-    "measured_dbh_cm": 101,
-    "marking_type": "qr",
-    "status": "transforme",
-    "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:50.505936+00:00",
-    "df10_entry_no": "DF10-2026-001995",
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
-    "abandon_label": null
-   },
-   {
     "tree_code": "GA-DEMO-002",
     "species_scientific_name": "Baillonella toxisperma",
     "measured_dbh_cm": 110,
@@ -47726,6 +47556,176 @@
     "aac_label": "DEMO-AAC-2026-01",
     "title_id": 374,
     "aac_id": 313,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-PILOTE-0001",
+    "species_scientific_name": "Aucoumea klaineana",
+    "measured_dbh_cm": 92,
+    "marking_type": "qr",
+    "status": "transforme",
+    "hammer_mark": null,
+    "felled_at": "2026-10-19T23:11:49.159670+00:00",
+    "df10_entry_no": "DF10-2026-002037",
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-1",
+    "title_id": 497,
+    "aac_id": 414,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-PILOTE-0002",
+    "species_scientific_name": "Aucoumea klaineana",
+    "measured_dbh_cm": 104,
+    "marking_type": "qr",
+    "status": "transforme",
+    "hammer_mark": null,
+    "felled_at": "2026-10-19T23:11:49.179111+00:00",
+    "df10_entry_no": "DF10-2026-002038",
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-1",
+    "title_id": 497,
+    "aac_id": 414,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-PILOTE-0003",
+    "species_scientific_name": "Lophira alata",
+    "measured_dbh_cm": 98,
+    "marking_type": "qr",
+    "status": "receptionne",
+    "hammer_mark": null,
+    "felled_at": "2026-10-19T23:11:49.193410+00:00",
+    "df10_entry_no": "DF10-2026-002039",
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-1",
+    "title_id": 497,
+    "aac_id": 414,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-PILOTE-0004",
+    "species_scientific_name": "Milicia excelsa",
+    "measured_dbh_cm": 95,
+    "marking_type": "qr",
+    "status": "transporte",
+    "hammer_mark": null,
+    "felled_at": "2026-10-19T23:11:49.212826+00:00",
+    "df10_entry_no": "DF10-2026-002040",
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-1",
+    "title_id": 497,
+    "aac_id": 414,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-PILOTE-0005",
+    "species_scientific_name": "Pterocarpus soyauxii",
+    "measured_dbh_cm": 84,
+    "marking_type": "qr",
+    "status": "transporte",
+    "hammer_mark": null,
+    "felled_at": "2026-10-19T23:11:49.229977+00:00",
+    "df10_entry_no": "DF10-2026-002041",
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-1",
+    "title_id": 497,
+    "aac_id": 414,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-PILOTE-0006",
+    "species_scientific_name": "Terminalia superba",
+    "measured_dbh_cm": 88,
+    "marking_type": "qr",
+    "status": "abattu",
+    "hammer_mark": null,
+    "felled_at": "2026-10-19T23:11:49.249684+00:00",
+    "df10_entry_no": "DF10-2026-002042",
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-1",
+    "title_id": 497,
+    "aac_id": 414,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-PILOTE-0007",
+    "species_scientific_name": "Aucoumea klaineana",
+    "measured_dbh_cm": 110,
+    "marking_type": "qr",
+    "status": "abattu",
+    "hammer_mark": null,
+    "felled_at": "2026-10-19T23:11:49.266150+00:00",
+    "df10_entry_no": "DF10-2026-002043",
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-1",
+    "title_id": 497,
+    "aac_id": 414,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-PILOTE-0021",
+    "species_scientific_name": "Aucoumea klaineana",
+    "measured_dbh_cm": 88,
+    "marking_type": "qr",
+    "status": "abattu",
+    "hammer_mark": null,
+    "felled_at": "2026-10-19T23:11:49.494495+00:00",
+    "df10_entry_no": "DF10-2026-002049",
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-FC-OI-03",
+    "aac_label": "PILOTE-AAC FC 2026",
+    "title_id": 499,
+    "aac_id": 418,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-PILOTE-0023",
+    "species_scientific_name": "Aucoumea klaineana",
+    "measured_dbh_cm": 96,
+    "marking_type": "qr",
+    "status": "transforme",
+    "hammer_mark": null,
+    "felled_at": "2026-10-19T23:11:50.944887+00:00",
+    "df10_entry_no": "DF10-2026-002053",
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-1",
+    "title_id": 497,
+    "aac_id": 414,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-PILOTE-0024",
+    "species_scientific_name": "Aucoumea klaineana",
+    "measured_dbh_cm": 101,
+    "marking_type": "qr",
+    "status": "transforme",
+    "hammer_mark": null,
+    "felled_at": "2026-10-19T23:11:50.961459+00:00",
+    "df10_entry_no": "DF10-2026-002054",
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-1",
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -47882,6 +47882,108 @@
     "abandon_label": null
    },
    {
+    "tree_code": "GA-I10-00001",
+    "species_scientific_name": "Aucoumea klaineana",
+    "measured_dbh_cm": 96,
+    "marking_type": "qr",
+    "status": "inventorie",
+    "hammer_mark": null,
+    "felled_at": null,
+    "df10_entry_no": null,
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-2",
+    "title_id": 497,
+    "aac_id": 415,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-I10-00002",
+    "species_scientific_name": "Aucoumea klaineana",
+    "measured_dbh_cm": 104,
+    "marking_type": "qr",
+    "status": "inventorie",
+    "hammer_mark": null,
+    "felled_at": null,
+    "df10_entry_no": null,
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-2",
+    "title_id": 497,
+    "aac_id": 415,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-I10-00003",
+    "species_scientific_name": "Lophira alata",
+    "measured_dbh_cm": 88,
+    "marking_type": "qr",
+    "status": "inventorie",
+    "hammer_mark": null,
+    "felled_at": null,
+    "df10_entry_no": null,
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-2",
+    "title_id": 497,
+    "aac_id": 415,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-I10-00004",
+    "species_scientific_name": "Aucoumea klaineana",
+    "measured_dbh_cm": 52,
+    "marking_type": "qr",
+    "status": "inventorie",
+    "hammer_mark": null,
+    "felled_at": null,
+    "df10_entry_no": null,
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-2",
+    "title_id": 497,
+    "aac_id": 415,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-I10-00005",
+    "species_scientific_name": "Baillonella toxisperma",
+    "measured_dbh_cm": 118,
+    "marking_type": "qr",
+    "status": "inventorie",
+    "hammer_mark": null,
+    "felled_at": null,
+    "df10_entry_no": null,
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-2",
+    "title_id": 497,
+    "aac_id": 415,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-I10-00006",
+    "species_scientific_name": "Lophira alata",
+    "measured_dbh_cm": 79,
+    "marking_type": "qr",
+    "status": "inventorie",
+    "hammer_mark": null,
+    "felled_at": null,
+    "df10_entry_no": null,
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-2",
+    "title_id": 497,
+    "aac_id": 415,
+    "abandon_label": null
+   },
+   {
     "tree_code": "GA-PILOTE-0013",
     "species_scientific_name": "Afzelia bipindensis",
     "measured_dbh_cm": 96,
@@ -47894,8 +47996,8 @@
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -47911,8 +48013,8 @@
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -47928,8 +48030,8 @@
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -47945,8 +48047,8 @@
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -47962,8 +48064,8 @@
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -47979,8 +48081,8 @@
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-NY-07",
     "aac_label": "PILOTE-AAC CPAET 2026",
-    "title_id": 488,
-    "aac_id": 407,
+    "title_id": 498,
+    "aac_id": 417,
     "abandon_label": null
    },
    {
@@ -47996,8 +48098,8 @@
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-NY-07",
     "aac_label": "PILOTE-AAC CPAET 2026",
-    "title_id": 488,
-    "aac_id": 407,
+    "title_id": 498,
+    "aac_id": 417,
     "abandon_label": null
    },
    {
@@ -48013,125 +48115,23 @@
     "df10_notes": "Cœur pourri constaté à l'abattage",
     "permit_number": "PILOTE-FC-OI-03",
     "aac_label": "PILOTE-AAC FC 2026",
-    "title_id": 489,
-    "aac_id": 408,
+    "title_id": 499,
+    "aac_id": 418,
     "abandon_label": "Creux / cœur pourri"
-   },
-   {
-    "tree_code": "GA-PILOTE-0026",
-    "species_scientific_name": "Aucoumea klaineana",
-    "measured_dbh_cm": 96,
-    "marking_type": "qr",
-    "status": "inventorie",
-    "hammer_mark": null,
-    "felled_at": null,
-    "df10_entry_no": null,
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-2",
-    "title_id": 487,
-    "aac_id": 405,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0027",
-    "species_scientific_name": "Aucoumea klaineana",
-    "measured_dbh_cm": 104,
-    "marking_type": "qr",
-    "status": "inventorie",
-    "hammer_mark": null,
-    "felled_at": null,
-    "df10_entry_no": null,
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-2",
-    "title_id": 487,
-    "aac_id": 405,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0028",
-    "species_scientific_name": "Lophira alata",
-    "measured_dbh_cm": 88,
-    "marking_type": "qr",
-    "status": "inventorie",
-    "hammer_mark": null,
-    "felled_at": null,
-    "df10_entry_no": null,
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-2",
-    "title_id": 487,
-    "aac_id": 405,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0029",
-    "species_scientific_name": "Aucoumea klaineana",
-    "measured_dbh_cm": 52,
-    "marking_type": "qr",
-    "status": "inventorie",
-    "hammer_mark": null,
-    "felled_at": null,
-    "df10_entry_no": null,
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-2",
-    "title_id": 487,
-    "aac_id": 405,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0030",
-    "species_scientific_name": "Baillonella toxisperma",
-    "measured_dbh_cm": 118,
-    "marking_type": "qr",
-    "status": "inventorie",
-    "hammer_mark": null,
-    "felled_at": null,
-    "df10_entry_no": null,
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-2",
-    "title_id": 487,
-    "aac_id": 405,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0031",
-    "species_scientific_name": "Lophira alata",
-    "measured_dbh_cm": 79,
-    "marking_type": "qr",
-    "status": "inventorie",
-    "hammer_mark": null,
-    "felled_at": null,
-    "df10_entry_no": null,
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-2",
-    "title_id": 487,
-    "aac_id": 405,
-    "abandon_label": null
    }
   ]
  },
  "agent GET /api/auth/me": {
   "status": 200,
   "body": {
-   "id": 817,
+   "id": 843,
    "email": "hob.agent1@pilote.ga",
    "display_name": "Jean-Baptiste Ndong",
    "role": "operator",
    "is_active": true,
    "cooperative_id": null,
-   "company_id": 816,
-   "organization_id": 411,
+   "company_id": 842,
+   "organization_id": 423,
    "first_name": "Jean-Baptiste",
    "last_name": "Ndong",
    "matricule": "AGT-HOB-01"
@@ -48141,103 +48141,103 @@
   "status": 200,
   "body": [
    {
-    "id": 1996,
-    "tree_code": "GA-PILOTE-0026",
+    "id": 2055,
+    "tree_code": "GA-I10-00001",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
     "measured_dbh_cm": 96,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
+    "aac_id": 415,
     "inventory_destination": "abattre",
-    "painted_number": "26",
+    "painted_number": "GA-PILOTE-0026",
     "latitude": -0.77,
     "longitude": 13.633333,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 2000,
-    "tree_code": "GA-PILOTE-0030",
+    "id": 2059,
+    "tree_code": "GA-I10-00005",
     "marking_type": "qr",
     "species_scientific_name": "Baillonella toxisperma",
     "measured_dbh_cm": 118,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
-    "inventory_destination": "reserve",
-    "painted_number": "30",
+    "aac_id": 415,
+    "inventory_destination": "preserver",
+    "painted_number": "GA-PILOTE-0030",
     "latitude": -0.77,
     "longitude": 13.646667,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 1999,
-    "tree_code": "GA-PILOTE-0029",
+    "id": 2058,
+    "tree_code": "GA-I10-00004",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
     "measured_dbh_cm": 52,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
-    "inventory_destination": "avenir",
-    "painted_number": "29",
+    "aac_id": 415,
+    "inventory_destination": "preserver",
+    "painted_number": "GA-PILOTE-0029",
     "latitude": -0.77,
     "longitude": 13.643333,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 1998,
-    "tree_code": "GA-PILOTE-0028",
+    "id": 2057,
+    "tree_code": "GA-I10-00003",
     "marking_type": "qr",
     "species_scientific_name": "Lophira alata",
     "measured_dbh_cm": 88,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
+    "aac_id": 415,
     "inventory_destination": "abattre",
-    "painted_number": "28",
+    "painted_number": "GA-PILOTE-0028",
     "latitude": -0.77,
     "longitude": 13.64,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 1997,
-    "tree_code": "GA-PILOTE-0027",
+    "id": 2056,
+    "tree_code": "GA-I10-00002",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
     "measured_dbh_cm": 104,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
+    "aac_id": 415,
     "inventory_destination": "abattre",
-    "painted_number": "27",
+    "painted_number": "GA-PILOTE-0027",
     "latitude": -0.77,
     "longitude": 13.636667,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 2001,
-    "tree_code": "GA-PILOTE-0031",
+    "id": 2060,
+    "tree_code": "GA-I10-00006",
     "marking_type": "qr",
     "species_scientific_name": "Lophira alata",
     "measured_dbh_cm": 79,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
-    "inventory_destination": "semencier",
-    "painted_number": "31",
+    "aac_id": 415,
+    "inventory_destination": "preserver",
+    "painted_number": "GA-PILOTE-0031",
     "latitude": -0.766667,
     "longitude": 13.633333,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 1989,
+    "id": 2048,
     "tree_code": "GA-PILOTE-0017",
     "marking_type": "qr",
     "species_scientific_name": "Dacryodes glaucescens",
@@ -48245,15 +48245,15 @@
     "status": "declare",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.766667,
     "longitude": 13.613333,
-    "created_at": "2026-10-19T21:28:47.720499+00:00"
+    "created_at": "2026-10-19T23:11:48.902633+00:00"
    },
    {
-    "id": 1988,
+    "id": 2047,
     "tree_code": "GA-PILOTE-0016",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
@@ -48261,15 +48261,15 @@
     "status": "declare",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.766667,
     "longitude": 13.61,
-    "created_at": "2026-10-19T21:28:47.696850+00:00"
+    "created_at": "2026-10-19T23:11:48.897162+00:00"
    },
    {
-    "id": 1987,
+    "id": 2046,
     "tree_code": "GA-PILOTE-0015",
     "marking_type": "qr",
     "species_scientific_name": "Lophira alata",
@@ -48277,15 +48277,15 @@
     "status": "declare",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.766667,
     "longitude": 13.606667,
-    "created_at": "2026-10-19T21:28:47.638213+00:00"
+    "created_at": "2026-10-19T23:11:48.852392+00:00"
    },
    {
-    "id": 1986,
+    "id": 2045,
     "tree_code": "GA-PILOTE-0014",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
@@ -48293,15 +48293,15 @@
     "status": "declare",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.766667,
     "longitude": 13.603333,
-    "created_at": "2026-10-19T21:28:47.623492+00:00"
+    "created_at": "2026-10-19T23:11:48.844840+00:00"
    },
    {
-    "id": 1985,
+    "id": 2044,
     "tree_code": "GA-PILOTE-0013",
     "marking_type": "qr",
     "species_scientific_name": "Afzelia bipindensis",
@@ -48309,15 +48309,15 @@
     "status": "declare",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.77,
     "longitude": 13.616667,
-    "created_at": "2026-10-19T21:28:47.607651+00:00"
+    "created_at": "2026-10-19T23:11:48.833676+00:00"
    },
    {
-    "id": 1984,
+    "id": 2043,
     "tree_code": "GA-PILOTE-0007",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
@@ -48325,15 +48325,15 @@
     "status": "abattu",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.773333,
     "longitude": 13.606667,
-    "created_at": "2026-10-19T21:28:47.481862+00:00"
+    "created_at": "2026-10-19T23:11:48.732068+00:00"
    },
    {
-    "id": 1983,
+    "id": 2042,
     "tree_code": "GA-PILOTE-0006",
     "marking_type": "qr",
     "species_scientific_name": "Terminalia superba",
@@ -48341,15 +48341,15 @@
     "status": "abattu",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.773333,
     "longitude": 13.603333,
-    "created_at": "2026-10-19T21:28:47.462842+00:00"
+    "created_at": "2026-10-19T23:11:48.725984+00:00"
    },
    {
-    "id": 1982,
+    "id": 2041,
     "tree_code": "GA-PILOTE-0005",
     "marking_type": "qr",
     "species_scientific_name": "Pterocarpus soyauxii",
@@ -48357,15 +48357,15 @@
     "status": "transporte",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.776667,
     "longitude": 13.616667,
-    "created_at": "2026-10-19T21:28:47.442269+00:00"
+    "created_at": "2026-10-19T23:11:48.714139+00:00"
    },
    {
-    "id": 1981,
+    "id": 2040,
     "tree_code": "GA-PILOTE-0004",
     "marking_type": "qr",
     "species_scientific_name": "Milicia excelsa",
@@ -48373,12 +48373,12 @@
     "status": "transporte",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.776667,
     "longitude": 13.613333,
-    "created_at": "2026-10-19T21:28:47.423622+00:00"
+    "created_at": "2026-10-19T23:11:48.708491+00:00"
    }
   ]
  },
@@ -48391,11 +48391,11 @@
    "measured_dbh_cm": 110,
    "marking_type": "qr",
    "hammer_mark": null,
-   "df10_entry_no": "DF10-2026-001984",
-   "felled_at": "2026-10-19T21:28:48.305693+00:00",
-   "company_id": 816,
-   "custodian_org_id": 411,
-   "aac_id": 404,
+   "df10_entry_no": "DF10-2026-002043",
+   "felled_at": "2026-10-19T23:11:49.266150+00:00",
+   "company_id": 842,
+   "custodian_org_id": 423,
+   "aac_id": 414,
    "aac_label": "PILOTE-AAC 2026-1",
    "latitude": -0.773333,
    "longitude": 13.606667,
@@ -48404,7 +48404,7 @@
    "history": [
     {
      "event": "abattu",
-     "created_at": "2026-10-19T21:28:48.291496+00:00",
+     "created_at": "2026-10-19T23:11:49.260128+00:00",
      "note": "Abattage contrôlé, souche marquée",
      "transport_document_id": null,
      "actor": "Jean-Baptiste Ndong",
@@ -48436,7 +48436,7 @@
     "species": 3,
     "co2e_kg": 64593.799999999996,
     "for_projects": 3,
-    "last_at": "2026-10-19T21:28:50.133648+00:00",
+    "last_at": "2026-10-19T23:11:50.656756+00:00",
     "periods": {
      "today": {
       "count": 3,
@@ -48482,7 +48482,7 @@
     "invitations": [],
     "joined": [
      {
-      "id": 252,
+      "id": 256,
       "title": "Chantier AAC 2026-1",
       "kind": "chantier",
       "participation": "invitation",
@@ -48491,7 +48491,7 @@
       "target_type": "all",
       "target_value": "",
       "my_status": "active",
-      "aac_id": 404,
+      "aac_id": 414,
       "aac_label": "PILOTE-AAC 2026-1",
       "registry_trees": 14,
       "registry_scanned": 6,
@@ -48502,7 +48502,7 @@
     ],
     "available": [
      {
-      "id": 253,
+      "id": 257,
       "title": "Cartographie du Moabi",
       "kind": "participatif",
       "participation": "open",
@@ -48550,7 +48550,7 @@
   "status": 200,
   "body": [
    {
-    "id": 512,
+    "id": 526,
     "species_scientific_name": "Pterocarpus soyauxii",
     "species_confidence": 0.88,
     "measured_dbh_cm": 84,
@@ -48559,13 +48559,13 @@
     "health_status": null,
     "latitude": -0.776667,
     "longitude": 13.616667,
-    "created_at": "2026-10-19T21:28:50.133648+00:00",
+    "created_at": "2026-10-19T23:11:50.656756+00:00",
     "co2e_kg": 15769.6,
     "tree_code": "GA-PILOTE-0005",
     "eudr_verdict": null
    },
    {
-    "id": 510,
+    "id": 524,
     "species_scientific_name": "Lophira alata",
     "species_confidence": 0.88,
     "measured_dbh_cm": 98,
@@ -48574,13 +48574,13 @@
     "health_status": null,
     "latitude": -0.776667,
     "longitude": 13.61,
-    "created_at": "2026-10-19T21:28:50.108593+00:00",
+    "created_at": "2026-10-19T23:11:50.646365+00:00",
     "co2e_kg": 36879.9,
     "tree_code": "GA-PILOTE-0003",
     "eudr_verdict": null
    },
    {
-    "id": 508,
+    "id": 522,
     "species_scientific_name": "Aucoumea klaineana",
     "species_confidence": 0.88,
     "measured_dbh_cm": 92,
@@ -48589,7 +48589,7 @@
     "health_status": null,
     "latitude": -0.776667,
     "longitude": 13.603333,
-    "created_at": "2026-10-19T21:28:50.073586+00:00",
+    "created_at": "2026-10-19T23:11:50.614867+00:00",
     "co2e_kg": 11944.3,
     "tree_code": "GA-PILOTE-0001",
     "eudr_verdict": null
@@ -48600,7 +48600,7 @@
   "status": 200,
   "body": [
    {
-    "id": 253,
+    "id": 257,
     "title": "Cartographie du Moabi",
     "description": "Projet participatif national [PILOTE]",
     "target_type": "species",
@@ -48611,7 +48611,7 @@
     "radius_km": null,
     "status": "open",
     "created_by": 1,
-    "created_at": "2026-10-19T21:28:50.009823+00:00",
+    "created_at": "2026-10-19T23:11:50.569058+00:00",
     "kind": "participatif",
     "participation": "open",
     "aac_id": null,
@@ -48629,7 +48629,7 @@
     "my_status": null
    },
    {
-    "id": 252,
+    "id": 256,
     "title": "Chantier AAC 2026-1",
     "description": "Mesure des tiges autorisées [PILOTE]",
     "target_type": "all",
@@ -48639,11 +48639,11 @@
     "longitude": null,
     "radius_km": null,
     "status": "open",
-    "created_by": 816,
-    "created_at": "2026-10-19T21:28:49.924294+00:00",
+    "created_by": 842,
+    "created_at": "2026-10-19T23:11:50.508985+00:00",
     "kind": "chantier",
     "participation": "invitation",
-    "aac_id": 404,
+    "aac_id": 414,
     "aac_label": "PILOTE-AAC 2026-1",
     "aac_lat": -0.77,
     "aac_lon": 13.610000000000001,
@@ -48688,10 +48688,10 @@
    }
   ]
  },
- "agent GET /api/projects/252": {
+ "agent GET /api/projects/256": {
   "status": 200,
   "body": {
-   "id": 252,
+   "id": 256,
    "title": "Chantier AAC 2026-1",
    "description": "Mesure des tiges autorisées [PILOTE]",
    "target_type": "all",
@@ -48701,11 +48701,11 @@
    "longitude": null,
    "radius_km": null,
    "status": "open",
-   "created_by": 816,
-   "created_at": "2026-10-19T21:28:49.924294+00:00",
+   "created_by": 842,
+   "created_at": "2026-10-19T23:11:50.508985+00:00",
    "kind": "chantier",
    "participation": "invitation",
-   "aac_id": 404,
+   "aac_id": 414,
    "aac_label": "PILOTE-AAC 2026-1",
    "aac_lat": -0.77,
    "aac_lon": 13.610000000000001,
@@ -48724,84 +48724,84 @@
    "is_participant": true,
    "contributions": [
     {
-     "id": 513,
+     "id": 527,
      "species_scientific_name": "Terminalia superba",
      "measured_dbh_cm": 88,
      "health_status": null,
      "latitude": -0.773333,
      "longitude": 13.603333,
-     "created_at": "2026-10-19T21:28:50.140940+00:00",
+     "created_at": "2026-10-19T23:11:50.659367+00:00",
      "owner_name": "Prisca Mba"
     },
     {
-     "id": 512,
+     "id": 526,
      "species_scientific_name": "Pterocarpus soyauxii",
      "measured_dbh_cm": 84,
      "health_status": null,
      "latitude": -0.776667,
      "longitude": 13.616667,
-     "created_at": "2026-10-19T21:28:50.133648+00:00",
+     "created_at": "2026-10-19T23:11:50.656756+00:00",
      "owner_name": "Jean-Baptiste Ndong"
     },
     {
-     "id": 511,
+     "id": 525,
      "species_scientific_name": "Milicia excelsa",
      "measured_dbh_cm": 95,
      "health_status": null,
      "latitude": -0.776667,
      "longitude": 13.613333,
-     "created_at": "2026-10-19T21:28:50.118242+00:00",
+     "created_at": "2026-10-19T23:11:50.649450+00:00",
      "owner_name": "Prisca Mba"
     },
     {
-     "id": 510,
+     "id": 524,
      "species_scientific_name": "Lophira alata",
      "measured_dbh_cm": 98,
      "health_status": null,
      "latitude": -0.776667,
      "longitude": 13.61,
-     "created_at": "2026-10-19T21:28:50.108593+00:00",
+     "created_at": "2026-10-19T23:11:50.646365+00:00",
      "owner_name": "Jean-Baptiste Ndong"
     },
     {
-     "id": 509,
+     "id": 523,
      "species_scientific_name": "Aucoumea klaineana",
      "measured_dbh_cm": 104,
      "health_status": null,
      "latitude": -0.776667,
      "longitude": 13.606667,
-     "created_at": "2026-10-19T21:28:50.103564+00:00",
+     "created_at": "2026-10-19T23:11:50.643620+00:00",
      "owner_name": "Prisca Mba"
     },
     {
-     "id": 508,
+     "id": 522,
      "species_scientific_name": "Aucoumea klaineana",
      "measured_dbh_cm": 92,
      "health_status": null,
      "latitude": -0.776667,
      "longitude": 13.603333,
-     "created_at": "2026-10-19T21:28:50.073586+00:00",
+     "created_at": "2026-10-19T23:11:50.614867+00:00",
      "owner_name": "Jean-Baptiste Ndong"
     }
    ]
   }
  },
- "agent GET /api/projects/252/chantier": {
+ "agent GET /api/projects/256/chantier": {
   "status": 200,
   "body": {
-   "id": 252,
+   "id": 256,
    "title": "Chantier AAC 2026-1",
    "description": "Mesure des tiges autorisées [PILOTE]",
    "status": "open",
    "kind": "chantier",
    "participation": "invitation",
-   "aac_id": 404,
-   "created_by": 816,
-   "created_at": "2026-10-19T21:28:49.924294+00:00",
+   "aac_id": 414,
+   "created_by": 842,
+   "created_at": "2026-10-19T23:11:50.508985+00:00",
    "created_by_name": "Clarisse Moussavou",
    "my_status": "active",
    "aac": {
-    "id": 404,
+    "id": 414,
     "label": "PILOTE-AAC 2026-1",
     "status": "ouvert",
     "campaign_year": 2026,
@@ -48838,7 +48838,7 @@
    },
    "trees": [
     {
-     "id": 1984,
+     "id": 2043,
      "tree_code": "GA-PILOTE-0007",
      "species_scientific_name": "Aucoumea klaineana",
      "status": "abattu",
@@ -48849,7 +48849,7 @@
      "measured_by_me": false
     },
     {
-     "id": 1985,
+     "id": 2044,
      "tree_code": "GA-PILOTE-0013",
      "species_scientific_name": "Afzelia bipindensis",
      "status": "declare",
@@ -48860,7 +48860,7 @@
      "measured_by_me": false
     },
     {
-     "id": 1986,
+     "id": 2045,
      "tree_code": "GA-PILOTE-0014",
      "species_scientific_name": "Aucoumea klaineana",
      "status": "declare",
@@ -48871,7 +48871,7 @@
      "measured_by_me": false
     },
     {
-     "id": 1987,
+     "id": 2046,
      "tree_code": "GA-PILOTE-0015",
      "species_scientific_name": "Lophira alata",
      "status": "declare",
@@ -48882,7 +48882,7 @@
      "measured_by_me": false
     },
     {
-     "id": 1988,
+     "id": 2047,
      "tree_code": "GA-PILOTE-0016",
      "species_scientific_name": "Aucoumea klaineana",
      "status": "declare",
@@ -48893,7 +48893,7 @@
      "measured_by_me": false
     },
     {
-     "id": 1989,
+     "id": 2048,
      "tree_code": "GA-PILOTE-0017",
      "species_scientific_name": "Dacryodes glaucescens",
      "status": "declare",
@@ -48904,7 +48904,7 @@
      "measured_by_me": false
     },
     {
-     "id": 1994,
+     "id": 2053,
      "tree_code": "GA-PILOTE-0023",
      "species_scientific_name": "Aucoumea klaineana",
      "status": "transforme",
@@ -48915,7 +48915,7 @@
      "measured_by_me": false
     },
     {
-     "id": 1995,
+     "id": 2054,
      "tree_code": "GA-PILOTE-0024",
      "species_scientific_name": "Aucoumea klaineana",
      "status": "transforme",
@@ -48926,7 +48926,7 @@
      "measured_by_me": false
     },
     {
-     "id": 1978,
+     "id": 2037,
      "tree_code": "GA-PILOTE-0001",
      "species_scientific_name": "Aucoumea klaineana",
      "status": "transforme",
@@ -48937,7 +48937,7 @@
      "measured_by_me": true
     },
     {
-     "id": 1979,
+     "id": 2038,
      "tree_code": "GA-PILOTE-0002",
      "species_scientific_name": "Aucoumea klaineana",
      "status": "transforme",
@@ -48948,7 +48948,7 @@
      "measured_by_me": false
     },
     {
-     "id": 1980,
+     "id": 2039,
      "tree_code": "GA-PILOTE-0003",
      "species_scientific_name": "Lophira alata",
      "status": "receptionne",
@@ -48959,7 +48959,7 @@
      "measured_by_me": true
     },
     {
-     "id": 1981,
+     "id": 2040,
      "tree_code": "GA-PILOTE-0004",
      "species_scientific_name": "Milicia excelsa",
      "status": "transporte",
@@ -48970,7 +48970,7 @@
      "measured_by_me": false
     },
     {
-     "id": 1982,
+     "id": 2041,
      "tree_code": "GA-PILOTE-0005",
      "species_scientific_name": "Pterocarpus soyauxii",
      "status": "transporte",
@@ -48981,7 +48981,7 @@
      "measured_by_me": true
     },
     {
-     "id": 1983,
+     "id": 2042,
      "tree_code": "GA-PILOTE-0006",
      "species_scientific_name": "Terminalia superba",
      "status": "abattu",
@@ -48998,7 +48998,7 @@
    },
    "team": [
     {
-     "user_id": 817,
+     "user_id": 843,
      "status": "active",
      "display_name": "Jean-Baptiste Ndong",
      "first_name": "Jean-Baptiste",
@@ -49008,25 +49008,25 @@
    ],
    "my_scans": [
     {
-     "id": 512,
+     "id": 526,
      "species_scientific_name": "Pterocarpus soyauxii",
      "measured_dbh_cm": 84,
      "tree_code": "GA-PILOTE-0005",
-     "created_at": "2026-10-19T21:28:50.133648+00:00"
+     "created_at": "2026-10-19T23:11:50.656756+00:00"
     },
     {
-     "id": 510,
+     "id": 524,
      "species_scientific_name": "Lophira alata",
      "measured_dbh_cm": 98,
      "tree_code": "GA-PILOTE-0003",
-     "created_at": "2026-10-19T21:28:50.108593+00:00"
+     "created_at": "2026-10-19T23:11:50.646365+00:00"
     },
     {
-     "id": 508,
+     "id": 522,
      "species_scientific_name": "Aucoumea klaineana",
      "measured_dbh_cm": 92,
      "tree_code": "GA-PILOTE-0001",
-     "created_at": "2026-10-19T21:28:50.073586+00:00"
+     "created_at": "2026-10-19T23:11:50.614867+00:00"
     }
    ]
   }
@@ -49068,14 +49068,14 @@
  "company GET /api/auth/me": {
   "status": 200,
   "body": {
-   "id": 816,
+   "id": 842,
    "email": "hob.dg@pilote.ga",
    "display_name": "Clarisse Moussavou",
    "role": "company",
    "is_active": true,
    "cooperative_id": null,
    "company_id": null,
-   "organization_id": 411,
+   "organization_id": 423,
    "first_name": "Clarisse",
    "last_name": "Moussavou",
    "matricule": null
@@ -49085,20 +49085,20 @@
   "status": 200,
   "body": [
    {
-    "id": 245,
-    "org_id": 411,
-    "title_id": 487,
+    "id": 251,
+    "org_id": 423,
+    "title_id": 497,
     "scheme": "FSC",
     "cert_type": "gestion_durable",
     "certificate_ref": "PILOTE-FSC-FM-0042",
     "surface_ha": 118500,
     "valid_from": "2025-12-23",
     "valid_to": "2026-11-28",
-    "declared_by": 816,
+    "declared_by": 842,
     "verified_by": 1,
-    "verified_at": "2026-10-19T21:28:48.958185+00:00",
+    "verified_at": "2026-10-19T23:11:49.711052+00:00",
     "decision_motif": null,
-    "created_at": "2026-10-19T21:28:48.935261+00:00",
+    "created_at": "2026-10-19T23:11:49.694238+00:00",
     "status": "actif",
     "org_name": "Bois du Haut-Ogooué",
     "title_ref": "PILOTE-CFAD-HO-01"
@@ -49109,9 +49109,9 @@
   "status": 200,
   "body": [
    {
-    "id": 97,
-    "title_id": 487,
-    "community_org_id": 415,
+    "id": 99,
+    "title_id": 497,
+    "community_org_id": 427,
     "ccc_ref": "PILOTE-CCC-2026",
     "ccc_signed_at": "2026-05-22",
     "fdl_rate_fcfa_m3": 800,
@@ -49119,7 +49119,7 @@
     "contribution_fcfa": 33600000,
     "cgsp_minutes_document_id": null,
     "status": "actif",
-    "created_at": "2026-10-19T21:28:49.267406+00:00",
+    "created_at": "2026-10-19T23:11:49.945305+00:00",
     "title_ref": "PILOTE-CFAD-HO-01",
     "community_name": "Communauté de Massaha"
    }
@@ -49183,7 +49183,7 @@
     "longitude": 13.62
    },
    {
-    "id": 57,
+    "id": 59,
     "cooperative_name": "Coopérative des Artisans de Ntoum",
     "profile_type": "energy_briquettes",
     "capacity_kg_per_day": null,
@@ -49264,7 +49264,7 @@
   "status": 200,
   "body": {
    "organization": {
-    "id": 411,
+    "id": 423,
     "name": "Bois du Haut-Ogooué",
     "org_type": "entreprise",
     "profile_code": "integre"
@@ -49275,7 +49275,7 @@
      "level": "risk",
      "label": "Mise en demeure avant le 03/11/2026",
      "target": "accueil",
-     "followup_id": 77,
+     "followup_id": 81,
      "can_contest": true
     },
     {
@@ -49283,7 +49283,7 @@
      "level": "warn",
      "label": "Notifier le démarrage des activités · PILOTE-AAC 2025-1 (art. 14)",
      "target": "titres",
-     "authorization_id": 451
+     "authorization_id": 463
     },
     {
      "kind": "slip_draft",
@@ -49297,7 +49297,7 @@
      "level": "warn",
      "label": "Certification FSC : échéance le 28/11/2026",
      "target": "cert",
-     "certification_id": 245
+     "certification_id": 251
     },
     {
      "kind": "to_ship",
@@ -49310,11 +49310,11 @@
    "decisions": [
     {
      "kind": "declarations",
-     "id": 1076,
-     "label": "Déclaration n° 1076 · PILOTE-CFAD-HO-01",
+     "id": 1090,
+     "label": "Déclaration n° 1090 · PILOTE-CFAD-HO-01",
      "status": "autorisee",
      "motif": null,
-     "decided_at": "2026-10-19T21:28:50.431503+00:00",
+     "decided_at": "2026-10-19T23:11:50.912043+00:00",
      "outcome": "accord",
      "acting_authority": "Ministère des Eaux et Forêts",
      "competent_codes": [
@@ -49327,11 +49327,11 @@
     },
     {
      "kind": "eudr",
-     "id": 183,
+     "id": 187,
      "label": "Diligence RDUE · PILOTE-Parcelle AAC 2026-1",
      "status": "valide",
      "motif": null,
-     "decided_at": "2026-10-19T21:28:49.206338+00:00",
+     "decided_at": "2026-10-19T23:11:49.882201+00:00",
      "outcome": "accord",
      "acting_authority": "Ministère des Eaux et Forêts",
      "competent_codes": [
@@ -49344,11 +49344,11 @@
     },
     {
      "kind": "studies",
-     "id": 230,
+     "id": 236,
      "label": "PPF · PILOTE-CFAD-HO-01",
      "status": "valide",
      "motif": null,
-     "decided_at": "2026-10-19T21:28:49.062172+00:00",
+     "decided_at": "2026-10-19T23:11:49.760366+00:00",
      "outcome": "accord",
      "acting_authority": "Ministère des Eaux et Forêts",
      "competent_codes": [
@@ -49363,11 +49363,11 @@
     },
     {
      "kind": "certifications",
-     "id": 245,
+     "id": 251,
      "label": "FSC · PILOTE-FSC-FM-0042",
      "status": "actif",
      "motif": null,
-     "decided_at": "2026-10-19T21:28:48.958185+00:00",
+     "decided_at": "2026-10-19T23:11:49.711052+00:00",
      "outcome": "accord",
      "acting_authority": "Ministère des Eaux et Forêts",
      "competent_codes": [
@@ -49380,11 +49380,11 @@
     },
     {
      "kind": "declarations",
-     "id": 1072,
-     "label": "Déclaration n° 1072 · PILOTE-CFAD-HO-01",
+     "id": 1086,
+     "label": "Déclaration n° 1086 · PILOTE-CFAD-HO-01",
      "status": "rejetee",
      "motif": "Permis CITES d'exportation à joindre avant approbation",
-     "decided_at": "2026-10-19T21:28:47.931635+00:00",
+     "decided_at": "2026-10-19T23:11:49.072674+00:00",
      "outcome": "rejet",
      "acting_authority": "Ministère des Eaux et Forêts",
      "competent_codes": [
@@ -49397,11 +49397,11 @@
     },
     {
      "kind": "declarations",
-     "id": 1071,
-     "label": "Déclaration n° 1071 · PILOTE-CFAD-HO-01",
+     "id": 1085,
+     "label": "Déclaration n° 1085 · PILOTE-CFAD-HO-01",
      "status": "autorisee",
      "motif": null,
-     "decided_at": "2026-10-19T21:28:47.908111+00:00",
+     "decided_at": "2026-10-19T23:11:49.057704+00:00",
      "outcome": "accord",
      "acting_authority": "Ministère des Eaux et Forêts",
      "competent_codes": [
@@ -49414,11 +49414,11 @@
     },
     {
      "kind": "documents",
-     "id": 1304,
+     "id": 1340,
      "label": "Agrément professionnel — exploitation / vente de grumes",
      "status": "valide",
      "motif": null,
-     "decided_at": "2026-10-19T21:28:47.085968+00:00",
+     "decided_at": "2026-10-19T23:11:48.505186+00:00",
      "outcome": "accord",
      "acting_authority": "Ministère des Eaux et Forêts",
      "competent_codes": [],
@@ -49427,11 +49427,11 @@
     },
     {
      "kind": "documents",
-     "id": 1305,
+     "id": 1341,
      "label": "Agrément professionnel — transformation",
      "status": "valide",
      "motif": null,
-     "decided_at": "2026-10-19T21:28:47.072958+00:00",
+     "decided_at": "2026-10-19T23:11:48.496308+00:00",
      "outcome": "accord",
      "acting_authority": "Ministère des Eaux et Forêts",
      "competent_codes": [],
@@ -49440,11 +49440,11 @@
     },
     {
      "kind": "documents",
-     "id": 1306,
+     "id": 1342,
      "label": "Quittance de la taxe de superficie",
      "status": "valide",
      "motif": null,
-     "decided_at": "2026-10-19T21:28:47.055437+00:00",
+     "decided_at": "2026-10-19T23:11:48.487618+00:00",
      "outcome": "accord",
      "acting_authority": "Ministère des Eaux et Forêts",
      "competent_codes": [],
@@ -49453,11 +49453,11 @@
     },
     {
      "kind": "documents",
-     "id": 1307,
+     "id": 1343,
      "label": "Quittance de la redevance de surveillance",
      "status": "valide",
      "motif": null,
-     "decided_at": "2026-10-19T21:28:47.044416+00:00",
+     "decided_at": "2026-10-19T23:11:48.481537+00:00",
      "outcome": "accord",
      "acting_authority": "Ministère des Eaux et Forêts",
      "competent_codes": [],
@@ -49466,11 +49466,11 @@
     },
     {
      "kind": "documents",
-     "id": 1308,
+     "id": 1344,
      "label": "Certificat de conformité du Plan d'Industrialisation",
      "status": "valide",
      "motif": null,
-     "decided_at": "2026-10-19T21:28:47.024299+00:00",
+     "decided_at": "2026-10-19T23:11:48.469207+00:00",
      "outcome": "accord",
      "acting_authority": "Ministère des Eaux et Forêts",
      "competent_codes": [],
@@ -49479,11 +49479,11 @@
     },
     {
      "kind": "documents",
-     "id": 1309,
+     "id": 1345,
      "label": "Certificat de conformité du Plan de Développement Industriel",
      "status": "valide",
      "motif": null,
-     "decided_at": "2026-10-19T21:28:46.997649+00:00",
+     "decided_at": "2026-10-19T23:11:48.463010+00:00",
      "outcome": "accord",
      "acting_authority": "Ministère des Eaux et Forêts",
      "competent_codes": [],
@@ -49492,11 +49492,11 @@
     },
     {
      "kind": "titles",
-     "id": 487,
+     "id": 497,
      "label": "CFAD · PILOTE-CFAD-HO-01",
      "status": "actif",
      "motif": null,
-     "decided_at": "2026-10-19T21:28:46.002702+00:00",
+     "decided_at": "2026-10-19T23:11:47.833795+00:00",
      "outcome": "accord",
      "acting_authority": "Ministère des Eaux et Forêts",
      "competent_codes": [
@@ -49509,7 +49509,7 @@
     },
     {
      "kind": "authorizations",
-     "id": 451,
+     "id": 463,
      "label": "Permis annuel d'opérations · PILOTE-AAC 2025-1",
      "status": "delivre",
      "motif": null,
@@ -49528,7 +49528,7 @@
     },
     {
      "kind": "authorizations",
-     "id": 450,
+     "id": 462,
      "label": "Permis annuel d'opérations · PILOTE-AAC 2026-1",
      "status": "delivre",
      "motif": null,
@@ -49554,13 +49554,13 @@
      "subject_key": "GA-PILOTE-0005",
      "subject": "GA-PILOTE-0005",
      "detail": "Pterocarpus soyauxii CITES sans permis d'exportation valide",
-     "org_id": 411,
+     "org_id": 423,
      "org_name": "Bois du Haut-Ogooué",
      "title_id": null,
      "title_ref": null,
      "aac_id": null,
      "aac_label": null,
-     "detected_at": "2026-10-19T21:28:47.326041+00:00",
+     "detected_at": "2026-10-19T23:11:48.669561+00:00",
      "review_status": "ouverte",
      "review_motif": null,
      "reviewed_at": null
@@ -49569,16 +49569,16 @@
      "type": "controle_non_conforme",
      "severity": "hard",
      "label": "Contrôle terrain non conforme",
-     "subject_key": "control-333",
+     "subject_key": "control-341",
      "subject": "GA-PILOTE-0016",
      "detail": "marquage — Empreinte du marteau absente sur la tige",
-     "org_id": 411,
+     "org_id": 423,
      "org_name": "Bois du Haut-Ogooué",
      "title_id": null,
      "title_ref": null,
-     "aac_id": 404,
+     "aac_id": 414,
      "aac_label": "PILOTE-AAC 2026-1",
-     "detected_at": "2026-10-19T21:28:49.486084+00:00",
+     "detected_at": "2026-10-19T23:11:50.138046+00:00",
      "review_status": "ouverte",
      "review_motif": null,
      "reviewed_at": null
@@ -49586,19 +49586,19 @@
    ],
    "controls": [
     {
-     "id": 334,
+     "id": 342,
      "control_type": "visa_df10",
      "result": "conforme",
      "tree_code": null,
      "transport_document_id": null,
-     "aac_id": 404,
+     "aac_id": 414,
      "aac_label": "PILOTE-AAC 2026-1",
-     "org_id": 411,
+     "org_id": 423,
      "org_name": "Bois du Haut-Ogooué",
      "notes": "Carnet visé, entrées à jour",
      "pv_reference": "PILOTE-PV-V-003",
      "findings": "[]",
-     "controlled_at": "2026-10-19T21:28:49.505018+00:00",
+     "controlled_at": "2026-10-19T23:11:50.149487+00:00",
      "controlled_by_name": "Paul Nguema",
      "latitude": null,
      "longitude": null,
@@ -49612,19 +49612,19 @@
      "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DP. Interface dédiée prévue après la phase pilote."
     },
     {
-     "id": 333,
+     "id": 341,
      "control_type": "marquage",
      "result": "non_conforme",
      "tree_code": "GA-PILOTE-0016",
      "transport_document_id": null,
-     "aac_id": 404,
+     "aac_id": 414,
      "aac_label": "PILOTE-AAC 2026-1",
-     "org_id": 411,
+     "org_id": 423,
      "org_name": "Bois du Haut-Ogooué",
      "notes": "Empreinte du marteau absente sur la tige",
      "pv_reference": "PILOTE-PV-M-002",
      "findings": "[{\"label\": \"Arbre inscrit au registre\", \"level\": \"ok\"}, {\"label\": \"AAC autorisée (art. 14)\", \"level\": \"ok\"}, {\"label\": \"Empreinte du marteau non saisie\", \"level\": \"warn\"}]",
-     "controlled_at": "2026-10-19T21:28:49.486084+00:00",
+     "controlled_at": "2026-10-19T23:11:50.138046+00:00",
      "controlled_by_name": "Paul Nguema",
      "latitude": null,
      "longitude": null,
@@ -49638,19 +49638,19 @@
      "competence_note": "Action réalisée par le Ministère des Eaux et Forêts pour le compte de : DP. Interface dédiée prévue après la phase pilote."
     },
     {
-     "id": 332,
+     "id": 340,
      "control_type": "route",
      "result": "conforme",
      "tree_code": "GA-PILOTE-0004",
-     "transport_document_id": 422,
-     "aac_id": 404,
+     "transport_document_id": 430,
+     "aac_id": 414,
      "aac_label": "PILOTE-AAC 2026-1",
-     "org_id": 411,
+     "org_id": 423,
      "org_name": "Bois du Haut-Ogooué",
      "notes": null,
      "pv_reference": "PILOTE-PV-R-001",
-     "findings": "[{\"label\": \"Arbre inscrit au registre\", \"level\": \"ok\"}, {\"label\": \"AAC autorisée (art. 14)\", \"level\": \"ok\"}, {\"label\": \"Empreinte du marteau non saisie\", \"level\": \"warn\"}, {\"label\": \"Inscrit au DF10 (DF10-2026-001981)\", \"level\": \"ok\"}, {\"label\": \"Couvert par le bordereau PILOTE-BDR-002\", \"level\": \"ok\"}]",
-     "controlled_at": "2026-10-19T21:28:49.462475+00:00",
+     "findings": "[{\"label\": \"Arbre inscrit au registre\", \"level\": \"ok\"}, {\"label\": \"AAC autorisée (art. 14)\", \"level\": \"ok\"}, {\"label\": \"Empreinte du marteau non saisie\", \"level\": \"warn\"}, {\"label\": \"Inscrit au DF10 (DF10-2026-002040)\", \"level\": \"ok\"}, {\"label\": \"Couvert par le bordereau PILOTE-BDR-002\", \"level\": \"ok\"}]",
+     "controlled_at": "2026-10-19T23:11:50.111969+00:00",
      "controlled_by_name": "Aline Kombila",
      "latitude": -0.71,
      "longitude": 13.1,
@@ -49671,9 +49671,9 @@
   "status": 200,
   "body": [
    {
-    "id": 183,
-    "org_id": 411,
-    "title_id": 487,
+    "id": 187,
+    "org_id": 423,
+    "title_id": 497,
     "parcel_label": "PILOTE-Parcelle AAC 2026-1",
     "consultation_document_id": null,
     "geolocated_stem_count": 7,
@@ -49683,11 +49683,11 @@
     "declared_volume_m3": 82.5,
     "notes": "Grumes géolocalisées à la souche",
     "status": "valide",
-    "submitted_by": 816,
+    "submitted_by": 842,
     "decided_by": 1,
-    "decided_at": "2026-10-19T21:28:49.206338+00:00",
+    "decided_at": "2026-10-19T23:11:49.882201+00:00",
     "decision_motif": null,
-    "created_at": "2026-10-19T21:28:49.176006+00:00",
+    "created_at": "2026-10-19T23:11:49.841222+00:00",
     "parcel_wkt": "POLYGON((13.6 -0.78,13.62 -0.78,13.62 -0.76,13.6 -0.76,13.6 -0.78))",
     "title_ref": "PILOTE-CFAD-HO-01",
     "org_name": "Bois du Haut-Ogooué"
@@ -49698,34 +49698,34 @@
   "status": 200,
   "body": [
    {
-    "id": 404,
+    "id": 414,
     "label": "PILOTE-AAC 2026-1",
     "status": "ouvert",
     "campaign_year": 2026,
     "ufa_label": "PILOTE-UFA Okondja I",
-    "title_id": 487,
+    "title_id": 497,
     "title_type": "CFAD",
     "title_reference": "PILOTE-CFAD-HO-01",
     "blocker": null
    },
    {
-    "id": 405,
+    "id": 415,
     "label": "PILOTE-AAC 2026-2",
     "status": "soumis",
     "campaign_year": 2026,
     "ufa_label": "PILOTE-UFA Okondja I",
-    "title_id": 487,
+    "title_id": 497,
     "title_type": "CFAD",
     "title_reference": "PILOTE-CFAD-HO-01",
     "blocker": "no_authorization"
    },
    {
-    "id": 406,
+    "id": 416,
     "label": "PILOTE-AAC 2025-1",
     "status": "ferme",
     "campaign_year": 2025,
     "ufa_label": "PILOTE-UFA Okondja I",
-    "title_id": 487,
+    "title_id": 497,
     "title_type": "CFAD",
     "title_reference": "PILOTE-CFAD-HO-01",
     "blocker": "aac_closed"
@@ -49736,8 +49736,8 @@
   "status": 200,
   "body": [
    {
-    "id": 1076,
-    "company_id": 816,
+    "id": 1090,
+    "company_id": 842,
     "permit_type": "CFAD",
     "permit_number": "PILOTE-CFAD-HO-01",
     "ufa_label": "PILOTE-UFA Okondja I",
@@ -49746,16 +49746,16 @@
     "status": "autorisee",
     "decision_motif": null,
     "decided_by": 1,
-    "decided_at": "2026-10-19T21:28:50.431503+00:00",
-    "created_at": "2026-10-19T21:28:50.350799+00:00",
-    "title_id": 487,
-    "aac_id": 404,
-    "compliance": "{\"blockers\": [], \"warnings\": [], \"compliant\": true, \"declaration_id\": 1076}",
+    "decided_at": "2026-10-19T23:11:50.912043+00:00",
+    "created_at": "2026-10-19T23:11:50.858432+00:00",
+    "title_id": 497,
+    "aac_id": 414,
+    "compliance": "{\"blockers\": [], \"warnings\": [], \"compliant\": true, \"declaration_id\": 1090}",
     "line_count": 2
    },
    {
-    "id": 1073,
-    "company_id": 816,
+    "id": 1087,
+    "company_id": 842,
     "permit_type": "CFAD",
     "permit_number": "PILOTE-CFAD-HO-01",
     "ufa_label": "PILOTE-UFA Okondja I",
@@ -49765,15 +49765,15 @@
     "decision_motif": null,
     "decided_by": null,
     "decided_at": null,
-    "created_at": "2026-10-19T21:28:47.677099+00:00",
-    "title_id": 487,
-    "aac_id": 404,
-    "compliance": "{\"blockers\": [], \"warnings\": [], \"compliant\": true, \"declaration_id\": 1073}",
+    "created_at": "2026-10-19T23:11:48.891807+00:00",
+    "title_id": 497,
+    "aac_id": 414,
+    "compliance": "{\"blockers\": [], \"warnings\": [], \"compliant\": true, \"declaration_id\": 1087}",
     "line_count": 2
    },
    {
-    "id": 1072,
-    "company_id": 816,
+    "id": 1086,
+    "company_id": 842,
     "permit_type": "CFAD",
     "permit_number": "PILOTE-CFAD-HO-01",
     "ufa_label": "PILOTE-UFA Okondja I",
@@ -49781,17 +49781,17 @@
     "campaign_year": 2026,
     "status": "rejetee",
     "decision_motif": "Permis CITES d'exportation à joindre avant approbation",
-    "decided_by": 826,
-    "decided_at": "2026-10-19T21:28:47.931635+00:00",
-    "created_at": "2026-10-19T21:28:47.582006+00:00",
-    "title_id": 487,
-    "aac_id": 404,
-    "compliance": "{\"blockers\": [], \"warnings\": [{\"code\": \"cites_listed\", \"tree_code\": \"GA-PILOTE-0013\"}, {\"kind\": \"cites_without_permit\", \"tree_code\": \"GA-PILOTE-0013\"}], \"compliant\": true, \"declaration_id\": 1072}",
+    "decided_by": 852,
+    "decided_at": "2026-10-19T23:11:49.072674+00:00",
+    "created_at": "2026-10-19T23:11:48.820599+00:00",
+    "title_id": 497,
+    "aac_id": 414,
+    "compliance": "{\"blockers\": [], \"warnings\": [{\"code\": \"cites_listed\", \"tree_code\": \"GA-PILOTE-0013\"}, {\"kind\": \"cites_without_permit\", \"tree_code\": \"GA-PILOTE-0013\"}], \"compliant\": true, \"declaration_id\": 1086}",
     "line_count": 3
    },
    {
-    "id": 1071,
-    "company_id": 816,
+    "id": 1085,
+    "company_id": 842,
     "permit_type": "CFAD",
     "permit_number": "PILOTE-CFAD-HO-01",
     "ufa_label": "PILOTE-UFA Okondja I",
@@ -49799,12 +49799,12 @@
     "campaign_year": 2026,
     "status": "autorisee",
     "decision_motif": null,
-    "decided_by": 826,
-    "decided_at": "2026-10-19T21:28:47.908111+00:00",
-    "created_at": "2026-10-19T21:28:47.326041+00:00",
-    "title_id": 487,
-    "aac_id": 404,
-    "compliance": "{\"blockers\": [], \"warnings\": [{\"code\": \"cites_listed\", \"tree_code\": \"GA-PILOTE-0005\"}, {\"kind\": \"cites_without_permit\", \"tree_code\": \"GA-PILOTE-0005\"}], \"compliant\": true, \"declaration_id\": 1071}",
+    "decided_by": 852,
+    "decided_at": "2026-10-19T23:11:49.057704+00:00",
+    "created_at": "2026-10-19T23:11:48.669561+00:00",
+    "title_id": 497,
+    "aac_id": 414,
+    "compliance": "{\"blockers\": [], \"warnings\": [{\"code\": \"cites_listed\", \"tree_code\": \"GA-PILOTE-0005\"}, {\"kind\": \"cites_without_permit\", \"tree_code\": \"GA-PILOTE-0005\"}], \"compliant\": true, \"declaration_id\": 1085}",
     "line_count": 7
    }
   ]
@@ -49813,103 +49813,103 @@
   "status": 200,
   "body": [
    {
-    "id": 1996,
-    "tree_code": "GA-PILOTE-0026",
+    "id": 2055,
+    "tree_code": "GA-I10-00001",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
     "measured_dbh_cm": 96,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
+    "aac_id": 415,
     "inventory_destination": "abattre",
-    "painted_number": "26",
+    "painted_number": "GA-PILOTE-0026",
     "latitude": -0.77,
     "longitude": 13.633333,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 2000,
-    "tree_code": "GA-PILOTE-0030",
+    "id": 2059,
+    "tree_code": "GA-I10-00005",
     "marking_type": "qr",
     "species_scientific_name": "Baillonella toxisperma",
     "measured_dbh_cm": 118,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
-    "inventory_destination": "reserve",
-    "painted_number": "30",
+    "aac_id": 415,
+    "inventory_destination": "preserver",
+    "painted_number": "GA-PILOTE-0030",
     "latitude": -0.77,
     "longitude": 13.646667,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 1999,
-    "tree_code": "GA-PILOTE-0029",
+    "id": 2058,
+    "tree_code": "GA-I10-00004",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
     "measured_dbh_cm": 52,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
-    "inventory_destination": "avenir",
-    "painted_number": "29",
+    "aac_id": 415,
+    "inventory_destination": "preserver",
+    "painted_number": "GA-PILOTE-0029",
     "latitude": -0.77,
     "longitude": 13.643333,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 1998,
-    "tree_code": "GA-PILOTE-0028",
+    "id": 2057,
+    "tree_code": "GA-I10-00003",
     "marking_type": "qr",
     "species_scientific_name": "Lophira alata",
     "measured_dbh_cm": 88,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
+    "aac_id": 415,
     "inventory_destination": "abattre",
-    "painted_number": "28",
+    "painted_number": "GA-PILOTE-0028",
     "latitude": -0.77,
     "longitude": 13.64,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 1997,
-    "tree_code": "GA-PILOTE-0027",
+    "id": 2056,
+    "tree_code": "GA-I10-00002",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
     "measured_dbh_cm": 104,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
+    "aac_id": 415,
     "inventory_destination": "abattre",
-    "painted_number": "27",
+    "painted_number": "GA-PILOTE-0027",
     "latitude": -0.77,
     "longitude": 13.636667,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 2001,
-    "tree_code": "GA-PILOTE-0031",
+    "id": 2060,
+    "tree_code": "GA-I10-00006",
     "marking_type": "qr",
     "species_scientific_name": "Lophira alata",
     "measured_dbh_cm": 79,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
-    "inventory_destination": "semencier",
-    "painted_number": "31",
+    "aac_id": 415,
+    "inventory_destination": "preserver",
+    "painted_number": "GA-PILOTE-0031",
     "latitude": -0.766667,
     "longitude": 13.633333,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 1989,
+    "id": 2048,
     "tree_code": "GA-PILOTE-0017",
     "marking_type": "qr",
     "species_scientific_name": "Dacryodes glaucescens",
@@ -49917,15 +49917,15 @@
     "status": "declare",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.766667,
     "longitude": 13.613333,
-    "created_at": "2026-10-19T21:28:47.720499+00:00"
+    "created_at": "2026-10-19T23:11:48.902633+00:00"
    },
    {
-    "id": 1988,
+    "id": 2047,
     "tree_code": "GA-PILOTE-0016",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
@@ -49933,15 +49933,15 @@
     "status": "declare",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.766667,
     "longitude": 13.61,
-    "created_at": "2026-10-19T21:28:47.696850+00:00"
+    "created_at": "2026-10-19T23:11:48.897162+00:00"
    },
    {
-    "id": 1987,
+    "id": 2046,
     "tree_code": "GA-PILOTE-0015",
     "marking_type": "qr",
     "species_scientific_name": "Lophira alata",
@@ -49949,15 +49949,15 @@
     "status": "declare",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.766667,
     "longitude": 13.606667,
-    "created_at": "2026-10-19T21:28:47.638213+00:00"
+    "created_at": "2026-10-19T23:11:48.852392+00:00"
    },
    {
-    "id": 1986,
+    "id": 2045,
     "tree_code": "GA-PILOTE-0014",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
@@ -49965,15 +49965,15 @@
     "status": "declare",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.766667,
     "longitude": 13.603333,
-    "created_at": "2026-10-19T21:28:47.623492+00:00"
+    "created_at": "2026-10-19T23:11:48.844840+00:00"
    },
    {
-    "id": 1985,
+    "id": 2044,
     "tree_code": "GA-PILOTE-0013",
     "marking_type": "qr",
     "species_scientific_name": "Afzelia bipindensis",
@@ -49981,15 +49981,15 @@
     "status": "declare",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.77,
     "longitude": 13.616667,
-    "created_at": "2026-10-19T21:28:47.607651+00:00"
+    "created_at": "2026-10-19T23:11:48.833676+00:00"
    },
    {
-    "id": 1984,
+    "id": 2043,
     "tree_code": "GA-PILOTE-0007",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
@@ -49997,15 +49997,15 @@
     "status": "abattu",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.773333,
     "longitude": 13.606667,
-    "created_at": "2026-10-19T21:28:47.481862+00:00"
+    "created_at": "2026-10-19T23:11:48.732068+00:00"
    },
    {
-    "id": 1983,
+    "id": 2042,
     "tree_code": "GA-PILOTE-0006",
     "marking_type": "qr",
     "species_scientific_name": "Terminalia superba",
@@ -50013,15 +50013,15 @@
     "status": "abattu",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.773333,
     "longitude": 13.603333,
-    "created_at": "2026-10-19T21:28:47.462842+00:00"
+    "created_at": "2026-10-19T23:11:48.725984+00:00"
    },
    {
-    "id": 1982,
+    "id": 2041,
     "tree_code": "GA-PILOTE-0005",
     "marking_type": "qr",
     "species_scientific_name": "Pterocarpus soyauxii",
@@ -50029,15 +50029,15 @@
     "status": "transporte",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.776667,
     "longitude": 13.616667,
-    "created_at": "2026-10-19T21:28:47.442269+00:00"
+    "created_at": "2026-10-19T23:11:48.714139+00:00"
    },
    {
-    "id": 1981,
+    "id": 2040,
     "tree_code": "GA-PILOTE-0004",
     "marking_type": "qr",
     "species_scientific_name": "Milicia excelsa",
@@ -50045,12 +50045,12 @@
     "status": "transporte",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.776667,
     "longitude": 13.613333,
-    "created_at": "2026-10-19T21:28:47.423622+00:00"
+    "created_at": "2026-10-19T23:11:48.708491+00:00"
    }
   ]
  },
@@ -50058,100 +50058,100 @@
   "status": 200,
   "body": [
    {
-    "id": 1996,
-    "tree_code": "GA-PILOTE-0026",
+    "id": 2055,
+    "tree_code": "GA-I10-00001",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
     "measured_dbh_cm": 96,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
+    "aac_id": 415,
     "inventory_destination": "abattre",
-    "painted_number": "26",
+    "painted_number": "GA-PILOTE-0026",
     "latitude": -0.77,
     "longitude": 13.633333,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 1997,
-    "tree_code": "GA-PILOTE-0027",
+    "id": 2056,
+    "tree_code": "GA-I10-00002",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
     "measured_dbh_cm": 104,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
+    "aac_id": 415,
     "inventory_destination": "abattre",
-    "painted_number": "27",
+    "painted_number": "GA-PILOTE-0027",
     "latitude": -0.77,
     "longitude": 13.636667,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 1998,
-    "tree_code": "GA-PILOTE-0028",
+    "id": 2057,
+    "tree_code": "GA-I10-00003",
     "marking_type": "qr",
     "species_scientific_name": "Lophira alata",
     "measured_dbh_cm": 88,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
+    "aac_id": 415,
     "inventory_destination": "abattre",
-    "painted_number": "28",
+    "painted_number": "GA-PILOTE-0028",
     "latitude": -0.77,
     "longitude": 13.64,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 1999,
-    "tree_code": "GA-PILOTE-0029",
+    "id": 2058,
+    "tree_code": "GA-I10-00004",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
     "measured_dbh_cm": 52,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
-    "inventory_destination": "avenir",
-    "painted_number": "29",
+    "aac_id": 415,
+    "inventory_destination": "preserver",
+    "painted_number": "GA-PILOTE-0029",
     "latitude": -0.77,
     "longitude": 13.643333,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 2000,
-    "tree_code": "GA-PILOTE-0030",
+    "id": 2059,
+    "tree_code": "GA-I10-00005",
     "marking_type": "qr",
     "species_scientific_name": "Baillonella toxisperma",
     "measured_dbh_cm": 118,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
-    "inventory_destination": "reserve",
-    "painted_number": "30",
+    "aac_id": 415,
+    "inventory_destination": "preserver",
+    "painted_number": "GA-PILOTE-0030",
     "latitude": -0.77,
     "longitude": 13.646667,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    },
    {
-    "id": 2001,
-    "tree_code": "GA-PILOTE-0031",
+    "id": 2060,
+    "tree_code": "GA-I10-00006",
     "marking_type": "qr",
     "species_scientific_name": "Lophira alata",
     "measured_dbh_cm": 79,
     "status": "inventorie",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-2",
-    "aac_id": 405,
-    "inventory_destination": "semencier",
-    "painted_number": "31",
+    "aac_id": 415,
+    "inventory_destination": "preserver",
+    "painted_number": "GA-PILOTE-0031",
     "latitude": -0.766667,
     "longitude": 13.633333,
-    "created_at": "2026-10-19T21:28:51.258339+00:00"
+    "created_at": "2026-10-19T23:11:51.800256+00:00"
    }
   ]
  },
@@ -50159,70 +50159,61 @@
   "status": 200,
   "body": [
    {
-    "id": 2,
-    "organization_id": 411,
+    "id": 10,
+    "organization_id": 423,
     "organization_name": "Bois du Haut-Ogooué",
-    "aac_id": 405,
+    "aac_id": 415,
     "aac_label": "PILOTE-AAC 2026-2",
-    "title_id": 487,
+    "title_id": 497,
     "title_reference": "PILOTE-CFAD-HO-01",
-    "imported_by": 816,
+    "imported_by": 842,
     "imported_by_name": "Clarisse Moussavou",
     "imported_by_email": "hob.dg@pilote.ga",
     "file_name": "inventaire_AAC_2026-2.csv",
     "file_format": "csv",
-    "model_version": "proposition-2026-10",
+    "model_version": "proposition-2026-10-b",
     "rows_total": 6,
     "stems_created": 6,
     "to_fell_count": 3,
     "kept_count": 3,
     "warnings_count": 0,
-    "created_at": "2026-10-19T21:28:51.222683+00:00"
+    "created_at": "2026-10-19T23:11:51.755495+00:00"
    }
   ]
  },
  "company GET /api/inventory/model": {
   "status": 200,
   "body": {
-   "version": "proposition-2026-10",
+   "version": "proposition-2026-10-b",
    "max_rows": 5000,
    "max_file_mb": 5,
-   "help": "Une ligne par tige, sur toute la superficie de l'AAC (art. 60). Les arbres à préserver (avenir, réserve, semenciers) sont inventoriés et marqués comme les arbres à abattre (art. 122) : ils entrent au registre et ne pourront jamais être déclarés à l'abattage. Les nombres acceptent la virgule. Le fichier est vérifié ligne par ligne avant toute inscription ; l'import n'est confirmé que lorsque toutes les lignes sont conformes (les avertissements n'empêchent pas l'import).",
+   "help": "Une ligne par tige de l'AAC (art. 60), arbres à abattre et arbres à préserver (art. 122). Sept colonnes : la référence de l'AAC au plan d'aménagement, le numéro de l'arbre, l'essence, la latitude, la longitude, le diamètre et « à abattre » (oui ou non). Le fichier est vérifié ligne par ligne ; l'import n'est confirmé que lorsque toutes les lignes sont conformes (les avertissements n'empêchent pas l'import).",
    "columns": [
     {
-     "key": "code_arbre",
+     "key": "reference_aac",
+     "required": true,
+     "kind": "texte",
+     "example": "AAC 2026-2",
+     "help": "Référence de l'AAC au plan d'aménagement ; elle doit être celle de l'AAC choisie.",
+     "legal": "Art. 119 (AAC cartographiées au plan d'aménagement)",
+     "values": []
+    },
+    {
+     "key": "numero_arbre",
      "required": false,
      "kind": "texte",
-     "example": "GA-HOB-2026-00412",
-     "help": "Code d'identification de la tige. Laissé vide, il est attribué à l'import.",
-     "legal": "Art. 128 (code d'identification de l'arbre)",
+     "example": "412",
+     "help": "Numéro de la tige sur le terrain (peint ou plaque), unique dans l'AAC.",
+     "legal": "Art. 120 et 128 (marque et code d'identification)",
      "values": []
     },
     {
      "key": "essence",
      "required": true,
      "kind": "texte",
-     "example": "Aucoumea klaineana",
-     "help": "Nom scientifique ou nom commercial (Okoumé, Padouk…).",
-     "legal": "Art. 31 et 61 (essences principales et secondaires) ; DME, réserve, CITES",
-     "values": []
-    },
-    {
-     "key": "dhp_cm",
-     "required": true,
-     "kind": "nombre",
-     "example": "87,5",
-     "help": "Diamètre en cm à 1,30 m, ou au-dessus des contreforts. Virgule ou point.",
-     "legal": "Art. 124 (Diamètre Minimum d'Exploitabilité de l'UFA)",
-     "values": []
-    },
-    {
-     "key": "hauteur_fut_m",
-     "required": false,
-     "kind": "nombre",
-     "example": "18,5",
-     "help": "Hauteur du fût en mètres (estimation du volume).",
-     "legal": "Pratique d'inventaire (préparation du PAO)",
+     "example": "Okoumé",
+     "help": "Nom commercial ou scientifique.",
+     "legal": "Art. 31 et 61 ; DME, essences réservées, CITES",
      "values": []
     },
     {
@@ -50230,8 +50221,8 @@
      "required": true,
      "kind": "degrés décimaux",
      "example": "-0,6912",
-     "help": "WGS84, degrés décimaux (négatif au sud de l'équateur).",
-     "legal": "Art. 60 (« localiser précisément ») ; RDUE (géolocalisation)",
+     "help": "WGS84, négatif au sud de l'équateur.",
+     "legal": "Art. 60 (« localiser précisément ») ; RDUE",
      "values": []
     },
     {
@@ -50239,91 +50230,36 @@
      "required": true,
      "kind": "degrés décimaux",
      "example": "13,2145",
-     "help": "WGS84, degrés décimaux.",
-     "legal": "Art. 60 (« localiser précisément ») ; RDUE (géolocalisation)",
+     "help": "WGS84.",
+     "legal": "Art. 60 ; RDUE",
      "values": []
     },
     {
-     "key": "destination",
+     "key": "diametre_cm",
      "required": true,
-     "kind": "liste",
-     "example": "abattre",
-     "help": "abattre, avenir (tige d'avenir), reserve (tige en réserve) ou semencier.",
-     "legal": "Art. 60 et 122 (arbres à exploiter et à préserver) ; semencier : pratique",
+     "kind": "nombre",
+     "example": "87",
+     "help": "Diamètre à 1,30 m (au-dessus des contreforts), en cm.",
+     "legal": "Art. 124 (Diamètre Minimum d'Exploitabilité de l'UFA)",
+     "values": []
+    },
+    {
+     "key": "a_abattre",
+     "required": true,
+     "kind": "oui / non",
+     "example": "oui",
+     "help": "« non » : arbre à préserver, il ne pourra jamais être déclaré à l'abattage.",
+     "legal": "Art. 122 (arbres à exploiter et à préserver)",
      "values": [
-      "abattre",
-      "avenir",
-      "reserve",
-      "semencier"
+      "oui",
+      "non"
      ]
-    },
-    {
-     "key": "marquage",
-     "required": false,
-     "kind": "liste",
-     "example": "qr",
-     "help": "qr (plaque, par défaut), peinture ou gps_photo.",
-     "legal": "Art. 120 et 122 (marquage des arbres)",
-     "values": [
-      "qr",
-      "peinture",
-      "gps_photo"
-     ]
-    },
-    {
-     "key": "numero_peint",
-     "required": false,
-     "kind": "texte",
-     "example": "412",
-     "help": "Numéro peint sur la tige. Obligatoire si le marquage est « peinture ».",
-     "legal": "Art. 120 (marques toujours visibles)",
-     "values": []
-    },
-    {
-     "key": "layon",
-     "required": false,
-     "kind": "texte",
-     "example": "L12",
-     "help": "Layon de comptage.",
-     "legal": "Art. 120 (layons de l'AAC)",
-     "values": []
-    },
-    {
-     "key": "placette",
-     "required": false,
-     "kind": "texte",
-     "example": "P12-04",
-     "help": "Placette ou bloc de comptage.",
-     "legal": "Art. 60 (relevé cartographique détaillé)",
-     "values": []
-    },
-    {
-     "key": "qualite",
-     "required": false,
-     "kind": "liste",
-     "example": "1",
-     "help": "1 bonne, 2 moyenne, 3 inutilisable.",
-     "legal": "Art. 61 (seules les tiges de qualité utilisable sont comptabilisées)",
-     "values": [
-      "1",
-      "2",
-      "3"
-     ]
-    },
-    {
-     "key": "date_releve",
-     "required": false,
-     "kind": "date JJ/MM/AAAA",
-     "example": "14/02/2026",
-     "help": "Date du relevé de terrain.",
-     "legal": "Art. 62 (achevé trois mois avant l'ouverture de l'AAC)",
-     "values": []
     },
     {
      "key": "observations",
      "required": false,
      "kind": "texte",
-     "example": "Contreforts 1,2 m",
+     "example": "semencier",
      "help": "Remarque libre (500 caractères au plus).",
      "legal": "—",
      "values": []
@@ -50334,7 +50270,7 @@
  "company GET /api/mill/register": {
   "status": 200,
   "body": {
-   "org_id": 411,
+   "org_id": 423,
    "year": 2026,
    "inputs": [],
    "outputs": [],
@@ -50354,7 +50290,7 @@
   "status": 200,
   "body": {
    "organization": {
-    "id": 411,
+    "id": 423,
     "org_type": "entreprise",
     "name": "Bois du Haut-Ogooué",
     "legal_form": null,
@@ -50366,7 +50302,7 @@
     "profile_code": "integre",
     "is_active": true,
     "created_by": 1,
-    "created_at": "2026-10-19T21:28:42.063433+00:00",
+    "created_at": "2026-10-19T23:11:43.615455+00:00",
     "profile_label": "Exploitant intégré"
    },
    "checklist": [
@@ -50407,36 +50343,36 @@
   "status": 200,
   "body": [
    {
-    "id": 817,
+    "id": 843,
     "email": "hob.agent1@pilote.ga",
     "display_name": "Jean-Baptiste Ndong",
     "first_name": "Jean-Baptiste",
     "last_name": "Ndong",
     "matricule": "AGT-HOB-01",
     "is_active": true,
-    "created_at": "2026-10-19T21:28:42.801130+00:00",
-    "last_scan_at": "2026-10-19T21:28:50.133648+00:00"
+    "created_at": "2026-10-19T23:11:44.310624+00:00",
+    "last_scan_at": "2026-10-19T23:11:50.656756+00:00"
    },
    {
-    "id": 818,
+    "id": 844,
     "email": "hob.agent2@pilote.ga",
     "display_name": "Prisca Mba",
     "first_name": "Prisca",
     "last_name": "Mba",
     "matricule": "AGT-HOB-02",
     "is_active": true,
-    "created_at": "2026-10-19T21:28:43.113793+00:00",
-    "last_scan_at": "2026-10-19T21:28:50.140940+00:00"
+    "created_at": "2026-10-19T23:11:44.600556+00:00",
+    "last_scan_at": "2026-10-19T23:11:50.659367+00:00"
    },
    {
-    "id": 828,
+    "id": 854,
     "email": "hob.agent3@pilote.ga",
     "display_name": "Rodrigue Mintsa",
     "first_name": "Rodrigue",
     "last_name": "Mintsa",
     "matricule": "PILOTE-AGT-3",
     "is_active": false,
-    "created_at": "2026-10-19T21:28:50.282243+00:00",
+    "created_at": "2026-10-19T23:11:50.806421+00:00",
     "last_scan_at": null
    }
   ]
@@ -50445,7 +50381,7 @@
   "status": 200,
   "body": [
    {
-    "id": 487,
+    "id": 497,
     "title_type": "CFAD",
     "reference": "PILOTE-CFAD-HO-01",
     "zone": "permanent",
@@ -50458,7 +50394,7 @@
     "pa_approved_at": null,
     "grant_ref": "Convention provisoire n° 012/MEF",
     "grant_date": "2024-05-02",
-    "created_at": "2026-10-19T21:28:45.947618+00:00"
+    "created_at": "2026-10-19T23:11:47.797769+00:00"
    }
   ]
  },
@@ -50466,7 +50402,7 @@
   "status": 200,
   "body": [
    {
-    "id": 253,
+    "id": 257,
     "title": "Cartographie du Moabi",
     "description": "Projet participatif national [PILOTE]",
     "target_type": "species",
@@ -50477,7 +50413,7 @@
     "radius_km": null,
     "status": "open",
     "created_by": 1,
-    "created_at": "2026-10-19T21:28:50.009823+00:00",
+    "created_at": "2026-10-19T23:11:50.569058+00:00",
     "kind": "participatif",
     "participation": "open",
     "aac_id": null,
@@ -50495,7 +50431,7 @@
     "my_status": null
    },
    {
-    "id": 252,
+    "id": 256,
     "title": "Chantier AAC 2026-1",
     "description": "Mesure des tiges autorisées [PILOTE]",
     "target_type": "all",
@@ -50505,11 +50441,11 @@
     "longitude": null,
     "radius_km": null,
     "status": "open",
-    "created_by": 816,
-    "created_at": "2026-10-19T21:28:49.924294+00:00",
+    "created_by": 842,
+    "created_at": "2026-10-19T23:11:50.508985+00:00",
     "kind": "chantier",
     "participation": "invitation",
-    "aac_id": 404,
+    "aac_id": 414,
     "aac_label": "PILOTE-AAC 2026-1",
     "aac_lat": -0.77,
     "aac_lon": 13.610000000000001,
@@ -50558,9 +50494,9 @@
   "status": 200,
   "body": [
    {
-    "id": 131,
-    "org_id": 411,
-    "title_id": 487,
+    "id": 133,
+    "org_id": 423,
+    "title_id": 497,
     "tax_type": "superficie",
     "period_year": 2026,
     "amount_fcfa": 35550000,
@@ -50568,7 +50504,7 @@
     "paid_at": "2026-09-14",
     "due_at": "2026-09-19",
     "status": "paye",
-    "created_at": "2026-10-19T21:28:48.819095+00:00"
+    "created_at": "2026-10-19T23:11:49.609958+00:00"
    }
   ]
  },
@@ -50576,16 +50512,16 @@
   "status": 200,
   "body": [
    {
-    "id": 259,
-    "org_id": 411,
-    "title_id": 487,
+    "id": 265,
+    "org_id": 423,
+    "title_id": 497,
     "tax_type": "abattage",
     "period_year": 2026,
     "amount_fcfa": 4200000,
     "due_at": "2026-12-03",
     "notes": null,
     "receipt_id": null,
-    "created_at": "2026-10-19T21:28:48.863739+00:00",
+    "created_at": "2026-10-19T23:11:49.625973+00:00",
     "paid_at": null,
     "receipt_ref": null,
     "receipt_amount_fcfa": null,
@@ -50595,16 +50531,16 @@
     "surcharge_fcfa": 0
    },
    {
-    "id": 258,
-    "org_id": 411,
-    "title_id": 487,
+    "id": 264,
+    "org_id": 423,
+    "title_id": 497,
     "tax_type": "superficie",
     "period_year": 2026,
     "amount_fcfa": 35550000,
     "due_at": "2026-09-19",
     "notes": "118 500 ha × 300 FCFA",
-    "receipt_id": 131,
-    "created_at": "2026-10-19T21:28:48.802526+00:00",
+    "receipt_id": 133,
+    "created_at": "2026-10-19T23:11:49.595948+00:00",
     "paid_at": "2026-09-14",
     "receipt_ref": "PILOTE-Q-SUP-2026",
     "receipt_amount_fcfa": 35550000,
@@ -50619,10 +50555,10 @@
   "status": 200,
   "body": [
    {
-    "id": 487,
+    "id": 497,
     "title_type": "CFAD",
     "reference": "PILOTE-CFAD-HO-01",
-    "holder_org_id": 411,
+    "holder_org_id": 423,
     "zone": "permanent",
     "surface_ha": 118500,
     "status": "actif",
@@ -50633,7 +50569,7 @@
     "pa_approved_at": null,
     "grant_ref": "Convention provisoire n° 012/MEF",
     "grant_date": "2024-05-02",
-    "created_at": "2026-10-19T21:28:45.947618+00:00"
+    "created_at": "2026-10-19T23:11:47.797769+00:00"
    }
   ]
  },
@@ -50647,14 +50583,14 @@
     "marking_type": "qr",
     "status": "transforme",
     "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:48.090759+00:00",
-    "df10_entry_no": "DF10-2026-001978",
+    "felled_at": "2026-10-19T23:11:49.159670+00:00",
+    "df10_entry_no": "DF10-2026-002037",
     "abandon_code": null,
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -50664,14 +50600,14 @@
     "marking_type": "qr",
     "status": "transforme",
     "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:48.126661+00:00",
-    "df10_entry_no": "DF10-2026-001979",
+    "felled_at": "2026-10-19T23:11:49.179111+00:00",
+    "df10_entry_no": "DF10-2026-002038",
     "abandon_code": null,
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -50681,14 +50617,14 @@
     "marking_type": "qr",
     "status": "receptionne",
     "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:48.171405+00:00",
-    "df10_entry_no": "DF10-2026-001980",
+    "felled_at": "2026-10-19T23:11:49.193410+00:00",
+    "df10_entry_no": "DF10-2026-002039",
     "abandon_code": null,
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -50698,14 +50634,14 @@
     "marking_type": "qr",
     "status": "transporte",
     "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:48.208270+00:00",
-    "df10_entry_no": "DF10-2026-001981",
+    "felled_at": "2026-10-19T23:11:49.212826+00:00",
+    "df10_entry_no": "DF10-2026-002040",
     "abandon_code": null,
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -50715,14 +50651,14 @@
     "marking_type": "qr",
     "status": "transporte",
     "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:48.243868+00:00",
-    "df10_entry_no": "DF10-2026-001982",
+    "felled_at": "2026-10-19T23:11:49.229977+00:00",
+    "df10_entry_no": "DF10-2026-002041",
     "abandon_code": null,
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -50732,14 +50668,14 @@
     "marking_type": "qr",
     "status": "abattu",
     "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:48.278813+00:00",
-    "df10_entry_no": "DF10-2026-001983",
+    "felled_at": "2026-10-19T23:11:49.249684+00:00",
+    "df10_entry_no": "DF10-2026-002042",
     "abandon_code": null,
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -50749,14 +50685,14 @@
     "marking_type": "qr",
     "status": "abattu",
     "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:48.305693+00:00",
-    "df10_entry_no": "DF10-2026-001984",
+    "felled_at": "2026-10-19T23:11:49.266150+00:00",
+    "df10_entry_no": "DF10-2026-002043",
     "abandon_code": null,
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -50766,14 +50702,14 @@
     "marking_type": "qr",
     "status": "transforme",
     "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:50.476251+00:00",
-    "df10_entry_no": "DF10-2026-001994",
+    "felled_at": "2026-10-19T23:11:50.944887+00:00",
+    "df10_entry_no": "DF10-2026-002053",
     "abandon_code": null,
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -50783,14 +50719,116 @@
     "marking_type": "qr",
     "status": "transforme",
     "hammer_mark": null,
-    "felled_at": "2026-10-19T21:28:50.505936+00:00",
-    "df10_entry_no": "DF10-2026-001995",
+    "felled_at": "2026-10-19T23:11:50.961459+00:00",
+    "df10_entry_no": "DF10-2026-002054",
     "abandon_code": null,
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-I10-00001",
+    "species_scientific_name": "Aucoumea klaineana",
+    "measured_dbh_cm": 96,
+    "marking_type": "qr",
+    "status": "inventorie",
+    "hammer_mark": null,
+    "felled_at": null,
+    "df10_entry_no": null,
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-2",
+    "title_id": 497,
+    "aac_id": 415,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-I10-00002",
+    "species_scientific_name": "Aucoumea klaineana",
+    "measured_dbh_cm": 104,
+    "marking_type": "qr",
+    "status": "inventorie",
+    "hammer_mark": null,
+    "felled_at": null,
+    "df10_entry_no": null,
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-2",
+    "title_id": 497,
+    "aac_id": 415,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-I10-00003",
+    "species_scientific_name": "Lophira alata",
+    "measured_dbh_cm": 88,
+    "marking_type": "qr",
+    "status": "inventorie",
+    "hammer_mark": null,
+    "felled_at": null,
+    "df10_entry_no": null,
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-2",
+    "title_id": 497,
+    "aac_id": 415,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-I10-00004",
+    "species_scientific_name": "Aucoumea klaineana",
+    "measured_dbh_cm": 52,
+    "marking_type": "qr",
+    "status": "inventorie",
+    "hammer_mark": null,
+    "felled_at": null,
+    "df10_entry_no": null,
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-2",
+    "title_id": 497,
+    "aac_id": 415,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-I10-00005",
+    "species_scientific_name": "Baillonella toxisperma",
+    "measured_dbh_cm": 118,
+    "marking_type": "qr",
+    "status": "inventorie",
+    "hammer_mark": null,
+    "felled_at": null,
+    "df10_entry_no": null,
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-2",
+    "title_id": 497,
+    "aac_id": 415,
+    "abandon_label": null
+   },
+   {
+    "tree_code": "GA-I10-00006",
+    "species_scientific_name": "Lophira alata",
+    "measured_dbh_cm": 79,
+    "marking_type": "qr",
+    "status": "inventorie",
+    "hammer_mark": null,
+    "felled_at": null,
+    "df10_entry_no": null,
+    "abandon_code": null,
+    "df10_notes": null,
+    "permit_number": "PILOTE-CFAD-HO-01",
+    "aac_label": "PILOTE-AAC 2026-2",
+    "title_id": 497,
+    "aac_id": 415,
     "abandon_label": null
    },
    {
@@ -50806,8 +50844,8 @@
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -50823,8 +50861,8 @@
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -50840,8 +50878,8 @@
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -50857,8 +50895,8 @@
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    },
    {
@@ -50874,110 +50912,8 @@
     "df10_notes": null,
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "title_id": 487,
-    "aac_id": 404,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0026",
-    "species_scientific_name": "Aucoumea klaineana",
-    "measured_dbh_cm": 96,
-    "marking_type": "qr",
-    "status": "inventorie",
-    "hammer_mark": null,
-    "felled_at": null,
-    "df10_entry_no": null,
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-2",
-    "title_id": 487,
-    "aac_id": 405,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0027",
-    "species_scientific_name": "Aucoumea klaineana",
-    "measured_dbh_cm": 104,
-    "marking_type": "qr",
-    "status": "inventorie",
-    "hammer_mark": null,
-    "felled_at": null,
-    "df10_entry_no": null,
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-2",
-    "title_id": 487,
-    "aac_id": 405,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0028",
-    "species_scientific_name": "Lophira alata",
-    "measured_dbh_cm": 88,
-    "marking_type": "qr",
-    "status": "inventorie",
-    "hammer_mark": null,
-    "felled_at": null,
-    "df10_entry_no": null,
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-2",
-    "title_id": 487,
-    "aac_id": 405,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0029",
-    "species_scientific_name": "Aucoumea klaineana",
-    "measured_dbh_cm": 52,
-    "marking_type": "qr",
-    "status": "inventorie",
-    "hammer_mark": null,
-    "felled_at": null,
-    "df10_entry_no": null,
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-2",
-    "title_id": 487,
-    "aac_id": 405,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0030",
-    "species_scientific_name": "Baillonella toxisperma",
-    "measured_dbh_cm": 118,
-    "marking_type": "qr",
-    "status": "inventorie",
-    "hammer_mark": null,
-    "felled_at": null,
-    "df10_entry_no": null,
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-2",
-    "title_id": 487,
-    "aac_id": 405,
-    "abandon_label": null
-   },
-   {
-    "tree_code": "GA-PILOTE-0031",
-    "species_scientific_name": "Lophira alata",
-    "measured_dbh_cm": 79,
-    "marking_type": "qr",
-    "status": "inventorie",
-    "hammer_mark": null,
-    "felled_at": null,
-    "df10_entry_no": null,
-    "abandon_code": null,
-    "df10_notes": null,
-    "permit_number": "PILOTE-CFAD-HO-01",
-    "aac_label": "PILOTE-AAC 2026-2",
-    "title_id": 487,
-    "aac_id": 405,
+    "title_id": 497,
+    "aac_id": 414,
     "abandon_label": null
    }
   ]
@@ -50986,8 +50922,8 @@
   "status": 200,
   "body": [
    {
-    "id": 424,
-    "org_id": 411,
+    "id": 432,
+    "org_id": 423,
     "doc_type": "bordereau_roulage",
     "reference": "PILOTE-BDR-003",
     "from_label": null,
@@ -50997,24 +50933,24 @@
      "GA-PILOTE-0024"
     ],
     "volume_m3": 16.459,
-    "issued_by": 816,
-    "issued_at": "2026-10-19T21:28:50.564746+00:00",
+    "issued_by": 842,
+    "issued_at": "2026-10-19T23:11:51.006969+00:00",
     "status": "receptionne",
     "qr_payload": "bordereau_roulage|PILOTE-BDR-003|2|16.459",
     "title_id": null,
     "aac_id": null,
     "transporter": null,
     "vehicle_ref": null,
-    "created_at": "2026-10-19T21:28:50.524729+00:00",
-    "destination_org_id": 413,
-    "received_at": "2026-10-19T21:28:50.599911+00:00",
+    "created_at": "2026-10-19T23:11:50.979769+00:00",
+    "destination_org_id": 425,
+    "received_at": "2026-10-19T23:11:51.026897+00:00",
     "org_name": "Bois du Haut-Ogooué",
     "destination_name": "Scierie de Lambaréné",
     "direction": "sortant"
    },
    {
-    "id": 423,
-    "org_id": 411,
+    "id": 431,
+    "org_id": 423,
     "doc_type": "feuille_route",
     "reference": "PILOTE-FDR-003",
     "from_label": null,
@@ -51023,7 +50959,7 @@
      "GA-PILOTE-0006"
     ],
     "volume_m3": 6.469,
-    "issued_by": 816,
+    "issued_by": 842,
     "issued_at": null,
     "status": "brouillon",
     "qr_payload": "feuille_route|PILOTE-FDR-003|1|6.469",
@@ -51031,7 +50967,7 @@
     "aac_id": null,
     "transporter": null,
     "vehicle_ref": null,
-    "created_at": "2026-10-19T21:28:48.636306+00:00",
+    "created_at": "2026-10-19T23:11:49.479716+00:00",
     "destination_org_id": null,
     "received_at": null,
     "org_name": "Bois du Haut-Ogooué",
@@ -51039,8 +50975,8 @@
     "direction": "sortant"
    },
    {
-    "id": 422,
-    "org_id": 411,
+    "id": 430,
+    "org_id": 423,
     "doc_type": "bordereau_roulage",
     "reference": "PILOTE-BDR-002",
     "from_label": "Parc à grumes Okondja",
@@ -51050,24 +50986,24 @@
      "GA-PILOTE-0005"
     ],
     "volume_m3": 13.745,
-    "issued_by": 816,
-    "issued_at": "2026-10-19T21:28:48.621551+00:00",
+    "issued_by": 842,
+    "issued_at": "2026-10-19T23:11:49.462924+00:00",
     "status": "emis",
     "qr_payload": "bordereau_roulage|PILOTE-BDR-002|2|13.745",
     "title_id": null,
     "aac_id": null,
     "transporter": null,
     "vehicle_ref": null,
-    "created_at": "2026-10-19T21:28:48.587333+00:00",
-    "destination_org_id": 413,
+    "created_at": "2026-10-19T23:11:49.444048+00:00",
+    "destination_org_id": 425,
     "received_at": null,
     "org_name": "Bois du Haut-Ogooué",
     "destination_name": "Scierie de Lambaréné",
     "direction": "sortant"
    },
    {
-    "id": 421,
-    "org_id": 411,
+    "id": 429,
+    "org_id": 423,
     "doc_type": "bordereau_roulage",
     "reference": "PILOTE-BDR-001",
     "from_label": "Parc à grumes Okondja",
@@ -51078,17 +51014,17 @@
      "GA-PILOTE-0003"
     ],
     "volume_m3": 24.47,
-    "issued_by": 816,
-    "issued_at": "2026-10-19T21:28:48.475579+00:00",
+    "issued_by": 842,
+    "issued_at": "2026-10-19T23:11:49.388873+00:00",
     "status": "receptionne",
     "qr_payload": "bordereau_roulage|PILOTE-BDR-001|3|24.47",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "transporter": "Transports Ogooué",
     "vehicle_ref": "GA-4521-HO",
-    "created_at": "2026-10-19T21:28:48.417277+00:00",
-    "destination_org_id": 413,
-    "received_at": "2026-10-19T21:28:48.520819+00:00",
+    "created_at": "2026-10-19T23:11:49.350378+00:00",
+    "destination_org_id": 425,
+    "received_at": "2026-10-19T23:11:49.407004+00:00",
     "org_name": "Bois du Haut-Ogooué",
     "destination_name": "Scierie de Lambaréné",
     "direction": "sortant"
@@ -51098,14 +51034,14 @@
  "cooperative GET /api/auth/me": {
   "status": 200,
   "body": {
-   "id": 825,
+   "id": 851,
    "email": "can.pres@pilote.ga",
    "display_name": "Esther Mabika",
    "role": "cooperative",
    "is_active": true,
-   "cooperative_id": 57,
+   "cooperative_id": 59,
    "company_id": null,
-   "organization_id": 416,
+   "organization_id": 428,
    "first_name": "Esther",
    "last_name": "Mabika",
    "matricule": null
@@ -51228,14 +51164,14 @@
  "sawmill GET /api/auth/me": {
   "status": 200,
   "body": {
-   "id": 821,
+   "id": 847,
    "email": "sdl.dg@pilote.ga",
    "display_name": "Sylvie Nziengui",
    "role": "company",
    "is_active": true,
    "cooperative_id": null,
    "company_id": null,
-   "organization_id": 413,
+   "organization_id": 425,
    "first_name": "Sylvie",
    "last_name": "Nziengui",
    "matricule": null
@@ -51245,8 +51181,8 @@
   "status": 200,
   "body": [
    {
-    "id": 247,
-    "org_id": 413,
+    "id": 253,
+    "org_id": 425,
     "title_id": null,
     "scheme": "LS",
     "cert_type": "legalite_plus",
@@ -51254,11 +51190,11 @@
     "surface_ha": null,
     "valid_from": null,
     "valid_to": "2028-09-18",
-    "declared_by": 821,
+    "declared_by": 847,
     "verified_by": null,
     "verified_at": null,
     "decision_motif": null,
-    "created_at": "2026-10-19T21:28:49.000214+00:00",
+    "created_at": "2026-10-19T23:11:49.731670+00:00",
     "status": "soumis",
     "org_name": "Scierie de Lambaréné",
     "title_ref": null
@@ -51327,7 +51263,7 @@
     "longitude": 13.62
    },
    {
-    "id": 57,
+    "id": 59,
     "cooperative_name": "Coopérative des Artisans de Ntoum",
     "profile_type": "energy_briquettes",
     "capacity_kg_per_day": null,
@@ -51408,7 +51344,7 @@
   "status": 200,
   "body": {
    "organization": {
-    "id": 413,
+    "id": 425,
     "name": "Scierie de Lambaréné",
     "org_type": "entreprise",
     "profile_code": "transformateur"
@@ -51440,11 +51376,11 @@
    "decisions": [
     {
      "kind": "documents",
-     "id": 1314,
+     "id": 1350,
      "label": "Certificat de conformité du Plan d'Industrialisation",
      "status": "valide",
      "motif": null,
-     "decided_at": "2026-10-19T21:28:47.185868+00:00",
+     "decided_at": "2026-10-19T23:11:48.573888+00:00",
      "outcome": "accord",
      "acting_authority": "Ministère des Eaux et Forêts",
      "competent_codes": [],
@@ -51453,11 +51389,11 @@
     },
     {
      "kind": "documents",
-     "id": 1315,
+     "id": 1351,
      "label": "Certificat de conformité du Plan de Développement Industriel",
      "status": "valide",
      "motif": null,
-     "decided_at": "2026-10-19T21:28:47.163024+00:00",
+     "decided_at": "2026-10-19T23:11:48.558034+00:00",
      "outcome": "accord",
      "acting_authority": "Ministère des Eaux et Forêts",
      "competent_codes": [],
@@ -51468,19 +51404,19 @@
    "anomalies": [],
    "controls": [
     {
-     "id": 335,
+     "id": 343,
      "control_type": "transformation",
      "result": "reserve",
      "tree_code": null,
      "transport_document_id": null,
      "aac_id": null,
      "aac_label": null,
-     "org_id": 413,
+     "org_id": 425,
      "org_name": "Scierie de Lambaréné",
      "notes": "Registre d'entrées incomplet pour mars",
      "pv_reference": "PILOTE-PV-T-004",
      "findings": "[]",
-     "controlled_at": "2026-10-19T21:28:49.533684+00:00",
+     "controlled_at": "2026-10-19T23:11:50.156821+00:00",
      "controlled_by_name": "Aline Kombila",
      "latitude": null,
      "longitude": null,
@@ -51509,7 +51445,7 @@
   "status": 200,
   "body": [
    {
-    "id": 1995,
+    "id": 2054,
     "tree_code": "GA-PILOTE-0024",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
@@ -51517,15 +51453,15 @@
     "status": "transforme",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.766667,
     "longitude": 13.606667,
-    "created_at": "2026-10-19T21:28:50.390743+00:00"
+    "created_at": "2026-10-19T23:11:50.879399+00:00"
    },
    {
-    "id": 1994,
+    "id": 2053,
     "tree_code": "GA-PILOTE-0023",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
@@ -51533,15 +51469,15 @@
     "status": "transforme",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.766667,
     "longitude": 13.603333,
-    "created_at": "2026-10-19T21:28:50.374493+00:00"
+    "created_at": "2026-10-19T23:11:50.865781+00:00"
    },
    {
-    "id": 1980,
+    "id": 2039,
     "tree_code": "GA-PILOTE-0003",
     "marking_type": "qr",
     "species_scientific_name": "Lophira alata",
@@ -51549,15 +51485,15 @@
     "status": "receptionne",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.776667,
     "longitude": 13.61,
-    "created_at": "2026-10-19T21:28:47.392235+00:00"
+    "created_at": "2026-10-19T23:11:48.699718+00:00"
    },
    {
-    "id": 1979,
+    "id": 2038,
     "tree_code": "GA-PILOTE-0002",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
@@ -51565,15 +51501,15 @@
     "status": "transforme",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.776667,
     "longitude": 13.606667,
-    "created_at": "2026-10-19T21:28:47.373061+00:00"
+    "created_at": "2026-10-19T23:11:48.691716+00:00"
    },
    {
-    "id": 1978,
+    "id": 2037,
     "tree_code": "GA-PILOTE-0001",
     "marking_type": "qr",
     "species_scientific_name": "Aucoumea klaineana",
@@ -51581,25 +51517,25 @@
     "status": "transforme",
     "permit_number": "PILOTE-CFAD-HO-01",
     "aac_label": "PILOTE-AAC 2026-1",
-    "aac_id": 404,
+    "aac_id": 414,
     "inventory_destination": null,
     "painted_number": null,
     "latitude": -0.776667,
     "longitude": 13.603333,
-    "created_at": "2026-10-19T21:28:47.349846+00:00"
+    "created_at": "2026-10-19T23:11:48.680998+00:00"
    }
   ]
  },
  "sawmill GET /api/mill/register": {
   "status": 200,
   "body": {
-   "org_id": 413,
+   "org_id": 425,
    "year": 2026,
    "inputs": [
     {
-     "id": 424,
+     "id": 432,
      "reference": "PILOTE-BDR-003",
-     "received_at": "2026-10-19T21:28:50.599911+00:00",
+     "received_at": "2026-10-19T23:11:51.026897+00:00",
      "volume_m3": 16.459,
      "tree_codes": [
       "GA-PILOTE-0023",
@@ -51609,9 +51545,9 @@
      "logs": 2
     },
     {
-     "id": 421,
+     "id": 429,
      "reference": "PILOTE-BDR-001",
-     "received_at": "2026-10-19T21:28:48.520819+00:00",
+     "received_at": "2026-10-19T23:11:49.407004+00:00",
      "volume_m3": 24.47,
      "tree_codes": [
       "GA-PILOTE-0001",
@@ -51624,7 +51560,7 @@
    ],
    "outputs": [
     {
-     "id": 33,
+     "id": 35,
      "produced_on": "2026-10-19",
      "product_type": "sciage",
      "species_scientific_name": null,
@@ -51636,7 +51572,7 @@
      "lot_reference": "PILOTE-LOT-1",
      "destination": "local",
      "notes": null,
-     "created_at": "2026-10-19T21:28:50.678712+00:00",
+     "created_at": "2026-10-19T23:11:51.095004+00:00",
      "product_label": "Sciages"
     }
    ],
@@ -51661,7 +51597,7 @@
   "status": 200,
   "body": {
    "organization": {
-    "id": 413,
+    "id": 425,
     "org_type": "entreprise",
     "name": "Scierie de Lambaréné",
     "legal_form": null,
@@ -51673,7 +51609,7 @@
     "profile_code": "transformateur",
     "is_active": true,
     "created_by": 1,
-    "created_at": "2026-10-19T21:28:42.221765+00:00",
+    "created_at": "2026-10-19T23:11:43.693725+00:00",
     "profile_label": "Transformateur"
    },
    "checklist": [
@@ -51723,8 +51659,8 @@
   "status": 200,
   "body": [
    {
-    "id": 424,
-    "org_id": 411,
+    "id": 432,
+    "org_id": 423,
     "doc_type": "bordereau_roulage",
     "reference": "PILOTE-BDR-003",
     "from_label": null,
@@ -51734,24 +51670,24 @@
      "GA-PILOTE-0024"
     ],
     "volume_m3": 16.459,
-    "issued_by": 816,
-    "issued_at": "2026-10-19T21:28:50.564746+00:00",
+    "issued_by": 842,
+    "issued_at": "2026-10-19T23:11:51.006969+00:00",
     "status": "receptionne",
     "qr_payload": "bordereau_roulage|PILOTE-BDR-003|2|16.459",
     "title_id": null,
     "aac_id": null,
     "transporter": null,
     "vehicle_ref": null,
-    "created_at": "2026-10-19T21:28:50.524729+00:00",
-    "destination_org_id": 413,
-    "received_at": "2026-10-19T21:28:50.599911+00:00",
+    "created_at": "2026-10-19T23:11:50.979769+00:00",
+    "destination_org_id": 425,
+    "received_at": "2026-10-19T23:11:51.026897+00:00",
     "org_name": "Bois du Haut-Ogooué",
     "destination_name": "Scierie de Lambaréné",
     "direction": "entrant"
    },
    {
-    "id": 422,
-    "org_id": 411,
+    "id": 430,
+    "org_id": 423,
     "doc_type": "bordereau_roulage",
     "reference": "PILOTE-BDR-002",
     "from_label": "Parc à grumes Okondja",
@@ -51761,24 +51697,24 @@
      "GA-PILOTE-0005"
     ],
     "volume_m3": 13.745,
-    "issued_by": 816,
-    "issued_at": "2026-10-19T21:28:48.621551+00:00",
+    "issued_by": 842,
+    "issued_at": "2026-10-19T23:11:49.462924+00:00",
     "status": "emis",
     "qr_payload": "bordereau_roulage|PILOTE-BDR-002|2|13.745",
     "title_id": null,
     "aac_id": null,
     "transporter": null,
     "vehicle_ref": null,
-    "created_at": "2026-10-19T21:28:48.587333+00:00",
-    "destination_org_id": 413,
+    "created_at": "2026-10-19T23:11:49.444048+00:00",
+    "destination_org_id": 425,
     "received_at": null,
     "org_name": "Bois du Haut-Ogooué",
     "destination_name": "Scierie de Lambaréné",
     "direction": "entrant"
    },
    {
-    "id": 421,
-    "org_id": 411,
+    "id": 429,
+    "org_id": 423,
     "doc_type": "bordereau_roulage",
     "reference": "PILOTE-BDR-001",
     "from_label": "Parc à grumes Okondja",
@@ -51789,17 +51725,17 @@
      "GA-PILOTE-0003"
     ],
     "volume_m3": 24.47,
-    "issued_by": 816,
-    "issued_at": "2026-10-19T21:28:48.475579+00:00",
+    "issued_by": 842,
+    "issued_at": "2026-10-19T23:11:49.388873+00:00",
     "status": "receptionne",
     "qr_payload": "bordereau_roulage|PILOTE-BDR-001|3|24.47",
-    "title_id": 487,
-    "aac_id": 404,
+    "title_id": 497,
+    "aac_id": 414,
     "transporter": "Transports Ogooué",
     "vehicle_ref": "GA-4521-HO",
-    "created_at": "2026-10-19T21:28:48.417277+00:00",
-    "destination_org_id": 413,
-    "received_at": "2026-10-19T21:28:48.520819+00:00",
+    "created_at": "2026-10-19T23:11:49.350378+00:00",
+    "destination_org_id": 425,
+    "received_at": "2026-10-19T23:11:49.407004+00:00",
     "org_name": "Bois du Haut-Ogooué",
     "destination_name": "Scierie de Lambaréné",
     "direction": "entrant"

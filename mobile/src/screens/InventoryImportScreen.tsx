@@ -350,14 +350,14 @@ export default function InventoryImportScreen({ onBack, initialAacId, pickFile }
                   <Card key={r.line} testID={`inventory-row-${r.line}`}>
                     <View style={s.rowBetween}>
                       <Txt variant="body" bold style={s.flex1}>
-                        {`${t.line(r.line)} · ${r.tree_code ?? t.generated}`}
+                        {`${t.line(r.line)} · ${r.numero_arbre ? t.number(r.numero_arbre) : t.generated}`}
                       </Txt>
                       <Pill label={r.level === "error" ? t.summaryErrors : t.summaryWarnings} tone={LEVEL_TONE[r.level]} />
                     </View>
                     <Txt variant="small" tone="muted">
                       {[
                         r.scientific_name ?? r.essence,
-                        r.dhp_cm != null ? `DHP ${dec(r.dhp_cm)} cm` : null,
+                        r.diametre_cm != null ? `${t.diameter} ${dec(r.diametre_cm)} cm` : null,
                         r.dme_cm != null ? `DME ${dec(r.dme_cm, 0)} cm` : null,
                         r.destination ? t.destination[r.destination] : null,
                       ]

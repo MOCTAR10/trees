@@ -811,10 +811,10 @@ export async function listRegistryTrees(status?: RegistryStatus): Promise<Regist
   return resp.json();
 }
 
-export type InventoryDestination = "abattre" | "avenir" | "reserve" | "semencier";
+export type InventoryDestination = "abattre" | "preserver" | "avenir" | "reserve" | "semencier";
 
 /** Trees to preserve (art. 122): never taken into a felling declaration. */
-export const KEPT_DESTINATIONS: InventoryDestination[] = ["avenir", "reserve", "semencier"];
+export const KEPT_DESTINATIONS: InventoryDestination[] = ["preserver", "avenir", "reserve", "semencier"];
 
 export interface InventoryColumn {
   key: string;
@@ -843,13 +843,13 @@ export interface InventoryIssue {
 
 export interface InventoryPreviewRow {
   line: number;
-  tree_code: string | null;
+  reference_aac: string | null;
+  numero_arbre: string | null;
   essence: string | null;
   scientific_name: string | null;
-  dhp_cm: number | null;
+  diametre_cm: number | null;
   dme_cm: number | null;
   destination: InventoryDestination | null;
-  numero_peint: string | null;
   level: "ok" | "warning" | "error";
   issues: InventoryIssue[];
 }

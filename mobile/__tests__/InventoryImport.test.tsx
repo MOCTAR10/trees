@@ -12,9 +12,9 @@ const okPreview = {
   file_issues: [{ code: "ignored_column", label: "Colonne non reconnue, ignorée", detail: "couleur" }],
   can_confirm: true,
   rows: [
-    { line: 2, tree_code: "GA-1", essence: "Okoumé", scientific_name: "Aucoumea klaineana", dhp_cm: 96, dme_cm: null, destination: "abattre", numero_peint: null, level: "ok", issues: [] },
-    { line: 3, tree_code: null, essence: "Padouk", scientific_name: "Pterocarpus soyauxii", dhp_cm: 88.5, dme_cm: null, destination: "abattre", numero_peint: null, level: "warning", issues: [{ code: "cites_listed", label: "Essence CITES", column: "essence", level: "warning" }] },
-    { line: 4, tree_code: "GA-3", essence: "Moabi", scientific_name: "Baillonella toxisperma", dhp_cm: 120, dme_cm: null, destination: "reserve", numero_peint: null, level: "ok", issues: [] },
+    { line: 2, numero_arbre: "412", reference_aac: "AAC 2026-2", essence: "Okoumé", scientific_name: "Aucoumea klaineana", diametre_cm: 96, dme_cm: null, destination: "abattre", level: "ok", issues: [] },
+    { line: 3, numero_arbre: null, reference_aac: "AAC 2026-2", essence: "Padouk", scientific_name: "Pterocarpus soyauxii", diametre_cm: 88.5, dme_cm: null, destination: "abattre", level: "warning", issues: [{ code: "cites_listed", label: "Essence CITES", column: "essence", level: "warning" }] },
+    { line: 4, numero_arbre: "414", reference_aac: "AAC 2026-2", essence: "Moabi", scientific_name: "Baillonella toxisperma", diametre_cm: 120, dme_cm: null, destination: "preserver", level: "ok", issues: [] },
   ],
 };
 
@@ -39,7 +39,7 @@ jest.mock("../src/api/client", () => {
       help: "Une ligne par tige.",
       columns: [
         { key: "essence", required: true, kind: "texte", example: "Okoumé", help: "Nom scientifique ou commercial.", legal: "Art. 31 et 61", values: [] },
-        { key: "destination", required: true, kind: "liste", example: "abattre", help: "Destination.", legal: "Art. 122", values: ["abattre", "avenir", "reserve", "semencier"] },
+        { key: "a_abattre", required: true, kind: "oui / non", example: "oui", help: "« non » : arbre à préserver.", legal: "Art. 122", values: ["oui", "non"] },
       ],
     })),
     listInventoryImports: jest.fn(async () => []),
@@ -77,8 +77,8 @@ describe("InventoryImportScreen", () => {
     expect(getByText("Colonne non reconnue, ignorée : couleur")).toBeTruthy();
     expect(getByTestId("inventory-row-3")).toBeTruthy();
     expect(queryByTestId("inventory-row-2")).toBeNull();
-    expect(getByText(/code attribué à l'import/)).toBeTruthy();
-    expect(getByText(/DHP 88,5 cm/)).toBeTruthy();
+    expect(getByText(/sans numéro/)).toBeTruthy();
+    expect(getByText(/Diamètre 88,5 cm/)).toBeTruthy();
 
     fireEvent.press(getByTestId("inventory-confirm"));
     await waitFor(() => expect(getByTestId("inventory-done")).toBeTruthy());
@@ -97,7 +97,7 @@ describe("InventoryImportScreen", () => {
       summary: { ...okPreview.summary, errors: 1 },
       can_confirm: false,
       rows: [
-        { ...okPreview.rows[0], level: "error", issues: [{ code: "below_dme", label: "Sous le DME de l'UFA (art. 124)", column: "dhp_cm", level: "error" }] },
+        { ...okPreview.rows[0], level: "error", issues: [{ code: "below_dme", label: "Sous le DME de l'UFA (art. 124)", column: "diametre_cm", level: "error" }] },
       ],
     });
     const { getByTestId, getByText, queryByTestId } = render(
@@ -111,14 +111,14 @@ describe("InventoryImportScreen", () => {
   });
 
   it("shows the server's refusal and disables upload on a closed AAC", async () => {
-    (previewInventory as jest.Mock).mockRejectedValue(new InventoryRefusal("Colonne(s) obligatoire(s) absente(s) : destination", 422));
+    (previewInventory as jest.Mock).mockRejectedValue(new InventoryRefusal("Colonne(s) obligatoire(s) absente(s) : a_abattre", 422));
     const { getByTestId, getByText } = render(
       <InventoryImportScreen onBack={jest.fn()} initialAacId={400} pickFile={async () => file} />,
     );
     await waitFor(() => expect(getByTestId("inventory-aac-400")).toBeTruthy());
     fireEvent.press(getByTestId("inventory-pick"));
     await waitFor(() => expect(getByTestId("inventory-error")).toBeTruthy());
-    expect(getByText("Colonne(s) obligatoire(s) absente(s) : destination")).toBeTruthy();
+    expect(getByText("Colonne(s) obligatoire(s) absente(s) : a_abattre")).toBeTruthy();
     fireEvent.press(getByTestId("inventory-aac-401"));
     expect(getByTestId("inventory-pick").props.accessibilityState?.disabled).toBe(true);
   });
@@ -129,8 +129,8 @@ describe("InventoryImportScreen", () => {
     await waitFor(() => expect(getByTestId("inventory-guide-toggle")).toBeTruthy());
     expect(getByTestId("inventory-web-only")).toBeTruthy();
     fireEvent.press(getByTestId("inventory-guide-toggle"));
-    expect(getByTestId("inventory-column-destination")).toBeTruthy();
-    expect(getByText(/abattre, avenir, reserve, semencier/)).toBeTruthy();
+    expect(getByTestId("inventory-column-a_abattre")).toBeTruthy();
+    expect(getByText(/Valeurs : oui, non/)).toBeTruthy();
     fireEvent.press(getByTestId("inventory-template-xlsx"));
     await waitFor(() => expect(shareFile).toHaveBeenCalledWith("file://modele.xlsx", expect.stringContaining("spreadsheetml")));
   });
