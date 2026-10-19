@@ -209,4 +209,18 @@ describe("MapScreen (fluid map)", () => {
     await waitFor(() => expect(getByText("Forêt primaire humide 2001")).toBeTruthy());
     expect(getByText("22,7 M ha")).toBeTruthy();
   });
+
+  it("opens a company on its team's scans and gives the Ministry no group switch", async () => {
+    (client.listGroupTrees as jest.Mock).mockClear();
+    const company = render(<MapScreen role="company" />);
+    await settle();
+    expect(client.listGroupTrees).toHaveBeenCalled();
+    expect(company.getByText("Scans de l'équipe")).toBeTruthy();
+    expect(company.getByText("Mes scans")).toBeTruthy();
+    company.unmount();
+    const admin = render(<MapScreen role="admin" />);
+    await settle();
+    expect(admin.queryByText("Groupe")).toBeNull();
+    expect(admin.queryByText("Scans de l'équipe")).toBeNull();
+  });
 });

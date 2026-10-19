@@ -877,6 +877,7 @@ export default function App() {
       {phase === "map" && (
         <Suspense fallback={<RouteLoader message={fr.common.openingMap} />}>
           <MapScreen
+            role={user.role}
             onOpenProject={(p) => {
               setSelectedProject(p.id);
               if (p.kind === "chantier") setChantierReturn("map");

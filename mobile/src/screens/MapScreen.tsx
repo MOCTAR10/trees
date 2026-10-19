@@ -106,7 +106,14 @@ function isTouchScreen(): boolean {
   return (nav?.maxTouchPoints ?? 0) > 0;
 }
 
-export default function MapScreen({ onOpenProject }: { onOpenProject?: (p: Project) => void } = {}) {
+export default function MapScreen({
+  onOpenProject,
+  role,
+}: { onOpenProject?: (p: Project) => void; role?: string } = {}) {
+  // A company manager rarely scans: the team's scans come first. The Ministry
+  // has no team, so it only sees its own scans.
+  const initialMode: Mode = role === "company" ? "group" : "mine";
+  const showModes = role !== "admin";
   const th = useTheme();
   const styles = useStyles();
   const [projects, setProjects] = React.useState<Project[]>([]);
@@ -122,9 +129,9 @@ export default function MapScreen({ onOpenProject }: { onOpenProject?: (p: Proje
       alive = false;
     };
   }, []);
-  const [mode, setMode] = React.useState<Mode>("mine");
-  const [trees, setTrees] = React.useState<MapTree[]>(() => mapCache.get("mine") ?? []);
-  const [loading, setLoading] = React.useState(() => !mapCache.has("mine"));
+  const [mode, setMode] = React.useState<Mode>(initialMode);
+  const [trees, setTrees] = React.useState<MapTree[]>(() => mapCache.get(initialMode) ?? []);
+  const [loading, setLoading] = React.useState(() => !mapCache.has(initialMode));
   const [error, setError] = React.useState<string | null>(null);
   const [prefs, setPrefs] = React.useState<Prefs>(DEFAULT_PREFS);
   const [tiles, setTiles] = React.useState<MapTileLayer[]>([]);
@@ -417,18 +424,22 @@ export default function MapScreen({ onOpenProject }: { onOpenProject?: (p: Proje
             )}
           </View>
         ) : null}
+        {showModes ? (
         <View style={styles.segment}>
-          {(["mine", "group"] as Mode[]).map((m) => (
+          {(role === "company" ? (["group", "mine"] as Mode[]) : (["mine", "group"] as Mode[])).map((m) => (
             <TouchableOpacity
               key={m}
               style={[styles.segBtn, mode === m && styles.segBtnOn]}
               onPress={() => setMode(m)}
               accessibilityState={{ selected: mode === m }}
             >
-              <Text style={[styles.segText, mode === m && styles.segTextOn]}>{m === "mine" ? t.mine : t.group}</Text>
+              <Text style={[styles.segText, mode === m && styles.segTextOn]}>
+                {m === "mine" ? (role === "company" ? t.mineScans : t.mine) : role === "company" ? t.team : t.group}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
+        ) : null}
       </View>
 
       {error && trees.length === 0 ? (

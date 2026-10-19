@@ -1565,6 +1565,8 @@ export const fr = {
     unknownSpecies: "Espèce inconnue",
     mine: "Mes arbres",
     group: "Groupe",
+    mineScans: "Mes scans",
+    team: "Scans de l'équipe",
     unknownMember: "Membre",
     layers: "Couches",
     searchPlaceholder: "Rechercher un parc, une concession, une AAC, un arbre…",
