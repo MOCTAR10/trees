@@ -166,11 +166,18 @@ def test_echeance_reglee_deux_fois_refusee(world):
     due = world.p.post(
         "admin",
         "/api/taxes/dues",
-        {"title_id": world.title["hob"], "tax_type": "abattage", "period_year": 2026,
-         "amount_fcfa": 500_000, "due_at": _d(30)},
+        {
+            "title_id": world.title["hob"],
+            "tax_type": "abattage",
+            "period_year": 2026,
+            "amount_fcfa": 500_000,
+            "due_at": _d(30),
+        },
         expect=201,
     )
-    world.p.post("hob.dg", f"/api/taxes/dues/{due['id']}/settle", {"amount_fcfa": 500_000}, expect=200)
+    world.p.post(
+        "hob.dg", f"/api/taxes/dues/{due['id']}/settle", {"amount_fcfa": 500_000}, expect=200
+    )
     world.p.post(
         "hob.dg", f"/api/taxes/dues/{due['id']}/settle", {"amount_fcfa": 500_000}, expect=409
     )
@@ -181,15 +188,25 @@ def test_quittance_payee_regle_l_echeance(world):
     due = world.p.post(
         "admin",
         "/api/taxes/dues",
-        {"title_id": world.title["hob"], "tax_type": "transformation", "period_year": 2025,
-         "amount_fcfa": 250_000, "due_at": _d(30)},
+        {
+            "title_id": world.title["hob"],
+            "tax_type": "transformation",
+            "period_year": 2025,
+            "amount_fcfa": 250_000,
+            "due_at": _d(30),
+        },
         expect=201,
     )
     out = world.p.post(
         "hob.dg",
         "/api/taxes",
-        {"tax_type": "transformation", "period_year": 2025, "amount_fcfa": 250_000,
-         "paid_at": _d(0), "title_id": world.title["hob"]},
+        {
+            "tax_type": "transformation",
+            "period_year": 2025,
+            "amount_fcfa": 250_000,
+            "paid_at": _d(0),
+            "title_id": world.title["hob"],
+        },
         expect=201,
     )
     assert out["settled_due_id"] == due["id"]
