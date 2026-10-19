@@ -418,7 +418,13 @@ Extensions **additives** sur l'existant :
     d'exploiter** (`title_not_exploitable`), et elle est **rejouée à l'abattage** ; pièces échues lues `expire` ; quittance ⇒ échéance
     réglée, double règlement refusé. Web : barre supérieure (titre de la page, écrans de l'espace en onglets, état de connexion, identité
     à droite, ouvre le profil), menu latéral redessiné. Tests : `test_felling`, `test_fiscalite`, `tests_e2e/test_regression_03` et `_05`
-    (nouvelles règles), `DeclareScreen`.
+    (nouvelles règles), `DeclareScreen`. **Revue navigateur (production, entreprise et Ministère)** : nom du Ministère sur une
+    ligne dans le menu latéral, titres de groupes homogènes ; en-tête de sous-page clair sur le web bureau (plus de second bandeau) ;
+    titres et UFA dépliables signalés (chevron, « Voir les UFA, AAC et autorisations ») ; demande de titre : le **domaine découle du
+    type** (CFAD/PFA permanent, PGG/forêt communautaire rural — défaut serveur `TITLE_ZONES`, *à valider par le métier*) et un repère
+    de surface par type ; « Retirer » un titre en action destructive ; écran **Grumes** : liste des grumes de l'organisation (statut,
+    AAC) qui ouvre leur parcours ; libellé d'AAC des anciennes déclarations repris de l'AAC ; boutons à la taille de leur libellé et
+    sous-onglets au style du système de design.
 29. ✅ **Slice 29 — Mises à jour de l'application sans réinstallation, icône du sceau** : mises à jour « par les ondes » (`expo-updates`, protocole Expo Updates v1) **hébergées sur notre serveur** (`/updates/manifest`, `app/api/updates.py`) et **signées** (RSA-SHA256 ; clé privée générée sur le serveur, `/etc/trees/updates/`, jamais dans le dépôt ; l'application n'accepte que le certificat qu'elle embarque, `mobile/certs/certificate.pem`). Jenkins publie la mise à jour à chaque changement de `mobile/` (`/var/www/trees-updates/<version d'exécution>/<build>`). Sur le téléphone, la nouvelle version se **télécharge en silence** (au lancement, toutes les 30 min, au retour au premier plan) ; un badge **« Mise à jour »** apparaît dans l'en-tête et l'utilisateur l'**installe quand il a fini sa tâche** (redémarrage confirmé), sinon elle s'applique au prochain lancement. Un changement natif (module, permission, version d'Expo) impose un nouvel APK, qui s'installe **par-dessus** l'ancien (même clé de signature). Icône : drapeau gabonais redessiné et sceau (icône adaptative Android, favicon web). Connexion : grand en-tête officiel conservé, avis et version sous le formulaire, mise en page figée à l'ouverture du clavier.
 
 ---
