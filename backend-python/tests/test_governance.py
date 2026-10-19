@@ -737,3 +737,18 @@ def test_units_require_organization_and_existing_title(client, monkeypatch):
         client.get("/api/titles/999/units", headers={"Authorization": f"Bearer {co}"}).status_code
         == 404
     )
+
+
+def test_title_zone_follows_its_type_when_not_given(client, monkeypatch):
+    users, state, _ = _setup(monkeypatch)
+    co = _token(users[2])
+    zones = {}
+    for title_type in ("CFAD", "PFA", "PGG", "FC"):
+        resp = client.post(
+            "/api/titles",
+            json={"title_type": title_type, "reference": f"REF-{title_type}"},
+            headers={"Authorization": f"Bearer {co}"},
+        )
+        assert resp.status_code == 201
+        zones[title_type] = state["forest_titles"][resp.json()["id"]]["zone"]
+    assert zones == {"CFAD": "permanent", "PFA": "permanent", "PGG": "rural", "FC": "rural"}

@@ -30,11 +30,20 @@ _TITLE_TRANSITIONS: dict[str, set[str]] = {
 _AAC_STATUSES = ("prepare", "soumis", "autorise", "ouvert", "ferme")
 
 
+#: Forest domain of each title type (Loi 016/01): concessions and associated
+#: permits lie in the permanent domain, gré-à-gré permits and community forests
+#: in the rural domain — the default when no zone is given (*à valider par le métier*).
+TITLE_ZONES = {"CFAD": "permanent", "PFA": "permanent", "PGG": "rural", "FC": "rural"}
+
+
 class TitleIn(BaseModel):
     title_type: Literal["CFAD", "PFA", "PGG", "FC"]
     reference: str | None = None
-    zone: Literal["permanent", "rural"] = "permanent"
+    zone: Literal["permanent", "rural"] | None = None
     surface_ha: float | None = Field(None, gt=0)
+
+    def resolved_zone(self) -> str:
+        return self.zone or TITLE_ZONES[self.title_type]
 
 
 class TitleDecisionIn(BaseModel):
@@ -223,7 +232,7 @@ async def request_title(body: TitleIn, user: dict = Depends(require_roles("compa
         body.title_type,
         body.reference,
         org_id,
-        body.zone,
+        body.resolved_zone(),
         body.surface_ha,
         user["id"],
     )
@@ -263,7 +272,7 @@ async def register_title(body: TitleRegisterIn, admin: dict = Depends(require_ro
         body.title_type,
         body.reference,
         body.holder_org_id,
-        body.zone,
+        body.resolved_zone(),
         body.surface_ha,
         body.status,
         admin["id"],

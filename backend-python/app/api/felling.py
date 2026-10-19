@@ -313,7 +313,8 @@ async def list_declarations(
 ):
     if user["role"] == "admin":
         rows = await db.fetch_all(
-            "SELECT d.*, (SELECT count(*) FROM declaration_lines l WHERE l.declaration_id = d.id) AS line_count"
+            "SELECT d.*, (SELECT count(*) FROM declaration_lines l WHERE l.declaration_id = d.id) AS line_count,"
+            " (SELECT b.label FROM annual_cut_blocks b WHERE b.id = d.aac_id) AS aac_block_label"
             " FROM felling_declarations d"
             + (" WHERE d.status = $1" if status else "")
             + " ORDER BY d.created_at DESC LIMIT 200",
@@ -321,13 +322,20 @@ async def list_declarations(
         )
     else:
         rows = await db.fetch_all(
-            "SELECT d.*, (SELECT count(*) FROM declaration_lines l WHERE l.declaration_id = d.id) AS line_count"
+            "SELECT d.*, (SELECT count(*) FROM declaration_lines l WHERE l.declaration_id = d.id) AS line_count,"
+            " (SELECT b.label FROM annual_cut_blocks b WHERE b.id = d.aac_id) AS aac_block_label"
             " FROM felling_declarations d WHERE d.company_id = $1"
             + (" AND d.status = $2" if status else "")
             + " ORDER BY d.created_at DESC LIMIT 200",
             *([_company_id(user)] if status is None else [_company_id(user), status]),
         )
-    return [dict(r) for r in rows]
+    out = []
+    for r in rows:
+        item = dict(r)
+        item["aac_label"] = item.get("aac_label") or item.pop("aac_block_label", None)
+        item.pop("aac_block_label", None)
+        out.append(item)
+    return out
 
 
 @router.get("/declarations/{declaration_id}")
