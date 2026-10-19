@@ -86,7 +86,7 @@ doc update — as separate logical commits. The full history lives in
 | 28 | Espace entreprise sur le système de design (plus de thème sombre imposé), menu latéral « Mon entreprise » sur le web bureau, connexion sans défilement, organisation affichée à la connexion | — | `/api/auth/check-email` (organisation) | `CompanyNav` (`hideGroups`), `CompanyScreen` (onglet piloté), `DesktopFrame` (`sections`), `LoginScreen` | pt 28 |
 | 29 | Mises à jour OTA signées et auto-hébergées, appliquées par l'utilisateur (badge), icône du sceau | — | `/updates/manifest`, `/updates/assets` (`app/api/updates.py`, hors `/api`) | `utils/useAppUpdate.ts`, `RoleHeader` (badge), `app.json` (`updates`, `runtimeVersion`, icônes), `certs/certificate.pem` | pt 29 |
 | 30 | Cohérence exploitation ↔ conformité : déclaration guidée par le titre de l'AAC, marquage par pied (QR scanné, n° peint, GPS), porte art. 14 étendue (AAC fermée, titre sans droit) et rejouée à l'abattage, pièces échues lues `expire`, quittance ⇒ échéance réglée ; barre supérieure et menu latéral web | — | `services/compliance.py` (`GATE_LABELS`, `DOC_STATUS_SQL`), `POST /api/felling/declarations`, `POST /api/felling/events`, `/api/taxes` | `DeclareScreen`, `web/DesktopFrame` (`useDesktopTopTabs`), `CompanyNav`, `CompanyScreen` | pt 30 |
-| 31 | Inventaire d'exploitation importé d'un tableur (Excel / CSV) : modèle proposé au Ministère, aperçu ligne par ligne, import tout ou rien, destination par tige (abattre / avenir / réserve / semencier), arbres à préserver jamais déclarables, plaques du lot, historique sur la fiche organisation | `032_slice31.sql` | `core/inventory_model.py`, `services/inventory_import.py`, `/api/inventory/*`, `compliance.inventory_gate`, `kept_tree` | `InventoryImportScreen`, `CompanyScreen`, `CompanyTitles`, `DeclareScreen`, `ministry/OrganisationScreen` | pt 31 |
+| 31 | Inventaire d'exploitation importé d'un tableur (Excel / CSV) : modèle de 7 colonnes essentielles (référence d'AAC du plan d'aménagement, numéro, essence, position, diamètre, à abattre oui/non), aperçu ligne par ligne, import tout ou rien, arbres à préserver jamais déclarables, plaques du lot, historique sur la fiche organisation | `032_slice31.sql`, `033_inventory_simple.sql` | `core/inventory_model.py`, `services/inventory_import.py`, `/api/inventory/*`, `compliance.inventory_gate`, `kept_tree` | `InventoryImportScreen`, `CompanyScreen`, `CompanyTitles`, `DeclareScreen`, `ministry/OrganisationScreen` | pt 31 |
 
 Latest verified suite counts (Slice 31, 19 Oct 2026): **`pytest tests` 571** (570 passed locally + `test_capabilities_reflect_settings`,
 which needs ≥ 3 GB for the API container and fails on a smaller Docker host) · **`jest` 242 / 67 suites** · `ruff` and `tsc` clean ·
@@ -393,9 +393,10 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
   (`__tests__/fixtures/screen-audit.json`). After changing a screen or the pilot story, re-record against the
   live stack (pilot built): `AUDIT_RECORD=1 npx jest __tests__/ScreenAudit.test.tsx`. Never run two jest
   processes at once — they share the transform cache and produce false crashes.
-- `tree_registry.inventory_destination` in `avenir | reserve | semencier` (Slice 31 import) marks a tree to **preserve**:
-  `kept_tree` blocks its declaration, felling it is refused, « Reprendre l'inventaire » skips it (`isFellable`). NULL
-  (scan inventory) stays fellable. Codes left empty in an import are attributed `GA-I<import>-<n>` — never accepted in a file.
+- `tree_registry.inventory_destination` = `preserver` (Slice 31 import, « a_abattre : non »; `avenir | reserve | semencier`
+  from the first model are treated alike) marks a tree to **preserve**: `kept_tree` blocks its declaration, felling it is
+  refused, « Reprendre l'inventaire » skips it (`isFellable`). NULL (scan inventory) stays fellable. Imported stems always get
+  a generated code `GA-I<import>-<n>`; the file's `numero_arbre` goes to `painted_number` (unique within the AAC).
 - An unknown plate scanned by a field user **creates** a registry row (`inventorie`); the declaration's
   `duplicate_code` check lets the same company's inventoried stems through. Keep both sides in step.
 - `mobile/__tests__/CaptureScreen.test.tsx` and `OrgDocuments.test.tsx` can
