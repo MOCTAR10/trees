@@ -30,4 +30,18 @@ rm -rf "$OUT.prev"
 if [ -d "$OUT" ]; then mv "$OUT" "$OUT.prev"; fi
 mv "$STAGE/dist" "$OUT"
 rm -rf "$STAGE"
+# Pages already open (or still loading on a slow link) keep fetching the bundle they
+# were built with: carry the previous build's hashed files over for a week (their names
+# are content hashes, so they never clash with the new build's files).
+if [ -d "$OUT.prev" ]; then
+  carried=0
+  while IFS= read -r f; do
+    if [ ! -e "$OUT/$f" ]; then
+      mkdir -p "$OUT/$(dirname "$f")"
+      cp -p "$OUT.prev/$f" "$OUT/$f"
+      carried=$((carried + 1))
+    fi
+  done < <(cd "$OUT.prev" && find _expo assets -type f -mtime -7 2>/dev/null || true)
+  echo "web: $carried fichier(s) de la version précédente conservés"
+fi
 echo "web: publié ($(du -sh "$OUT" | cut -f1))"
