@@ -44,14 +44,14 @@ only (`mobile/src/i18n/fr.ts`). There is **no navigation library**: `App.tsx`
 routes with a `phase` state machine plus role checks; screens are mounted from
 per-role containers (`CompanyScreen`, `AdminScreen`, …) that expose tabs.
 
-## 2. Where we are (as of Slice 30)
+## 2. Where we are (as of Slice 31)
 
 The product is built as **vertical slices**: each slice ships a DB migration, the
 backend, optionally an operational CLI under `tools/`, the mobile UI, and the
 doc update — as separate logical commits. The full history lives in
 `docs/GABON_WORKFLOW_ANALYSIS.md` **§9**.
 
-**Slices 1–30 are DONE, on `main` and deployed (CI green, including the workflow job).** Migration `031_species_memory.sql`
+**Slices 1–31 are DONE, on `main` and deployed (CI green, including the workflow job).** Migration `031_species_memory.sql`
 (GBIF answers cached by area, identified species learned) shipped between Slices 29 and 30 without a slice number. GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
 
 | # | Domaine | Migration | Backend | Mobile | Docs §9 |
@@ -86,9 +86,10 @@ doc update — as separate logical commits. The full history lives in
 | 28 | Espace entreprise sur le système de design (plus de thème sombre imposé), menu latéral « Mon entreprise » sur le web bureau, connexion sans défilement, organisation affichée à la connexion | — | `/api/auth/check-email` (organisation) | `CompanyNav` (`hideGroups`), `CompanyScreen` (onglet piloté), `DesktopFrame` (`sections`), `LoginScreen` | pt 28 |
 | 29 | Mises à jour OTA signées et auto-hébergées, appliquées par l'utilisateur (badge), icône du sceau | — | `/updates/manifest`, `/updates/assets` (`app/api/updates.py`, hors `/api`) | `utils/useAppUpdate.ts`, `RoleHeader` (badge), `app.json` (`updates`, `runtimeVersion`, icônes), `certs/certificate.pem` | pt 29 |
 | 30 | Cohérence exploitation ↔ conformité : déclaration guidée par le titre de l'AAC, marquage par pied (QR scanné, n° peint, GPS), porte art. 14 étendue (AAC fermée, titre sans droit) et rejouée à l'abattage, pièces échues lues `expire`, quittance ⇒ échéance réglée ; barre supérieure et menu latéral web | — | `services/compliance.py` (`GATE_LABELS`, `DOC_STATUS_SQL`), `POST /api/felling/declarations`, `POST /api/felling/events`, `/api/taxes` | `DeclareScreen`, `web/DesktopFrame` (`useDesktopTopTabs`), `CompanyNav`, `CompanyScreen` | pt 30 |
+| 31 | Inventaire d'exploitation importé d'un tableur (Excel / CSV) : modèle proposé au Ministère, aperçu ligne par ligne, import tout ou rien, destination par tige (abattre / avenir / réserve / semencier), arbres à préserver jamais déclarables, plaques du lot, historique sur la fiche organisation | `032_slice31.sql` | `core/inventory_model.py`, `services/inventory_import.py`, `/api/inventory/*`, `compliance.inventory_gate`, `kept_tree` | `InventoryImportScreen`, `CompanyScreen`, `CompanyTitles`, `DeclareScreen`, `ministry/OrganisationScreen` | pt 31 |
 
-Latest verified suite counts (Slice 30, 19 Oct 2026): **`pytest tests` 550** (549 passed locally + `test_capabilities_reflect_settings`,
-which needs ≥ 3 GB for the API container and fails on a smaller Docker host) · **`jest` 235 / 66 suites** · `ruff` and `tsc` clean ·
+Latest verified suite counts (Slice 31, 19 Oct 2026): **`pytest tests` 571** (570 passed locally + `test_capabilities_reflect_settings`,
+which needs ≥ 3 GB for the API container and fails on a smaller Docker host) · **`jest` 242 / 67 suites** · `ruff` and `tsc` clean ·
 `tests_e2e`, role coverage (100 %) and the pilot story are gated by CI (workflow and Régression jobs).
 
 ### What is left (next candidates)
@@ -101,6 +102,9 @@ slice unprompted.
   monolithic Ministère role. Target: distinguish **DGF / DGFAP / DGE / ANPN /
   DGICBVPF / Douanes** as roles or scoped attributes (provincial/central).
   **Frozen decision so far: keep `admin` monolithic for now** and split later.
+- **Done in Slice 31**: inventory of an AAC imported from a spreadsheet — a **proposal**; the Ministry may give its own
+  model (§10 open point 21): change `app/core/inventory_model.py` only. The file is sent from the **web** app (no native
+  file picker on the phone, so no new APK).
 - **Done in Slice 30** (from the 19 Oct 2026 audit): declarations follow the AAC's title, felling re-checks
   art. 14, expired pieces read `expire`, receipts settle their dues; web top bar with the user on the right.
 - **Done in Slice 26** (from the 15 Oct 2026 audit): inventory by scan, company-managed agent
@@ -389,6 +393,9 @@ https://api.github.com/repos/MOCTAR10/trees/actions/runs?head_sha=<full-sha>
   (`__tests__/fixtures/screen-audit.json`). After changing a screen or the pilot story, re-record against the
   live stack (pilot built): `AUDIT_RECORD=1 npx jest __tests__/ScreenAudit.test.tsx`. Never run two jest
   processes at once — they share the transform cache and produce false crashes.
+- `tree_registry.inventory_destination` in `avenir | reserve | semencier` (Slice 31 import) marks a tree to **preserve**:
+  `kept_tree` blocks its declaration, felling it is refused, « Reprendre l'inventaire » skips it (`isFellable`). NULL
+  (scan inventory) stays fellable. Codes left empty in an import are attributed `GA-I<import>-<n>` — never accepted in a file.
 - An unknown plate scanned by a field user **creates** a registry row (`inventorie`); the declaration's
   `duplicate_code` check lets the same company's inventoried stems through. Keep both sides in step.
 - `mobile/__tests__/CaptureScreen.test.tsx` and `OrgDocuments.test.tsx` can
