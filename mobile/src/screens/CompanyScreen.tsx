@@ -35,6 +35,9 @@ import CompanyHomeScreen from "./CompanyHomeScreen";
 import CustodyScreen from "./CustodyScreen";
 import DeclareScreen from "./DeclareScreen";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
+import { Button, Card, Pill, PillTone, Txt } from "../design/ui";
+
+const DECLARATION_TONE: Record<string, PillTone> = { soumise: "info", autorisee: "ok", rejetee: "risk" };
 
 interface Props {
   user: AuthUser;
@@ -200,13 +203,9 @@ export default function CompanyScreen({ user, onLogout, showHeader = true, tab: 
           />
         ) : (
           <View style={styles.flex1}>
-            <TouchableOpacity
-              style={styles.declareBtn}
-              onPress={() => setDeclaring(true)}
-              testID="new-declaration"
-            >
-              <Text style={styles.declareText}>+ {fr.felling.newDeclaration}</Text>
-            </TouchableOpacity>
+            <View style={styles.declareBar}>
+              <Button label={`+ ${fr.felling.newDeclaration}`} onPress={() => setDeclaring(true)} testID="new-declaration" />
+            </View>
             {declLoading ? (
               <ActivityIndicator style={styles.center} color={theme.c.olive} />
             ) : declError ? (
@@ -226,27 +225,35 @@ export default function CompanyScreen({ user, onLogout, showHeader = true, tab: 
                 keyExtractor={(item) => String(item.id)}
                 contentContainerStyle={styles.list}
                 renderItem={({ item }) => (
-                  <View style={styles.card}>
-                    <Text style={styles.species}>
-                      {fr.felling.declarationId(item.id)} · {item.permit_type} {item.permit_number}
-                    </Text>
-                    <Text style={styles.meta}>
-                      {fr.felling.status[item.status]} · {item.line_count ?? 0} pieds
-                      {item.aac_label ? ` · ${item.aac_label}` : ""}
-                    </Text>
+                  <Card testID={`declaration-${item.id}`}>
+                    <View style={styles.cardHead}>
+                      <Txt variant="heading" style={styles.flex1}>
+                        {fr.felling.declarationId(item.id)}
+                      </Txt>
+                      <Pill label={fr.felling.status[item.status]} tone={DECLARATION_TONE[item.status] ?? "neutral"} />
+                    </View>
+                    <Txt variant="small" bold>
+                      {`${fr.felling.titleTypeLabel[item.permit_type === "foret_communautaire" ? "FC" : item.permit_type] ?? item.permit_type} · ${item.permit_number}`}
+                    </Txt>
+                    <Txt variant="small" tone="muted">
+                      {[fr.felling.treesCount(item.line_count ?? 0), item.aac_label, item.ufa_label].filter(Boolean).join(" · ")}
+                    </Txt>
                     {item.decision_motif ? (
-                      <Text style={styles.meta}>{item.decision_motif}</Text>
+                      <Txt variant="small" tone={item.status === "rejetee" ? "risk" : "muted"}>
+                        {item.decision_motif}
+                      </Txt>
                     ) : null}
-                    <TouchableOpacity
-                      testID={`plates-${item.id}`}
-                      onPress={() => void printPlates(item.id)}
+                    <Button
+                      compact
+                      variant="secondary"
+                      label={platesBusy === item.id ? fr.felling.platesBusy : fr.felling.printPlates}
+                      loading={platesBusy === item.id}
                       disabled={platesBusy === item.id}
-                    >
-                      <Text style={styles.link}>
-                        {platesBusy === item.id ? fr.felling.platesBusy : fr.felling.printPlates}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                      onPress={() => void printPlates(item.id)}
+                      testID={`plates-${item.id}`}
+                      style={styles.platesBtn}
+                    />
+                  </Card>
                 )}
               />
             )}
@@ -352,16 +359,9 @@ export default function CompanyScreen({ user, onLogout, showHeader = true, tab: 
 const useStyles = makeStyles((th) => ({
   container: { flex: 1, backgroundColor: th.c.bg },
   flex1: { flex: 1 },
-  declareBtn: {
-    margin: th.space.lg,
-    marginBottom: 0,
-    borderWidth: 1,
-    borderColor: th.c.olive,
-    borderRadius: 10,
-    padding: th.space.sm,
-    alignItems: "center",
-  },
-  declareText: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
+  declareBar: { paddingHorizontal: th.space.lg, paddingTop: th.space.lg, alignItems: "flex-start" },
+  cardHead: { flexDirection: "row", alignItems: "center", gap: th.space.sm },
+  platesBtn: { alignSelf: "flex-start", marginTop: th.space.xs },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: th.space.lg },
   dim: { color: th.c.muted, fontSize: 15, fontFamily: th.fonts.body },
   error: { color: th.c.risk, fontSize: 15, fontFamily: th.fonts.body },

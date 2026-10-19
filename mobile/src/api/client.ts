@@ -612,9 +612,10 @@ export interface DeclarationLineInput {
   longitude?: number | null;
 }
 
+/** Title fields are taken by the server from the AAC's title. */
 export interface DeclarationInput {
-  permit_type: PermitType;
-  permit_number: string;
+  permit_type?: PermitType;
+  permit_number?: string;
   ufa_label?: string | null;
   aac_label?: string | null;
   title_id?: number | null;
@@ -3083,7 +3084,14 @@ export function setTitleProvince(titleId: number, provinceCode: string | null): 
   return postJson(`/api/titles/${titleId}/province`, { province_code: provinceCode }, "Title province");
 }
 
-export type AacBlocker = "no_aac" | "aac_not_held" | "no_authorization" | "authorization_pending" | "startup_not_notified";
+export type AacBlocker =
+  | "no_aac"
+  | "aac_not_held"
+  | "aac_closed"
+  | "title_not_exploitable"
+  | "no_authorization"
+  | "authorization_pending"
+  | "startup_not_notified";
 
 export interface FellingAacOption {
   id: number;

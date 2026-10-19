@@ -775,8 +775,10 @@ export default function App() {
           roleLabel={roleLabel}
           orgName={headerOrg}
           online={serverStatus !== "offline"}
+          showTopTabs={phase === 'home'}
           onChange={handleTabChange}
           onLogout={handleLogout}
+          onOpenProfile={() => requestPhase("profile")}
         >
         {isTab && !desktop && (
           <RoleHeader

@@ -4,6 +4,7 @@ import { Pressable, ScrollView, View } from "react-native";
 import { makeStyles } from "../design/ThemeProvider";
 import { Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
+import { useDesktopTopTabs } from "../web/DesktopFrame";
 
 export type CompanyTab =
   | "accueil"
@@ -44,7 +45,10 @@ export default function CompanyNav({ tab, labels, onChange, hideGroups }: Props)
   const s = useStyles();
   const group = groupOf(tab);
   const tabs = COMPANY_GROUPS.find((g) => g.key === group)?.tabs ?? [];
-  if (hideGroups && tabs.length < 2) return null;
+  const inTopBar = useDesktopTopTabs(
+    hideGroups ? tabs.map((k) => ({ key: k, label: labels[k], active: k === tab, onPress: () => onChange(k) })) : null,
+  );
+  if (hideGroups && (tabs.length < 2 || inTopBar)) return null;
   return (
     <View style={s.wrap}>
       {hideGroups ? null : (
