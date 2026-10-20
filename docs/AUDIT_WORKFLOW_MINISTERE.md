@@ -55,7 +55,7 @@ de la base live et aux écrans mobiles. ✅ implémenté · ⚠️ partiel · �
 ## Planche 9 — types d'opérateurs
 
 ✅ Exploitant forestier, Transformateur, Intégré, Négoce / Export, Forêt communautaire (`org_profiles`).
-❌ **Coopérative** : pas de profil (organisations coopératives à `profile_code` NULL) — « organisation, titres, agrégation des volumes » non modélisés.
+✅ **Coopérative** (Slice 33) : profil `cooperative_forestiere` (4 pièces non bloquantes : statuts, immatriculation RSCOOP, registre des membres, PV de l'AG constitutive — *à valider par le métier*) ; la coopérative regroupe des **organisations membres** (entreprises, communautés) qui gardent leurs titres et obligations ; **volumes agrégés** (titres, AAC, déclaré / autorisé / abattu, grumes par statut, pièces, taxes) calculés à la lecture sur les membres actifs ; adhésions gérées par la coopérative et par le Ministère depuis la fiche organisation (sortie et suspension motivées).
 
 ## Planche 10 — trois scénarios
 
@@ -73,5 +73,5 @@ de la base live et aux écrans mobiles. ✅ implémenté · ⚠️ partiel · �
 3. ✔ **Contrôles terrain du Ministère** : marquage, visa DF10, route (lecture QR + PV), transformation (Slice 21) ; modèle officiel de PV à valider.
 4. ✔ Avertissements carnet non tenu et CITES sans permis (Slice 21).
 4 bis. ✔ **Page de décision unique** pour chaque dossier « À traiter » (Slice 21).
-5. Profil **coopérative** : création d'organisation coopérative possible (Slice 20) ; profil réglementaire (agrégation des volumes) à définir.
+5. ✔ Profil **coopérative** : création possible (Slice 20) ; profil, membres et agrégation des volumes faits (Slice 33) — liste des pièces et appartenance à plusieurs coopératives à valider par le métier.
 6. Étapes comité / décret du PA, grille des 30 AAC, échéance d'ouverture de 3 ans, échéance du 31 mars.

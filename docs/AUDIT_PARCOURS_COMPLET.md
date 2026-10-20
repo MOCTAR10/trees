@@ -49,7 +49,9 @@ fiscalité & social, certifications, déclarations (AAC + porte art. 14), chanti
 🟡 Accueil et navigation dans le design system (Slice 23) ; les écrans internes gardent l'ancien `theme.ts` (thème sombre forcé).
 
 ### Coopérative (`cooperative`)
-🟠 Seulement la collecte de résidus. Pas de profil réglementaire (agrégation des volumes, planche 9).
+✅ Espace en quatre onglets (Slice 33, téléphone uniquement, système de design) : **Synthèse** (membres actifs, titres, AAC, volumes déclaré / autorisé / abattu, grumes par statut, pièces manquantes et taxes en retard des membres), **Membres** (ajout par recherche — nom, type, provinces seulement —, suspension / sortie motivées, réactivation, anciens membres listés mais non comptés, fiche d'un membre en lecture seule), **Conformité** (profil `cooperative_forestiere`, 4 pièces à déposer, *à valider par le métier*), **Résidus** (collecte, inchangée).
+✔ Le Ministère gère aussi les adhésions depuis la fiche de la coopérative ; une entreprise membre voit « Membre de la coopérative … » sur son Accueil (lecture seule).
+🟡 Appartenance à plusieurs coopératives admise, *à valider par le métier*.
 
 ### Ministère (`admin`)
 ✅ Tableau de bord, À traiter + page de décision, organisations, contrôles terrain, anomalies, carte.
@@ -72,7 +74,7 @@ transaction, saisie, suspension, poursuites), contestation par l'organisation, a
 2. ✔ **Espace entreprise « À faire »** — fait (Slice 23). : ouvrir sur les actions dues et les décisions reçues (avec motif),
    anomalies et PV la concernant ; migrer l'espace vers le design system.
 3. ✔ **PV de contrôle** en PDF (Slice 24) — et suites d'un contrôle non conforme (à valider par le métier).
-4. 🟡 ✔ Échéances AAC / état annuel (Slice 24) ; restent profil coopérative, registre de transformation, étapes du PA.
+4. 🟡 ✔ Échéances AAC / état annuel (Slice 24), ✔ registre de transformation (Slice 26), ✔ profil coopérative et agrégation des volumes (Slice 33) ; restent les étapes du PA.
 
 ## 6. Vérification par le jeu pilote (Slice 23)
 

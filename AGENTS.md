@@ -44,14 +44,14 @@ only (`mobile/src/i18n/fr.ts`). There is **no navigation library**: `App.tsx`
 routes with a `phase` state machine plus role checks; screens are mounted from
 per-role containers (`CompanyScreen`, `AdminScreen`, …) that expose tabs.
 
-## 2. Where we are (as of Slice 32)
+## 2. Where we are (as of Slice 33)
 
 The product is built as **vertical slices**: each slice ships a DB migration, the
 backend, optionally an operational CLI under `tools/`, the mobile UI, and the
 doc update — as separate logical commits. The full history lives in
 `docs/GABON_WORKFLOW_ANALYSIS.md` **§9**.
 
-**Slices 1–32 are DONE, on `main` and deployed (CI green, including the workflow job).** Migration `031_species_memory.sql`
+**Slices 1–33 are DONE, on `main` and deployed (CI green, including the workflow job).** Migration `031_species_memory.sql`
 (GBIF answers cached by area, identified species learned) shipped between Slices 29 and 30 without a slice number. GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
 
 | # | Domaine | Migration | Backend | Mobile | Docs §9 |
@@ -88,10 +88,12 @@ doc update — as separate logical commits. The full history lives in
 | 30 | Cohérence exploitation ↔ conformité : déclaration guidée par le titre de l'AAC, marquage par pied (QR scanné, n° peint, GPS), porte art. 14 étendue (AAC fermée, titre sans droit) et rejouée à l'abattage, pièces échues lues `expire`, quittance ⇒ échéance réglée ; barre supérieure et menu latéral web | — | `services/compliance.py` (`GATE_LABELS`, `DOC_STATUS_SQL`), `POST /api/felling/declarations`, `POST /api/felling/events`, `/api/taxes` | `DeclareScreen`, `web/DesktopFrame` (`useDesktopTopTabs`), `CompanyNav`, `CompanyScreen` | pt 30 |
 | 31 | Inventaire d'exploitation importé d'un tableur (Excel / CSV) : modèle de 7 colonnes essentielles (référence d'AAC du plan d'aménagement, numéro, essence, position, diamètre, à abattre oui/non), aperçu ligne par ligne, import tout ou rien, arbres à préserver jamais déclarables, plaques du lot, historique sur la fiche organisation | `032_slice31.sql`, `033_inventory_simple.sql` | `core/inventory_model.py`, `services/inventory_import.py`, `/api/inventory/*`, `compliance.inventory_gate`, `kept_tree` | `InventoryImportScreen`, `CompanyScreen`, `CompanyTitles`, `DeclareScreen`, `ministry/OrganisationScreen` | pt 31 |
 | 32 | Application web en mise en page de bureau : grilles de cartes, tableaux triables, volet latéral, dialogues centrés, graphiques SVG ; téléphone inchangé | — | — | `design/layout.tsx` (`CardGrid`, `SplitPane`, `DataTable`, `useDialog`), `design/charts.tsx` (`Donut`, `ColumnChart`), `InboxScreen`, `OrganisationsScreen`, `DecisionScreen`, `OrganisationScreen`, `CompanyHomeScreen`, `AdminUsers`, domaines | pt 32 |
+| 33 | Espace coopérative : organisations membres (adhésion gérée par la coopérative et par le Ministère, suspension / sortie motivées), volumes agrégés des membres actifs à la lecture, fiche membre en lecture seule, profil `cooperative_forestiere` (4 pièces à valider par le métier) ; « Membre de … » côté entreprise et fiche Ministère | `034_slice33.sql` | `services/cooperative.py`, `/api/cooperative/space`, `/api/cooperative/members` (`candidates`, ajout, `PATCH`, `/{id}`), `/api/organizations/{id}/members`, fiche (`cooperative`, `memberships`), `/api/company/space` (`cooperatives`) | `CooperativeScreen` (conteneur), `cooperative/` (`CoopOverview`, `CoopMembers`, `CoopMemberDetail`, `CoopDocuments`, `CoopResidues`, `MemberDialogs`), `ministry/OrganisationScreen`, `CompanyHomeScreen` | pt 33 |
 
-Latest verified suite counts (Slice 32, 20 Oct 2026): **`pytest tests` 571** (570 passed locally + `test_capabilities_reflect_settings`,
-which needs ≥ 3 GB for the API container and fails on a smaller Docker host) · **`jest` 251 / 68 suites** · `ruff` and `tsc` clean ·
-`tests_e2e`, role coverage (100 %) and the pilot story are gated by CI (workflow and Régression jobs).
+Latest verified suite counts (Slice 33, 20 Oct 2026): **`pytest tests` 584** (583 passed locally + `test_capabilities_reflect_settings`,
+which needs ≥ 3 GB for the API container and fails on a smaller Docker host) · **`tests_e2e` 248** · role coverage 100 % (admin 106,
+company 109, operator 37, cooperative 37) · pilot story 227 calls / 32 expected refusals · **`jest` 258 / 69 suites** · `ruff` and `tsc`
+clean · `tests_e2e`, role coverage and the pilot story are gated by CI (workflow and Régression jobs).
 
 ### What is left (next candidates)
 
@@ -124,7 +126,7 @@ slice unprompted.
   (never re-add Ultralytics: AGPL-3.0).
 - **Domain values to confirm with the métier** (§10 open points): `ASC`/`ACBSL`
   scope, authority model, offline signature/QR authenticity, APV/FLEGT,
-  convention durations (3 y / 15 y), PPF/EIE validity, EUDR out-of-parcel
+  convention durations (3 y / 15 y), PPF/EIE validity, cooperative document list and membership of several cooperatives, EUDR out-of-parcel
   tolerance. Where a duration/meaning is not enforced, the code **stores dates
   without imposing them** and the doc says **“à valider par le métier”** — keep
   that pattern.
