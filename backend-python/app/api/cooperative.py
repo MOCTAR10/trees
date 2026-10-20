@@ -1,9 +1,15 @@
-"""Cooperative interface: nearby residues + collect confirmation."""
+"""Cooperative interface: member organisations, aggregated volumes, residues."""
 
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import date
+from typing import Literal
 
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
+
+from app.api.organizations import _labelled_warnings, _org_detail
 from app.core import profiles
 from app.core.deps import require_roles
+from app.services import cooperative as coop_service
 from app.services import db
 
 router = APIRouter()
@@ -42,6 +48,81 @@ async def my_cooperative(user: dict = Depends(require_roles("cooperative"))):
         "organization_type": "cooperative",
         "profile_type": row["profile_type"],
     }
+
+
+class MemberIn(BaseModel):
+    member_org_id: int
+    joined_on: date | None = None
+    notes: str | None = Field(None, max_length=500)
+
+
+class MemberPatch(BaseModel):
+    status: Literal["active", "suspendue", "sortie"]
+    reason: str | None = Field(None, max_length=500)
+    left_on: date | None = None
+
+
+@router.get("/space")
+async def cooperative_space(user: dict = Depends(require_roles("cooperative"))):
+    """The cooperative's own profile and checklist, its members and their aggregated volumes."""
+    org = await coop_service.cooperative_org(user.get("organization_id"))
+    detail = await _org_detail(org["id"], user)
+    return {
+        "organization": org,
+        "checklist": detail["checklist"],
+        "profile_note": coop_service.PROFILE_NOTE,
+        "warnings": await _labelled_warnings(org["id"]),
+        **await coop_service.members_with_aggregates(org["id"]),
+    }
+
+
+@router.get("/members")
+async def cooperative_members(
+    include_former: bool = Query(True),
+    user: dict = Depends(require_roles("cooperative")),
+):
+    org = await coop_service.cooperative_org(user.get("organization_id"))
+    return await coop_service.list_members(org["id"], include_former)
+
+
+@router.get("/members/candidates")
+async def member_candidates(
+    q: str | None = Query(None, max_length=100),
+    user: dict = Depends(require_roles("cooperative")),
+):
+    """Organisations that may join (name, type, provinces only)."""
+    org = await coop_service.cooperative_org(user.get("organization_id"))
+    return await coop_service.candidates(org["id"], q)
+
+
+@router.post("/members", status_code=201)
+async def add_cooperative_member(
+    body: MemberIn, user: dict = Depends(require_roles("cooperative"))
+):
+    org = await coop_service.cooperative_org(user.get("organization_id"))
+    return await coop_service.add_member(
+        org["id"], body.member_org_id, user["id"], "cooperative", body.joined_on, body.notes
+    )
+
+
+@router.patch("/members/{membership_id}")
+async def update_cooperative_member(
+    membership_id: int, body: MemberPatch, user: dict = Depends(require_roles("cooperative"))
+):
+    """Suspend, reactivate or record the leaving of a member (reason required)."""
+    org = await coop_service.cooperative_org(user.get("organization_id"))
+    return await coop_service.update_member(
+        org["id"], membership_id, body.status, body.reason, body.left_on
+    )
+
+
+@router.get("/members/{membership_id}")
+async def cooperative_member(
+    membership_id: int, user: dict = Depends(require_roles("cooperative"))
+):
+    """Read-only view of a member: titles, AAC, volumes, logs, documents and taxes."""
+    org = await coop_service.cooperative_org(user.get("organization_id"))
+    return await coop_service.member_detail(org["id"], membership_id)
 
 
 @router.get("/residues")

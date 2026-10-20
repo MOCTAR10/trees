@@ -67,7 +67,11 @@ async def _owns_scope(user: dict, scope_type: str, scope_id: int) -> None:
 
 
 @router.post("/upload")
-async def upload(body: DocumentIn, user: dict = Depends(require_roles("company"))):
+async def upload(body: DocumentIn, user: dict = Depends(require_roles("company", "cooperative"))):
+    if user["role"] == "cooperative" and body.scope_type != "company":
+        raise HTTPException(
+            status_code=403, detail="Une coopérative ne dépose que les pièces de son organisation"
+        )
     doc_type = await db.fetch_one("SELECT code FROM document_types WHERE code = $1", body.doc_type)
     if doc_type is None:
         raise HTTPException(status_code=400, detail=f"Type de document inconnu: {body.doc_type}")

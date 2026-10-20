@@ -10,7 +10,16 @@ that concern it (right of reply).
 from datetime import UTC, date, datetime, timedelta
 
 from app.core import fr_format
-from app.services import anomalies, authorities, compliance, controls, db, deadlines, mill
+from app.services import (
+    anomalies,
+    authorities,
+    compliance,
+    controls,
+    cooperative,
+    db,
+    deadlines,
+    mill,
+)
 
 DECISION_WINDOW_DAYS = 120
 CERT_NOTICE_DAYS = 60
@@ -342,7 +351,14 @@ async def org_anomalies(org_id: int) -> list[dict]:
 async def space(user: dict) -> dict:
     org_id = user.get("organization_id")
     if org_id is None:
-        return {"organization": None, "todo": [], "decisions": [], "anomalies": [], "controls": []}
+        return {
+            "organization": None,
+            "todo": [],
+            "decisions": [],
+            "anomalies": [],
+            "controls": [],
+            "cooperatives": [],
+        }
     org = await db.fetch_one(
         "SELECT id, name, org_type, profile_code FROM organizations WHERE id = $1", org_id
     )
@@ -353,5 +369,6 @@ async def space(user: dict) -> dict:
         "decisions": await decisions(org_id),
         "anomalies": await org_anomalies(org_id),
         "controls": await controls.list_controls(org_id=org_id),
+        "cooperatives": await cooperative.memberships_of(org_id),
         "acting_authority": authorities.ACTING,
     }

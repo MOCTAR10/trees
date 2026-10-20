@@ -1,5 +1,6 @@
 """Organization registry: presets, Ministry creation wizard, self-service views."""
 
+from datetime import date
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -7,10 +8,13 @@ from pydantic import BaseModel, Field
 
 from app.core import fr_format, security
 from app.core.deps import require_roles
-from app.services import compliance, db, inventory_import, ministry, org_backfill
+from app.services import compliance, cooperative, db, inventory_import, ministry, org_backfill
 from app.services.compliance import DOC_STATUS_SQL
 
 router = APIRouter()
+
+#: Profile given to a cooperative created without one (list « à valider par le métier »).
+DEFAULT_COOPERATIVE_PROFILE = "cooperative_forestiere"
 
 _ORG_COLUMNS = (
     "o.id, o.org_type, o.name, o.legal_form, o.registration_no, o.tax_id, o.email, o.phone, "
@@ -73,14 +77,13 @@ async def list_profiles(_user: dict = Depends(require_roles("company", "admin"))
 
 @router.post("", status_code=201)
 async def create_organization(body: OrganizationIn, admin: dict = Depends(require_roles("admin"))):
-    if body.profile_code:
-        profile = await db.fetch_one(
-            "SELECT * FROM org_profiles WHERE code = $1", body.profile_code
-        )
+    profile_code = body.profile_code
+    if profile_code is None and body.org_type == "cooperative":
+        profile_code = DEFAULT_COOPERATIVE_PROFILE
+    if profile_code:
+        profile = await db.fetch_one("SELECT * FROM org_profiles WHERE code = $1", profile_code)
         if profile is None:
             raise HTTPException(status_code=404, detail="Preset introuvable")
-    elif body.org_type == "cooperative":
-        profile = {"org_type": "cooperative", "doc_required": []}
     else:
         raise HTTPException(
             status_code=422, detail="Profil requis (sauf coopérative : type « cooperative »)"
@@ -102,7 +105,7 @@ async def create_organization(body: OrganizationIn, admin: dict = Depends(requir
         body.email,
         body.phone,
         body.address,
-        body.profile_code,
+        profile_code,
         admin["id"],
     )
 
@@ -280,8 +283,13 @@ async def organisation_sheet(org_id: int, _admin: dict = Depends(require_roles("
         " ORDER BY created_at DESC",
         org_id,
     )
+    sheet_cooperative = None
+    if entries[0].get("org_type") == "cooperative":
+        sheet_cooperative = await cooperative.members_with_aggregates(org_id)
     return {
         **entries[0],
+        "cooperative": sheet_cooperative,
+        "memberships": await cooperative.memberships_of(org_id),
         "titles": [dict(t) for t in titles],
         "accounts": [dict(a) for a in accounts],
         "certifications": [dict(c) for c in certifications],
@@ -349,6 +357,40 @@ async def _create_account(org: dict, body: AccountIn, employer: int | None = Non
             org["id"],
         )
     return dict(row)
+
+
+class MemberIn(BaseModel):
+    member_org_id: int
+    joined_on: date | None = None
+    notes: str | None = Field(None, max_length=500)
+
+
+class MemberPatch(BaseModel):
+    status: Literal["active", "suspendue", "sortie"]
+    reason: str | None = Field(None, max_length=500)
+    left_on: date | None = None
+
+
+@router.post("/{org_id}/members", status_code=201)
+async def add_member(org_id: int, body: MemberIn, admin: dict = Depends(require_roles("admin"))):
+    """The Ministry adds a member organisation to a cooperative."""
+    return await cooperative.add_member(
+        org_id, body.member_org_id, admin["id"], "ministere", body.joined_on, body.notes
+    )
+
+
+@router.patch("/{org_id}/members/{membership_id}")
+async def update_member(
+    org_id: int,
+    membership_id: int,
+    body: MemberPatch,
+    _admin: dict = Depends(require_roles("admin")),
+):
+    """The Ministry suspends, reactivates or ends a membership (reason required)."""
+    await cooperative.cooperative_org(org_id)
+    return await cooperative.update_member(
+        org_id, membership_id, body.status, body.reason, body.left_on
+    )
 
 
 class AgentIn(BaseModel):

@@ -144,6 +144,12 @@ class Fake:
             self.inserted.append(("org", args))
             return {"id": 40, "org_type": args[0], "profile_code": args[8]}
         if "from org_profiles where code" in s:
+            if args[0] == "cooperative_forestiere":
+                return {
+                    "code": args[0],
+                    "org_type": "cooperative",
+                    "doc_required": ["statuts_cooperative", "immatriculation_rscoop"],
+                }
             return (
                 {"code": args[0], "org_type": "entreprise", "doc_required": []}
                 if args[0] == "integre"
@@ -387,14 +393,19 @@ def test_cooperative_account_is_linked_to_its_community_cooperative(client, fake
     assert sum(1 for kind, _ in fake.inserted if kind == "coop") == 1
 
 
-def test_cooperative_can_be_created_without_profile(client, fake):
+def test_cooperative_created_without_profile_gets_the_cooperative_profile(client, fake):
     resp = client.post(
         "/api/organizations",
         json={"name": "Coop Ngounié", "org_type": "cooperative"},
         headers=_auth(ADMIN),
     )
     assert resp.status_code == 201, resp.text
-    assert resp.json()["organization"]["org_type"] == "cooperative"
+    org = resp.json()["organization"]
+    assert org["org_type"] == "cooperative" and org["profile_code"] == "cooperative_forestiere"
+    assert [c["doc_type"] for c in resp.json()["checklist"]] == [
+        "statuts_cooperative",
+        "immatriculation_rscoop",
+    ]
     missing = client.post("/api/organizations", json={"name": "X"}, headers=_auth(ADMIN))
     assert missing.status_code == 422
 

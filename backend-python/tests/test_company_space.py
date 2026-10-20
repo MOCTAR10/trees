@@ -156,7 +156,14 @@ def test_company_space_orders_actions_and_reports_decisions(client, fake):
 
 def test_company_space_without_organisation_is_empty(client, fake):
     d = client.get("/api/company/space", headers=_auth(ORPHAN)).json()
-    assert d == {"organization": None, "todo": [], "decisions": [], "anomalies": [], "controls": []}
+    assert d == {
+        "organization": None,
+        "todo": [],
+        "decisions": [],
+        "anomalies": [],
+        "controls": [],
+        "cooperatives": [],
+    }
 
 
 def test_company_space_is_company_only(client, fake):
