@@ -77,7 +77,7 @@ describe("Ministry space", () => {
 
   it("orders the Ministry bottom bar with the map in the centre", () => {
     expect(tabsForRole("admin").map((t) => t.label)).toEqual([
-      "Tableau de bord",
+      "Accueil",
       "À traiter",
       "Carte",
       "Organisations",
@@ -116,6 +116,27 @@ describe("Ministry space", () => {
     expect(view.queryByTestId("province-GA-1")).toBeNull();
     fireEvent.press(view.getByTestId("ministry-stats"));
     expect(onOpenDomain).toHaveBeenCalledWith("stats");
+  });
+
+  it("Accueil on the phone splits the figures into swipeable pages with a tab strip", async () => {
+    const view = render(
+      <MinistryHomeScreen firstName="Awa" onOpenInbox={jest.fn()} onOpenOrgs={jest.fn()} onOpenDomain={jest.fn()} now={NOW} />,
+    );
+    await flush();
+    expect(view.getAllByTestId(/^home-tab-/).map((n) => n.props.testID)).toEqual([
+      "home-tab-overview",
+      "home-tab-figures",
+      "home-tab-exploitation",
+      "home-tab-registry",
+      "home-tab-compliance",
+      "home-tab-finances",
+    ]);
+    expect(view.getByTestId("home-tab-overview").props.accessibilityState).toEqual({ selected: true });
+    expect(view.getByTestId("home-page-overview")).toHaveTextContent(/Bonjour, Awa/);
+    expect(view.getByTestId("home-page-finances")).toHaveTextContent(/Fiscalité/);
+    fireEvent.press(view.getByTestId("home-tab-finances"));
+    expect(view.getByTestId("home-tab-finances").props.accessibilityState).toEqual({ selected: true });
+    expect(view.getByTestId("home-tab-overview").props.accessibilityState).toEqual({ selected: false });
   });
 
   it("À traiter lists every file with authority, province and age, filterable", async () => {

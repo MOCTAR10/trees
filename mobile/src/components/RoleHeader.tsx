@@ -6,6 +6,7 @@ import { Role } from "../api/client";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { RankStripes } from "../design/ui";
 import { fr } from "../i18n/fr";
+import { haptic } from "../utils/haptics";
 import { ServerStatus } from "../utils/useServerStatus";
 
 const SEAL = require("../../assets/leaf_logo.jpg");
@@ -66,40 +67,50 @@ export default function RoleHeader({
           <Text style={s.overline} numberOfLines={1}>
             {title.toUpperCase()}
           </Text>
-          <Text style={[s.ministry, compact && s.ministryCompact]} numberOfLines={2}>
+          <Text
+            style={[s.ministry, compact && s.ministryCompact]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+            testID="header-ministry"
+          >
             {fr.header.ministry}
           </Text>
-          {roleLabel ? (
-            <>
-              <View style={s.metaRow}>
-                {rank > 0 ? (
-                  <View style={s.stripesChip}>
-                    <RankStripes count={rank} color={t.c.gold} testID="rank-stripes" />
+          <View style={s.lower}>
+            <View style={s.who}>
+              {roleLabel ? (
+                <>
+                  <View style={s.metaRow}>
+                    {rank > 0 ? (
+                      <View style={s.stripesChip}>
+                        <RankStripes count={rank} color={t.c.gold} testID="rank-stripes" />
+                      </View>
+                    ) : null}
+                    <Text style={s.role} numberOfLines={1}>
+                      {roleLabel}
+                    </Text>
                   </View>
-                ) : null}
-                <Text style={s.role} numberOfLines={1}>
-                  {roleLabel}
-                </Text>
-              </View>
-              {orgName ? (
-                <Text style={s.org} numberOfLines={1} testID="header-org">
-                  {orgName}
+                  {orgName ? (
+                    <Text style={s.org} numberOfLines={2} testID="header-org">
+                      {orgName}
+                    </Text>
+                  ) : null}
+                </>
+              ) : subtitle ? (
+                <Text style={s.org} numberOfLines={2}>
+                  {subtitle}
                 </Text>
               ) : null}
-            </>
-          ) : subtitle ? (
-            <Text style={s.org} numberOfLines={1}>
-              {subtitle}
-            </Text>
-          ) : null}
-        </View>
-        <View style={s.actions}>
-          {onOpenProjects ? (
-            <HeaderAction label={fr.header.projects} compact={compact} onPress={onOpenProjects} icon={<Target size={18} color={t.c.gold} strokeWidth={2} />} />
-          ) : null}
-          {onOpenProfile ? (
-            <HeaderAction label={fr.header.profile} compact={compact} onPress={onOpenProfile} icon={<UserRound size={18} color={t.c.gold} strokeWidth={2} />} />
-          ) : null}
+            </View>
+            <View style={s.actions}>
+              {onOpenProjects ? (
+                <HeaderAction label={fr.header.projects} compact={compact} onPress={onOpenProjects} icon={<Target size={compact ? 16 : 18} color={t.c.gold} strokeWidth={2} />} />
+              ) : null}
+              {onOpenProfile ? (
+                <HeaderAction label={fr.header.profile} compact={compact} onPress={onOpenProfile} icon={<UserRound size={compact ? 16 : 18} color={t.c.gold} strokeWidth={2} />} />
+              ) : null}
+            </View>
+          </View>
         </View>
       </View>
       {coords !== undefined || connection ? (
@@ -171,14 +182,19 @@ function HeaderAction({
   const s = useStyles();
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => {
+        haptic("tap");
+        onPress();
+      }}
       style={({ pressed }) => [s.actionBtn, pressed && s.actionPressed]}
       accessibilityRole="button"
       accessibilityLabel={label}
       hitSlop={4}
     >
       {icon}
-      {compact ? null : <Text style={s.actionLabel}>{label}</Text>}
+      <Text style={[s.actionLabel, compact && s.actionLabelCompact]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -191,7 +207,7 @@ const useStyles = makeStyles((t) => ({
     paddingBottom: t.space.md,
     gap: t.space.xs,
   },
-  row: { flexDirection: "row", alignItems: "center", gap: t.space.md },
+  row: { flexDirection: "row", alignItems: "flex-start", gap: t.space.md },
   sealPlate: {
     width: 56,
     height: 38,
@@ -207,7 +223,9 @@ const useStyles = makeStyles((t) => ({
     letterSpacing: 1.3,
   },
   ministry: { color: t.c.onForest, fontFamily: t.fonts.display, fontSize: 19, lineHeight: 23 },
-  ministryCompact: { fontSize: 17, lineHeight: 20 },
+  ministryCompact: { fontSize: 17, lineHeight: 21 },
+  lower: { flexDirection: "row", alignItems: "center", gap: t.space.sm, marginTop: 2 },
+  who: { flex: 1, minWidth: 0 },
   metaRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 2 },
   stripesChip: { paddingVertical: 1 },
 
@@ -216,8 +234,9 @@ const useStyles = makeStyles((t) => ({
   actions: { flexDirection: "row", alignItems: "center", gap: t.space.xs },
   actionBtn: {
     minWidth: 48,
-    minHeight: 48,
+    minHeight: 44,
     paddingHorizontal: 6,
+    paddingVertical: 3,
     borderRadius: t.radius.md,
     borderWidth: 1,
     borderColor: "rgba(217,180,74,0.45)",
@@ -227,9 +246,11 @@ const useStyles = makeStyles((t) => ({
   },
   actionPressed: { backgroundColor: "rgba(255,255,255,0.08)" },
   actionLabel: { color: t.c.onForest, fontFamily: t.fonts.displaySemi, fontSize: 10.5 },
+  actionLabelCompact: { fontSize: 9.5, lineHeight: 11 },
   locRow: { flexDirection: "row", alignItems: "center", gap: 4, paddingLeft: 68, minHeight: 24 },
   badge: {
     marginLeft: "auto",
+    flexShrink: 0,
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
@@ -241,6 +262,8 @@ const useStyles = makeStyles((t) => ({
     borderColor: "rgba(255,255,255,0.18)",
   },
   locating: {
+    flexShrink: 1,
+    minWidth: 0,
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
@@ -249,7 +272,7 @@ const useStyles = makeStyles((t) => ({
     paddingHorizontal: 10,
     paddingVertical: 3,
   },
-  locatingText: { color: t.c.forest, fontFamily: t.fonts.bodyBold, fontSize: 11.5 },
+  locatingText: { color: t.c.forest, fontFamily: t.fonts.bodyBold, fontSize: 11.5, flexShrink: 1 },
   badgeOffline: { backgroundColor: "rgba(224,165,58,0.18)", borderColor: "rgba(224,165,58,0.55)" },
   badgeDot: { width: 7, height: 7, borderRadius: 4 },
   badgeText: { color: t.c.onForest, fontFamily: t.fonts.bodyBold, fontSize: 11.5 },

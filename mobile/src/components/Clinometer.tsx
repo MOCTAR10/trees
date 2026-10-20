@@ -3,6 +3,7 @@ import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "reac
 
 import { fr } from "../i18n/fr";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
+import { haptic } from "../utils/haptics";
 import { clinometerHeight } from "../utils/tilt";
 import { useDeviceTilt } from "../utils/useDeviceTilt";
 
@@ -45,6 +46,7 @@ export default function Clinometer({ visible, initialDistanceM, onDone, onClose 
     topDeg != null && baseDeg != null ? clinometerHeight(distance, topDeg, baseDeg) : null;
 
   const capture = () => {
+    haptic("confirm");
     if (step === "top") {
       setTopDeg(tilt.elevationDeg);
       setStep("base");

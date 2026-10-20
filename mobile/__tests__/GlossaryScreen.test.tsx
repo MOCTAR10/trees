@@ -34,14 +34,23 @@ describe("GlossaryScreen", () => {
 });
 
 describe("RoleHeader on a phone", () => {
-  it("puts the name on its own line and keeps icon-only actions labelled", () => {
-    const spy = jest.spyOn(Dimensions, "get").mockReturnValue({ width: 390, height: 844, scale: 3, fontScale: 1 });
-    const { getByTestId, getByLabelText, queryByText } = render(
-      <RoleHeader title="Foresterie" role="admin" roleLabel="Ministère" orgName="Paul Nguema" onOpenProfile={jest.fn()} />,
+  it("keeps the Ministry on one line, the name on its own line, and labels the actions", () => {
+    const spy = jest.spyOn(Dimensions, "get").mockReturnValue({ width: 360, height: 760, scale: 3, fontScale: 1 });
+    const { getByTestId, getByLabelText, getByText } = render(
+      <RoleHeader
+        title="Foresterie"
+        role="admin"
+        roleLabel="Ministère"
+        orgName="Paul Nguema"
+        onOpenProfile={jest.fn()}
+        onOpenProjects={jest.fn()}
+      />,
     );
+    expect(getByTestId("header-ministry").props.numberOfLines).toBe(1);
     expect(getByTestId("header-org")).toHaveTextContent("Paul Nguema");
     expect(getByLabelText("Profil")).toBeTruthy();
-    expect(queryByText("Profil")).toBeNull();
+    expect(getByText("Profil")).toBeTruthy();
+    expect(getByText("Chantier / Projet")).toBeTruthy();
     spy.mockRestore();
   });
 });

@@ -43,10 +43,10 @@ describe("RoleHeader", () => {
     expect(getByText("Ministère des Eaux et Forêts")).toBeTruthy();
     expect(getByText("Agent de terrain")).toBeTruthy();
     expect(getByText("Terrain")).toBeTruthy();
-    expect(getByText("Projets")).toBeTruthy();
+    expect(getByText("Chantier / Projet")).toBeTruthy();
     expect(getByText("Profil")).toBeTruthy();
 
-    fireEvent.press(getByLabelText("Projets"));
+    fireEvent.press(getByLabelText("Chantier / Projet"));
     expect(onOpenProjects).toHaveBeenCalledTimes(1);
   });
 

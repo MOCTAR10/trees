@@ -12,6 +12,7 @@ import {
 
 import { makeStyles, useTheme } from "./ThemeProvider";
 import { Palette, TOUCH } from "./tokens";
+import { haptic } from "../utils/haptics";
 import { useDesktop } from "../web/DesktopFrame";
 
 // ---------------------------------------------------------------------------
@@ -110,7 +111,14 @@ export function Button({
   return (
     <Pressable
       testID={testID}
-      onPress={onPress}
+      onPress={
+        onPress
+          ? () => {
+              haptic(variant === "primary" || variant === "danger" ? "confirm" : "tap");
+              onPress();
+            }
+          : undefined
+      }
       disabled={disabled || loading}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
@@ -513,7 +521,10 @@ export function Segmented<K extends string>({
         return (
           <Pressable
             key={o.key}
-            onPress={() => onChange(o.key)}
+            onPress={() => {
+              if (!on) haptic("select");
+              onChange(o.key);
+            }}
             accessibilityRole="button"
             accessibilityState={{ selected: on }}
             style={{

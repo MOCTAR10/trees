@@ -1,7 +1,6 @@
 import {
   Building2,
   Inbox,
-  LayoutDashboard,
   House,
   Map,
   Menu,
@@ -22,6 +21,7 @@ import Animated, {
 import { AuthUser } from "../api/client";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { TabDef, TabKey, tabsForRole } from "../navigation/tabs";
+import { haptic } from "../utils/haptics";
 
 interface Props {
   user: AuthUser;
@@ -63,10 +63,13 @@ export default function BottomNav({ user, active, onChange }: Props) {
         <TabItem
           key={tab.key}
           tab={tab}
-          icon={user.role === "admin" && tab.key === "home" ? LayoutDashboard : ICONS[tab.key]}
+          icon={ICONS[tab.key]}
           isCenter={!!tab.centerFor?.includes(user.role)}
           isActive={active === tab.key}
-          onPress={() => onChange(tab.key)}
+          onPress={() => {
+            if (active !== tab.key) haptic("select");
+            onChange(tab.key);
+          }}
         />
       ))}
     </View>
@@ -121,9 +124,9 @@ function TabItem({
       )}
       <Text
         style={[s.label, isActive && s.labelActive, isCenter && s.labelCenter, Platform.OS === "web" && s.labelWeb]}
-        numberOfLines={Platform.OS === "web" ? 2 : 1}
+        numberOfLines={1}
         adjustsFontSizeToFit
-        minimumFontScale={0.8}
+        minimumFontScale={0.7}
       >
         {tab.label}
       </Text>
@@ -183,6 +186,6 @@ const useStyles = makeStyles((t) => ({
   label: { color: t.c.muted, fontFamily: t.fonts.body, fontSize: 12, textAlign: "center", paddingHorizontal: 2 },
   labelActive: { color: t.c.olive, fontFamily: t.fonts.bodyBold },
   labelCenter: { color: t.c.ink, fontFamily: t.fonts.bodyBold },
-  // The browser ignores adjustsFontSizeToFit: a long label wraps instead of being cut.
-  labelWeb: { fontSize: 11, lineHeight: 13 },
+  // The browser ignores adjustsFontSizeToFit: a smaller size keeps « Organisations » whole on a phone.
+  labelWeb: { fontSize: 10.5, lineHeight: 13, letterSpacing: -0.2, paddingHorizontal: 0 },
 }));

@@ -38,6 +38,14 @@ describe("DashboardPanels", () => {
     expect(getByText("AAC 07")).toBeTruthy();
   });
 
+  it("shows only the requested panels (one page of the phone Accueil)", () => {
+    const view = render(<DashboardPanels overview={FULL} panels={["fiscal", "social"]} />);
+    expect(view.getByTestId("panel-fiscal")).toBeTruthy();
+    expect(view.getByTestId("panel-social")).toBeTruthy();
+    expect(view.queryByTestId("panel-exploitation")).toBeNull();
+    expect(view.queryByTestId("panel-carbon")).toBeNull();
+  });
+
   it("tolerates a partial overview", () => {
     const { getByTestId } = render(<DashboardPanels overview={{ harvest: { estimated_volume_m3: 1 } } as any} />);
     expect(getByTestId("ministry-details")).toBeTruthy();

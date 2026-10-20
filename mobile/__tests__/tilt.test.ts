@@ -1,4 +1,4 @@
-import { cameraElevationDeg, clinometerHeight, isLevel, rollDeg } from "../src/utils/tilt";
+import { cameraElevationDeg, clinometerHeight, isLevel, rollDeg, tiltFromGravity } from "../src/utils/tilt";
 
 describe("tilt helpers", () => {
   it("reads the camera elevation from the pitch", () => {
@@ -6,6 +6,23 @@ describe("tilt helpers", () => {
     expect(cameraElevationDeg(Math.PI / 2 + Math.PI / 6)).toBeCloseTo(30);
     expect(cameraElevationDeg(Math.PI / 2 - Math.PI / 18)).toBeCloseTo(-10);
     expect(rollDeg(Math.PI / 36)).toBeCloseTo(5);
+  });
+
+  it("reads the attitude from gravity alone on phones without a gyroscope", () => {
+    const rad = Math.PI / 180;
+    const upright = tiltFromGravity(0, 1, 0)!;
+    expect(upright.elevationDeg).toBeCloseTo(0);
+    expect(upright.rollDeg).toBeCloseTo(0);
+    const up = tiltFromGravity(0, Math.cos(30 * rad), -Math.sin(30 * rad))!;
+    expect(up.elevationDeg).toBeCloseTo(30);
+    const down = tiltFromGravity(0, Math.cos(10 * rad), Math.sin(10 * rad))!;
+    expect(down.elevationDeg).toBeCloseTo(-10);
+    const flat = tiltFromGravity(0, 0, 1)!;
+    expect(flat.elevationDeg).toBeCloseTo(-90);
+    const lean = tiltFromGravity(-Math.sin(5 * rad), Math.cos(5 * rad), 0)!;
+    expect(lean.rollDeg).toBeCloseTo(5);
+    expect(isLevel(lean.elevationDeg, lean.rollDeg)).toBe(false);
+    expect(tiltFromGravity(0, 2.5, 0)).toBeNull();
   });
 
   it("accepts only an upright, non-leaning phone as level", () => {

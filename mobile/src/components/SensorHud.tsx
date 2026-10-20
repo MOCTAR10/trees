@@ -80,7 +80,7 @@ export default function SensorHud({ gps, position, depthSensor, aiSegmentation, 
         ? "RECHERCHE…"
         : "INDISPONIBLE";
   const roll = tilt.rollDeg;
-  const horizonShift = Math.max(-60, Math.min(60, tilt.elevationDeg - 90)) * 1.2;
+  const horizonShift = Math.max(-60, Math.min(60, tilt.elevationDeg)) * 1.2;
 
   return (
     <View

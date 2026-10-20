@@ -2,7 +2,7 @@ import React from "react";
 import { View } from "react-native";
 
 import { DashboardOverview, StatusRollup } from "../../api/client";
-import { ChartDatum, ColumnChart, Donut } from "../../design/charts";
+import { BarList, ChartDatum, ColumnChart, Donut } from "../../design/charts";
 import { dec } from "../../design/format";
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
 import { Palette } from "../../design/tokens";
@@ -50,28 +50,6 @@ function Section({ title, children, testID }: { title: string; children: React.R
       </Txt>
       {children}
     </Card>
-  );
-}
-
-function Bars({ rows, testID }: { rows: { label: string; value: number; text: string }[]; testID?: string }) {
-  const s = useStyles();
-  const max = Math.max(1, ...rows.map((r) => r.value));
-  return (
-    <View style={s.bars} testID={testID}>
-      {rows.map((r) => (
-        <View key={r.label} style={s.bar}>
-          <Txt variant="caption" style={s.barLabel} numberOfLines={1}>
-            {r.label}
-          </Txt>
-          <View style={s.track}>
-            <View style={[s.fill, { width: `${(r.value / max) * 100}%` }]} />
-          </View>
-          <Txt variant="caption" bold numeric style={s.barValue}>
-            {r.text}
-          </Txt>
-        </View>
-      ))}
-    </View>
   );
 }
 
@@ -149,7 +127,9 @@ export function DashboardTiles({ overview: o }: { overview: DashboardOverview })
   );
 }
 
-export default function DashboardPanels({ overview: o }: { overview: DashboardOverview }) {
+export type PanelKey = "exploitation" | "registry" | "compliance" | "fiscal" | "social" | "carbon";
+
+export default function DashboardPanels({ overview: o, panels }: { overview: DashboardOverview; panels?: PanelKey[] }) {
   const s = useStyles();
   const theme = useTheme();
   const species = (o.harvest?.by_species ?? []).slice(0, 6);
@@ -158,94 +138,105 @@ export default function DashboardPanels({ overview: o }: { overview: DashboardOv
   const carbonByAac = (o.carbon?.by_aac ?? []).slice(0, 5);
   const overdueAmount = num(o.taxes?.overdue_amount_fcfa);
   const transformation = Math.round(num(o.harvest?.transformation_rate) * 100);
+  const show = (k: PanelKey) => !panels || panels.includes(k);
 
   return (
     <View style={s.sections} testID="ministry-details">
-      <Section title={d.exploitation} testID="panel-exploitation">
-        <Ratio label={d.transformation} part={transformation} total={100} testID="ratio-transformation" />
-        {species.length ? (
-          <>
-            <Txt variant="caption" tone="muted">
-              {d.bySpecies}
-            </Txt>
-            <ColumnChart
-              data={species.map((r) => ({ label: r.species, value: num(r.volume_m3), text: `${short(num(r.volume_m3))} m³` }))}
-              testID="bars-species"
-            />
-          </>
-        ) : null}
-        {treeStatus.length ? (
-          <>
-            <Divider />
-            <Txt variant="caption" tone="muted">
-              {d.byStatus}
-            </Txt>
-            <ColumnChart
-              data={treeStatus.map(([k, n]) => ({ label: d.treeStatus[k] ?? k, value: num(n) }))}
-              color={theme.c.forest}
-              height={120}
-              testID="bars-tree-status"
-            />
-          </>
-        ) : null}
-      </Section>
+      {show("exploitation") ? (
+        <Section title={d.exploitation} testID="panel-exploitation">
+          <Ratio label={d.transformation} part={transformation} total={100} testID="ratio-transformation" />
+          {species.length ? (
+            <>
+              <Txt variant="caption" tone="muted">
+                {d.bySpecies}
+              </Txt>
+              <ColumnChart
+                data={species.map((r) => ({ label: r.species, value: num(r.volume_m3), text: `${short(num(r.volume_m3))} m³` }))}
+                testID="bars-species"
+              />
+            </>
+          ) : null}
+          {treeStatus.length ? (
+            <>
+              <Divider />
+              <Txt variant="caption" tone="muted">
+                {d.byStatus}
+              </Txt>
+              <ColumnChart
+                data={treeStatus.map(([k, n]) => ({ label: d.treeStatus[k] ?? k, value: num(n) }))}
+                color={theme.c.forest}
+                height={120}
+                testID="bars-tree-status"
+              />
+            </>
+          ) : null}
+        </Section>
+      ) : null}
 
-      <Section title={d.registry} testID="panel-registry">
-        <Txt variant="caption" tone="muted">
-          {d.titlesByStatus}
-        </Txt>
-        <Donut data={statusData(o.titles?.by_status, d.titleStatus, theme.c)} centerLabel={d.titlesShort} testID="donut-titles" />
-        <Divider />
-        <Txt variant="caption" tone="muted">
-          {d.aacByStatus}
-        </Txt>
-        <Donut data={statusData(o.aac?.by_status, d.aacStatus, theme.c)} centerLabel={d.aacShort} testID="donut-aac" />
-      </Section>
+      {show("registry") ? (
+        <Section title={d.registry} testID="panel-registry">
+          <Txt variant="caption" tone="muted">
+            {d.titlesByStatus}
+          </Txt>
+          <Donut data={statusData(o.titles?.by_status, d.titleStatus, theme.c)} centerLabel={d.titlesShort} testID="donut-titles" />
+          <Divider />
+          <Txt variant="caption" tone="muted">
+            {d.aacByStatus}
+          </Txt>
+          <Donut data={statusData(o.aac?.by_status, d.aacStatus, theme.c)} centerLabel={d.aacShort} testID="donut-aac" />
+        </Section>
+      ) : null}
 
-      <Section title={d.compliance} testID="panel-compliance">
-        <Ratio
-          label={d.docsValid}
-          part={Math.max(0, num(o.documents?.total) - num(o.documents?.expired))}
-          total={num(o.documents?.total)}
-          testID="ratio-docs"
-        />
-        <Donut data={statusData(o.documents?.by_status, d.docStatus, theme.c)} centerLabel={d.docs} testID="donut-docs" />
-        {schemes.length ? (
-          <>
-            <Divider />
-            <Txt variant="caption" tone="muted">
-              {d.certsByScheme}
-            </Txt>
-            <Bars rows={schemes.map((r) => ({ label: r.scheme, value: num(r.count), text: `${r.count} · ${short(num(r.surface_ha))} ha` }))} />
-          </>
-        ) : null}
-      </Section>
-
-      <Section title={d.fiscal} testID="panel-fiscal">
-        <View style={s.grid}>
-          <Tile value={String(num(o.taxes?.dues_total))} label={d.dues} />
-          <Tile value={String(num(o.taxes?.settled))} label={d.settled} tone="ok" />
-          <Tile
-            value={String(num(o.taxes?.overdue))}
-            label={d.late}
-            tone={num(o.taxes?.overdue) > 0 ? "risk" : "ok"}
-            hint={overdueAmount ? `${short(overdueAmount)} FCFA` : undefined}
+      {show("compliance") ? (
+        <Section title={d.compliance} testID="panel-compliance">
+          <Ratio
+            label={d.docsValid}
+            part={Math.max(0, num(o.documents?.total) - num(o.documents?.expired))}
+            total={num(o.documents?.total)}
+            testID="ratio-docs"
           />
-          <Tile value={short(num(o.taxes?.receipts_amount_fcfa))} label={d.received} hint={d.receiptsCount(num(o.taxes?.receipts))} tone="ok" />
-        </View>
-        <Ratio label={d.recovery} part={num(o.taxes?.settled)} total={num(o.taxes?.dues_total)} testID="ratio-recovery" />
-      </Section>
+          <Donut data={statusData(o.documents?.by_status, d.docStatus, theme.c)} centerLabel={d.docs} testID="donut-docs" />
+          {schemes.length ? (
+            <>
+              <Divider />
+              <Txt variant="caption" tone="muted">
+                {d.certsByScheme}
+              </Txt>
+              <BarList data={schemes.map((r) => ({ label: r.scheme, value: num(r.count), text: `${r.count} · ${short(num(r.surface_ha))} ha` }))} testID="bars-schemes" />
+            </>
+          ) : null}
+        </Section>
+      ) : null}
 
-      <Section title={d.social} testID="panel-social">
-        <View style={s.grid}>
-          <Tile value={String(num(o.community?.agreements))} label={d.agreementsLabel} hint={d.active(num(o.community?.active))} />
-          <Tile value={short(num(o.community?.contribution_fcfa))} label={d.contribution} hint="FCFA" />
-          <Tile value={dec(num(o.community?.avg_fdl_rate), 0)} label={d.fdl} hint="FCFA / m³" />
-          <Tile value={short(num(o.community?.annual_volume_m3))} label={d.annualVolume} hint="m³" />
-        </View>
-      </Section>
+      {show("fiscal") ? (
+        <Section title={d.fiscal} testID="panel-fiscal">
+          <View style={s.grid}>
+            <Tile value={String(num(o.taxes?.dues_total))} label={d.dues} />
+            <Tile value={String(num(o.taxes?.settled))} label={d.settled} tone="ok" />
+            <Tile
+              value={String(num(o.taxes?.overdue))}
+              label={d.late}
+              tone={num(o.taxes?.overdue) > 0 ? "risk" : "ok"}
+              hint={overdueAmount ? `${short(overdueAmount)} FCFA` : undefined}
+            />
+            <Tile value={short(num(o.taxes?.receipts_amount_fcfa))} label={d.received} hint={d.receiptsCount(num(o.taxes?.receipts))} tone="ok" />
+          </View>
+          <Ratio label={d.recovery} part={num(o.taxes?.settled)} total={num(o.taxes?.dues_total)} testID="ratio-recovery" />
+        </Section>
+      ) : null}
 
-      {carbonByAac.length ? (
+      {show("social") ? (
+        <Section title={d.social} testID="panel-social">
+          <View style={s.grid}>
+            <Tile value={String(num(o.community?.agreements))} label={d.agreementsLabel} hint={d.active(num(o.community?.active))} />
+            <Tile value={short(num(o.community?.contribution_fcfa))} label={d.contribution} hint="FCFA" />
+            <Tile value={dec(num(o.community?.avg_fdl_rate), 0)} label={d.fdl} hint="FCFA / m³" />
+            <Tile value={short(num(o.community?.annual_volume_m3))} label={d.annualVolume} hint="m³" />
+          </View>
+        </Section>
+      ) : null}
+
+      {show("carbon") && carbonByAac.length ? (
         <Section title={d.carbonByAac} testID="panel-carbon">
           <ColumnChart
             data={carbonByAac.map((r) => ({ label: r.aac_label, value: num(r.co2e_kg), text: `${short(num(r.co2e_kg) / 1000)} t` }))}
@@ -273,11 +264,7 @@ const useStyles = makeStyles((th) => ({
     padding: th.space.md,
     gap: 2,
   },
-  section: { padding: th.space.md, gap: th.space.sm, flexGrow: 1, flexBasis: 420, minWidth: 280 },
-  bars: { gap: th.space.xs },
-  bar: { flexDirection: "row", alignItems: "center", gap: th.space.sm, minHeight: 28 },
-  barLabel: { width: 112 },
-  barValue: { minWidth: 64, textAlign: "right" },
+  section: { padding: th.space.md, gap: th.space.sm, flexGrow: 1, flexShrink: 1, flexBasis: 420, minWidth: 0, maxWidth: "100%" },
   track: { flex: 1, height: 8, borderRadius: 4, backgroundColor: th.c.surface2, overflow: "hidden" },
   fill: { height: 8, borderRadius: 4, backgroundColor: th.c.olive },
   ratio: { gap: 4 },

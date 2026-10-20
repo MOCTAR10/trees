@@ -21,7 +21,7 @@ export const TABS: TabDef[] = [
 
 /** Ministry: decisions first, the map in the centre, the rest in the Menu. */
 export const ADMIN_TABS: TabDef[] = [
-  { key: "home", label: "Tableau de bord", roles: ["admin"] },
+  { key: "home", label: "Accueil", roles: ["admin"] },
   { key: "inbox", label: "À traiter", roles: ["admin"] },
   { key: "map", label: "Carte", roles: ["admin"] },
   { key: "orgs", label: "Organisations", roles: ["admin"] },

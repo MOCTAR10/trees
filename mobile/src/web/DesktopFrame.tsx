@@ -5,7 +5,7 @@
  * of the phone's header and bottom bar. On the phone and on narrow windows
  * nothing changes.
  */
-import { Building2, Inbox, LayoutDashboard, LogOut, Map, Menu, TreeDeciduous, Trees, House, ScanLine } from "lucide-react-native";
+import { Building2, Inbox, LogOut, Map, Menu, TreeDeciduous, Trees, House, ScanLine } from "lucide-react-native";
 import React from "react";
 import { Image, Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from "react-native";
 
@@ -180,7 +180,7 @@ export default function DesktopFrame({
                   tab.key,
                   `side-${tab.key}`,
                   tab.label,
-                  user.role === "admin" && tab.key === "home" ? LayoutDashboard : ICONS[tab.key],
+                  ICONS[tab.key],
                   active === tab.key,
                   () => onChange(tab.key),
                 ),

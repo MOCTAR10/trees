@@ -18,6 +18,23 @@ export function rollDeg(gammaRad: number): number {
   return gammaRad * DEG;
 }
 
+/**
+ * Attitude from gravity alone, for phones without a gyroscope (no fused
+ * rotation sensor). `x, y, z` is the accelerometer in g with Android's axes:
+ * +y towards the top edge, +z out of the screen, reading +1 on z when the
+ * phone lies flat screen-up. The back camera looks along −z, so its elevation
+ * is `asin(−z)`; the roll is the lean of the long edge from the vertical
+ * (positive when the top leans right). Returns `null` while the phone is
+ * being shaken too hard to tell where down is.
+ */
+export function tiltFromGravity(x: number, y: number, z: number): { elevationDeg: number; rollDeg: number } | null {
+  const g = Math.hypot(x, y, z);
+  if (!(g > 0.5 && g < 1.5)) return null;
+  const elevation = Math.asin(Math.max(-1, Math.min(1, -z / g))) * DEG;
+  const roll = Math.atan2(-x, y) * DEG;
+  return { elevationDeg: elevation, rollDeg: roll };
+}
+
 /** Tolerances for a straight DBH photo (degrees). */
 export const LEVEL_ROLL_DEG = 3;
 export const LEVEL_PITCH_DEG = 6;
