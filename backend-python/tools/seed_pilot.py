@@ -55,6 +55,7 @@ class Ctx:
     trees: dict[str, list[str]] = field(default_factory=dict)
     slip: dict[str, int] = field(default_factory=dict)
     project: dict[str, int] = field(default_factory=dict)
+    membership: dict[str, int] = field(default_factory=dict)
     pending_lines: list[dict] = field(default_factory=list)
     seq: int = 0
     log: list[str] = field(default_factory=list)
@@ -1681,6 +1682,102 @@ def inventory_import(ctx: Ctx) -> None:
     )
 
 
+# --- 13. Cooperative: member organisations, aggregated volumes (Slice 33) ----
+def cooperative_members(ctx: Ctx) -> None:
+    """The cooperative groups small operators and a community; members keep their titles."""
+    p = ctx.p
+    can = ctx.org["can"]
+    space = p.get("can.pres", "/api/cooperative/space")
+    assert space["organization"]["profile_code"] == "cooperative_forestiere", space["organization"]
+    assert {c["doc_type"] for c in space["checklist"]} >= {
+        "statuts_cooperative",
+        "immatriculation_rscoop",
+    }
+    found = p.get("can.pres", f"/api/cooperative/members/candidates?q={ctx.ns}")
+    assert ctx.org["mas"] in {o["id"] for o in found}
+    assert can not in {o["id"] for o in found}
+    mas = p.post(
+        "can.pres",
+        "/api/cooperative/members",
+        {"member_org_id": ctx.org["mas"], "joined_on": _d(-200)},
+        expect=201,
+        note="la coopérative ajoute la communauté de Massaha",
+    )
+    sdl = p.post(
+        "can.pres",
+        "/api/cooperative/members",
+        {"member_org_id": ctx.org["sdl"], "joined_on": _d(-300)},
+        expect=201,
+        note="la coopérative ajoute la scierie de Lambaréné",
+    )
+    cfn = p.post(
+        "admin",
+        f"/api/organizations/{can}/members",
+        {
+            "member_org_id": ctx.org["cfn"],
+            "notes": "Adhésion constatée par la Direction Provinciale",
+        },
+        expect=201,
+        note="le Ministère ajoute la Compagnie Forestière de la Nyanga",
+    )
+    p.refused(
+        "can.pres",
+        "POST",
+        "/api/cooperative/members",
+        {"member_org_id": can},
+        409,
+        "une coopérative n'est pas son propre membre",
+    )
+    p.refused(
+        "can.pres",
+        "POST",
+        "/api/cooperative/members",
+        {"member_org_id": ctx.org["mas"]},
+        409,
+        "un membre n'est inscrit qu'une fois",
+    )
+    p.refused(
+        "can.pres",
+        "PATCH",
+        f"/api/cooperative/members/{sdl['id']}",
+        {"status": "sortie"},
+        422,
+        "sortie d'un membre sans motif",
+    )
+    p.patch(
+        "can.pres",
+        f"/api/cooperative/members/{sdl['id']}",
+        {"status": "sortie", "reason": "Retrait décidé en assemblée générale", "left_on": _d(-20)},
+        expect=200,
+        note="la scierie quitte la coopérative (motif)",
+    )
+    p.post(
+        "can.pres",
+        "/api/documents/upload",
+        {
+            "scope_type": "company",
+            "scope_id": can,
+            "doc_type": "statuts_cooperative",
+            "reference": ctx.ref("STATUTS"),
+            "issued_at": _d(-400),
+        },
+        expect=200,
+        note="statuts de la coopérative déposés",
+    )
+    ctx.membership.update(mas=mas["id"], sdl=sdl["id"], cfn=cfn["id"])
+    space = p.get("can.pres", "/api/cooperative/space")
+    assert space["counts"] == {"active": 2, "suspendue": 0, "sortie": 1}, space["counts"]
+    assert space["totals"]["titles"]["total"] >= 2 and space["totals"]["logs"]["total"] > 0
+    detail = p.get("can.pres", f"/api/cooperative/members/{mas['id']}")
+    assert detail["membership"]["member_org_id"] == ctx.org["mas"]
+    sheet = p.get("admin", f"/api/organizations/{can}/sheet")
+    assert sheet["cooperative"]["counts"]["active"] == 2
+    assert p.get("cfn.dg", "/api/company/space")["cooperatives"][0]["status"] == "active"
+    ctx.note(
+        "coopérative : 2 membres actifs (Massaha, Nyanga), 1 sortie motivée (Lambaréné), statuts déposés"
+    )
+
+
 STAGES = [
     people,
     titles,
@@ -1695,6 +1792,7 @@ STAGES = [
     projects,
     team_mill_followups,
     inventory_import,
+    cooperative_members,
 ]
 
 
