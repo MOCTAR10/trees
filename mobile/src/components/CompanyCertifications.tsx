@@ -22,6 +22,7 @@ import { fr } from "../i18n/fr";
 import { exportCertificationPdf, sharePdf } from "../pdf";
 import Badge, { certTone } from "./Badge";
 import { frDate, shown } from "../design/format";
+import { CardGrid, useDialog } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 const SCHEMES: CertScheme[] = ["FSC", "PAFC", "PEFC", "OLB", "LS", "TLV"];
@@ -96,40 +97,42 @@ export default function CompanyCertifications() {
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.list}>
-          {certs.map((c) => (
-            <View key={c.id} style={styles.card} testID={`cert-${c.id}`}>
-              <View style={styles.cardTop}>
-                <Text style={styles.scheme}>
-                  {c.scheme} · {fr.cert.type[c.cert_type] ?? c.cert_type}
-                </Text>
-                <Badge label={fr.cert.status[c.status] ?? c.status} tone={certTone(c.status)} />
+          <CardGrid>
+            {certs.map((c) => (
+              <View key={c.id} style={styles.card} testID={`cert-${c.id}`}>
+                <View style={styles.cardTop}>
+                  <Text style={styles.scheme}>
+                    {c.scheme} · {fr.cert.type[c.cert_type] ?? c.cert_type}
+                  </Text>
+                  <Badge label={fr.cert.status[c.status] ?? c.status} tone={certTone(c.status)} />
+                </View>
+                {c.certificate_ref ? (
+                  <Text style={styles.meta}>
+                    {`${fr.cert.reference} : ${c.certificate_ref}`}
+                  </Text>
+                ) : null}
+                {c.title_ref ? (
+                  <Text style={styles.meta}>{`${fr.cert.title} : ${c.title_ref}`}</Text>
+                ) : null}
+                {c.valid_from || c.valid_to ? (
+                  <Text style={styles.meta}>
+                    {`${shown(fr.cert.validFrom)} : ${frDate(c.valid_from) || "—"} → ${frDate(c.valid_to) || "—"}`}
+                  </Text>
+                ) : null}
+                {c.decision_motif ? <Text style={styles.meta}>{c.decision_motif}</Text> : null}
+                <View style={styles.actionsRow}>
+                  <TouchableOpacity
+                    style={styles.smallBtn}
+                    disabled={exporting}
+                    onPress={() => void exportPdf(c.id)}
+                    testID={`cert-pdf-${c.id}`}
+                  >
+                    <Text style={styles.smallBtnText}>{fr.cert.pdf}</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              {c.certificate_ref ? (
-                <Text style={styles.meta}>
-                  {`${fr.cert.reference} : ${c.certificate_ref}`}
-                </Text>
-              ) : null}
-              {c.title_ref ? (
-                <Text style={styles.meta}>{`${fr.cert.title} : ${c.title_ref}`}</Text>
-              ) : null}
-              {c.valid_from || c.valid_to ? (
-                <Text style={styles.meta}>
-                  {`${shown(fr.cert.validFrom)} : ${frDate(c.valid_from) || "—"} → ${frDate(c.valid_to) || "—"}`}
-                </Text>
-              ) : null}
-              {c.decision_motif ? <Text style={styles.meta}>{c.decision_motif}</Text> : null}
-              <View style={styles.actionsRow}>
-                <TouchableOpacity
-                  style={styles.smallBtn}
-                  disabled={exporting}
-                  onPress={() => void exportPdf(c.id)}
-                  testID={`cert-pdf-${c.id}`}
-                >
-                  <Text style={styles.smallBtnText}>{fr.cert.pdf}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
+            ))}
+          </CardGrid>
         </ScrollView>
       )}
 
@@ -158,6 +161,7 @@ function DeclareModal({
   onClose: () => void;
   onCreated: () => void;
 }) {
+  const dialog = useDialog();
   const styles = useStyles();
   const theme = useTheme();
   const [scheme, setScheme] = useState<CertScheme>("FSC");
@@ -206,9 +210,9 @@ function DeclareModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={visible} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.cert.newCert}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             <Text style={styles.fieldLabel}>{fr.cert.scheme}</Text>

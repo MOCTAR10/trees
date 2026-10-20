@@ -17,6 +17,7 @@ import {
 } from "../api/client";
 import { fr } from "../i18n/fr";
 import Badge, { docTone } from "./Badge";
+import { CardGrid, useDialog } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -96,24 +97,26 @@ export default function OrgDocuments() {
       {checklist.length === 0 ? (
         <Text style={styles.dim}>{fr.org.allGood}</Text>
       ) : (
-        checklist.map((item) => (
-          <View key={item.doc_type} style={styles.card}>
-            <View style={styles.cardTop}>
-              <Text style={styles.docLabel}>{item.label}</Text>
-              <Badge label={fr.docs.status[item.status] ?? item.status} tone={docTone(item.status)} />
+        <CardGrid>
+          {checklist.map((item) => (
+            <View key={item.doc_type} style={styles.card}>
+              <View style={styles.cardTop}>
+                <Text style={styles.docLabel}>{item.label}</Text>
+                <Badge label={fr.docs.status[item.status] ?? item.status} tone={docTone(item.status)} />
+              </View>
+              <TouchableOpacity
+                style={styles.action}
+                onPress={() => {
+                  setMessage(null);
+                  setEditing(item);
+                }}
+                testID={`doc-update-${item.doc_type}`}
+              >
+                <Text style={styles.actionText}>{fr.docs.submit}</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              style={styles.action}
-              onPress={() => {
-                setMessage(null);
-                setEditing(item);
-              }}
-              testID={`doc-update-${item.doc_type}`}
-            >
-              <Text style={styles.actionText}>{fr.docs.submit}</Text>
-            </TouchableOpacity>
-          </View>
-        ))
+          ))}
+        </CardGrid>
       )}
 
       <DocumentModal
@@ -141,6 +144,7 @@ function DocumentModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const dialog = useDialog();
   const styles = useStyles();
   const theme = useTheme();
   const [reference, setReference] = useState("");
@@ -197,9 +201,9 @@ function DocumentModal({
   };
 
   return (
-    <Modal visible={!!item} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={!!item} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{item?.label ?? ""}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             <TextInput

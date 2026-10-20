@@ -17,6 +17,7 @@ import {
 import ControlFollowups from "./ControlFollowups";
 import QrScanner from "../../components/QrScanner";
 import { exportControlPdf, sharePdf } from "../../pdf";
+import { useDialog } from "../../design/layout";
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
 import { Button, Card, EmptyState, Pill, PillTone, Txt } from "../../design/ui";
 import { fr } from "../../i18n/fr";
@@ -160,6 +161,7 @@ export default function ControlsScreen() {
 }
 
 function NewControl({ visible, onClose, onDone }: { visible: boolean; onClose: () => void; onDone: () => void }) {
+  const dialog = useDialog();
   const theme = useTheme();
   const s = useStyles();
   const [type, setType] = useState<ControlType>("route");
@@ -248,9 +250,9 @@ function NewControl({ visible, onClose, onDone }: { visible: boolean; onClose: (
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={s.backdrop}>
-        <View style={s.sheet} testID="control-form">
+    <Modal visible={visible} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[s.backdrop, dialog.backdrop]}>
+        <View style={[s.sheet, dialog.sheet]} testID="control-form">
           <Txt variant="heading">{t.newControl}</Txt>
           <ScrollView contentContainerStyle={s.form} keyboardShouldPersistTaps="handled">
             <View style={s.chips}>

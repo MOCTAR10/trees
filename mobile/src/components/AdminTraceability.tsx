@@ -12,6 +12,7 @@ import {
 import { Df10Entry, getStatement, listDf10, Statement } from "../api/client";
 import { exportDf10Pdf, exportStatementPdf, sharePdf } from "../pdf";
 import { fr } from "../i18n/fr";
+import { CardGrid } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge from "./Badge";
 
@@ -155,29 +156,31 @@ export default function AdminTraceability() {
             {entries.length === 0 ? (
               <Text style={styles.dim}>{fr.traceability.noEntries}</Text>
             ) : (
-              entries.map((entry) => (
-                <View key={entry.tree_code} style={styles.card}>
-                  <View style={styles.cardTop}>
-                    <Text style={styles.title}>
-                      {entry.df10_entry_no
-                        ? `${entry.df10_entry_no} · ${entry.tree_code}`
-                        : entry.tree_code}
+              <CardGrid>
+                {entries.map((entry) => (
+                  <View key={entry.tree_code} style={styles.card}>
+                    <View style={styles.cardTop}>
+                      <Text style={styles.title}>
+                        {entry.df10_entry_no
+                          ? `${entry.df10_entry_no} · ${entry.tree_code}`
+                          : entry.tree_code}
+                      </Text>
+                      <Badge
+                        label={fr.traceability.registryStatus[entry.status] ?? entry.status}
+                        tone="neutral"
+                      />
+                    </View>
+                    <Text style={styles.meta}>
+                      {entry.species_scientific_name ?? "—"}
+                      {entry.measured_dbh_cm != null ? ` · Ø ${entry.measured_dbh_cm} cm` : ""}
+                      {entry.aac_label ? ` · ${entry.aac_label}` : ""}
                     </Text>
-                    <Badge
-                      label={fr.traceability.registryStatus[entry.status] ?? entry.status}
-                      tone="neutral"
-                    />
+                    {entry.abandon_label ? (
+                      <Text style={styles.abandon}>{`${fr.traceability.abandon} : ${entry.abandon_label}`}</Text>
+                    ) : null}
                   </View>
-                  <Text style={styles.meta}>
-                    {entry.species_scientific_name ?? "—"}
-                    {entry.measured_dbh_cm != null ? ` · Ø ${entry.measured_dbh_cm} cm` : ""}
-                    {entry.aac_label ? ` · ${entry.aac_label}` : ""}
-                  </Text>
-                  {entry.abandon_label ? (
-                    <Text style={styles.abandon}>{`${fr.traceability.abandon} : ${entry.abandon_label}`}</Text>
-                  ) : null}
-                </View>
-              ))
+                ))}
+              </CardGrid>
             )}
           </ScrollView>
         )

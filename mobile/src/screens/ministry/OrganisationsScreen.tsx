@@ -12,6 +12,7 @@ import {
   OrgType,
   ProvinceSummary,
 } from "../../api/client";
+import { DataTable, useDesktop, useDialog } from "../../design/layout";
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
 import { Button, EmptyState, Pill, Txt } from "../../design/ui";
 import { fr } from "../../i18n/fr";
@@ -51,6 +52,7 @@ function initials(name: string): string {
 export default function OrganisationsScreen({ initialProvince, onOpen }: Props) {
   const theme = useTheme();
   const s = useStyles();
+  const desktop = useDesktop();
   const [orgs, setOrgs] = useState<OrganisationEntry[]>([]);
   const [provinces, setProvinces] = useState<ProvinceSummary[]>([]);
   const [province, setProvince] = useState<string | null>(initialProvince ?? null);
@@ -91,6 +93,20 @@ export default function OrganisationsScreen({ initialProvince, onOpen }: Props) 
       (!q || o.name.toLowerCase().includes(q)),
   );
   const typeCount = (k: OrgType) => orgs.filter((o) => o.org_type === k).length;
+  const provinceList = (o: OrganisationEntry) =>
+    o.provinces.length ? o.provinces.map((c) => provinceName.get(c) ?? c).join(", ") : t.noProvince;
+  const statePill = (o: OrganisationEntry) =>
+    o.documents_missing || o.taxes_overdue ? (
+      <Pill
+        tone={o.taxes_overdue ? "risk" : "warn"}
+        label={(o.documents_missing ? t.docsMissing(o.documents_missing) : t.taxesOverdue(o.taxes_overdue)) as string}
+      />
+    ) : o.documents_pending ? (
+      <Pill tone="info" label={t.docsPending(o.documents_pending)} />
+    ) : (
+      <Pill tone="ok" label={t.upToDate} />
+    );
+  const stateRank = (o: OrganisationEntry) => (o.taxes_overdue ? 0 : o.documents_missing ? 1 : o.documents_pending ? 2 : 3);
 
   return (
     <View style={s.screen} testID="organisations-screen">
@@ -147,7 +163,83 @@ export default function OrganisationsScreen({ initialProvince, onOpen }: Props) 
           </Txt>
         ) : null}
 
-        {shown.length ? (
+        {shown.length && desktop ? (
+          <DataTable
+            testID="org-table"
+            rows={shown}
+            rowKey={(o) => String(o.id)}
+            rowTestID={(o) => `org-${o.id}`}
+            onRowPress={onOpen}
+            initialSort={{ key: "name" }}
+            columns={[
+              {
+                key: "name",
+                title: t.cols.org,
+                flex: 3,
+                sortValue: (o) => o.name,
+                render: (o) => (
+                  <View style={s.nameCell}>
+                    <View style={s.logo}>
+                      <Txt variant="caption" bold style={s.logoText}>
+                        {initials(o.name)}
+                      </Txt>
+                    </View>
+                    <Txt variant="small" bold style={s.flex} numberOfLines={2}>
+                      {o.name}
+                    </Txt>
+                  </View>
+                ),
+              },
+              {
+                key: "profile",
+                title: t.cols.profile,
+                flex: 1.6,
+                sortValue: (o) => o.profile_label ?? t.orgTypeOne[o.org_type],
+                render: (o) => (
+                  <Txt variant="small" numberOfLines={2}>
+                    {o.profile_label ?? t.orgTypeOne[o.org_type]}
+                  </Txt>
+                ),
+              },
+              {
+                key: "province",
+                title: t.cols.province,
+                flex: 1.6,
+                sortValue: (o) => (o.provinces.length ? provinceList(o) : null),
+                render: (o) => (
+                  <Txt variant="small" tone={o.provinces.length ? "ink" : "muted"} numberOfLines={2}>
+                    {provinceList(o)}
+                  </Txt>
+                ),
+              },
+              {
+                key: "titles",
+                title: t.cols.titles,
+                width: 80,
+                align: "right",
+                sortValue: (o) => o.titles,
+                render: (o) => (
+                  <Txt variant="small" numeric>
+                    {String(o.titles)}
+                  </Txt>
+                ),
+              },
+              {
+                key: "surface",
+                title: t.cols.surface,
+                width: 120,
+                align: "right",
+                sortValue: (o) => o.surface_ha,
+                render: (o) => (
+                  <Txt variant="small" numeric tone={o.surface_ha ? "ink" : "muted"}>
+                    {o.surface_ha ? t.surface(o.surface_ha) : "—"}
+                  </Txt>
+                ),
+              },
+              { key: "state", title: t.cols.state, width: 190, sortValue: stateRank, render: statePill },
+            ]}
+          />
+        ) : shown.length ? (
           <View style={s.list}>
             {shown.map((o) => {
               const issues = [
@@ -204,6 +296,7 @@ export default function OrganisationsScreen({ initialProvince, onOpen }: Props) 
 function CreateOrganisation({ visible, onClose, onCreated }: { visible: boolean; onClose: () => void; onCreated: () => void }) {
   const theme = useTheme();
   const s = useStyles();
+  const dialog = useDialog();
   const [profiles, setProfiles] = useState<OrgProfileDefinition[]>([]);
   const [name, setName] = useState("");
   const [profile, setProfile] = useState<string | null>(null);
@@ -248,9 +341,9 @@ function CreateOrganisation({ visible, onClose, onCreated }: { visible: boolean;
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={s.backdrop}>
-        <View style={s.sheet} testID="org-create">
+    <Modal visible={visible} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[s.backdrop, dialog.backdrop]}>
+        <View style={[s.sheet, dialog.sheet]} testID="org-create">
           <View style={s.sheetHead}>
             <Building2 size={18} color={theme.c.olive} />
             <Txt variant="heading">{t.newOrg}</Txt>
@@ -350,6 +443,7 @@ const useStyles = makeStyles((th) => ({
     borderBottomColor: th.c.line,
   },
   pressed: { opacity: 0.7 },
+  nameCell: { flexDirection: "row", alignItems: "center", gap: th.space.md, alignSelf: "stretch" },
   logo: {
     width: 38,
     height: 38,

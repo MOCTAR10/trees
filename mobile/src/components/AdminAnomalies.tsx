@@ -21,6 +21,7 @@ import {
 } from "../api/client";
 import { fr } from "../i18n/fr";
 import { exportAnomaliesPdf, sharePdf } from "../pdf";
+import { CardGrid, useDialog } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { Tone } from "./Badge";
 import { frDate } from "../design/format";
@@ -184,78 +185,80 @@ export default function AdminAnomalies() {
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.list}>
-          {visible.map((item, index) => {
-            const busy = busyKey === `${item.type}-${item.subject_key}`;
-            return (
-              <View key={keyOf(item, index)} style={styles.card} testID={keyOf(item, index)}>
-                <View style={styles.cardTop}>
-                  <Text style={styles.cardTitle}>
-                    {fr.anomaly.type[item.type] ?? item.label}
-                  </Text>
-                  <Badge
-                    label={
-                      item.severity === "hard" ? fr.anomaly.hard : fr.anomaly.warning
-                    }
-                    tone={severityTone(item.severity)}
-                  />
-                </View>
-                <Text style={styles.meta}>{`${item.subject} — ${item.detail}`}</Text>
-                {item.org_name || item.title_ref || item.aac_label ? (
-                  <Text style={styles.meta}>
-                    {[item.org_name, item.title_ref, item.aac_label]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </Text>
-                ) : null}
-                {item.detected_at ? (
-                  <Text style={styles.meta}>
-                    {`${fr.anomaly.detectedAt} : ${frDate(item.detected_at)}`}
-                  </Text>
-                ) : null}
-                <View style={styles.actionsRow}>
-                  <Badge
-                    label={fr.anomaly.review[item.review_status] ?? item.review_status}
-                    tone={reviewTone(item.review_status)}
-                  />
-                  {item.review_status === "ouverte" ? (
-                    <>
+          <CardGrid>
+            {visible.map((item, index) => {
+              const busy = busyKey === `${item.type}-${item.subject_key}`;
+              return (
+                <View key={keyOf(item, index)} style={styles.card} testID={keyOf(item, index)}>
+                  <View style={styles.cardTop}>
+                    <Text style={styles.cardTitle}>
+                      {fr.anomaly.type[item.type] ?? item.label}
+                    </Text>
+                    <Badge
+                      label={
+                        item.severity === "hard" ? fr.anomaly.hard : fr.anomaly.warning
+                      }
+                      tone={severityTone(item.severity)}
+                    />
+                  </View>
+                  <Text style={styles.meta}>{`${item.subject} — ${item.detail}`}</Text>
+                  {item.org_name || item.title_ref || item.aac_label ? (
+                    <Text style={styles.meta}>
+                      {[item.org_name, item.title_ref, item.aac_label]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </Text>
+                  ) : null}
+                  {item.detected_at ? (
+                    <Text style={styles.meta}>
+                      {`${fr.anomaly.detectedAt} : ${frDate(item.detected_at)}`}
+                    </Text>
+                  ) : null}
+                  <View style={styles.actionsRow}>
+                    <Badge
+                      label={fr.anomaly.review[item.review_status] ?? item.review_status}
+                      tone={reviewTone(item.review_status)}
+                    />
+                    {item.review_status === "ouverte" ? (
+                      <>
+                        <TouchableOpacity
+                          style={[styles.smallBtn, styles.approve]}
+                          disabled={busy}
+                          onPress={() => void review(item, "traitee")}
+                          testID={`anomaly-ack-${keyOf(item, index)}`}
+                        >
+                          <Text style={styles.smallBtnText}>{fr.anomaly.acknowledge}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[styles.smallBtn, styles.dismiss]}
+                          disabled={busy}
+                          onPress={() => {
+                            setMessage(null);
+                            setDismissing(item);
+                          }}
+                          testID={`anomaly-dismiss-${keyOf(item, index)}`}
+                        >
+                          <Text style={styles.smallBtnText}>{fr.anomaly.dismiss}</Text>
+                        </TouchableOpacity>
+                      </>
+                    ) : (
                       <TouchableOpacity
-                        style={[styles.smallBtn, styles.approve]}
+                        style={styles.smallBtn}
                         disabled={busy}
-                        onPress={() => void review(item, "traitee")}
-                        testID={`anomaly-ack-${keyOf(item, index)}`}
+                        onPress={() => void review(item, "ouverte")}
+                        testID={`anomaly-reopen-${keyOf(item, index)}`}
                       >
-                        <Text style={styles.smallBtnText}>{fr.anomaly.acknowledge}</Text>
+                        <Text style={styles.smallBtnText}>{fr.anomaly.review.ouverte}</Text>
                       </TouchableOpacity>
-                      <TouchableOpacity
-                        style={[styles.smallBtn, styles.dismiss]}
-                        disabled={busy}
-                        onPress={() => {
-                          setMessage(null);
-                          setDismissing(item);
-                        }}
-                        testID={`anomaly-dismiss-${keyOf(item, index)}`}
-                      >
-                        <Text style={styles.smallBtnText}>{fr.anomaly.dismiss}</Text>
-                      </TouchableOpacity>
-                    </>
-                  ) : (
-                    <TouchableOpacity
-                      style={styles.smallBtn}
-                      disabled={busy}
-                      onPress={() => void review(item, "ouverte")}
-                      testID={`anomaly-reopen-${keyOf(item, index)}`}
-                    >
-                      <Text style={styles.smallBtnText}>{fr.anomaly.review.ouverte}</Text>
-                    </TouchableOpacity>
-                  )}
+                    )}
+                  </View>
+                  {item.review_motif ? (
+                    <Text style={styles.meta}>{item.review_motif}</Text>
+                  ) : null}
                 </View>
-                {item.review_motif ? (
-                  <Text style={styles.meta}>{item.review_motif}</Text>
-                ) : null}
-              </View>
-            );
-          })}
+              );
+            })}
+          </CardGrid>
         </ScrollView>
       )}
 
@@ -280,6 +283,7 @@ function MotifModal({
   onClose: () => void;
   onConfirm: (item: AdminAnomaly, motif: string) => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [motif, setMotif] = useState("");
@@ -300,9 +304,9 @@ function MotifModal({
   };
 
   return (
-    <Modal visible={!!item} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={!!item} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.anomaly.dismiss}</Text>
           {item ? <Text style={styles.meta}>{item.subject}</Text> : null}
           <TextInput

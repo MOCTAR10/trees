@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, ScrollView, TextInput, View } from "react
 
 import { decideDeclaration, Declaration, DeclarationLine, getDeclaration, listDeclarations } from "../api/client";
 import { dec } from "../design/format";
+import { CardGrid } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { Button, Card, Divider, EmptyState, Pill, PillTone, Segmented, Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
@@ -102,98 +103,100 @@ export default function AdminDeclarations() {
       {shown.length === 0 ? (
         <Txt tone="muted">{filter === "soumise" ? fr.ministry.nothingToDecide : t.noDeclarations}</Txt>
       ) : null}
-      {shown.map((d) => {
-        const open = expanded === d.id;
-        return (
-          <Card key={d.id} testID={`declaration-${d.id}`}>
-            <Pressable onPress={() => void toggle(d.id)} accessibilityRole="button" style={s.head}>
-              <View style={s.flex}>
-                <Txt bold>{`${t.declarationId(d.id)} · ${d.permit_type} ${d.permit_number}`}</Txt>
-                <Txt variant="caption" tone="muted">
-                  {[`${d.line_count ?? 0} pieds`, d.aac_label, fr.ministry.authorityLine("Direction Provinciale")]
-                    .filter(Boolean)
-                    .join(" · ")}
+      <CardGrid>
+        {shown.map((d) => {
+          const open = expanded === d.id;
+          return (
+            <Card key={d.id} testID={`declaration-${d.id}`}>
+              <Pressable onPress={() => void toggle(d.id)} accessibilityRole="button" style={s.head}>
+                <View style={s.flex}>
+                  <Txt bold>{`${t.declarationId(d.id)} · ${d.permit_type} ${d.permit_number}`}</Txt>
+                  <Txt variant="caption" tone="muted">
+                    {[`${d.line_count ?? 0} pieds`, d.aac_label, fr.ministry.authorityLine("Direction Provinciale")]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </Txt>
+                </View>
+                <Pill tone={STATUS_TONE[d.status] ?? "neutral"} label={t.status[d.status] ?? d.status} />
+                {open ? <ChevronUp size={18} color={theme.c.muted} /> : <ChevronDown size={18} color={theme.c.muted} />}
+              </Pressable>
+              {d.decision_motif ? (
+                <Txt variant="small" tone="muted">
+                  {d.decision_motif}
                 </Txt>
-              </View>
-              <Pill tone={STATUS_TONE[d.status] ?? "neutral"} label={t.status[d.status] ?? d.status} />
-              {open ? <ChevronUp size={18} color={theme.c.muted} /> : <ChevronDown size={18} color={theme.c.muted} />}
-            </Pressable>
-            {d.decision_motif ? (
-              <Txt variant="small" tone="muted">
-                {d.decision_motif}
-              </Txt>
-            ) : null}
-            {open ? (
-              <View style={s.detail}>
-                <Divider />
-                {(lines[d.id] ?? []).map((l) => (
-                  <View key={l.id} style={s.line}>
-                    <View style={s.flex}>
-                      <Txt variant="small" bold>
-                        {l.tree_code}
-                      </Txt>
-                      <Txt variant="caption" tone="muted">
-                        {[
-                          l.species_scientific_name ?? "—",
-                          l.measured_dbh_cm != null ? `${dec(l.measured_dbh_cm)} cm` : null,
-                          l.dme_cm != null ? `DME ${dec(l.dme_cm, 0)}` : null,
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </Txt>
+              ) : null}
+              {open ? (
+                <View style={s.detail}>
+                  <Divider />
+                  {(lines[d.id] ?? []).map((l) => (
+                    <View key={l.id} style={s.line}>
+                      <View style={s.flex}>
+                        <Txt variant="small" bold>
+                          {l.tree_code}
+                        </Txt>
+                        <Txt variant="caption" tone="muted">
+                          {[
+                            l.species_scientific_name ?? "—",
+                            l.measured_dbh_cm != null ? `${dec(l.measured_dbh_cm)} cm` : null,
+                            l.dme_cm != null ? `DME ${dec(l.dme_cm, 0)}` : null,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </Txt>
+                      </View>
+                      {l.violations.length ? (
+                        <Pill
+                          tone="warn"
+                          label={l.violations.map((v) => t.violation[v as keyof typeof t.violation] ?? v).join(" · ")}
+                        />
+                      ) : null}
                     </View>
-                    {l.violations.length ? (
-                      <Pill
-                        tone="warn"
-                        label={l.violations.map((v) => t.violation[v as keyof typeof t.violation] ?? v).join(" · ")}
+                  ))}
+                  <DeclarationCompliance declarationId={d.id} />
+                  {d.status === "soumise" ? (
+                    <>
+                      <TextInput
+                        testID={`declaration-motif-${d.id}`}
+                        style={[s.input, motifError && s.inputError]}
+                        value={motif}
+                        onChangeText={(v) => {
+                          setMotif(v);
+                          setMotifError(false);
+                        }}
+                        placeholder={t.motif}
+                        placeholderTextColor={theme.c.muted}
+                        multiline
                       />
-                    ) : null}
-                  </View>
-                ))}
-                <DeclarationCompliance declarationId={d.id} />
-                {d.status === "soumise" ? (
-                  <>
-                    <TextInput
-                      testID={`declaration-motif-${d.id}`}
-                      style={[s.input, motifError && s.inputError]}
-                      value={motif}
-                      onChangeText={(v) => {
-                        setMotif(v);
-                        setMotifError(false);
-                      }}
-                      placeholder={t.motif}
-                      placeholderTextColor={theme.c.muted}
-                      multiline
-                    />
-                    {motifError ? (
-                      <Txt variant="caption" tone="risk">
-                        {fr.ministry.motifRequired}
-                      </Txt>
-                    ) : null}
-                    <View style={s.actions}>
-                      <Button
-                        testID={`declaration-reject-${d.id}`}
-                        label={t.reject}
-                        variant="secondary"
-                        disabled={deciding}
-                        onPress={() => void decide(d.id, "rejetee")}
-                        style={s.flex}
-                      />
-                      <Button
-                        testID={`declaration-approve-${d.id}`}
-                        label={t.approve}
-                        loading={deciding}
-                        onPress={() => void decide(d.id, "autorisee")}
-                        style={s.flex}
-                      />
-                    </View>
-                  </>
-                ) : null}
-              </View>
-            ) : null}
-          </Card>
-        );
-      })}
+                      {motifError ? (
+                        <Txt variant="caption" tone="risk">
+                          {fr.ministry.motifRequired}
+                        </Txt>
+                      ) : null}
+                      <View style={s.actions}>
+                        <Button
+                          testID={`declaration-reject-${d.id}`}
+                          label={t.reject}
+                          variant="secondary"
+                          disabled={deciding}
+                          onPress={() => void decide(d.id, "rejetee")}
+                          style={s.flex}
+                        />
+                        <Button
+                          testID={`declaration-approve-${d.id}`}
+                          label={t.approve}
+                          loading={deciding}
+                          onPress={() => void decide(d.id, "autorisee")}
+                          style={s.flex}
+                        />
+                      </View>
+                    </>
+                  ) : null}
+                </View>
+              ) : null}
+            </Card>
+          );
+        })}
+      </CardGrid>
     </ScrollView>
   );
 }

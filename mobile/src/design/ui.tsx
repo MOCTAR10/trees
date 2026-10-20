@@ -96,6 +96,7 @@ export function Button({
 }: ButtonProps) {
   const t = useTheme();
   const s = useButtonStyles();
+  const desktop = useDesktop();
   const fg =
     variant === "primary"
       ? t.c.onOlive
@@ -114,12 +115,15 @@ export function Button({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ disabled: !!(disabled || loading), busy: !!loading }}
-      style={({ pressed }) => [
+      style={(state) => [
         s.base,
         compact && s.compact,
+        desktop && s.desktop,
+        desktop && compact && s.desktopCompact,
         s[variant],
         (disabled || loading) && s.disabled,
-        pressed && s.pressed,
+        desktop && (state as { hovered?: boolean }).hovered && !(disabled || loading) && s.hovered,
+        state.pressed && s.pressed,
         style,
       ]}
     >
@@ -128,7 +132,7 @@ export function Button({
       ) : (
         <>
           {icon}
-          <Text style={[s.label, { color: fg }]} numberOfLines={1}>
+          <Text style={[s.label, desktop && s.desktopLabel, { color: fg }]} numberOfLines={1}>
             {label}
           </Text>
         </>
@@ -150,6 +154,9 @@ const useButtonStyles = makeStyles((t) => ({
     borderColor: "transparent",
   },
   compact: { minHeight: 38, paddingHorizontal: t.space.md },
+  desktop: { minHeight: 42 },
+  desktopCompact: { minHeight: 34 },
+  hovered: { opacity: 0.88 },
   primary: { backgroundColor: t.c.olive },
   secondary: { backgroundColor: "transparent", borderColor: t.c.olive },
   ghost: { backgroundColor: "transparent" },
@@ -158,6 +165,7 @@ const useButtonStyles = makeStyles((t) => ({
   disabled: { opacity: 0.45 },
   pressed: { opacity: 0.85, transform: [{ scale: 0.99 }] },
   label: { fontFamily: t.fonts.bodyBold, fontSize: 16 },
+  desktopLabel: { fontSize: 14.5 },
 }));
 
 // ---------------------------------------------------------------------------
@@ -377,7 +385,9 @@ export function ScreenHeader({
             })}
           >
             <Text style={{ color: t.c.olive, fontFamily: t.fonts.display, fontSize: 18, lineHeight: 20 }}>‹</Text>
-            <Text style={{ color: t.c.olive, fontFamily: t.fonts.bodyBold, fontSize: 13.5 }}>{backLabel ?? "Retour"}</Text>
+            <Text style={{ color: t.c.olive, fontFamily: t.fonts.bodyBold, fontSize: 13.5 }}>
+              {(backLabel ?? "Retour").replace(/^[←‹<]\s*/, "")}
+            </Text>
           </Pressable>
         ) : null}
         <View style={{ flex: 1, minWidth: 0 }}>

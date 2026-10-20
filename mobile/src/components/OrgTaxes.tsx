@@ -13,6 +13,7 @@ import { listTaxes, recordTax, TaxReceipt, TaxType } from "../api/client";
 import { fr } from "../i18n/fr";
 import Badge, { taxTone } from "./Badge";
 import { frDate } from "../design/format";
+import { CardGrid, useDialog } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 const TAX_TYPES: TaxType[] = [
@@ -84,22 +85,24 @@ export default function OrgTaxes() {
       {taxes.length === 0 ? (
         <Text style={styles.dim}>{fr.taxes.noTaxes}</Text>
       ) : (
-        taxes.map((tax) => (
-          <View key={tax.id} style={styles.card}>
-            <View style={styles.cardTop}>
-              <Text style={styles.title}>
-                {fr.taxes.type[tax.tax_type] ?? tax.tax_type}
-                {tax.period_year ? ` · ${tax.period_year}` : ""}
+        <CardGrid>
+          {taxes.map((tax) => (
+            <View key={tax.id} style={styles.card}>
+              <View style={styles.cardTop}>
+                <Text style={styles.title}>
+                  {fr.taxes.type[tax.tax_type] ?? tax.tax_type}
+                  {tax.period_year ? ` · ${tax.period_year}` : ""}
+                </Text>
+                <Badge label={fr.taxes.status[tax.status] ?? tax.status} tone={taxTone(tax.status)} />
+              </View>
+              <Text style={styles.meta}>
+                {tax.amount_fcfa != null ? `${Math.round(tax.amount_fcfa).toLocaleString("fr-FR")} FCFA` : "—"}
+                {tax.receipt_ref ? ` · ${tax.receipt_ref}` : ""}
               </Text>
-              <Badge label={fr.taxes.status[tax.status] ?? tax.status} tone={taxTone(tax.status)} />
+              {tax.paid_at ? <Text style={styles.meta}>{frDate(tax.paid_at)}</Text> : null}
             </View>
-            <Text style={styles.meta}>
-              {tax.amount_fcfa != null ? `${Math.round(tax.amount_fcfa).toLocaleString("fr-FR")} FCFA` : "—"}
-              {tax.receipt_ref ? ` · ${tax.receipt_ref}` : ""}
-            </Text>
-            {tax.paid_at ? <Text style={styles.meta}>{frDate(tax.paid_at)}</Text> : null}
-          </View>
-        ))
+          ))}
+        </CardGrid>
       )}
 
       <TaxModal
@@ -124,6 +127,7 @@ function TaxModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const dialog = useDialog();
   const styles = useStyles();
   const theme = useTheme();
   const [taxType, setTaxType] = useState<TaxType>("superficie");
@@ -171,9 +175,9 @@ function TaxModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={visible} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.taxes.add}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             <Text style={styles.fieldLabel}>{fr.taxes.type.superficie}</Text>

@@ -20,6 +20,7 @@ import {
 } from "../api/client";
 import { fr } from "../i18n/fr";
 import { exportStudyPdf, sharePdf } from "../pdf";
+import { useDialog } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { studyTone } from "./Badge";
 import { frDate, shown } from "../design/format";
@@ -277,6 +278,7 @@ function DeclareModal({
   onClose: () => void;
   onDeclared: () => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [reference, setReference] = useState("");
@@ -324,9 +326,9 @@ function DeclareModal({
   };
 
   return (
-    <Modal visible={type != null} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={type != null} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>
             {type ? fr.titles.study.type[type] : fr.titles.study.section}
           </Text>
@@ -408,6 +410,7 @@ function RejectModal({
   onClose: () => void;
   onConfirm: (study: EnvironmentalStudy, motif: string) => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [motif, setMotif] = useState("");
@@ -428,9 +431,9 @@ function RejectModal({
   };
 
   return (
-    <Modal visible={target != null} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={target != null} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.titles.study.reject}</Text>
           <TextInput
             style={styles.input}
@@ -464,6 +467,7 @@ function CertificateModal({
   onClose: () => void;
   onConfirm: (study: EnvironmentalStudy, reference: string) => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [reference, setReference] = useState("");
@@ -484,9 +488,9 @@ function CertificateModal({
   };
 
   return (
-    <Modal visible={target != null} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={target != null} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.titles.study.issueCertificate}</Text>
           <TextInput
             style={styles.input}

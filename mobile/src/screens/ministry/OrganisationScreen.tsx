@@ -12,6 +12,7 @@ import {
   setTitleProvince,
 } from "../../api/client";
 import MillRegister from "../../components/MillRegister";
+import { CardGrid, useDialog } from "../../design/layout";
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
 import { Button, Card, Divider, EmptyState, KeyValue, Pill, ScreenHeader, Txt } from "../../design/ui";
 import { frDate } from "../../design/format";
@@ -128,128 +129,130 @@ export default function OrganisationScreen({ id, onBack }: Props) {
           />
         </View>
 
-        <Card style={s.compact}>
-          <Txt variant="label" tone="muted">
-            {t.sheetTitles}
-          </Txt>
-          {data.titles.length === 0 ? <Txt tone="muted">{t.noTitles}</Txt> : null}
-          {data.titles.map((ti, i) => (
-            <View key={ti.id}>
-              {i > 0 ? <Divider /> : null}
-              <View style={s.row} testID={`org-title-${ti.id}`}>
-                <View style={s.flex}>
-                  <Txt variant="small" bold>
-                    {`${ti.title_type} · ${ti.reference ?? `n° ${ti.id}`}`}
-                  </Txt>
-                  <Txt variant="caption" tone="muted">
-                    {ti.province_name
-                      ? `${ti.province_name} (${ti.province_source === "manuel" ? t.provinceManual : t.provinceGeom})`
-                      : t.noProvince}
-                  </Txt>
-                </View>
-                <Pill
-                  tone={ti.status === "actif" ? "ok" : ti.status === "rejete" || ti.status === "retire" ? "risk" : "warn"}
-                  label={fr.titles.status[ti.status] ?? ti.status}
-                />
-                <Pressable
-                  testID={`org-title-province-${ti.id}`}
-                  onPress={() => setProvinceFor(ti.id)}
-                  accessibilityRole="button"
-                  accessibilityLabel={t.chooseProvince}
-                  style={s.iconBtn}
-                >
-                  <MapPin size={16} color={theme.c.olive} />
-                </Pressable>
-              </View>
-            </View>
-          ))}
-        </Card>
-
-        <Card style={s.compact} testID="org-compliance">
-          <Txt variant="label" tone="muted">
-            {t.sheetCompliance}
-          </Txt>
-          {data.warnings.length === 0 ? <Txt tone="ok">{t.noWarnings}</Txt> : null}
-          {data.warnings.map((w, i) => (
-            <Txt key={i} variant="small" tone="warn">
-              {`• ${
-                w.kind === "tax"
-                  ? t.warnTax(w.label ?? `Taxe ${w.tax_type ?? ""}`, w.period_year)
-                  : t.warnDocument(w.label ?? w.doc_type ?? "", w.status ?? "manquant")
-              }`}
-            </Txt>
-          ))}
-        </Card>
-
-        <Card style={s.compact}>
-          <Txt variant="label" tone="muted">
-            {t.sheetAccounts}
-          </Txt>
-          {data.accounts.length === 0 ? <Txt tone="muted">{t.noAccounts}</Txt> : null}
-          {data.accounts.map((a) => (
-            <View key={a.id} style={s.row} testID={`org-account-${a.id}`}>
-              <View style={s.flex}>
-                <Txt variant="small" bold>
-                  {[a.first_name, a.last_name].filter(Boolean).join(" ") || a.display_name}
-                </Txt>
-                <Txt variant="caption" tone="muted">
-                  {[a.email, a.matricule].filter(Boolean).join(" · ")}
-                </Txt>
-              </View>
-              <Pill tone={a.is_active ? "neutral" : "risk"} label={fr.roles[a.role] ?? a.role} />
-            </View>
-          ))}
-        </Card>
-
-        {data.certifications.length ? (
+        <CardGrid gap={theme.space.md} minColumnWidth={420} maxColumns={2} testID="org-sheet-grid">
           <Card style={s.compact}>
             <Txt variant="label" tone="muted">
-              {t.sheetCerts}
+              {t.sheetTitles}
             </Txt>
-            {data.certifications.map((c) => (
-              <KeyValue
-                key={c.id}
-                label={`${c.scheme} · ${fr.cert.type[c.cert_type] ?? c.cert_type}`}
-                value={fr.cert.status[c.status] ?? c.status}
-              />
-            ))}
-          </Card>
-        ) : null}
-        {data.entry.org_type === "entreprise" ? (
-          <Card style={s.compact} testID="org-inventory-imports">
-            <Txt variant="label" tone="muted">
-              {fr.inventory.ministryTitle}
-            </Txt>
-            {data.inventoryImports.length === 0 ? (
-              <Txt variant="small" tone="muted">
-                {fr.inventory.ministryEmpty}
-              </Txt>
-            ) : (
-              data.inventoryImports.map((i) => (
-                <View key={i.id} style={s.importRow} testID={`org-inventory-import-${i.id}`}>
-                  <View style={s.importText}>
+            {data.titles.length === 0 ? <Txt tone="muted">{t.noTitles}</Txt> : null}
+            {data.titles.map((ti, i) => (
+              <View key={ti.id}>
+                {i > 0 ? <Divider /> : null}
+                <View style={s.row} testID={`org-title-${ti.id}`}>
+                  <View style={s.flex}>
                     <Txt variant="small" bold>
-                      {`${i.file_name} · ${frDate(i.created_at)}`}
-                    </Txt>
-                    <Txt variant="caption">
-                      {fr.inventory.ministryLine(i.aac_label ?? "—", i.stems_created, i.kept_count)}
+                      {`${ti.title_type} · ${ti.reference ?? `n° ${ti.id}`}`}
                     </Txt>
                     <Txt variant="caption" tone="muted">
-                      {[i.imported_by_name ?? i.imported_by_email, i.model_version].filter(Boolean).join(" · ")}
+                      {ti.province_name
+                        ? `${ti.province_name} (${ti.province_source === "manuel" ? t.provinceManual : t.provinceGeom})`
+                        : t.noProvince}
                     </Txt>
                   </View>
-                  <Button
-                    compact
-                    variant="ghost"
-                    label={fr.inventory.plates}
-                    onPress={() => void exportInventoryPlatesPdf(i.id).then(sharePdf).catch((err) => console.error("plates", err))}
-                    testID={`org-inventory-plates-${i.id}`}
+                  <Pill
+                    tone={ti.status === "actif" ? "ok" : ti.status === "rejete" || ti.status === "retire" ? "risk" : "warn"}
+                    label={fr.titles.status[ti.status] ?? ti.status}
                   />
+                  <Pressable
+                    testID={`org-title-province-${ti.id}`}
+                    onPress={() => setProvinceFor(ti.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={t.chooseProvince}
+                    style={s.iconBtn}
+                  >
+                    <MapPin size={16} color={theme.c.olive} />
+                  </Pressable>
                 </View>
-              ))
-            )}
+              </View>
+            ))}
           </Card>
-        ) : null}
+
+          <Card style={s.compact} testID="org-compliance">
+            <Txt variant="label" tone="muted">
+              {t.sheetCompliance}
+            </Txt>
+            {data.warnings.length === 0 ? <Txt tone="ok">{t.noWarnings}</Txt> : null}
+            {data.warnings.map((w, i) => (
+              <Txt key={i} variant="small" tone="warn">
+                {`• ${
+                  w.kind === "tax"
+                    ? t.warnTax(w.label ?? `Taxe ${w.tax_type ?? ""}`, w.period_year)
+                    : t.warnDocument(w.label ?? w.doc_type ?? "", w.status ?? "manquant")
+                }`}
+              </Txt>
+            ))}
+          </Card>
+
+          <Card style={s.compact}>
+            <Txt variant="label" tone="muted">
+              {t.sheetAccounts}
+            </Txt>
+            {data.accounts.length === 0 ? <Txt tone="muted">{t.noAccounts}</Txt> : null}
+            {data.accounts.map((a) => (
+              <View key={a.id} style={s.row} testID={`org-account-${a.id}`}>
+                <View style={s.flex}>
+                  <Txt variant="small" bold>
+                    {[a.first_name, a.last_name].filter(Boolean).join(" ") || a.display_name}
+                  </Txt>
+                  <Txt variant="caption" tone="muted">
+                    {[a.email, a.matricule].filter(Boolean).join(" · ")}
+                  </Txt>
+                </View>
+                <Pill tone={a.is_active ? "neutral" : "risk"} label={fr.roles[a.role] ?? a.role} />
+              </View>
+            ))}
+          </Card>
+
+          {data.certifications.length ? (
+            <Card style={s.compact}>
+              <Txt variant="label" tone="muted">
+                {t.sheetCerts}
+              </Txt>
+              {data.certifications.map((c) => (
+                <KeyValue
+                  key={c.id}
+                  label={`${c.scheme} · ${fr.cert.type[c.cert_type] ?? c.cert_type}`}
+                  value={fr.cert.status[c.status] ?? c.status}
+                />
+              ))}
+            </Card>
+          ) : null}
+          {data.entry.org_type === "entreprise" ? (
+            <Card style={s.compact} testID="org-inventory-imports">
+              <Txt variant="label" tone="muted">
+                {fr.inventory.ministryTitle}
+              </Txt>
+              {data.inventoryImports.length === 0 ? (
+                <Txt variant="small" tone="muted">
+                  {fr.inventory.ministryEmpty}
+                </Txt>
+              ) : (
+                data.inventoryImports.map((i) => (
+                  <View key={i.id} style={s.importRow} testID={`org-inventory-import-${i.id}`}>
+                    <View style={s.importText}>
+                      <Txt variant="small" bold>
+                        {`${i.file_name} · ${frDate(i.created_at)}`}
+                      </Txt>
+                      <Txt variant="caption">
+                        {fr.inventory.ministryLine(i.aac_label ?? "—", i.stems_created, i.kept_count)}
+                      </Txt>
+                      <Txt variant="caption" tone="muted">
+                        {[i.imported_by_name ?? i.imported_by_email, i.model_version].filter(Boolean).join(" · ")}
+                      </Txt>
+                    </View>
+                    <Button
+                      compact
+                      variant="ghost"
+                      label={fr.inventory.plates}
+                      onPress={() => void exportInventoryPlatesPdf(i.id).then(sharePdf).catch((err) => console.error("plates", err))}
+                      testID={`org-inventory-plates-${i.id}`}
+                    />
+                  </View>
+                ))
+              )}
+            </Card>
+          ) : null}
+        </CardGrid>
         {data.entry.org_type === "entreprise" ? (
           <Button
             testID="org-mill-register"
@@ -318,11 +321,12 @@ function FormSheet({
   testID: string;
   children: React.ReactNode;
 }) {
+  const dialog = useDialog();
   const s = useStyles();
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={s.backdrop}>
-        <View style={s.sheet} testID={testID}>
+    <Modal visible={visible} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[s.backdrop, dialog.backdrop]}>
+        <View style={[s.sheet, dialog.sheet]} testID={testID}>
           <Txt variant="heading">{title}</Txt>
           <ScrollView contentContainerStyle={s.form} keyboardShouldPersistTaps="handled">
             {children}
@@ -536,6 +540,7 @@ function ProvincePicker({
   onClose: () => void;
   onDone: () => void;
 }) {
+  const dialog = useDialog();
   const s = useStyles();
   const [busy, setBusy] = useState(false);
   const choose = async (code: string | null) => {
@@ -550,9 +555,9 @@ function ProvincePicker({
     }
   };
   return (
-    <Modal visible={titleId != null} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={s.backdrop}>
-        <View style={s.sheet} testID="province-picker">
+    <Modal visible={titleId != null} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[s.backdrop, dialog.backdrop]}>
+        <View style={[s.sheet, dialog.sheet]} testID="province-picker">
           <Txt variant="heading">{t.chooseProvince}</Txt>
           <View style={s.chips}>
             {provinces.map((p) => (

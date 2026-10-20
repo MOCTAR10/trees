@@ -231,11 +231,14 @@ export default function CompanyScreen({ user, onLogout, showHeader = true, tab: 
               </View>
             ) : (
               <FlatList
+                key={desktop ? "grid" : "list"}
                 data={declarations}
                 keyExtractor={(item) => String(item.id)}
                 contentContainerStyle={styles.list}
+                numColumns={desktop ? 2 : 1}
+                columnWrapperStyle={desktop ? styles.gridRow : undefined}
                 renderItem={({ item }) => (
-                  <Card testID={`declaration-${item.id}`}>
+                  <Card testID={`declaration-${item.id}`} style={desktop ? styles.gridCell : undefined}>
                     <View style={styles.cardHead}>
                       <Txt variant="heading" style={styles.flex1}>
                         {fr.felling.declarationId(item.id)}
@@ -383,6 +386,8 @@ const useStyles = makeStyles((th) => ({
   error: { color: th.c.risk, fontSize: 15, fontFamily: th.fonts.body },
   link: { color: th.c.olive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   list: { padding: th.space.lg, gap: th.space.sm },
+  gridRow: { gap: th.space.md },
+  gridCell: { flex: 1 },
   card: {
     backgroundColor: th.c.surface,
     borderRadius: 12,

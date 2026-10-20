@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, TextInput, View } from "react-native";
 
 import { CheckLevel, decideInbox, getInboxDetail, InboxDetail, InboxQueueKey } from "../../api/client";
+import { CardGrid, useDesktop } from "../../design/layout";
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
 import { Button, Card, Divider, EmptyState, KeyValue, Pill, ScreenHeader, Txt } from "../../design/ui";
 import { fr } from "../../i18n/fr";
@@ -37,6 +38,7 @@ export function CheckRow({ level, label }: { level: CheckLevel; label: string })
 
 /** One file, every queue: facts, automatic checks, items, then the decision. */
 export default function DecisionScreen({ type, id, onBack, onDecided, now }: Props) {
+  const desktop = useDesktop();
   const theme = useTheme();
   const s = useStyles();
   const [data, setData] = useState<InboxDetail | null>(null);
@@ -103,122 +105,140 @@ export default function DecisionScreen({ type, id, onBack, onDecided, now }: Pro
   }
 
   const days = daysSince(data.created_at, now);
+  const panel = (
+    <>
+      {data.blocking ? (
+        <Txt variant="caption" tone="risk" testID="decision-blocking">
+          {t.blockingNote}
+        </Txt>
+      ) : null}
+      <TextInput
+        testID="decision-motif"
+        style={[s.input, motifError && s.inputError]}
+        value={motif}
+        onChangeText={(v) => {
+          setMotif(v);
+          setMotifError(false);
+        }}
+        placeholder={t.motifPlaceholder}
+        placeholderTextColor={theme.c.muted}
+        multiline
+      />
+      {motifError ? (
+        <Txt variant="caption" tone="risk">
+          {t.motifRequired}
+        </Txt>
+      ) : null}
+      {decideError ? (
+        <Txt variant="caption" tone="risk" testID="decision-error">
+          {decideError}
+        </Txt>
+      ) : null}
+      <View style={s.actions}>
+        <Button
+          testID="decision-reject"
+          label={t.reject}
+          variant="secondary"
+          loading={busy === "reject"}
+          disabled={busy != null}
+          onPress={() => void decide(false)}
+          style={s.flex}
+        />
+        <Button
+          testID="decision-approve"
+          label={data.approve_label}
+          loading={busy === "approve"}
+          disabled={busy != null}
+          onPress={() => void decide(true)}
+          style={s.flex}
+        />
+      </View>
+    </>
+  );
+
   return (
     <KeyboardAvoidingView style={s.screen} behavior={Platform.OS === "ios" ? "padding" : undefined} testID="decision-screen">
       {header}
-      <ScrollView contentContainerStyle={s.content}>
-        {data.competence_note ? (
-          <View style={s.banner} testID="decision-competence">
-            <Landmark size={18} color={theme.c.goldInk} />
-            <View style={s.flex}>
-              <Txt variant="small" bold>
-                {fr.authorities.banner}
-              </Txt>
-              <Txt variant="caption" tone="muted">
-                {data.competence_note}
-              </Txt>
+      <View style={desktop ? s.desk : s.flex}>
+        <ScrollView style={s.flex} contentContainerStyle={s.content}>
+          {data.competence_note ? (
+            <View style={s.banner} testID="decision-competence">
+              <Landmark size={18} color={theme.c.goldInk} />
+              <View style={s.flex}>
+                <Txt variant="small" bold>
+                  {fr.authorities.banner}
+                </Txt>
+                <Txt variant="caption" tone="muted">
+                  {data.competence_note}
+                </Txt>
+              </View>
             </View>
-          </View>
-        ) : null}
-        <Card raised>
-          <Txt variant="label" tone="gold">
-            {t.factsTitle}
-          </Txt>
-          {data.org_name ? <KeyValue label={t.organisation} value={data.org_name} /> : null}
-          {data.province_name ? <KeyValue label={t.province} value={data.province_name} /> : null}
-          <KeyValue label={t.authority} value={data.authority} />
-          {days != null ? <KeyValue label={t.submitted} value={t.age(days)} /> : null}
-          {data.facts.map((f) => (
-            <KeyValue key={f.label} label={f.label} value={f.value} />
-          ))}
-        </Card>
+          ) : null}
+          <CardGrid gap={theme.space.md} minColumnWidth={360} maxColumns={2}>
+            <Card raised>
+              <Txt variant="label" tone="gold">
+                {t.factsTitle}
+              </Txt>
+              {data.org_name ? <KeyValue label={t.organisation} value={data.org_name} /> : null}
+              {data.province_name ? <KeyValue label={t.province} value={data.province_name} /> : null}
+              <KeyValue label={t.authority} value={data.authority} />
+              {days != null ? <KeyValue label={t.submitted} value={t.age(days)} /> : null}
+              {data.facts.map((f) => (
+                <KeyValue key={f.label} label={f.label} value={f.value} />
+              ))}
+            </Card>
 
-        <Card testID="decision-checks">
-          <Txt variant="label" tone="muted">
-            {t.checksTitle}
-          </Txt>
-          {data.checks.map((c, i) => (
-            <CheckRow key={`${c.label}-${i}`} level={c.level} label={c.label} />
-          ))}
-        </Card>
+            <Card testID="decision-checks">
+              <Txt variant="label" tone="muted">
+                {t.checksTitle}
+              </Txt>
+              {data.checks.map((c, i) => (
+                <CheckRow key={`${c.label}-${i}`} level={c.level} label={c.label} />
+              ))}
+            </Card>
+          </CardGrid>
 
-        {data.items.length ? (
-          <Card>
-            <Txt variant="label" tone="muted">
-              {t.itemsTitle(data.items.length)}
-            </Txt>
-            {data.items.map((it, i) => (
-              <View key={`${it.label}-${i}`}>
-                {i > 0 ? <Divider /> : null}
-                <View style={s.item}>
-                  <View style={s.flex}>
-                    <Txt variant="small" bold>
-                      {it.label}
-                    </Txt>
-                    {it.detail ? (
-                      <Txt variant="caption" tone="muted">
-                        {it.detail}
+          {data.items.length ? (
+            <Card>
+              <Txt variant="label" tone="muted">
+                {t.itemsTitle(data.items.length)}
+              </Txt>
+              {data.items.map((it, i) => (
+                <View key={`${it.label}-${i}`}>
+                  {i > 0 ? <Divider /> : null}
+                  <View style={s.item}>
+                    <View style={s.flex}>
+                      <Txt variant="small" bold>
+                        {it.label}
                       </Txt>
+                      {it.detail ? (
+                        <Txt variant="caption" tone="muted">
+                          {it.detail}
+                        </Txt>
+                      ) : null}
+                    </View>
+                    {it.flags.length ? (
+                      <Pill tone="warn" label={it.flags.map((f) => fr.felling.violation[f as keyof typeof fr.felling.violation] ?? f).join(" · ")} />
                     ) : null}
                   </View>
-                  {it.flags.length ? (
-                    <Pill tone="warn" label={it.flags.map((f) => fr.felling.violation[f as keyof typeof fr.felling.violation] ?? f).join(" · ")} />
-                  ) : null}
                 </View>
-              </View>
-            ))}
-          </Card>
+              ))}
+            </Card>
+          ) : null}
+        </ScrollView>
+        {desktop ? (
+          <View style={s.side} testID="decision-side">
+            <Card raised style={s.sidePanel}>
+              <Txt variant="label" tone="gold">
+                {t.decisionPanel}
+              </Txt>
+              {panel}
+            </Card>
+          </View>
         ) : null}
-      </ScrollView>
-
-      <View style={s.bar}>
-        {data.blocking ? (
-          <Txt variant="caption" tone="risk" testID="decision-blocking">
-            {t.blockingNote}
-          </Txt>
-        ) : null}
-        <TextInput
-          testID="decision-motif"
-          style={[s.input, motifError && s.inputError]}
-          value={motif}
-          onChangeText={(v) => {
-            setMotif(v);
-            setMotifError(false);
-          }}
-          placeholder={t.motifPlaceholder}
-          placeholderTextColor={theme.c.muted}
-          multiline
-        />
-        {motifError ? (
-          <Txt variant="caption" tone="risk">
-            {t.motifRequired}
-          </Txt>
-        ) : null}
-        {decideError ? (
-          <Txt variant="caption" tone="risk" testID="decision-error">
-            {decideError}
-          </Txt>
-        ) : null}
-        <View style={s.actions}>
-          <Button
-            testID="decision-reject"
-            label={t.reject}
-            variant="secondary"
-            loading={busy === "reject"}
-            disabled={busy != null}
-            onPress={() => void decide(false)}
-            style={s.flex}
-          />
-          <Button
-            testID="decision-approve"
-            label={data.approve_label}
-            loading={busy === "approve"}
-            disabled={busy != null}
-            onPress={() => void decide(true)}
-            style={s.flex}
-          />
-        </View>
       </View>
+
+      {desktop ? null : <View style={s.bar}>{panel}</View>}
     </KeyboardAvoidingView>
   );
 }
@@ -228,6 +248,9 @@ const useStyles = makeStyles((th) => ({
   loader: { flex: 1 },
   content: { padding: th.space.lg, gap: th.space.md, paddingBottom: th.space.xl },
   flex: { flex: 1 },
+  desk: { flex: 1, flexDirection: "row" },
+  side: { width: 400, paddingTop: th.space.lg, paddingRight: th.space.lg },
+  sidePanel: { gap: th.space.sm },
   check: { flexDirection: "row", alignItems: "flex-start", gap: th.space.sm, paddingVertical: 3 },
   banner: {
     flexDirection: "row",

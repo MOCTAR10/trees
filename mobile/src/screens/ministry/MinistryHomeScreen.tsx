@@ -11,7 +11,7 @@ import {
   InboxQueueKey,
   ProvinceSummary,
 } from "../../api/client";
-import { dec } from "../../design/format";
+import { CardGrid, useDesktop } from "../../design/layout";
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
 import { Card, Divider, EmptyState, Txt } from "../../design/ui";
 import { fr } from "../../i18n/fr";
@@ -48,6 +48,7 @@ export default function MinistryHomeScreen({ firstName, onOpenInbox, onOpenOrgs,
   const s = useStyles();
   const { width } = useWindowDimensions();
   const wide = width >= 1100;
+  const desktop = useDesktop();
   const [inbox, setInbox] = useState<AdminInbox | null>(null);
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [provinces, setProvinces] = useState<ProvinceSummary[]>([]);
@@ -72,6 +73,32 @@ export default function MinistryHomeScreen({ firstName, onOpenInbox, onOpenOrgs,
   const queues = (inbox?.queues ?? []).filter((q) => q.count > 0);
   const maxOrgs = Math.max(1, ...provinces.map((p) => p.organisations));
   const withOrgs = provinces.filter((p) => p.organisations > 0);
+  const alerts = (inbox?.alerts ?? []).map((a) => (
+    <Pressable
+      key={a.kind}
+      testID={`alert-${a.kind}`}
+      onPress={() =>
+        onOpenDomain(
+          a.kind === "taxes_overdue"
+            ? "fiscal"
+            : a.kind === "documents_expired"
+              ? "documents"
+              : "anomalies",
+        )
+      }
+      accessibilityRole="button"
+      style={[s.alert, a.level === "risk" ? s.alertRisk : s.alertWarn]}
+    >
+      <TriangleAlert size={16} color={a.level === "risk" ? theme.c.risk : theme.c.warn} />
+      <Txt variant="small" bold tone={a.level === "risk" ? "risk" : "warn"} style={s.flex}>
+        {a.kind === "taxes_overdue"
+          ? t.alerts.taxes_overdue(a.count, short(a.amount_fcfa ?? 0))
+          : t.alerts[a.kind](a.count)}
+      </Txt>
+      <ChevronRight size={16} color={theme.c.muted} />
+    </Pressable>
+  ));
+
 
   return (
     <ScrollView
@@ -103,31 +130,13 @@ export default function MinistryHomeScreen({ firstName, onOpenInbox, onOpenOrgs,
         </View>
       ) : null}
 
-      {(inbox?.alerts ?? []).map((a) => (
-        <Pressable
-          key={a.kind}
-          testID={`alert-${a.kind}`}
-          onPress={() =>
-            onOpenDomain(
-              a.kind === "taxes_overdue"
-                ? "fiscal"
-                : a.kind === "documents_expired"
-                  ? "documents"
-                  : "anomalies",
-            )
-          }
-          accessibilityRole="button"
-          style={[s.alert, a.level === "risk" ? s.alertRisk : s.alertWarn]}
-        >
-          <TriangleAlert size={16} color={a.level === "risk" ? theme.c.risk : theme.c.warn} />
-          <Txt variant="small" bold tone={a.level === "risk" ? "risk" : "warn"} style={s.flex}>
-            {a.kind === "taxes_overdue"
-              ? t.alerts.taxes_overdue(a.count, short(a.amount_fcfa ?? 0))
-              : t.alerts[a.kind](a.count)}
-          </Txt>
-          <ChevronRight size={16} color={theme.c.muted} />
-        </Pressable>
-      ))}
+      {desktop ? (
+        <CardGrid minColumnWidth={420} maxColumns={2} gap={theme.space.sm} testID="ministry-alerts">
+          {alerts}
+        </CardGrid>
+      ) : (
+        alerts
+      )}
 
       {overview ? <DashboardTiles overview={overview} /> : null}
 

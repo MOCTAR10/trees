@@ -21,6 +21,7 @@ import {
 } from "../api/client";
 import { fr } from "../i18n/fr";
 import { exportConventionPdf, sharePdf } from "../pdf";
+import { useDialog } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { conventionTone } from "./Badge";
 import { frDate, shown } from "../design/format";
@@ -266,6 +267,7 @@ function CreateModal({
   onClose: () => void;
   onCreated: () => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [reference, setReference] = useState("");
@@ -314,9 +316,9 @@ function CreateModal({
   };
 
   return (
-    <Modal visible={type != null} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={type != null} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>
             {type ? fr.titles.convention.type[type] : fr.titles.convention.section}
           </Text>
@@ -398,6 +400,7 @@ function AttestationModal({
   onClose: () => void;
   onConfirm: (conv: TitleConvention, reference: string) => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [reference, setReference] = useState("");
@@ -418,9 +421,9 @@ function AttestationModal({
   };
 
   return (
-    <Modal visible={target != null} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={target != null} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.titles.convention.issueAttestation}</Text>
           <TextInput
             style={styles.input}
@@ -459,6 +462,7 @@ function TerminateModal({
   onClose: () => void;
   onConfirm: (conv: TitleConvention, status: ConventionStatus, motif: string) => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [status, setStatus] = useState<ConventionStatus>("resiliee");
@@ -481,9 +485,9 @@ function TerminateModal({
   };
 
   return (
-    <Modal visible={target != null} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={target != null} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.titles.convention.terminate}</Text>
           <View style={styles.chips}>
             {(["resiliee", "expiree"] as ConventionStatus[]).map((s) => (

@@ -12,6 +12,7 @@ import {
 
 import { clearUfaDme, getUfaDme, setUfaDme, UfaDmeEntry, UfaDmeView } from "../api/client";
 import { fr } from "../i18n/fr";
+import { useDialog } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { type Tone } from "./Badge";
 
@@ -148,6 +149,7 @@ function EditModal({
   onClose: () => void;
   onSaved: (next: UfaDmeView) => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [dmeText, setDmeText] = useState("");
@@ -189,9 +191,9 @@ function EditModal({
   };
 
   return (
-    <Modal visible={entry !== null} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={entry !== null} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.titles.dme.section}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             <Text style={styles.fieldLabel}>{entry?.species_scientific_name}</Text>

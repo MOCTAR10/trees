@@ -2,8 +2,10 @@ import React from "react";
 import { View } from "react-native";
 
 import { DashboardOverview, StatusRollup } from "../../api/client";
+import { ChartDatum, ColumnChart, Donut } from "../../design/charts";
 import { dec } from "../../design/format";
-import { makeStyles } from "../../design/ThemeProvider";
+import { makeStyles, useTheme } from "../../design/ThemeProvider";
+import { Palette } from "../../design/tokens";
 import { Card, Divider, Tone, Txt } from "../../design/ui";
 import { fr } from "../../i18n/fr";
 
@@ -73,10 +75,37 @@ function Bars({ rows, testID }: { rows: { label: string; value: number; text: st
   );
 }
 
-function rollupRows(map: Record<string, StatusRollup> | undefined, labels: Record<string, string>) {
+const STATUS_TONE: Record<string, keyof Palette> = {
+  actif: "ok",
+  valide: "ok",
+  ouvert: "ok",
+  autorise: "olive",
+  provisoire: "gold",
+  exploration: "gold",
+  prepare: "muted",
+  demande: "info",
+  soumis: "info",
+  en_attente: "info",
+  suspendu: "warn",
+  manquant: "warn",
+  ferme: "forest",
+  expire: "risk",
+  rejete: "risk",
+  retire: "risk",
+};
+
+function statusData(
+  map: Record<string, StatusRollup> | undefined,
+  labels: Record<string, string>,
+  c: Palette,
+): ChartDatum[] {
   return Object.values(map ?? {})
     .filter((r) => num(r.count) > 0)
-    .map((r) => ({ label: labels[r.status] ?? r.status.charAt(0).toUpperCase() + r.status.slice(1).replace(/_/g, " "), value: num(r.count), text: String(num(r.count)) }));
+    .map((r) => ({
+      label: labels[r.status] ?? r.status.charAt(0).toUpperCase() + r.status.slice(1).replace(/_/g, " "),
+      value: num(r.count),
+      color: STATUS_TONE[r.status] ? c[STATUS_TONE[r.status]] : undefined,
+    }));
 }
 
 function Ratio({ label, part, total, testID }: { label: string; part: number; total: number; testID?: string }) {
@@ -122,6 +151,7 @@ export function DashboardTiles({ overview: o }: { overview: DashboardOverview })
 
 export default function DashboardPanels({ overview: o }: { overview: DashboardOverview }) {
   const s = useStyles();
+  const theme = useTheme();
   const species = (o.harvest?.by_species ?? []).slice(0, 6);
   const treeStatus = Object.entries(o.harvest?.by_status ?? {}).filter(([, n]) => num(n) > 0);
   const schemes = o.certifications?.by_scheme ?? [];
@@ -138,7 +168,10 @@ export default function DashboardPanels({ overview: o }: { overview: DashboardOv
             <Txt variant="caption" tone="muted">
               {d.bySpecies}
             </Txt>
-            <Bars rows={species.map((r) => ({ label: r.species, value: num(r.volume_m3), text: `${short(num(r.volume_m3))} m³` }))} testID="bars-species" />
+            <ColumnChart
+              data={species.map((r) => ({ label: r.species, value: num(r.volume_m3), text: `${short(num(r.volume_m3))} m³` }))}
+              testID="bars-species"
+            />
           </>
         ) : null}
         {treeStatus.length ? (
@@ -147,7 +180,12 @@ export default function DashboardPanels({ overview: o }: { overview: DashboardOv
             <Txt variant="caption" tone="muted">
               {d.byStatus}
             </Txt>
-            <Bars rows={treeStatus.map(([k, n]) => ({ label: d.treeStatus[k] ?? k, value: num(n), text: String(num(n)) }))} testID="bars-tree-status" />
+            <ColumnChart
+              data={treeStatus.map(([k, n]) => ({ label: d.treeStatus[k] ?? k, value: num(n) }))}
+              color={theme.c.forest}
+              height={120}
+              testID="bars-tree-status"
+            />
           </>
         ) : null}
       </Section>
@@ -156,12 +194,12 @@ export default function DashboardPanels({ overview: o }: { overview: DashboardOv
         <Txt variant="caption" tone="muted">
           {d.titlesByStatus}
         </Txt>
-        <Bars rows={rollupRows(o.titles?.by_status, d.titleStatus)} />
+        <Donut data={statusData(o.titles?.by_status, d.titleStatus, theme.c)} centerLabel={d.titlesShort} testID="donut-titles" />
         <Divider />
         <Txt variant="caption" tone="muted">
           {d.aacByStatus}
         </Txt>
-        <Bars rows={rollupRows(o.aac?.by_status, d.aacStatus)} />
+        <Donut data={statusData(o.aac?.by_status, d.aacStatus, theme.c)} centerLabel={d.aacShort} testID="donut-aac" />
       </Section>
 
       <Section title={d.compliance} testID="panel-compliance">
@@ -171,7 +209,7 @@ export default function DashboardPanels({ overview: o }: { overview: DashboardOv
           total={num(o.documents?.total)}
           testID="ratio-docs"
         />
-        <Bars rows={rollupRows(o.documents?.by_status, d.docStatus)} />
+        <Donut data={statusData(o.documents?.by_status, d.docStatus, theme.c)} centerLabel={d.docs} testID="donut-docs" />
         {schemes.length ? (
           <>
             <Divider />
@@ -209,7 +247,11 @@ export default function DashboardPanels({ overview: o }: { overview: DashboardOv
 
       {carbonByAac.length ? (
         <Section title={d.carbonByAac} testID="panel-carbon">
-          <Bars rows={carbonByAac.map((r) => ({ label: r.aac_label, value: num(r.co2e_kg), text: `${short(num(r.co2e_kg) / 1000)} t` }))} />
+          <ColumnChart
+            data={carbonByAac.map((r) => ({ label: r.aac_label, value: num(r.co2e_kg), text: `${short(num(r.co2e_kg) / 1000)} t` }))}
+            color={theme.c.ok}
+            testID="chart-carbon"
+          />
         </Section>
       ) : null}
     </View>

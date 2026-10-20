@@ -20,6 +20,7 @@ import {
 } from "../api/client";
 import { fr } from "../i18n/fr";
 import { exportAuthorizationPdf, sharePdf } from "../pdf";
+import { useDialog } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { authTone } from "./Badge";
 import { frDate } from "../design/format";
@@ -262,6 +263,7 @@ function RequestModal({
   onClose: () => void;
   onCreated: () => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [authType, setAuthType] = useState<AuthorizationType>("permis_annuel_operations");
@@ -298,9 +300,9 @@ function RequestModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={visible} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.titles.auth.request}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             <Text style={styles.fieldLabel}>{fr.titles.auth.typeLabel}</Text>
@@ -369,6 +371,7 @@ function MotifModal({
   onClose: () => void;
   onConfirm: (auth: AacAuthorization, motif: string) => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [motif, setMotif] = useState("");
@@ -389,9 +392,9 @@ function MotifModal({
   };
 
   return (
-    <Modal visible={!!target} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={!!target} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.titles.auth.decide.rejete}</Text>
           <TextInput
             style={styles.input}

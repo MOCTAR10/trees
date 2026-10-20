@@ -26,6 +26,7 @@ import { exportDf10Pdf, exportTransportPdf, sharePdf } from "../pdf";
 import { fr } from "../i18n/fr";
 import Badge, { Tone } from "./Badge";
 import { frDate } from "../design/format";
+import { CardGrid, useDialog } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 const FELLED = new Set(["abattu", "transporte", "receptionne", "transforme"]);
@@ -274,46 +275,48 @@ export default function CompanyTraceability() {
             {entries.length === 0 ? (
               <Text style={styles.dim}>{fr.traceability.noEntries}</Text>
             ) : (
-              shown.map((entry) => (
-                <View key={entry.tree_code} style={styles.card}>
-                  <View style={styles.cardTop}>
-                    <Text style={styles.title}>
-                      {entry.df10_entry_no
-                        ? `${entry.df10_entry_no} · ${entry.tree_code}`
-                        : entry.tree_code}
+              <CardGrid>
+                {shown.map((entry) => (
+                  <View key={entry.tree_code} style={styles.card}>
+                    <View style={styles.cardTop}>
+                      <Text style={styles.title}>
+                        {entry.df10_entry_no
+                          ? `${entry.df10_entry_no} · ${entry.tree_code}`
+                          : entry.tree_code}
+                      </Text>
+                      <Badge
+                        label={fr.traceability.registryStatus[entry.status] ?? entry.status}
+                        tone={registryTone(entry.status)}
+                      />
+                    </View>
+                    <Text style={styles.meta}>
+                      {entry.species_scientific_name ?? "—"}
+                      {entry.measured_dbh_cm != null ? ` · Ø ${entry.measured_dbh_cm} cm` : ""}
                     </Text>
-                    <Badge
-                      label={fr.traceability.registryStatus[entry.status] ?? entry.status}
-                      tone={registryTone(entry.status)}
-                    />
+                    {entry.abandon_label ? (
+                      <Text style={styles.abandon}>
+                        {`${fr.traceability.abandonCode[entry.abandon_code ?? ""] ?? entry.abandon_label}`}
+                        {entry.df10_notes ? ` — ${entry.df10_notes}` : ""}
+                      </Text>
+                    ) : null}
+                    {entry.felled_at ? (
+                      <Text style={styles.meta}>{`${fr.traceability.df10} · ${frDate(entry.felled_at)}`}</Text>
+                    ) : null}
+                    {!FELLED.has(entry.status) ? (
+                      <TouchableOpacity
+                        style={styles.smallBtn}
+                        onPress={() => {
+                          setMessage(null);
+                          setAbandonTarget(entry);
+                        }}
+                        testID={`abandon-${entry.tree_code}`}
+                      >
+                        <Text style={styles.smallBtnText}>{fr.traceability.abandon}</Text>
+                      </TouchableOpacity>
+                    ) : null}
                   </View>
-                  <Text style={styles.meta}>
-                    {entry.species_scientific_name ?? "—"}
-                    {entry.measured_dbh_cm != null ? ` · Ø ${entry.measured_dbh_cm} cm` : ""}
-                  </Text>
-                  {entry.abandon_label ? (
-                    <Text style={styles.abandon}>
-                      {`${fr.traceability.abandonCode[entry.abandon_code ?? ""] ?? entry.abandon_label}`}
-                      {entry.df10_notes ? ` — ${entry.df10_notes}` : ""}
-                    </Text>
-                  ) : null}
-                  {entry.felled_at ? (
-                    <Text style={styles.meta}>{`${fr.traceability.df10} · ${frDate(entry.felled_at)}`}</Text>
-                  ) : null}
-                  {!FELLED.has(entry.status) ? (
-                    <TouchableOpacity
-                      style={styles.smallBtn}
-                      onPress={() => {
-                        setMessage(null);
-                        setAbandonTarget(entry);
-                      }}
-                      testID={`abandon-${entry.tree_code}`}
-                    >
-                      <Text style={styles.smallBtnText}>{fr.traceability.abandon}</Text>
-                    </TouchableOpacity>
-                  ) : null}
-                </View>
-              ))
+                ))}
+              </CardGrid>
             )}
           </ScrollView>
         )
@@ -342,56 +345,58 @@ export default function CompanyTraceability() {
           {docs.length === 0 ? (
             <Text style={styles.dim}>{fr.traceability.noDocuments}</Text>
           ) : (
-            docs.map((doc) => (
-              <View key={doc.id} style={styles.card}>
-                <View style={styles.cardTop}>
-                  <Text style={styles.title}>
-                    {`${doc.reference} · ${doc.direction === "entrant" ? fr.traceability.incoming : fr.traceability.outgoing}`}
+            <CardGrid>
+              {docs.map((doc) => (
+                <View key={doc.id} style={styles.card}>
+                  <View style={styles.cardTop}>
+                    <Text style={styles.title}>
+                      {`${doc.reference} · ${doc.direction === "entrant" ? fr.traceability.incoming : fr.traceability.outgoing}`}
+                    </Text>
+                    <Badge
+                      label={fr.traceability.transportStatus[doc.status] ?? doc.status}
+                      tone={transportTone(doc.status)}
+                    />
+                  </View>
+                  <Text style={styles.meta}>
+                    {`${fr.traceability.docTypeLabel[doc.doc_type] ?? doc.doc_type} · ${doc.tree_codes.length} ${fr.traceability.stems}`}
                   </Text>
-                  <Badge
-                    label={fr.traceability.transportStatus[doc.status] ?? doc.status}
-                    tone={transportTone(doc.status)}
-                  />
-                </View>
-                <Text style={styles.meta}>
-                  {`${fr.traceability.docTypeLabel[doc.doc_type] ?? doc.doc_type} · ${doc.tree_codes.length} ${fr.traceability.stems}`}
-                </Text>
-                <Text style={styles.meta}>
-                  {doc.from_label ? `${doc.from_label} → ${doc.to_label ?? "—"}` : "—"}
-                </Text>
-                {doc.direction === "entrant" && doc.org_name ? (
-                  <Text style={styles.meta}>{fr.traceability.fromOrg(doc.org_name)}</Text>
-                ) : doc.destination_name ? (
-                  <Text style={styles.meta}>{fr.traceability.toOrg(doc.destination_name)}</Text>
-                ) : null}
-                <Text style={styles.meta}>
-                  {`${fr.traceability.volume} : ${(doc.volume_m3 ?? 0).toFixed(3)} m³`}
-                </Text>
-                <View style={styles.actionsRow}>
-                  {(doc.status === "brouillon" && doc.direction !== "entrant") ||
-                  (doc.status === "emis" && (doc.direction === "entrant" || !doc.destination_org_id)) ? (
+                  <Text style={styles.meta}>
+                    {doc.from_label ? `${doc.from_label} → ${doc.to_label ?? "—"}` : "—"}
+                  </Text>
+                  {doc.direction === "entrant" && doc.org_name ? (
+                    <Text style={styles.meta}>{fr.traceability.fromOrg(doc.org_name)}</Text>
+                  ) : doc.destination_name ? (
+                    <Text style={styles.meta}>{fr.traceability.toOrg(doc.destination_name)}</Text>
+                  ) : null}
+                  <Text style={styles.meta}>
+                    {`${fr.traceability.volume} : ${(doc.volume_m3 ?? 0).toFixed(3)} m³`}
+                  </Text>
+                  <View style={styles.actionsRow}>
+                    {(doc.status === "brouillon" && doc.direction !== "entrant") ||
+                    (doc.status === "emis" && (doc.direction === "entrant" || !doc.destination_org_id)) ? (
+                      <TouchableOpacity
+                        style={[styles.smallBtn, styles.smallBtnFlex]}
+                        onPress={() => void advance(doc)}
+                        disabled={busyId === doc.id}
+                        testID={`transport-advance-${doc.id}`}
+                      >
+                        <Text style={styles.smallBtnText}>
+                          {doc.status === "brouillon" ? fr.traceability.issue : fr.traceability.receive}
+                        </Text>
+                      </TouchableOpacity>
+                    ) : null}
                     <TouchableOpacity
                       style={[styles.smallBtn, styles.smallBtnFlex]}
-                      onPress={() => void advance(doc)}
-                      disabled={busyId === doc.id}
-                      testID={`transport-advance-${doc.id}`}
+                      onPress={() => void exportDoc(doc.id)}
+                      disabled={exporting}
+                      testID={`transport-pdf-${doc.id}`}
                     >
-                      <Text style={styles.smallBtnText}>
-                        {doc.status === "brouillon" ? fr.traceability.issue : fr.traceability.receive}
-                      </Text>
+                      <Text style={styles.smallBtnText}>{fr.traceability.pdf}</Text>
                     </TouchableOpacity>
-                  ) : null}
-                  <TouchableOpacity
-                    style={[styles.smallBtn, styles.smallBtnFlex]}
-                    onPress={() => void exportDoc(doc.id)}
-                    disabled={exporting}
-                    testID={`transport-pdf-${doc.id}`}
-                  >
-                    <Text style={styles.smallBtnText}>{fr.traceability.pdf}</Text>
-                  </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-            ))
+              ))}
+            </CardGrid>
           )}
         </ScrollView>
       )}
@@ -427,6 +432,7 @@ function AbandonModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const dialog = useDialog();
   const styles = useStyles();
   const theme = useTheme();
   const [code, setCode] = useState<AbandonCode>("creux");
@@ -458,9 +464,9 @@ function AbandonModal({
   };
 
   return (
-    <Modal visible={!!entry} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={!!entry} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.traceability.abandonTitle}</Text>
           <Text style={styles.meta}>{entry?.tree_code}</Text>
           <ScrollView contentContainerStyle={styles.form}>
@@ -518,6 +524,7 @@ function TransportModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const dialog = useDialog();
   const styles = useStyles();
   const theme = useTheme();
   const [docType, setDocType] = useState<TransportDocType>("bordereau_roulage");
@@ -578,9 +585,9 @@ function TransportModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={visible} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.traceability.newDocument}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             <Text style={styles.fieldLabel}>{fr.traceability.docType}</Text>

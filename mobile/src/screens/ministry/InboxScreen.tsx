@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from "react-native";
 
 import { getInboxItems, getProvinces, InboxItem, InboxQueueKey, ProvinceSummary } from "../../api/client";
+import { DataTable, useDesktop } from "../../design/layout";
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
 import { EmptyState, Pill, Txt } from "../../design/ui";
 import { fr } from "../../i18n/fr";
@@ -39,6 +40,7 @@ function Chip({ label, on, onPress, testID }: { label: string; on: boolean; onPr
 export default function InboxScreen({ initialType, onOpenDomain, onOpenItem, now }: Props) {
   const theme = useTheme();
   const s = useStyles();
+  const desktop = useDesktop();
   const [items, setItems] = useState<InboxItem[]>([]);
   const [provinces, setProvinces] = useState<ProvinceSummary[]>([]);
   const [type, setType] = useState<InboxQueueKey | null>(initialType ?? null);
@@ -76,6 +78,9 @@ export default function InboxScreen({ initialType, onOpenDomain, onOpenItem, now
   const types = (Object.keys(counts) as InboxQueueKey[]).sort();
   const usedProvinces = provinces.filter((p) => items.some((i) => i.province_code === p.code));
   const shown = items.filter((i) => (!type || i.type === type) && (!province || i.province_code === province));
+  const open = (i: InboxItem) =>
+    onOpenItem && DECIDABLE.includes(i.type) ? onOpenItem(i.type, i.id) : onOpenDomain(QUEUE_DOMAIN[i.type]);
+  const ageTone = (days: number | null) => (days == null ? "muted" : days >= 7 ? "risk" : days >= 3 ? "warn" : "muted");
 
   return (
     <ScrollView
@@ -121,7 +126,84 @@ export default function InboxScreen({ initialType, onOpenDomain, onOpenItem, now
         </Txt>
       ) : null}
 
-      {shown.length ? (
+      {shown.length && desktop ? (
+        <DataTable
+          testID="inbox-table"
+          rows={shown}
+          rowKey={(i) => `${i.type}-${i.id}`}
+          rowTestID={(i) => `inbox-item-${i.type}-${i.id}`}
+          onRowPress={open}
+          initialSort={{ key: "age", dir: -1 }}
+          columns={[
+            {
+              key: "file",
+              title: t.cols.file,
+              flex: 3,
+              sortValue: (i) => i.label,
+              render: (i) => (
+                <Txt variant="small" bold numberOfLines={2}>
+                  {i.label}
+                </Txt>
+              ),
+            },
+            {
+              key: "type",
+              title: t.cols.type,
+              width: 150,
+              sortValue: (i) => t.types[i.type] ?? i.type,
+              render: (i) => <Pill tone="neutral" label={t.types[i.type] ?? i.type} />,
+            },
+            {
+              key: "org",
+              title: t.cols.org,
+              flex: 2,
+              sortValue: (i) => i.org_name,
+              render: (i) => (
+                <Txt variant="small" numberOfLines={2}>
+                  {i.org_name ?? "—"}
+                </Txt>
+              ),
+            },
+            {
+              key: "province",
+              title: t.cols.province,
+              width: 140,
+              sortValue: (i) => i.province_name,
+              render: (i) => (
+                <Txt variant="small" tone={i.province_name ? "ink" : "muted"} numberOfLines={1}>
+                  {i.province_name ?? "—"}
+                </Txt>
+              ),
+            },
+            {
+              key: "authority",
+              title: t.cols.authority,
+              flex: 1.5,
+              sortValue: (i) => i.authority,
+              render: (i) => (
+                <Txt variant="caption" tone="muted" numberOfLines={2}>
+                  {i.authority}
+                </Txt>
+              ),
+            },
+            {
+              key: "age",
+              title: t.cols.age,
+              width: 110,
+              align: "right",
+              sortValue: (i) => daysSince(i.created_at, now),
+              render: (i) => {
+                const days = daysSince(i.created_at, now);
+                return days != null ? (
+                  <Txt variant="small" tone={ageTone(days)} bold={days >= 3}>
+                    {t.age(days)}
+                  </Txt>
+                ) : null;
+              },
+            },
+          ]}
+        />
+      ) : shown.length ? (
         <View style={s.list}>
           {shown.map((i) => {
             const days = daysSince(i.created_at, now);
@@ -129,9 +211,7 @@ export default function InboxScreen({ initialType, onOpenDomain, onOpenItem, now
               <Pressable
                 key={`${i.type}-${i.id}`}
                 testID={`inbox-item-${i.type}-${i.id}`}
-                onPress={() =>
-                  onOpenItem && DECIDABLE.includes(i.type) ? onOpenItem(i.type, i.id) : onOpenDomain(QUEUE_DOMAIN[i.type])
-                }
+                onPress={() => open(i)}
                 accessibilityRole="button"
                 style={({ pressed }) => [s.row, pressed && s.pressed]}
               >

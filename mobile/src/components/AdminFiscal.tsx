@@ -29,6 +29,7 @@ import {
 } from "../api/client";
 import { exportDiligencePdf, sharePdf } from "../pdf";
 import { fr } from "../i18n/fr";
+import { CardGrid, useDialog } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { taxTone, Tone } from "./Badge";
 import EudrStems from "./EudrStems";
@@ -198,22 +199,24 @@ export default function AdminFiscal() {
             {dues.length === 0 ? (
               <Text style={styles.dim}>{fr.fiscal.noDues}</Text>
             ) : (
-              dues.map((due) => (
-                <View key={due.id} style={styles.card}>
-                  <View style={styles.cardTop}>
-                    <Text style={styles.title}>{`${fr.taxes.type[due.tax_type] ?? due.tax_type} · ${due.period_year}`}</Text>
-                    <Badge label={fr.taxes.status[due.status] ?? due.status} tone={taxTone(due.status)} />
+              <CardGrid>
+                {dues.map((due) => (
+                  <View key={due.id} style={styles.card}>
+                    <View style={styles.cardTop}>
+                      <Text style={styles.title}>{`${fr.taxes.type[due.tax_type] ?? due.tax_type} · ${due.period_year}`}</Text>
+                      <Badge label={fr.taxes.status[due.status] ?? due.status} tone={taxTone(due.status)} />
+                    </View>
+                    <Text style={styles.meta}>{due.org_name ?? `#${due.org_id}`}</Text>
+                    <Text style={styles.meta}>
+                      {fcfa(due.amount_fcfa)}
+                      {due.title_ref ? ` · ${due.title_ref}` : ""}
+                    </Text>
+                    {due.due_at ? (
+                      <Text style={styles.meta}>{`${fr.fiscal.due} ${frDate(due.due_at)}`}</Text>
+                    ) : null}
                   </View>
-                  <Text style={styles.meta}>{due.org_name ?? `#${due.org_id}`}</Text>
-                  <Text style={styles.meta}>
-                    {fcfa(due.amount_fcfa)}
-                    {due.title_ref ? ` · ${due.title_ref}` : ""}
-                  </Text>
-                  {due.due_at ? (
-                    <Text style={styles.meta}>{`${fr.fiscal.due} ${frDate(due.due_at)}`}</Text>
-                  ) : null}
-                </View>
-              ))
+                ))}
+              </CardGrid>
             )}
           </ScrollView>
         )
@@ -245,31 +248,33 @@ export default function AdminFiscal() {
             {agreements.length === 0 ? (
               <Text style={styles.dim}>{fr.fiscal.noAgreements}</Text>
             ) : (
-              agreements.map((a) => (
-                <View key={a.id} style={styles.card}>
-                  <View style={styles.cardTop}>
-                    <Text style={styles.title}>{a.community_name ?? `#${a.community_org_id}`}</Text>
-                    <Badge
-                      label={fr.fiscal.agreementStatus[a.status] ?? a.status}
-                      tone={agreementTone(a.status)}
-                    />
+              <CardGrid>
+                {agreements.map((a) => (
+                  <View key={a.id} style={styles.card}>
+                    <View style={styles.cardTop}>
+                      <Text style={styles.title}>{a.community_name ?? `#${a.community_org_id}`}</Text>
+                      <Badge
+                        label={fr.fiscal.agreementStatus[a.status] ?? a.status}
+                        tone={agreementTone(a.status)}
+                      />
+                    </View>
+                    <Text style={styles.meta}>
+                      {`${a.title_ref ?? fr.fiscal.title}${a.ccc_ref ? ` · ${a.ccc_ref}` : ""}`}
+                    </Text>
+                    <Text style={styles.meta}>{`${fr.fiscal.contribution} : ${fcfa(a.contribution_fcfa)}`}</Text>
+                    <TouchableOpacity
+                      style={styles.smallBtn}
+                      onPress={() => {
+                        setMessage(null);
+                        setDecidingAgreement(a);
+                      }}
+                      testID={`decide-agreement-${a.id}`}
+                    >
+                      <Text style={styles.smallBtnText}>{fr.fiscal.decide}</Text>
+                    </TouchableOpacity>
                   </View>
-                  <Text style={styles.meta}>
-                    {`${a.title_ref ?? fr.fiscal.title}${a.ccc_ref ? ` · ${a.ccc_ref}` : ""}`}
-                  </Text>
-                  <Text style={styles.meta}>{`${fr.fiscal.contribution} : ${fcfa(a.contribution_fcfa)}`}</Text>
-                  <TouchableOpacity
-                    style={styles.smallBtn}
-                    onPress={() => {
-                      setMessage(null);
-                      setDecidingAgreement(a);
-                    }}
-                    testID={`decide-agreement-${a.id}`}
-                  >
-                    <Text style={styles.smallBtnText}>{fr.fiscal.decide}</Text>
-                  </TouchableOpacity>
-                </View>
-              ))
+                ))}
+              </CardGrid>
             )}
           </ScrollView>
         )
@@ -287,45 +292,47 @@ export default function AdminFiscal() {
           {diligence.length === 0 ? (
             <Text style={styles.dim}>{fr.fiscal.noDiligence}</Text>
           ) : (
-            diligence.map((d) => (
-              <View key={d.id} style={styles.card}>
-                <View style={styles.cardTop}>
-                  <Text style={styles.title}>{d.parcel_label}</Text>
-                  <Badge label={fr.fiscal.eudrStatus[d.status] ?? d.status} tone={eudrTone(d.status)} />
+            <CardGrid>
+              {diligence.map((d) => (
+                <View key={d.id} style={styles.card}>
+                  <View style={styles.cardTop}>
+                    <Text style={styles.title}>{d.parcel_label}</Text>
+                    <Badge label={fr.fiscal.eudrStatus[d.status] ?? d.status} tone={eudrTone(d.status)} />
+                  </View>
+                  <Text style={styles.meta}>
+                    {`${d.org_name ?? `#${d.org_id}`}${d.title_ref ? ` · ${d.title_ref}` : ""}`}
+                  </Text>
+                  <Text style={styles.meta}>
+                    {`${fr.fiscal.felled} : ${d.felled_stem_count} · ${fr.fiscal.geolocated} : ${d.geolocated_stem_count}`}
+                  </Text>
+                  <Text style={styles.meta}>
+                    {`${fr.fiscal.insideParcel} : ${d.inside_parcel_stem_count} · ${fr.fiscal.outsideParcel} : ${d.outside_parcel_stem_count}`}
+                  </Text>
+                  {d.decision_motif ? <Text style={styles.warn}>{d.decision_motif}</Text> : null}
+                  <View style={styles.actionsRow}>
+                    <TouchableOpacity
+                      style={[styles.smallBtn, styles.smallBtnFlex]}
+                      onPress={() => {
+                        setMessage(null);
+                        setDecidingEudr(d);
+                      }}
+                      testID={`decide-diligence-${d.id}`}
+                    >
+                      <Text style={styles.smallBtnText}>{fr.fiscal.decide}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.smallBtn, styles.smallBtnFlex]}
+                      onPress={() => void exportDiligence(d.id)}
+                      disabled={exporting}
+                      testID={`diligence-pdf-${d.id}`}
+                    >
+                      <Text style={styles.smallBtnText}>{fr.traceability.pdf}</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <EudrStems diligenceId={d.id} />
                 </View>
-                <Text style={styles.meta}>
-                  {`${d.org_name ?? `#${d.org_id}`}${d.title_ref ? ` · ${d.title_ref}` : ""}`}
-                </Text>
-                <Text style={styles.meta}>
-                  {`${fr.fiscal.felled} : ${d.felled_stem_count} · ${fr.fiscal.geolocated} : ${d.geolocated_stem_count}`}
-                </Text>
-                <Text style={styles.meta}>
-                  {`${fr.fiscal.insideParcel} : ${d.inside_parcel_stem_count} · ${fr.fiscal.outsideParcel} : ${d.outside_parcel_stem_count}`}
-                </Text>
-                {d.decision_motif ? <Text style={styles.warn}>{d.decision_motif}</Text> : null}
-                <View style={styles.actionsRow}>
-                  <TouchableOpacity
-                    style={[styles.smallBtn, styles.smallBtnFlex]}
-                    onPress={() => {
-                      setMessage(null);
-                      setDecidingEudr(d);
-                    }}
-                    testID={`decide-diligence-${d.id}`}
-                  >
-                    <Text style={styles.smallBtnText}>{fr.fiscal.decide}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.smallBtn, styles.smallBtnFlex]}
-                    onPress={() => void exportDiligence(d.id)}
-                    disabled={exporting}
-                    testID={`diligence-pdf-${d.id}`}
-                  >
-                    <Text style={styles.smallBtnText}>{fr.traceability.pdf}</Text>
-                  </TouchableOpacity>
-                </View>
-                <EudrStems diligenceId={d.id} />
-              </View>
-            ))
+              ))}
+            </CardGrid>
           )}
         </ScrollView>
       )}
@@ -373,6 +380,7 @@ function DueModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [titleId, setTitleId] = useState<number | null>(null);
@@ -427,9 +435,9 @@ function DueModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={visible} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.fiscal.newDue}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             <Text style={styles.fieldLabel}>{fr.fiscal.title}</Text>
@@ -532,6 +540,7 @@ function AgreementDecisionModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [status, setStatus] = useState<AgreementStatus>("actif");
@@ -567,9 +576,9 @@ function AgreementDecisionModal({
   };
 
   return (
-    <Modal visible={!!agreement} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={!!agreement} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.fiscal.decisionTitle}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             <Text style={styles.fieldLabel}>{fr.fiscal.decide}</Text>
@@ -629,6 +638,7 @@ function EudrDecisionModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [status, setStatus] = useState<"valide" | "rejete">("valide");
@@ -666,9 +676,9 @@ function EudrDecisionModal({
   };
 
   return (
-    <Modal visible={!!diligence} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={!!diligence} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.fiscal.decisionTitle}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             <Text style={styles.fieldLabel}>{fr.fiscal.eudr}</Text>

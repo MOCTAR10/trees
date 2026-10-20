@@ -29,6 +29,7 @@ import TitleConventions from "./TitleConventions";
 import TitleStudies from "./TitleStudies";
 import UfaDme from "./UfaDme";
 import Badge, { aacTone, titleTone } from "./Badge";
+import { CardGrid, useDialog } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { Button } from "../design/ui";
 import InventoryImportScreen from "../screens/InventoryImportScreen";
@@ -148,133 +149,135 @@ export default function CompanyTitles() {
       {titles.length === 0 ? (
         <Text style={styles.dim}>{fr.titles.noTitles}</Text>
       ) : (
-        titles.map((title) => (
-          <View key={title.id} style={styles.card}>
-            <TouchableOpacity onPress={() => void toggleTitle(title.id)} testID={`title-${title.id}`}>
-              <View style={styles.cardTop}>
-                <Text style={styles.cardTitle}>
-                  {`${title.title_type}${title.reference ? ` · ${title.reference}` : ""}`}
+        <CardGrid>
+          {titles.map((title) => (
+            <View key={title.id} style={styles.card}>
+              <TouchableOpacity onPress={() => void toggleTitle(title.id)} testID={`title-${title.id}`}>
+                <View style={styles.cardTop}>
+                  <Text style={styles.cardTitle}>
+                    {`${title.title_type}${title.reference ? ` · ${title.reference}` : ""}`}
+                  </Text>
+                  <Badge
+                    label={fr.titles.status[title.status] ?? title.status}
+                    tone={titleTone(title.status)}
+                  />
+                </View>
+                <Text style={styles.meta}>
+                  {[fr.titles.typeLabel[title.title_type], title.zone ? fr.titles.zoneLabel[title.zone] : null, fmtSurface(title.surface_ha)]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </Text>
-                <Badge
-                  label={fr.titles.status[title.status] ?? title.status}
-                  tone={titleTone(title.status)}
-                />
-              </View>
-              <Text style={styles.meta}>
-                {[fr.titles.typeLabel[title.title_type], title.zone ? fr.titles.zoneLabel[title.zone] : null, fmtSurface(title.surface_ha)]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </Text>
-              <View style={styles.toggle}>
-                {expandedTitle === title.id ? (
-                  <ChevronDown size={16} color={theme.c.olive} />
-                ) : (
-                  <ChevronRight size={16} color={theme.c.olive} />
-                )}
-                <Text style={styles.toggleText}>
-                  {expandedTitle === title.id ? fr.titles.closeDetail : fr.titles.openDetail}
-                </Text>
-              </View>
-            </TouchableOpacity>
-
-            {expandedTitle === title.id ? (
-              <View style={styles.detail}>
-                <TitleConventions titleId={title.id} mode="company" />
-                <TitleStudies titleId={title.id} mode="company" />
-                <Text style={styles.section}>{fr.titles.units}</Text>
-                {unitsLoading === title.id ? (
-                  <ActivityIndicator color={theme.c.olive} />
-                ) : (units[title.id] ?? []).length === 0 ? (
-                  <Text style={styles.dim}>{fr.titles.noUnits}</Text>
-                ) : (
-                  (units[title.id] ?? []).map((unit) => (
-                    <View key={unit.id} style={styles.subCard}>
-                      <TouchableOpacity
-                        onPress={() => void toggleUnit(unit.id)}
-                        testID={`unit-${unit.id}`}
-                      >
-                        <View style={styles.cardTop}>
-                          <Text style={[styles.subTitle, styles.flex1]}>{unit.label}</Text>
-                          {expandedUnit === unit.id ? (
-                            <ChevronDown size={16} color={theme.c.olive} />
-                          ) : (
-                            <ChevronRight size={16} color={theme.c.olive} />
-                          )}
-                        </View>
-                        <Text style={styles.meta}>
-                          {[fmtSurface(unit.surface_ha), expandedUnit === unit.id ? null : fr.titles.openAacs]
-                            .filter(Boolean)
-                            .join(" · ")}
-                        </Text>
-                      </TouchableOpacity>
-
-                      {expandedUnit === unit.id ? (
-                        <View style={styles.detail}>
-                          <Text style={styles.section}>{fr.titles.aacs}</Text>
-                          {aacsLoading === unit.id ? (
-                            <ActivityIndicator color={theme.c.olive} />
-                          ) : (aacs[unit.id] ?? []).length === 0 ? (
-                            <Text style={styles.dim}>{fr.titles.noAacs}</Text>
-                          ) : (
-                            (aacs[unit.id] ?? []).map((aac) => (
-                              <View key={aac.id} style={styles.aacCard}>
-                                <View style={styles.cardTop}>
-                                  <Text style={styles.aacTitle}>{aac.label}</Text>
-                                  <Badge
-                                    label={fr.titles.aacStatus[aac.status] ?? aac.status}
-                                    tone={aacTone(aac.status)}
-                                  />
-                                </View>
-                                <Text style={styles.meta}>
-                                  {fr.titles.campaign} {aac.campaign_year ?? "—"}
-                                  {aac.possibility_m3 != null
-                                    ? ` · ${fr.titles.possibility} ${aac.possibility_m3} ${fr.titles.m3}`
-                                    : ""}
-                                </Text>
-                                <Text style={styles.meta}>
-                                  {fr.titles.origin[aac.origin] ?? aac.origin}
-                                </Text>
-                                {aac.pao_reference ? (
+                <View style={styles.toggle}>
+                  {expandedTitle === title.id ? (
+                    <ChevronDown size={16} color={theme.c.olive} />
+                  ) : (
+                    <ChevronRight size={16} color={theme.c.olive} />
+                  )}
+                  <Text style={styles.toggleText}>
+                    {expandedTitle === title.id ? fr.titles.closeDetail : fr.titles.openDetail}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+  
+              {expandedTitle === title.id ? (
+                <View style={styles.detail}>
+                  <TitleConventions titleId={title.id} mode="company" />
+                  <TitleStudies titleId={title.id} mode="company" />
+                  <Text style={styles.section}>{fr.titles.units}</Text>
+                  {unitsLoading === title.id ? (
+                    <ActivityIndicator color={theme.c.olive} />
+                  ) : (units[title.id] ?? []).length === 0 ? (
+                    <Text style={styles.dim}>{fr.titles.noUnits}</Text>
+                  ) : (
+                    (units[title.id] ?? []).map((unit) => (
+                      <View key={unit.id} style={styles.subCard}>
+                        <TouchableOpacity
+                          onPress={() => void toggleUnit(unit.id)}
+                          testID={`unit-${unit.id}`}
+                        >
+                          <View style={styles.cardTop}>
+                            <Text style={[styles.subTitle, styles.flex1]}>{unit.label}</Text>
+                            {expandedUnit === unit.id ? (
+                              <ChevronDown size={16} color={theme.c.olive} />
+                            ) : (
+                              <ChevronRight size={16} color={theme.c.olive} />
+                            )}
+                          </View>
+                          <Text style={styles.meta}>
+                            {[fmtSurface(unit.surface_ha), expandedUnit === unit.id ? null : fr.titles.openAacs]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </Text>
+                        </TouchableOpacity>
+  
+                        {expandedUnit === unit.id ? (
+                          <View style={styles.detail}>
+                            <Text style={styles.section}>{fr.titles.aacs}</Text>
+                            {aacsLoading === unit.id ? (
+                              <ActivityIndicator color={theme.c.olive} />
+                            ) : (aacs[unit.id] ?? []).length === 0 ? (
+                              <Text style={styles.dim}>{fr.titles.noAacs}</Text>
+                            ) : (
+                              (aacs[unit.id] ?? []).map((aac) => (
+                                <View key={aac.id} style={styles.aacCard}>
+                                  <View style={styles.cardTop}>
+                                    <Text style={styles.aacTitle}>{aac.label}</Text>
+                                    <Badge
+                                      label={fr.titles.aacStatus[aac.status] ?? aac.status}
+                                      tone={aacTone(aac.status)}
+                                    />
+                                  </View>
                                   <Text style={styles.meta}>
-                                    PAO : {aac.pao_reference}
+                                    {fr.titles.campaign} {aac.campaign_year ?? "—"}
+                                    {aac.possibility_m3 != null
+                                      ? ` · ${fr.titles.possibility} ${aac.possibility_m3} ${fr.titles.m3}`
+                                      : ""}
                                   </Text>
-                                ) : null}
-                                {aac.status === "prepare" ? (
-                                  <TouchableOpacity
-                                    style={styles.action}
-                                    onPress={() => {
-                                      setMessage(null);
-                                      setPaoFor(aac);
-                                    }}
-                                    testID={`pao-${aac.id}`}
-                                  >
-                                    <Text style={styles.actionText}>{fr.titles.submitPao}</Text>
-                                  </TouchableOpacity>
-                                ) : null}
-                                {aac.status !== "ferme" ? (
-                                  <Button
-                                    compact
-                                    variant="secondary"
-                                    label={fr.inventory.open}
-                                    onPress={() => setInventoryFor(aac.id)}
-                                    testID={`inventory-${aac.id}`}
-                                    style={styles.inventoryBtn}
-                                  />
-                                ) : null}
-                                <AacAuthorizations aacId={aac.id} mode="company" />
-                              </View>
-                            ))
-                          )}
-                          <UfaDme ufaId={unit.id} mode="company" />
-                        </View>
-                      ) : null}
-                    </View>
-                  ))
-                )}
-              </View>
-            ) : null}
-          </View>
-        ))
+                                  <Text style={styles.meta}>
+                                    {fr.titles.origin[aac.origin] ?? aac.origin}
+                                  </Text>
+                                  {aac.pao_reference ? (
+                                    <Text style={styles.meta}>
+                                      PAO : {aac.pao_reference}
+                                    </Text>
+                                  ) : null}
+                                  {aac.status === "prepare" ? (
+                                    <TouchableOpacity
+                                      style={styles.action}
+                                      onPress={() => {
+                                        setMessage(null);
+                                        setPaoFor(aac);
+                                      }}
+                                      testID={`pao-${aac.id}`}
+                                    >
+                                      <Text style={styles.actionText}>{fr.titles.submitPao}</Text>
+                                    </TouchableOpacity>
+                                  ) : null}
+                                  {aac.status !== "ferme" ? (
+                                    <Button
+                                      compact
+                                      variant="secondary"
+                                      label={fr.inventory.open}
+                                      onPress={() => setInventoryFor(aac.id)}
+                                      testID={`inventory-${aac.id}`}
+                                      style={styles.inventoryBtn}
+                                    />
+                                  ) : null}
+                                  <AacAuthorizations aacId={aac.id} mode="company" />
+                                </View>
+                              ))
+                            )}
+                            <UfaDme ufaId={unit.id} mode="company" />
+                          </View>
+                        ) : null}
+                      </View>
+                    ))
+                  )}
+                </View>
+              ) : null}
+            </View>
+          ))}
+        </CardGrid>
       )}
 
       <NewTitleModal
@@ -315,6 +318,7 @@ function NewTitleModal({
   onClose: () => void;
   onCreated: () => void;
 }) {
+  const dialog = useDialog();
   const styles = useStyles();
   const theme = useTheme();
   const [titleType, setTitleType] = useState<TitleType>("CFAD");
@@ -357,9 +361,9 @@ function NewTitleModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={visible} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.titles.newTitle}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             <Text style={styles.fieldLabel}>{fr.titles.titleType}</Text>
@@ -436,6 +440,7 @@ function PaoModal({
   onClose: () => void;
   onSaved: (ufaId: number) => void;
 }) {
+  const dialog = useDialog();
   const styles = useStyles();
   const theme = useTheme();
   const [reference, setReference] = useState("");
@@ -467,9 +472,9 @@ function PaoModal({
   };
 
   return (
-    <Modal visible={!!aac} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={!!aac} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>
             {fr.titles.submitPao}
             {aac ? ` · ${aac.label}` : ""}

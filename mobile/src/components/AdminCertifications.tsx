@@ -20,6 +20,7 @@ import {
 } from "../api/client";
 import { fr } from "../i18n/fr";
 import { exportCertificationPdf, sharePdf } from "../pdf";
+import { CardGrid, useDialog } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { certTone } from "./Badge";
 import { frDate, shown } from "../design/format";
@@ -146,75 +147,77 @@ export default function AdminCertifications() {
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.list}>
-          {visible.map((c) => (
-            <View key={c.id} style={styles.card} testID={`cert-${c.id}`}>
-              <View style={styles.cardTop}>
-                <Text style={styles.scheme}>{`${c.scheme} · ${c.org_name ?? `#${c.org_id}`}`}</Text>
-                <Badge label={fr.cert.status[c.status] ?? c.status} tone={certTone(c.status)} />
-              </View>
-              <Text style={styles.meta}>
-                {fr.cert.type[c.cert_type] ?? c.cert_type}
-                {c.title_ref ? ` · ${c.title_ref}` : ""}
-              </Text>
-              {c.certificate_ref ? (
+          <CardGrid>
+            {visible.map((c) => (
+              <View key={c.id} style={styles.card} testID={`cert-${c.id}`}>
+                <View style={styles.cardTop}>
+                  <Text style={styles.scheme}>{`${c.scheme} · ${c.org_name ?? `#${c.org_id}`}`}</Text>
+                  <Badge label={fr.cert.status[c.status] ?? c.status} tone={certTone(c.status)} />
+                </View>
                 <Text style={styles.meta}>
-                  {`${fr.cert.reference} : ${c.certificate_ref}`}
+                  {fr.cert.type[c.cert_type] ?? c.cert_type}
+                  {c.title_ref ? ` · ${c.title_ref}` : ""}
                 </Text>
-              ) : null}
-              {c.valid_from || c.valid_to ? (
-                <Text style={styles.meta}>
-                  {`${shown(fr.cert.validFrom)} : ${frDate(c.valid_from) || "—"} → ${frDate(c.valid_to) || "—"}`}
-                </Text>
-              ) : null}
-              {c.decision_motif ? <Text style={styles.meta}>{c.decision_motif}</Text> : null}
-              <View style={styles.actionsRow}>
-                {c.status === "soumis" ? (
-                  <>
-                    <TouchableOpacity
-                      style={[styles.smallBtn, styles.approve]}
-                      disabled={busyId === c.id}
-                      onPress={() => void decide(c, "actif")}
-                      testID={`cert-verify-${c.id}`}
-                    >
-                      <Text style={styles.smallBtnText}>{fr.cert.decide.actif}</Text>
-                    </TouchableOpacity>
+                {c.certificate_ref ? (
+                  <Text style={styles.meta}>
+                    {`${fr.cert.reference} : ${c.certificate_ref}`}
+                  </Text>
+                ) : null}
+                {c.valid_from || c.valid_to ? (
+                  <Text style={styles.meta}>
+                    {`${shown(fr.cert.validFrom)} : ${frDate(c.valid_from) || "—"} → ${frDate(c.valid_to) || "—"}`}
+                  </Text>
+                ) : null}
+                {c.decision_motif ? <Text style={styles.meta}>{c.decision_motif}</Text> : null}
+                <View style={styles.actionsRow}>
+                  {c.status === "soumis" ? (
+                    <>
+                      <TouchableOpacity
+                        style={[styles.smallBtn, styles.approve]}
+                        disabled={busyId === c.id}
+                        onPress={() => void decide(c, "actif")}
+                        testID={`cert-verify-${c.id}`}
+                      >
+                        <Text style={styles.smallBtnText}>{fr.cert.decide.actif}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.smallBtn, styles.reject]}
+                        disabled={busyId === c.id}
+                        onPress={() => {
+                          setMessage(null);
+                          setPending({ cert: c, action: "rejete" });
+                        }}
+                        testID={`cert-reject-${c.id}`}
+                      >
+                        <Text style={styles.smallBtnText}>{fr.cert.decide.rejete}</Text>
+                      </TouchableOpacity>
+                    </>
+                  ) : null}
+                  {c.status === "actif" ? (
                     <TouchableOpacity
                       style={[styles.smallBtn, styles.reject]}
                       disabled={busyId === c.id}
                       onPress={() => {
                         setMessage(null);
-                        setPending({ cert: c, action: "rejete" });
+                        setPending({ cert: c, action: "suspendu" });
                       }}
-                      testID={`cert-reject-${c.id}`}
+                      testID={`cert-suspend-${c.id}`}
                     >
-                      <Text style={styles.smallBtnText}>{fr.cert.decide.rejete}</Text>
+                      <Text style={styles.smallBtnText}>{fr.cert.decide.suspendu}</Text>
                     </TouchableOpacity>
-                  </>
-                ) : null}
-                {c.status === "actif" ? (
+                  ) : null}
                   <TouchableOpacity
-                    style={[styles.smallBtn, styles.reject]}
-                    disabled={busyId === c.id}
-                    onPress={() => {
-                      setMessage(null);
-                      setPending({ cert: c, action: "suspendu" });
-                    }}
-                    testID={`cert-suspend-${c.id}`}
+                    style={styles.smallBtn}
+                    disabled={exporting}
+                    onPress={() => void exportPdf(c.id)}
+                    testID={`cert-pdf-${c.id}`}
                   >
-                    <Text style={styles.smallBtnText}>{fr.cert.decide.suspendu}</Text>
+                    <Text style={styles.smallBtnText}>{fr.cert.pdf}</Text>
                   </TouchableOpacity>
-                ) : null}
-                <TouchableOpacity
-                  style={styles.smallBtn}
-                  disabled={exporting}
-                  onPress={() => void exportPdf(c.id)}
-                  testID={`cert-pdf-${c.id}`}
-                >
-                  <Text style={styles.smallBtnText}>{fr.cert.pdf}</Text>
-                </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          ))}
+            ))}
+          </CardGrid>
         </ScrollView>
       )}
 
@@ -239,6 +242,7 @@ function MotifModal({
   onClose: () => void;
   onConfirm: (pending: PendingDecision, motif: string) => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [motif, setMotif] = useState("");
@@ -259,9 +263,9 @@ function MotifModal({
   };
 
   return (
-    <Modal visible={!!pending} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={!!pending} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>
             {pending?.action === "suspendu" ? fr.cert.decide.suspendu : fr.cert.decide.rejete}
           </Text>

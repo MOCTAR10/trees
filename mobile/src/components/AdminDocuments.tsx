@@ -19,6 +19,7 @@ import {
   verifyDocument,
 } from "../api/client";
 import { fr } from "../i18n/fr";
+import { CardGrid } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import Badge, { docTone } from "./Badge";
 import { frDate } from "../design/format";
@@ -131,53 +132,55 @@ export default function AdminDocuments() {
         {visible.length === 0 ? (
           <Text style={styles.dim}>{fr.docs.noDocs}</Text>
         ) : (
-          visible.map((doc) => (
-            <View key={doc.id} style={styles.card}>
-              <View style={styles.cardTop}>
-                <Text style={styles.title}>{types[doc.doc_type] ?? doc.doc_type}</Text>
-                <Badge label={fr.docs.status[doc.status] ?? doc.status} tone={docTone(doc.status)} />
+          <CardGrid>
+            {visible.map((doc) => (
+              <View key={doc.id} style={styles.card}>
+                <View style={styles.cardTop}>
+                  <Text style={styles.title}>{types[doc.doc_type] ?? doc.doc_type}</Text>
+                  <Badge label={fr.docs.status[doc.status] ?? doc.status} tone={docTone(doc.status)} />
+                </View>
+                <Text style={styles.meta}>{scopeLabel(doc)}</Text>
+                {doc.reference ? <Text style={styles.meta}>{doc.reference}</Text> : null}
+                {doc.authority ? <Text style={styles.meta}>{doc.authority}</Text> : null}
+                {doc.issued_at || doc.expires_at ? (
+                  <Text style={styles.meta}>
+                    {frDate(doc.issued_at) || "—"} → {frDate(doc.expires_at) || "—"}
+                  </Text>
+                ) : null}
+                {doc.notes ? <Text style={styles.note}>{doc.notes}</Text> : null}
+  
+                {doc.status === "soumis" ? (
+                  <>
+                    <TextInput
+                      style={styles.input}
+                      placeholder={fr.docs.notes}
+                      placeholderTextColor={th.c.muted}
+                      value={notes[doc.id] ?? ""}
+                      onChangeText={(v) => setNotes((prev) => ({ ...prev, [doc.id]: v }))}
+                    />
+                    <View style={styles.actionsRow}>
+                      <TouchableOpacity
+                        style={[styles.action, styles.approve]}
+                        disabled={busyId === doc.id}
+                        onPress={() => void decide(doc, "valide")}
+                        testID={`doc-approve-${doc.id}`}
+                      >
+                        <Text style={styles.actionText}>{fr.docs.approve}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.action, styles.reject]}
+                        disabled={busyId === doc.id}
+                        onPress={() => void decide(doc, "rejete")}
+                        testID={`doc-reject-${doc.id}`}
+                      >
+                        <Text style={styles.actionText}>{fr.docs.reject}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                ) : null}
               </View>
-              <Text style={styles.meta}>{scopeLabel(doc)}</Text>
-              {doc.reference ? <Text style={styles.meta}>{doc.reference}</Text> : null}
-              {doc.authority ? <Text style={styles.meta}>{doc.authority}</Text> : null}
-              {doc.issued_at || doc.expires_at ? (
-                <Text style={styles.meta}>
-                  {frDate(doc.issued_at) || "—"} → {frDate(doc.expires_at) || "—"}
-                </Text>
-              ) : null}
-              {doc.notes ? <Text style={styles.note}>{doc.notes}</Text> : null}
-
-              {doc.status === "soumis" ? (
-                <>
-                  <TextInput
-                    style={styles.input}
-                    placeholder={fr.docs.notes}
-                    placeholderTextColor={th.c.muted}
-                    value={notes[doc.id] ?? ""}
-                    onChangeText={(v) => setNotes((prev) => ({ ...prev, [doc.id]: v }))}
-                  />
-                  <View style={styles.actionsRow}>
-                    <TouchableOpacity
-                      style={[styles.action, styles.approve]}
-                      disabled={busyId === doc.id}
-                      onPress={() => void decide(doc, "valide")}
-                      testID={`doc-approve-${doc.id}`}
-                    >
-                      <Text style={styles.actionText}>{fr.docs.approve}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.action, styles.reject]}
-                      disabled={busyId === doc.id}
-                      onPress={() => void decide(doc, "rejete")}
-                      testID={`doc-reject-${doc.id}`}
-                    >
-                      <Text style={styles.actionText}>{fr.docs.reject}</Text>
-                    </TouchableOpacity>
-                  </View>
-                </>
-              ) : null}
-            </View>
-          ))
+            ))}
+          </CardGrid>
         )}
       </ScrollView>
     </View>

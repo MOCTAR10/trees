@@ -29,6 +29,7 @@ import { fr } from "../i18n/fr";
 import Badge, { taxTone, Tone } from "./Badge";
 import EudrStems from "./EudrStems";
 import { frDate } from "../design/format";
+import { CardGrid, useDialog } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 function agreementTone(status: string): Tone {
@@ -170,35 +171,37 @@ export default function CompanyFiscal() {
             {dues.length === 0 ? (
               <Text style={styles.dim}>{fr.fiscal.noDues}</Text>
             ) : (
-              dues.map((due) => (
-                <View key={due.id} style={styles.card}>
-                  <View style={styles.cardTop}>
-                    <Text style={styles.title}>{`${fr.taxes.type[due.tax_type] ?? due.tax_type} · ${due.period_year}`}</Text>
-                    <Badge label={fr.taxes.status[due.status] ?? due.status} tone={taxTone(due.status)} />
+              <CardGrid>
+                {dues.map((due) => (
+                  <View key={due.id} style={styles.card}>
+                    <View style={styles.cardTop}>
+                      <Text style={styles.title}>{`${fr.taxes.type[due.tax_type] ?? due.tax_type} · ${due.period_year}`}</Text>
+                      <Badge label={fr.taxes.status[due.status] ?? due.status} tone={taxTone(due.status)} />
+                    </View>
+                    <Text style={styles.meta}>{fcfa(due.amount_fcfa)}</Text>
+                    {due.title_ref ? <Text style={styles.meta}>{due.title_ref}</Text> : null}
+                    {due.due_at ? (
+                      <Text style={styles.meta}>{`${fr.fiscal.due} ${frDate(due.due_at)}`}</Text>
+                    ) : null}
+                    {due.status === "en_retard" ? (
+                      <Text style={styles.warn}>{`${fr.fiscal.surcharge} : ${fcfa(due.surcharge_fcfa)}`}</Text>
+                    ) : null}
+                    {due.receipt_ref ? <Text style={styles.meta}>{due.receipt_ref}</Text> : null}
+                    {due.status !== "paye" ? (
+                      <TouchableOpacity
+                        style={styles.smallBtn}
+                        onPress={() => {
+                          setMessage(null);
+                          setSettling(due);
+                        }}
+                        testID={`settle-${due.id}`}
+                      >
+                        <Text style={styles.smallBtnText}>{fr.fiscal.settle}</Text>
+                      </TouchableOpacity>
+                    ) : null}
                   </View>
-                  <Text style={styles.meta}>{fcfa(due.amount_fcfa)}</Text>
-                  {due.title_ref ? <Text style={styles.meta}>{due.title_ref}</Text> : null}
-                  {due.due_at ? (
-                    <Text style={styles.meta}>{`${fr.fiscal.due} ${frDate(due.due_at)}`}</Text>
-                  ) : null}
-                  {due.status === "en_retard" ? (
-                    <Text style={styles.warn}>{`${fr.fiscal.surcharge} : ${fcfa(due.surcharge_fcfa)}`}</Text>
-                  ) : null}
-                  {due.receipt_ref ? <Text style={styles.meta}>{due.receipt_ref}</Text> : null}
-                  {due.status !== "paye" ? (
-                    <TouchableOpacity
-                      style={styles.smallBtn}
-                      onPress={() => {
-                        setMessage(null);
-                        setSettling(due);
-                      }}
-                      testID={`settle-${due.id}`}
-                    >
-                      <Text style={styles.smallBtnText}>{fr.fiscal.settle}</Text>
-                    </TouchableOpacity>
-                  ) : null}
-                </View>
-              ))
+                ))}
+              </CardGrid>
             )}
           </ScrollView>
         )
@@ -231,29 +234,31 @@ export default function CompanyFiscal() {
             {agreements.length === 0 ? (
               <Text style={styles.dim}>{fr.fiscal.noAgreements}</Text>
             ) : (
-              agreements.map((a) => (
-                <View key={a.id} style={styles.card}>
-                  <View style={styles.cardTop}>
-                    <Text style={styles.title}>{a.community_name ?? `#${a.community_org_id}`}</Text>
-                    <Badge
-                      label={fr.fiscal.agreementStatus[a.status] ?? a.status}
-                      tone={agreementTone(a.status)}
-                    />
+              <CardGrid>
+                {agreements.map((a) => (
+                  <View key={a.id} style={styles.card}>
+                    <View style={styles.cardTop}>
+                      <Text style={styles.title}>{a.community_name ?? `#${a.community_org_id}`}</Text>
+                      <Badge
+                        label={fr.fiscal.agreementStatus[a.status] ?? a.status}
+                        tone={agreementTone(a.status)}
+                      />
+                    </View>
+                    <Text style={styles.meta}>
+                      {`${a.title_ref ?? fr.fiscal.title}${a.ccc_ref ? ` · ${a.ccc_ref}` : ""}`}
+                    </Text>
+                    <Text style={styles.meta}>
+                      {`${fr.fiscal.fdlRate} : ${a.fdl_rate_fcfa_m3} · ${a.annual_volume_m3 ?? 0} m³`}
+                    </Text>
+                    <Text style={styles.meta}>
+                      {`${fr.fiscal.contribution} : ${fcfa(a.contribution_fcfa)}`}
+                    </Text>
+                    {a.cgsp_minutes_document_id ? (
+                      <Text style={styles.meta}>{`${fr.fiscal.cgsp} : ${a.cgsp_minutes_document_id}`}</Text>
+                    ) : null}
                   </View>
-                  <Text style={styles.meta}>
-                    {`${a.title_ref ?? fr.fiscal.title}${a.ccc_ref ? ` · ${a.ccc_ref}` : ""}`}
-                  </Text>
-                  <Text style={styles.meta}>
-                    {`${fr.fiscal.fdlRate} : ${a.fdl_rate_fcfa_m3} · ${a.annual_volume_m3 ?? 0} m³`}
-                  </Text>
-                  <Text style={styles.meta}>
-                    {`${fr.fiscal.contribution} : ${fcfa(a.contribution_fcfa)}`}
-                  </Text>
-                  {a.cgsp_minutes_document_id ? (
-                    <Text style={styles.meta}>{`${fr.fiscal.cgsp} : ${a.cgsp_minutes_document_id}`}</Text>
-                  ) : null}
-                </View>
-              ))
+                ))}
+              </CardGrid>
             )}
           </ScrollView>
         )
@@ -282,37 +287,39 @@ export default function CompanyFiscal() {
           {diligence.length === 0 ? (
             <Text style={styles.dim}>{fr.fiscal.noDiligence}</Text>
           ) : (
-            diligence.map((d) => (
-              <View key={d.id} style={styles.card}>
-                <View style={styles.cardTop}>
-                  <Text style={styles.title}>{d.parcel_label}</Text>
-                  <Badge
-                    label={fr.fiscal.eudrStatus[d.status] ?? d.status}
-                    tone={eudrTone(d.status)}
-                  />
+            <CardGrid>
+              {diligence.map((d) => (
+                <View key={d.id} style={styles.card}>
+                  <View style={styles.cardTop}>
+                    <Text style={styles.title}>{d.parcel_label}</Text>
+                    <Badge
+                      label={fr.fiscal.eudrStatus[d.status] ?? d.status}
+                      tone={eudrTone(d.status)}
+                    />
+                  </View>
+                  {d.title_ref ? <Text style={styles.meta}>{d.title_ref}</Text> : null}
+                  <Text style={styles.meta}>
+                    {`${fr.fiscal.felled} : ${d.felled_stem_count} · ${fr.fiscal.geolocated} : ${d.geolocated_stem_count}`}
+                  </Text>
+                  <Text style={styles.meta}>
+                    {`${fr.fiscal.insideParcel} : ${d.inside_parcel_stem_count} · ${fr.fiscal.outsideParcel} : ${d.outside_parcel_stem_count}`}
+                  </Text>
+                  {d.declared_volume_m3 != null ? (
+                    <Text style={styles.meta}>{`${fr.fiscal.declaredVolume} : ${d.declared_volume_m3}`}</Text>
+                  ) : null}
+                  {d.decision_motif ? <Text style={styles.warn}>{d.decision_motif}</Text> : null}
+                  <TouchableOpacity
+                    style={styles.smallBtn}
+                    onPress={() => void exportDiligence(d.id)}
+                    disabled={exporting}
+                    testID={`diligence-pdf-${d.id}`}
+                  >
+                    <Text style={styles.smallBtnText}>{fr.traceability.pdf}</Text>
+                  </TouchableOpacity>
+                  <EudrStems diligenceId={d.id} />
                 </View>
-                {d.title_ref ? <Text style={styles.meta}>{d.title_ref}</Text> : null}
-                <Text style={styles.meta}>
-                  {`${fr.fiscal.felled} : ${d.felled_stem_count} · ${fr.fiscal.geolocated} : ${d.geolocated_stem_count}`}
-                </Text>
-                <Text style={styles.meta}>
-                  {`${fr.fiscal.insideParcel} : ${d.inside_parcel_stem_count} · ${fr.fiscal.outsideParcel} : ${d.outside_parcel_stem_count}`}
-                </Text>
-                {d.declared_volume_m3 != null ? (
-                  <Text style={styles.meta}>{`${fr.fiscal.declaredVolume} : ${d.declared_volume_m3}`}</Text>
-                ) : null}
-                {d.decision_motif ? <Text style={styles.warn}>{d.decision_motif}</Text> : null}
-                <TouchableOpacity
-                  style={styles.smallBtn}
-                  onPress={() => void exportDiligence(d.id)}
-                  disabled={exporting}
-                  testID={`diligence-pdf-${d.id}`}
-                >
-                  <Text style={styles.smallBtnText}>{fr.traceability.pdf}</Text>
-                </TouchableOpacity>
-                <EudrStems diligenceId={d.id} />
-              </View>
-            ))
+              ))}
+            </CardGrid>
           )}
         </ScrollView>
       )}
@@ -359,6 +366,7 @@ function SettleModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const dialog = useDialog();
   const styles = useStyles();
   const theme = useTheme();
   const [amount, setAmount] = useState("");
@@ -400,9 +408,9 @@ function SettleModal({
   };
 
   return (
-    <Modal visible={!!due} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={!!due} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.fiscal.settleTitle}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             <TextInput
@@ -500,6 +508,7 @@ function AgreementModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const dialog = useDialog();
   const styles = useStyles();
   const theme = useTheme();
   const [titleId, setTitleId] = useState<number | null>(null);
@@ -562,9 +571,9 @@ function AgreementModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={visible} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.fiscal.newAgreement}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             <Text style={styles.fieldLabel}>{fr.fiscal.title}</Text>
@@ -658,6 +667,7 @@ function DiligenceModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const dialog = useDialog();
   const styles = useStyles();
   const theme = useTheme();
   const [titleId, setTitleId] = useState<number | null>(null);
@@ -707,9 +717,9 @@ function DiligenceModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={visible} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.fiscal.newDiligence}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             <Text style={styles.fieldLabel}>{fr.fiscal.title}</Text>

@@ -30,6 +30,7 @@ import {
 import { ChevronDown, ChevronRight } from "lucide-react-native";
 
 import { fr } from "../i18n/fr";
+import { CardGrid, useDialog } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import AacAuthorizations from "./AacAuthorizations";
 import TitleConventions from "./TitleConventions";
@@ -211,171 +212,173 @@ export default function AdminTitles() {
         {titles.length === 0 ? (
           <Text style={styles.dim}>{fr.titles.noTitles}</Text>
         ) : (
-          titles.map((title) => (
-            <View key={title.id} style={styles.card}>
-              <TouchableOpacity
-                onPress={() => void toggleTitle(title.id)}
-                testID={`title-${title.id}`}
-              >
-                <View style={styles.cardTop}>
-                  <Text style={styles.cardTitle}>
-                    {`${title.title_type}${title.reference ? ` · ${title.reference}` : ""}`}
-                  </Text>
-                  <Badge
-                    label={fr.titles.status[title.status] ?? title.status}
-                    tone={titleTone(title.status)}
-                  />
-                </View>
-                <Text style={styles.meta}>
-                  {fr.titles.holder} : {orgName(title.holder_org_id)}
-                  {fmtSurface(title.surface_ha) ? ` · ${fmtSurface(title.surface_ha)}` : ""}
-                </Text>
-                {title.decision_motif ? (
-                  <Text style={styles.meta}>{title.decision_motif}</Text>
-                ) : null}
-              </TouchableOpacity>
-
-              {DECISIONS[title.status].length > 0 ? (
-                <View style={styles.decideRow}>
-                  {DECISIONS[title.status].map((decision) => (
-                    <TouchableOpacity
-                      key={decision}
-                      style={[
-                        styles.decide,
-                        decision === "rejete" ? styles.reject : decision === "retire" ? styles.withdraw : styles.approve,
-                      ]}
-                      disabled={busyId === title.id}
-                      onPress={() => onDecision(title, decision)}
-                      testID={`decide-${title.id}-${decision}`}
-                    >
-                      <Text style={[styles.decideText, decision === "retire" && styles.withdrawText]}>
-                        {fr.titles.decide[decision]}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              ) : null}
-              <TouchableOpacity style={styles.toggle} onPress={() => void toggleTitle(title.id)}>
-                {expandedTitle === title.id ? (
-                  <ChevronDown size={16} color={th.c.olive} />
-                ) : (
-                  <ChevronRight size={16} color={th.c.olive} />
-                )}
-                <Text style={styles.toggleText}>
-                  {expandedTitle === title.id ? fr.titles.closeDetail : fr.titles.openDetail}
-                </Text>
-              </TouchableOpacity>
-
-              {expandedTitle === title.id ? (
-                <View style={styles.detail}>
-                  <TitleConventions titleId={title.id} mode="admin" />
-                  <TitleStudies titleId={title.id} mode="admin" />
-                  <View style={styles.sectionRow}>
-                    <Text style={styles.section}>{fr.titles.units}</Text>
-                    <TouchableOpacity
-                      onPress={() => {
-                        setMessage(null);
-                        setAddUnitFor(title.id);
-                      }}
-                      testID={`add-unit-${title.id}`}
-                    >
-                      <Text style={styles.link}>+ {fr.titles.addUnit}</Text>
-                    </TouchableOpacity>
+          <CardGrid>
+            {titles.map((title) => (
+              <View key={title.id} style={styles.card}>
+                <TouchableOpacity
+                  onPress={() => void toggleTitle(title.id)}
+                  testID={`title-${title.id}`}
+                >
+                  <View style={styles.cardTop}>
+                    <Text style={styles.cardTitle}>
+                      {`${title.title_type}${title.reference ? ` · ${title.reference}` : ""}`}
+                    </Text>
+                    <Badge
+                      label={fr.titles.status[title.status] ?? title.status}
+                      tone={titleTone(title.status)}
+                    />
                   </View>
-                  {unitsLoading === title.id ? (
-                    <ActivityIndicator color={th.c.olive} />
-                  ) : (units[title.id] ?? []).length === 0 ? (
-                    <Text style={styles.dim}>{fr.titles.noUnits}</Text>
+                  <Text style={styles.meta}>
+                    {fr.titles.holder} : {orgName(title.holder_org_id)}
+                    {fmtSurface(title.surface_ha) ? ` · ${fmtSurface(title.surface_ha)}` : ""}
+                  </Text>
+                  {title.decision_motif ? (
+                    <Text style={styles.meta}>{title.decision_motif}</Text>
+                  ) : null}
+                </TouchableOpacity>
+  
+                {DECISIONS[title.status].length > 0 ? (
+                  <View style={styles.decideRow}>
+                    {DECISIONS[title.status].map((decision) => (
+                      <TouchableOpacity
+                        key={decision}
+                        style={[
+                          styles.decide,
+                          decision === "rejete" ? styles.reject : decision === "retire" ? styles.withdraw : styles.approve,
+                        ]}
+                        disabled={busyId === title.id}
+                        onPress={() => onDecision(title, decision)}
+                        testID={`decide-${title.id}-${decision}`}
+                      >
+                        <Text style={[styles.decideText, decision === "retire" && styles.withdrawText]}>
+                          {fr.titles.decide[decision]}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ) : null}
+                <TouchableOpacity style={styles.toggle} onPress={() => void toggleTitle(title.id)}>
+                  {expandedTitle === title.id ? (
+                    <ChevronDown size={16} color={th.c.olive} />
                   ) : (
-                    (units[title.id] ?? []).map((unit) => (
-                      <View key={unit.id} style={styles.subCard}>
-                        <TouchableOpacity
-                          onPress={() => void toggleUnit(unit.id)}
-                          testID={`unit-${unit.id}`}
-                        >
-                          <View style={styles.cardTop}>
-                            <Text style={[styles.subTitle, styles.flex1]}>{unit.label}</Text>
-                            {expandedUnit === unit.id ? (
-                              <ChevronDown size={16} color={th.c.olive} />
-                            ) : (
-                              <ChevronRight size={16} color={th.c.olive} />
-                            )}
-                          </View>
-                          <Text style={styles.meta}>
-                            {[fmtSurface(unit.surface_ha), expandedUnit === unit.id ? null : fr.titles.openAacs]
-                              .filter(Boolean)
-                              .join(" · ")}
-                          </Text>
-                        </TouchableOpacity>
-
-                        {expandedUnit === unit.id ? (
-                          <View style={styles.detail}>
-                            <View style={styles.sectionRow}>
-                              <Text style={styles.section}>{fr.titles.aacs}</Text>
-                              <TouchableOpacity
-                                onPress={() => {
-                                  setMessage(null);
-                                  setAddAacFor(unit.id);
-                                }}
-                                testID={`add-aac-${unit.id}`}
-                              >
-                                <Text style={styles.link}>+ {fr.titles.addAac}</Text>
-                              </TouchableOpacity>
-                            </View>
-                            {aacsLoading === unit.id ? (
-                              <ActivityIndicator color={th.c.olive} />
-                            ) : (aacs[unit.id] ?? []).length === 0 ? (
-                              <Text style={styles.dim}>{fr.titles.noAacs}</Text>
-                            ) : (
-                              (aacs[unit.id] ?? []).map((aac) => (
-                                <View key={aac.id} style={styles.aacCard}>
-                                  <View style={styles.cardTop}>
-                                    <Text style={styles.aacTitle}>{aac.label}</Text>
-                                    <Badge
-                                      label={fr.titles.aacStatus[aac.status] ?? aac.status}
-                                      tone={aacTone(aac.status)}
-                                    />
-                                  </View>
-                                  <Text style={styles.meta}>
-                                    {fr.titles.campaign} {aac.campaign_year ?? "—"}
-                                    {aac.possibility_m3 != null
-                                      ? ` · ${fr.titles.possibility} ${aac.possibility_m3} ${fr.titles.m3}`
-                                      : ""}
-                                  </Text>
-                                  {aacActions(aac.status).length > 0 ? (
-                                    <View style={styles.decideRow}>
-                                      {aacActions(aac.status).map((action) => (
-                                        <TouchableOpacity
-                                          key={action}
-                                          style={[
-                                            styles.decide,
-                                            action === "rejeter" ? styles.reject : styles.approve,
-                                          ]}
-                                          disabled={busyId === aac.id}
-                                          onPress={() => void runAacAction(aac, action)}
-                                          testID={`aac-${aac.id}-${action}`}
-                                        >
-                                          <Text style={styles.decideText}>
-                                            {fr.titles.adminAac[action]}
-                                          </Text>
-                                        </TouchableOpacity>
-                                      ))}
-                                    </View>
-                                  ) : null}
-                                  <AacAuthorizations aacId={aac.id} mode="admin" />
-                                </View>
-                              ))
-                            )}
-                            <UfaDme ufaId={unit.id} mode="admin" />
-                          </View>
-                        ) : null}
-                      </View>
-                    ))
+                    <ChevronRight size={16} color={th.c.olive} />
                   )}
-                </View>
-              ) : null}
-            </View>
-          ))
+                  <Text style={styles.toggleText}>
+                    {expandedTitle === title.id ? fr.titles.closeDetail : fr.titles.openDetail}
+                  </Text>
+                </TouchableOpacity>
+  
+                {expandedTitle === title.id ? (
+                  <View style={styles.detail}>
+                    <TitleConventions titleId={title.id} mode="admin" />
+                    <TitleStudies titleId={title.id} mode="admin" />
+                    <View style={styles.sectionRow}>
+                      <Text style={styles.section}>{fr.titles.units}</Text>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setMessage(null);
+                          setAddUnitFor(title.id);
+                        }}
+                        testID={`add-unit-${title.id}`}
+                      >
+                        <Text style={styles.link}>+ {fr.titles.addUnit}</Text>
+                      </TouchableOpacity>
+                    </View>
+                    {unitsLoading === title.id ? (
+                      <ActivityIndicator color={th.c.olive} />
+                    ) : (units[title.id] ?? []).length === 0 ? (
+                      <Text style={styles.dim}>{fr.titles.noUnits}</Text>
+                    ) : (
+                      (units[title.id] ?? []).map((unit) => (
+                        <View key={unit.id} style={styles.subCard}>
+                          <TouchableOpacity
+                            onPress={() => void toggleUnit(unit.id)}
+                            testID={`unit-${unit.id}`}
+                          >
+                            <View style={styles.cardTop}>
+                              <Text style={[styles.subTitle, styles.flex1]}>{unit.label}</Text>
+                              {expandedUnit === unit.id ? (
+                                <ChevronDown size={16} color={th.c.olive} />
+                              ) : (
+                                <ChevronRight size={16} color={th.c.olive} />
+                              )}
+                            </View>
+                            <Text style={styles.meta}>
+                              {[fmtSurface(unit.surface_ha), expandedUnit === unit.id ? null : fr.titles.openAacs]
+                                .filter(Boolean)
+                                .join(" · ")}
+                            </Text>
+                          </TouchableOpacity>
+  
+                          {expandedUnit === unit.id ? (
+                            <View style={styles.detail}>
+                              <View style={styles.sectionRow}>
+                                <Text style={styles.section}>{fr.titles.aacs}</Text>
+                                <TouchableOpacity
+                                  onPress={() => {
+                                    setMessage(null);
+                                    setAddAacFor(unit.id);
+                                  }}
+                                  testID={`add-aac-${unit.id}`}
+                                >
+                                  <Text style={styles.link}>+ {fr.titles.addAac}</Text>
+                                </TouchableOpacity>
+                              </View>
+                              {aacsLoading === unit.id ? (
+                                <ActivityIndicator color={th.c.olive} />
+                              ) : (aacs[unit.id] ?? []).length === 0 ? (
+                                <Text style={styles.dim}>{fr.titles.noAacs}</Text>
+                              ) : (
+                                (aacs[unit.id] ?? []).map((aac) => (
+                                  <View key={aac.id} style={styles.aacCard}>
+                                    <View style={styles.cardTop}>
+                                      <Text style={styles.aacTitle}>{aac.label}</Text>
+                                      <Badge
+                                        label={fr.titles.aacStatus[aac.status] ?? aac.status}
+                                        tone={aacTone(aac.status)}
+                                      />
+                                    </View>
+                                    <Text style={styles.meta}>
+                                      {fr.titles.campaign} {aac.campaign_year ?? "—"}
+                                      {aac.possibility_m3 != null
+                                        ? ` · ${fr.titles.possibility} ${aac.possibility_m3} ${fr.titles.m3}`
+                                        : ""}
+                                    </Text>
+                                    {aacActions(aac.status).length > 0 ? (
+                                      <View style={styles.decideRow}>
+                                        {aacActions(aac.status).map((action) => (
+                                          <TouchableOpacity
+                                            key={action}
+                                            style={[
+                                              styles.decide,
+                                              action === "rejeter" ? styles.reject : styles.approve,
+                                            ]}
+                                            disabled={busyId === aac.id}
+                                            onPress={() => void runAacAction(aac, action)}
+                                            testID={`aac-${aac.id}-${action}`}
+                                          >
+                                            <Text style={styles.decideText}>
+                                              {fr.titles.adminAac[action]}
+                                            </Text>
+                                          </TouchableOpacity>
+                                        ))}
+                                      </View>
+                                    ) : null}
+                                    <AacAuthorizations aacId={aac.id} mode="admin" />
+                                  </View>
+                                ))
+                              )}
+                              <UfaDme ufaId={unit.id} mode="admin" />
+                            </View>
+                          ) : null}
+                        </View>
+                      ))
+                    )}
+                  </View>
+                ) : null}
+              </View>
+            ))}
+          </CardGrid>
         )}
       </ScrollView>
 
@@ -420,6 +423,7 @@ function AddUnitModal({
   onClose: () => void;
   onSaved: (titleId: number) => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [label, setLabel] = useState("");
@@ -460,9 +464,9 @@ function AddUnitModal({
   };
 
   return (
-    <Modal visible={titleId != null} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={titleId != null} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.titles.addUnit}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             <TextInput
@@ -521,6 +525,7 @@ function AddAacModal({
   onClose: () => void;
   onSaved: (ufaId: number) => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [label, setLabel] = useState("");
@@ -566,9 +571,9 @@ function AddAacModal({
   };
 
   return (
-    <Modal visible={ufaId != null} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={ufaId != null} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.titles.addAac}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             <TextInput
@@ -636,6 +641,7 @@ function MotifModal({
   onClose: () => void;
   onConfirm: (title: ForestTitle, decision: TitleDecision, motif: string) => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [motif, setMotif] = useState("");
@@ -656,9 +662,9 @@ function MotifModal({
   };
 
   return (
-    <Modal visible={!!target} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={!!target} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.titles.motif}</Text>
           <TextInput
             style={styles.input}

@@ -22,6 +22,8 @@ import {
   setUserActive,
 } from "../api/client";
 import { fr } from "../i18n/fr";
+import { DataTable, useDesktop, useDialog } from "../design/layout";
+import { Txt } from "../design/ui";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 
 const ROLES: Role[] = ["operator", "company", "cooperative", "admin"];
@@ -31,6 +33,7 @@ const roleLabel = (role: Role) => fr.roles[role];
 export default function AdminUsers() {
   const th = useTheme();
   const styles = useStyles();
+  const desktop = useDesktop();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [coops, setCoops] = useState<Cooperation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -77,6 +80,71 @@ export default function AdminUsers() {
 
       {loading ? (
         <ActivityIndicator style={styles.center} color={th.c.olive} />
+      ) : desktop ? (
+        <ScrollView contentContainerStyle={styles.list}>
+          <DataTable
+            testID="users-table"
+            rows={users}
+            rowKey={(u) => String(u.id)}
+            initialSort={{ key: "name" }}
+            columns={[
+              {
+                key: "name",
+                title: fr.admin.colName,
+                flex: 2,
+                sortValue: (u) => u.display_name,
+                render: (u) => (
+                  <Txt variant="small" bold numberOfLines={1}>
+                    {u.display_name}
+                  </Txt>
+                ),
+              },
+              {
+                key: "email",
+                title: fr.admin.colEmail,
+                flex: 2.4,
+                sortValue: (u) => u.email,
+                render: (u) => (
+                  <Txt variant="small" tone="muted" numberOfLines={1}>
+                    {u.email}
+                  </Txt>
+                ),
+              },
+              {
+                key: "matricule",
+                title: fr.admin.colMatricule,
+                width: 140,
+                sortValue: (u) => u.matricule,
+                render: (u) => <Txt variant="small">{u.matricule ?? "—"}</Txt>,
+              },
+              {
+                key: "role",
+                title: fr.admin.colRole,
+                width: 170,
+                sortValue: (u) => roleLabel(u.role),
+                render: (u) => <Txt variant="small">{roleLabel(u.role)}</Txt>,
+              },
+              {
+                key: "active",
+                title: fr.admin.colActive,
+                width: 150,
+                sortValue: (u) => (u.is_active ? 0 : 1),
+                render: (u) => (
+                  <View style={styles.tableSwitch}>
+                    <Switch
+                      value={u.is_active}
+                      onValueChange={(v) => toggle(u, v)}
+                      trackColor={{ true: th.c.olive, false: th.c.line }}
+                    />
+                    <Txt variant="caption" tone="muted">
+                      {u.is_active ? fr.admin.active : fr.admin.inactive}
+                    </Txt>
+                  </View>
+                ),
+              },
+            ]}
+          />
+        </ScrollView>
       ) : (
         <FlatList
           data={users}
@@ -131,6 +199,7 @@ function CreateUserModal({
   onClose: () => void;
   onCreated: () => void;
 }) {
+  const dialog = useDialog();
   const th = useTheme();
   const styles = useStyles();
   const [email, setEmail] = useState("");
@@ -191,9 +260,9 @@ function CreateUserModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.modal}>
+    <Modal visible={visible} transparent animationType={dialog.animation} onRequestClose={onClose}>
+      <View style={[styles.backdrop, dialog.backdrop]}>
+        <View style={[styles.modal, dialog.sheet]}>
           <Text style={styles.modalTitle}>{fr.admin.newUser}</Text>
           <ScrollView contentContainerStyle={styles.form}>
             {role === "operator" ? (
@@ -327,6 +396,7 @@ const useStyles = makeStyles((th) => ({
   },
   newBtnText: { color: th.c.onOlive, fontSize: 15, fontFamily: th.fonts.bodyBold },
   error: { color: th.c.risk, fontSize: 12, fontFamily: th.fonts.body, paddingHorizontal: th.space.lg },
+  tableSwitch: { flexDirection: "row", alignItems: "center", gap: th.space.sm },
   list: { paddingHorizontal: th.space.lg, paddingBottom: th.space.xl, gap: th.space.sm },
   card: {
     backgroundColor: th.c.surface,
