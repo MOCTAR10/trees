@@ -453,6 +453,22 @@ Extensions **additives** sur l'existant :
     casse / accents / préfixe ignorés), `numero_arbre` (facultatif, unique dans l'AAC), `essence`, `latitude`, `longitude`,
     `diametre_cm`, `a_abattre` (`oui` / `non`), + `observations` ; le code registre est **toujours attribué** (`GA-I<import>-<n>`) ;
     migration `033_inventory_simple.sql` (valeur `preserver`). Modèle `proposition-2026-10-b`.
+32. ✅ **Slice 32 — Application web : une vraie mise en page de bureau** (aucune migration, aucun changement serveur) : sur le web
+    en fenêtre large (≥ 1 024 px), les écrans ne sont plus la colonne du téléphone étirée. **Système de design** : `design/layout.tsx`
+    — `CardGrid` (cartes en 2 à 3 colonnes selon la largeur mesurée, en maçonnerie), `SplitPane` (contenu + volet latéral),
+    `DataTable` (en-têtes triables, survol, ligne cliquable), `useDialog` (les feuilles du bas s'ouvrent en **boîte de dialogue centrée**) ;
+    `design/charts.tsx` — **anneau** (part de chaque statut, total au centre, légende) et **histogramme** dessinés avec
+    `react-native-svg`, déjà dans l'application : pas de nouveau module natif, donc **ni nouvel APK ni nouveau `runtimeVersion`**
+    (`react-native-gifted-charts` exigeait `expo-linear-gradient`, natif) ; boutons à la taille du bureau avec survol. **Ministère** :
+    À traiter et Organisations en **tableaux triables** (ancienneté, organisation, province, compétence, état), Comptes en tableau
+    (activation dans la ligne), tableau de bord avec alertes en grille et graphiques (volume par essence, grumes par étape, titres / AAC /
+    pièces par statut, carbone par AAC), **page de décision** avec le volet « Décision » (motif, Rejeter / Autoriser) à droite du dossier,
+    fiche organisation en deux colonnes, domaines (Titres & AAC, Déclarations, Pièces, Études, Certifications, Fiscalité, Traçabilité,
+    Anomalies) en grille de cartes. **Entreprise** : Accueil en deux colonnes (À faire + Décisions reçues | Anomalies + Contrôles),
+    déclarations, pièces, titres, certifications, fiscalité et traçabilité en grille. **Téléphone et fenêtre étroite : inchangés** (chaque
+    composant rend sa colonne unique d'avant ; graphiques identiques). Vérifié dans Chrome (1 440 px et 390 px). Tests :
+    `ResponsiveLayout` (**9** : grille, volet, tri, dialogue, graphiques, À traiter / Organisations / Décision en mode bureau) ;
+    `jest` **251 / 68 suites** · `tsc` OK.
 
 ---
 

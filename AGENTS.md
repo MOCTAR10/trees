@@ -44,14 +44,14 @@ only (`mobile/src/i18n/fr.ts`). There is **no navigation library**: `App.tsx`
 routes with a `phase` state machine plus role checks; screens are mounted from
 per-role containers (`CompanyScreen`, `AdminScreen`, …) that expose tabs.
 
-## 2. Where we are (as of Slice 31)
+## 2. Where we are (as of Slice 32)
 
 The product is built as **vertical slices**: each slice ships a DB migration, the
 backend, optionally an operational CLI under `tools/`, the mobile UI, and the
 doc update — as separate logical commits. The full history lives in
 `docs/GABON_WORKFLOW_ANALYSIS.md` **§9**.
 
-**Slices 1–31 are DONE, on `main` and deployed (CI green, including the workflow job).** Migration `031_species_memory.sql`
+**Slices 1–32 are DONE, on `main` and deployed (CI green, including the workflow job).** Migration `031_species_memory.sql`
 (GBIF answers cached by area, identified species learned) shipped between Slices 29 and 30 without a slice number. GFW is live (key in `.env`, valid 1 year; Gabon layers imported into `gfw_features`).
 
 | # | Domaine | Migration | Backend | Mobile | Docs §9 |
@@ -87,9 +87,10 @@ doc update — as separate logical commits. The full history lives in
 | 29 | Mises à jour OTA signées et auto-hébergées, appliquées par l'utilisateur (badge), icône du sceau | — | `/updates/manifest`, `/updates/assets` (`app/api/updates.py`, hors `/api`) | `utils/useAppUpdate.ts`, `RoleHeader` (badge), `app.json` (`updates`, `runtimeVersion`, icônes), `certs/certificate.pem` | pt 29 |
 | 30 | Cohérence exploitation ↔ conformité : déclaration guidée par le titre de l'AAC, marquage par pied (QR scanné, n° peint, GPS), porte art. 14 étendue (AAC fermée, titre sans droit) et rejouée à l'abattage, pièces échues lues `expire`, quittance ⇒ échéance réglée ; barre supérieure et menu latéral web | — | `services/compliance.py` (`GATE_LABELS`, `DOC_STATUS_SQL`), `POST /api/felling/declarations`, `POST /api/felling/events`, `/api/taxes` | `DeclareScreen`, `web/DesktopFrame` (`useDesktopTopTabs`), `CompanyNav`, `CompanyScreen` | pt 30 |
 | 31 | Inventaire d'exploitation importé d'un tableur (Excel / CSV) : modèle de 7 colonnes essentielles (référence d'AAC du plan d'aménagement, numéro, essence, position, diamètre, à abattre oui/non), aperçu ligne par ligne, import tout ou rien, arbres à préserver jamais déclarables, plaques du lot, historique sur la fiche organisation | `032_slice31.sql`, `033_inventory_simple.sql` | `core/inventory_model.py`, `services/inventory_import.py`, `/api/inventory/*`, `compliance.inventory_gate`, `kept_tree` | `InventoryImportScreen`, `CompanyScreen`, `CompanyTitles`, `DeclareScreen`, `ministry/OrganisationScreen` | pt 31 |
+| 32 | Application web en mise en page de bureau : grilles de cartes, tableaux triables, volet latéral, dialogues centrés, graphiques SVG ; téléphone inchangé | — | — | `design/layout.tsx` (`CardGrid`, `SplitPane`, `DataTable`, `useDialog`), `design/charts.tsx` (`Donut`, `ColumnChart`), `InboxScreen`, `OrganisationsScreen`, `DecisionScreen`, `OrganisationScreen`, `CompanyHomeScreen`, `AdminUsers`, domaines | pt 32 |
 
-Latest verified suite counts (Slice 31, 19 Oct 2026): **`pytest tests` 571** (570 passed locally + `test_capabilities_reflect_settings`,
-which needs ≥ 3 GB for the API container and fails on a smaller Docker host) · **`jest` 242 / 67 suites** · `ruff` and `tsc` clean ·
+Latest verified suite counts (Slice 32, 20 Oct 2026): **`pytest tests` 571** (570 passed locally + `test_capabilities_reflect_settings`,
+which needs ≥ 3 GB for the API container and fails on a smaller Docker host) · **`jest` 251 / 68 suites** · `ruff` and `tsc` clean ·
 `tests_e2e`, role coverage (100 %) and the pilot story are gated by CI (workflow and Régression jobs).
 
 ### What is left (next candidates)
@@ -302,7 +303,7 @@ re-render it when the deck changes.
   « Glossaire & sigles » screen (`GlossaryScreen`, data in `src/data/glossary.ts`) opens from the
   profile for every role. The map pins chantiers and open projects (`/api/projects`, AAC centroid
   as fallback position). Header rank stripes: Ministry 2, company/cooperative 1,
-  field agent 0. Reference mockups: `docs/design/maquette_design_v1.html`
+  field agent 0. **Desktop web (Slice 32)**: a new list or sheet uses `design/layout.tsx` — `CardGrid` for card lists, `DataTable` for tabular lists (desktop only; keep the phone rendering beside it), `SplitPane` for a side panel, `useDialog()` on every bottom-sheet `Modal` — and charts come from `design/charts.tsx` (react-native-svg; no chart library needing a native module, which would force a new APK). Each primitive renders the old single column on phones, so phone tests stay valid; desktop paths are tested by mocking `useDesktop` (`__tests__/ResponsiveLayout.test.tsx`). Reference mockups: `docs/design/maquette_design_v1.html`
   (operator) and `docs/design/maquette_admin_v2.html` (Ministry). 
 - **Ministry space** (`mobile/src/screens/ministry/`): bottom bar Tableau de bord ·
   À traiter · Carte · Organisations · Menu (`ADMIN_TABS`). Every pending file shows
