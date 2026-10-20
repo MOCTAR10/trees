@@ -1,23 +1,32 @@
 import { Factory, FileBadge, MapPin, UserPlus } from "lucide-react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Modal, Pressable, ScrollView, TextInput, View } from "react-native";
 
 import {
+  addOrgMember,
+  CoopCandidate,
+  CoopMembersBlock,
+  CoopMembership,
   createOrganisationAccount,
+  getOrganisationDirectory,
   getOrganisationSheet,
   getProvinces,
   OrganisationSheetFull,
   ProvinceSummary,
   registerTitle,
   setTitleProvince,
+  updateOrgMember,
 } from "../../api/client";
 import MillRegister from "../../components/MillRegister";
-import { CardGrid, useDialog } from "../../design/layout";
+import { CardGrid, DataTable, useDesktop, useDialog } from "../../design/layout";
 import { makeStyles, useTheme } from "../../design/ThemeProvider";
 import { Button, Card, Divider, EmptyState, KeyValue, Pill, ScreenHeader, Txt } from "../../design/ui";
 import { frDate } from "../../design/format";
 import { fr } from "../../i18n/fr";
 import { exportInventoryPlatesPdf, sharePdf } from "../../pdf";
+import { aggregateAlerts, m3, MEMBERSHIP_TONE } from "../cooperative/aggregate";
+import { MemberCard } from "../cooperative/CoopMembers";
+import { AddMemberDialog, MemberStatusDialog, StatusTarget } from "../cooperative/MemberDialogs";
 
 const t = fr.ministry;
 const TITLE_TYPES = ["CFAD", "PFA", "PGG", "FC"] as const;
@@ -109,6 +118,17 @@ export default function OrganisationScreen({ id, onBack }: Props) {
           <Kpi value={String(data.accounts.length)} label={fr.ministry.sheetAccounts} />
         </View>
 
+        {data.memberships.some((m) => m.status !== "sortie") ? (
+          <Txt variant="small" tone="olive" testID="org-member-of">
+            {fr.coop.sheetMemberOf(
+              data.memberships
+                .filter((m) => m.status !== "sortie")
+                .map((m) => (m.status === "active" ? m.cooperative_name : `${m.cooperative_name} (${fr.coop.status[m.status]})`))
+                .join(", "),
+            )}
+          </Txt>
+        ) : null}
+
         <View style={s.actions}>
           <Button
             testID="org-register-title"
@@ -128,6 +148,8 @@ export default function OrganisationScreen({ id, onBack }: Props) {
             style={s.flex}
           />
         </View>
+
+        {data.cooperative ? <CoopMembersCard orgId={id} block={data.cooperative} onChanged={() => void load()} /> : null}
 
         <CardGrid gap={theme.space.md} minColumnWidth={420} maxColumns={2} testID="org-sheet-grid">
           <Card style={s.compact}>
@@ -285,6 +307,184 @@ export default function OrganisationScreen({ id, onBack }: Props) {
         onDone={() => void load()}
       />
     </View>
+  );
+}
+
+const MEMBER_TYPES = ["entreprise", "communaute"];
+
+/** A cooperative's members on its sheet: totals of the active members, add or end a membership. */
+function CoopMembersCard({ orgId, block, onChanged }: { orgId: number; block: CoopMembersBlock; onChanged: () => void }) {
+  const theme = useTheme();
+  const s = useStyles();
+  const desktop = useDesktop();
+  const [adding, setAdding] = useState(false);
+  const [target, setTarget] = useState<StatusTarget | null>(null);
+  const [notice, setNotice] = useState<{ tone: "ok" | "risk"; text: string } | null>(null);
+  const directory = useRef<CoopCandidate[] | null>(null);
+  const c = fr.coop;
+  const totals = block.totals;
+
+  const search = async (q: string): Promise<CoopCandidate[]> => {
+    if (!directory.current) {
+      const rows = await getOrganisationDirectory();
+      directory.current = rows
+        .filter((o) => MEMBER_TYPES.includes(o.org_type) && o.is_active)
+        .map((o) => ({ id: o.id, name: o.name, org_type: o.org_type, provinces: o.provinces }));
+    }
+    const current = new Set(block.members.filter((m) => m.status !== "sortie").map((m) => m.member_org_id));
+    const needle = q.trim().toLowerCase();
+    return directory.current.filter((o) => !current.has(o.id) && (!needle || o.name.toLowerCase().includes(needle))).slice(0, 25);
+  };
+
+  const reactivate = async (m: CoopMembership) => {
+    setNotice(null);
+    try {
+      await updateOrgMember(orgId, m.id, { status: "active" });
+      setNotice({ tone: "ok", text: c.updated });
+      onChanged();
+    } catch (err) {
+      setNotice({ tone: "risk", text: err instanceof Error && err.message ? err.message : c.saveError });
+    }
+  };
+
+  const actions = (m: CoopMembership) => (
+    <View style={s.chips}>
+      {m.status === "active" ? (
+        <Button compact variant="ghost" label={c.suspend} onPress={() => setTarget({ membership: m, status: "suspendue" })} testID={`member-suspend-${m.id}`} />
+      ) : null}
+      {m.status === "suspendue" ? (
+        <Button compact variant="ghost" label={c.reactivate} onPress={() => void reactivate(m)} testID={`member-reactivate-${m.id}`} />
+      ) : null}
+      {m.status !== "sortie" ? (
+        <Button compact variant="ghost" label={c.leave} onPress={() => setTarget({ membership: m, status: "sortie" })} testID={`member-leave-${m.id}`} />
+      ) : null}
+    </View>
+  );
+
+  return (
+    <Card style={s.compact} testID="org-coop-members">
+      <View style={s.row}>
+        <Txt variant="label" tone="muted" style={s.flex}>
+          {c.sheetMembersTitle}
+        </Txt>
+        <Button
+          compact
+          label={c.addMember}
+          onPress={() => {
+            setNotice(null);
+            setAdding(true);
+          }}
+          icon={<UserPlus size={16} color={theme.c.onOlive} />}
+          testID="org-add-member"
+        />
+      </View>
+      <Txt variant="caption" tone="muted">
+        {`${c.counts(block.counts.active, block.counts.suspendue, block.counts.sortie)} · ${block.members_note}`}
+      </Txt>
+      <Txt variant="small" bold testID="org-coop-totals">
+        {`${c.total} : ${totals.titles.total} ${c.titles.toLowerCase()} · ${totals.aac.total} ${c.aac} · ${c.felled} ${m3(totals.volumes.felled_m3)} ${c.m3} · ${totals.logs.total} ${c.colLogs.toLowerCase()}`}
+      </Txt>
+      {notice ? (
+        <Txt variant="small" tone={notice.tone}>
+          {notice.text}
+        </Txt>
+      ) : null}
+      {block.members.length === 0 ? <Txt tone="muted">{c.membersEmpty}</Txt> : null}
+      {block.members.length > 0 && desktop ? (
+        <DataTable
+          testID="org-coop-table"
+          rows={block.members}
+          rowKey={(m) => String(m.id)}
+          rowTestID={(m) => `org-coop-row-${m.id}`}
+          columns={[
+            {
+              key: "name",
+              title: c.colMember,
+              flex: 2,
+              sortValue: (m) => m.member_name,
+              render: (m) => (
+                <View>
+                  <Txt variant="small" bold>
+                    {m.member_name}
+                  </Txt>
+                  <Txt variant="caption" tone="muted">
+                    {`${fr.org.type[m.member_org_type] ?? m.member_org_type} · ${c.joinedOn(frDate(m.joined_on))}`}
+                  </Txt>
+                </View>
+              ),
+            },
+            {
+              key: "status",
+              title: c.colStatus,
+              width: 120,
+              sortValue: (m) => m.status,
+              render: (m) => <Pill tone={MEMBERSHIP_TONE[m.status]} label={c.status[m.status] ?? m.status} />,
+            },
+            {
+              key: "titles",
+              title: c.colTitles,
+              width: 70,
+              align: "right",
+              sortValue: (m) => m.aggregate?.titles.total,
+              render: (m) => <Txt numeric>{m.aggregate ? String(m.aggregate.titles.total) : "—"}</Txt>,
+            },
+            {
+              key: "felled",
+              title: c.colFelled,
+              width: 100,
+              align: "right",
+              sortValue: (m) => m.aggregate?.volumes.felled_m3,
+              render: (m) => <Txt numeric>{m.aggregate ? m3(m.aggregate.volumes.felled_m3) : "—"}</Txt>,
+            },
+            {
+              key: "logs",
+              title: c.colLogs,
+              width: 80,
+              align: "right",
+              sortValue: (m) => m.aggregate?.logs.total,
+              render: (m) => <Txt numeric>{m.aggregate ? String(m.aggregate.logs.total) : "—"}</Txt>,
+            },
+            {
+              key: "alerts",
+              title: c.colAlerts,
+              flex: 2,
+              render: (m) => {
+                const alerts = aggregateAlerts(m.aggregate);
+                return (
+                  <Txt variant="caption" tone={alerts.length ? "warn" : "muted"}>
+                    {alerts.map((a) => a.text).join(" · ") || (m.status_reason ? c.reasonLine(m.status_reason) : "—")}
+                  </Txt>
+                );
+              },
+            },
+            { key: "actions", title: "", flex: 2, render: actions },
+          ]}
+        />
+      ) : null}
+      {block.members.length > 0 && !desktop
+        ? block.members.map((m) => <MemberCard key={m.id} member={m} onStatus={setTarget} onReactivate={(x) => void reactivate(x)} />)
+        : null}
+
+      <AddMemberDialog
+        visible={adding}
+        search={search}
+        onAdd={(input) => addOrgMember(orgId, input)}
+        onClose={() => setAdding(false)}
+        onDone={(added) => {
+          setNotice({ tone: "ok", text: c.added(added.member_name) });
+          onChanged();
+        }}
+      />
+      <MemberStatusDialog
+        target={target}
+        onSubmit={(m, change) => updateOrgMember(orgId, m.id, change)}
+        onClose={() => setTarget(null)}
+        onDone={() => {
+          setNotice({ tone: "ok", text: c.updated });
+          onChanged();
+        }}
+      />
+    </Card>
   );
 }
 

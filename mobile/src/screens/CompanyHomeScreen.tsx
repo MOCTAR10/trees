@@ -129,6 +129,21 @@ export default function CompanyHomeScreen({ onOpen }: Props) {
       testID="company-home"
     >
       <Txt variant="title">{data.organization.name}</Txt>
+      {data.cooperatives?.some((c) => c.status !== "sortie") ? (
+        <View testID="company-member-of">
+          <Txt variant="small" tone="olive">
+            {fr.coop.companyMemberOf(
+              data.cooperatives
+                .filter((c) => c.status !== "sortie")
+                .map((c) => (c.status === "active" ? c.cooperative_name : `${c.cooperative_name} (${fr.coop.status[c.status]})`))
+                .join(", "),
+            )}
+          </Txt>
+          <Txt variant="caption" tone="muted">
+            {fr.coop.companyMemberNote}
+          </Txt>
+        </View>
+      ) : null}
 
       <SplitPane
         testID="company-home-layout"

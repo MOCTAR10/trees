@@ -13,6 +13,7 @@ jest.mock("../src/api/client", () => ({
   })),
   getCompanySpace: jest.fn(async () => ({
     organization: { id: 10, name: "Société Forestière Démo", org_type: "entreprise", profile_code: "integre" },
+    cooperatives: [{ id: 4, cooperative_org_id: 13, cooperative_name: "Coop Demo", status: "active", joined_on: "2026-09-01", left_on: null }],
     todo: [
       { kind: "document", level: "risk", label: "Agrément professionnel : manquant", target: "documents" },
       { kind: "to_fell", level: "info", label: "1 arbre(s) autorisé(s) à abattre", target: "grumes", count: 1 },
@@ -79,6 +80,7 @@ describe("Company space and authority compass", () => {
     const view = render(<CompanyHomeScreen onOpen={onOpen} />);
     await flush();
     expect(view.getByText("Société Forestière Démo")).toBeTruthy();
+    expect(view.getByTestId("company-member-of")).toHaveTextContent(/Membre de la coopérative Coop Demo/);
     fireEvent.press(view.getByTestId("todo-to_fell-1"));
     expect(onOpen).toHaveBeenCalledWith("grumes");
     expect(view.getByTestId("decision-declarations-41")).toHaveTextContent(/Motif : Tiges sous le DME/);

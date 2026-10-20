@@ -46,6 +46,11 @@ jest.mock("../src/api/client", () => ({
       { id: 3, organization_id: 10, organization_name: "Société Forestière Démo", aac_id: 29, aac_label: "AAC 2026-2", title_id: 5, title_reference: "CFAD-01", imported_by: 14, imported_by_name: "SFD", imported_by_email: "co@x", file_name: "inventaire_AAC.csv", file_format: "csv", model_version: "proposition-2026-10", rows_total: 6, stems_created: 6, to_fell_count: 3, kept_count: 3, warnings_count: 0, created_at: "2026-10-18T09:00:00Z" },
     ],
     warnings: [{ kind: "tax", tax_type: "superficie", period_year: 2026 }],
+    cooperative: null,
+    memberships: [
+      { id: 7, cooperative_org_id: 13, cooperative_name: "Coop Demo", status: "active", joined_on: "2026-09-01", left_on: null },
+      { id: 8, cooperative_org_id: 14, cooperative_name: "Coop Ancienne", status: "sortie", joined_on: "2025-01-01", left_on: "2026-01-01" },
+    ],
   })),
   registerTitle: jest.fn(async () => ({ id: 6, status: "actif", province_code: "GA-7" })),
   createOrganisationAccount: jest.fn(async () => ({ id: 30, email: "agent@x", display_name: "Nzé Obiang" })),
@@ -174,6 +179,8 @@ describe("Ministry space", () => {
     await flush();
     expect(view.getByTestId("org-title-5")).toHaveTextContent(/Ogooué-Ivindo \(déduite de la géométrie\)/);
     expect(view.getByTestId("org-compliance")).toHaveTextContent(/Taxe superficie 2026 en retard/);
+    expect(view.getByTestId("org-member-of")).toHaveTextContent("Membre de : Coop Demo");
+    expect(view.queryByTestId("org-coop-members")).toBeNull();
     expect(view.getByTestId("org-inventory-import-3")).toHaveTextContent(/inventaire_AAC\.csv · 18\/10\/2026/);
     expect(view.getByTestId("org-inventory-import-3")).toHaveTextContent(/AAC 2026-2 · 6 tiges dont 3 à préserver/);
 

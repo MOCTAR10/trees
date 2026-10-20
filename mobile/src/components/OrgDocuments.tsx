@@ -133,7 +133,7 @@ export default function OrgDocuments() {
   );
 }
 
-function DocumentModal({
+export function DocumentModal({
   item,
   orgId,
   onClose,

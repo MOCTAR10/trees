@@ -3125,6 +3125,10 @@ export interface OrganisationSheetFull {
   certifications: { id: number; scheme: string; cert_type: string; status: string; valid_to: string | null }[];
   inventoryImports: InventoryImportRecord[];
   warnings: { kind: string; doc_type?: string; status?: string; tax_type?: string; period_year?: number; label?: string }[];
+  /** Members and aggregated volumes when the organisation is a cooperative. */
+  cooperative: CoopMembersBlock | null;
+  /** Cooperatives the organisation belongs (or belonged) to. */
+  memberships: MembershipRef[];
 }
 
 async function getLabeled<T>(path: string, label: string): Promise<T> {
@@ -3180,9 +3184,11 @@ export async function getOrganisationSheet(id: number): Promise<OrganisationShee
       certifications: OrganisationSheetFull["certifications"];
       inventory_imports?: InventoryImportRecord[];
       warnings: OrganisationSheetFull["warnings"];
+      cooperative?: CoopMembersBlock | null;
+      memberships?: MembershipRef[];
     }
   >(`/api/organizations/${id}/sheet`, "Sheet");
-  const { titles, accounts, certifications, inventory_imports, warnings, ...entry } = raw;
+  const { titles, accounts, certifications, inventory_imports, warnings, cooperative, memberships, ...entry } = raw;
   return {
     entry: { ...(entry as unknown as OrganisationEntry), titles: titles.length, accounts: accounts.length },
     titles,
@@ -3190,6 +3196,8 @@ export async function getOrganisationSheet(id: number): Promise<OrganisationShee
     certifications,
     inventoryImports: inventory_imports ?? [],
     warnings,
+    cooperative: cooperative ?? null,
+    memberships: memberships ?? [],
   };
 }
 
@@ -3388,6 +3396,7 @@ export interface CompanySpace {
   anomalies: CompanyAnomaly[];
   controls: (FieldControl & Partial<Competence>)[];
   acting_authority?: string;
+  cooperatives?: MembershipRef[];
 }
 
 export const getCompanySpace = () => getLabeled<CompanySpace>("/api/company/space", "Space");
@@ -3592,3 +3601,136 @@ export async function sendClientLog(entry: ClientLogEntry): Promise<void> {
     // diagnostics must never disturb the user
   }
 }
+
+// --- Cooperative space (Slice 33): member organisations, aggregated volumes ---
+
+export type MembershipStatus = "active" | "suspendue" | "sortie";
+
+export interface CoopAggregate {
+  titles: { total: number; by_type: Record<string, number>; by_status: Record<string, number> };
+  aac: { total: number; by_status: Record<string, number> };
+  volumes: {
+    declared_m3: number;
+    authorized_m3: number;
+    felled_m3: number;
+    declared_stems: number;
+    felled_stems: number;
+  };
+  logs: { total: number; by_status: Record<string, number> };
+  documents: { total: number; by_status: Record<string, number> };
+  taxes: { by_status: Record<string, number>; amount_fcfa: Record<string, number> };
+}
+
+export interface CoopMembership {
+  id: number;
+  cooperative_org_id: number;
+  member_org_id: number;
+  status: MembershipStatus;
+  joined_on: string;
+  left_on: string | null;
+  status_reason: string | null;
+  notes: string | null;
+  added_via: "cooperative" | "ministere";
+  member_name: string;
+  member_org_type: OrgType;
+  member_profile_label: string | null;
+  member_provinces: string[] | null;
+  aggregate?: CoopAggregate | null;
+}
+
+export interface CoopMembersBlock {
+  members: CoopMembership[];
+  counts: Record<MembershipStatus, number>;
+  totals: CoopAggregate;
+  members_note: string;
+}
+
+export interface CooperativeSpace extends CoopMembersBlock {
+  organization: {
+    id: number;
+    name: string;
+    profile_code: string | null;
+    profile_label: string | null;
+    profile_description: string | null;
+  };
+  checklist: { doc_type: string; label: string; status: string }[];
+  profile_note: string;
+  warnings: OrganisationSheetFull["warnings"];
+}
+
+export interface CoopCandidate {
+  id: number;
+  name: string;
+  org_type: OrgType;
+  provinces: string[] | null;
+}
+
+export interface CoopMemberDetail {
+  membership: CoopMembership;
+  aggregate: CoopAggregate;
+  titles: { id: number; title_type: string; reference: string | null; status: string; surface_ha: number | null; province_name: string | null }[];
+  aacs: { id: number; label: string; status: string; campaign_year: number | null; title_ref: string | null }[];
+  felled_by_species: { species: string; stems: number; volume_m3: number }[];
+  members_note: string;
+}
+
+export interface MembershipRef {
+  id: number;
+  cooperative_org_id: number;
+  cooperative_name: string;
+  status: MembershipStatus;
+  joined_on: string;
+  left_on: string | null;
+}
+
+export interface MemberInput {
+  member_org_id: number;
+  joined_on?: string | null;
+  notes?: string | null;
+}
+
+export interface MemberChange {
+  status: MembershipStatus;
+  reason?: string | null;
+  left_on?: string | null;
+}
+
+async function patchJson<T>(path: string, body: unknown, label: string): Promise<T> {
+  const resp = await timedFetch(`${API_BASE}${path}`, {
+    method: "PATCH",
+    headers: headers(true),
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) {
+    let detail = "";
+    try {
+      const data = await resp.json();
+      detail = typeof data?.detail === "string" ? data.detail : "";
+    } catch {
+      detail = "";
+    }
+    throw new Error(detail || `${label} ${resp.status}`);
+  }
+  return resp.json();
+}
+
+export const getCooperativeSpace = () => getLabeled<CooperativeSpace>("/api/cooperative/space", "Cooperative space");
+
+export const getCoopMember = (membershipId: number) =>
+  getLabeled<CoopMemberDetail>(`/api/cooperative/members/${membershipId}`, "Member");
+
+export const searchCoopCandidates = (q: string) =>
+  getLabeled<CoopCandidate[]>(`/api/cooperative/members/candidates?q=${encodeURIComponent(q)}`, "Candidates");
+
+export const addCoopMember = (input: MemberInput) =>
+  postJson<CoopMembership>("/api/cooperative/members", input, "Add member");
+
+export const updateCoopMember = (membershipId: number, change: MemberChange) =>
+  patchJson<CoopMembership>(`/api/cooperative/members/${membershipId}`, change, "Member");
+
+/** Ministry: add a member organisation to a cooperative. */
+export const addOrgMember = (cooperativeOrgId: number, input: MemberInput) =>
+  postJson<CoopMembership>(`/api/organizations/${cooperativeOrgId}/members`, input, "Add member");
+
+export const updateOrgMember = (cooperativeOrgId: number, membershipId: number, change: MemberChange) =>
+  patchJson<CoopMembership>(`/api/organizations/${cooperativeOrgId}/members/${membershipId}`, change, "Member");

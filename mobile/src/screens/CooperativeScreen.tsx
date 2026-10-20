@@ -1,18 +1,16 @@
-import * as Location from "expo-location";
-import { Recycle } from "lucide-react-native";
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Switch, View } from "react-native";
+import { ActivityIndicator, BackHandler, RefreshControl, ScrollView, View } from "react-native";
 
-import {
-  AuthUser,
-  collectResidue,
-  cooperativeResidues,
-  NearbyResidue,
-} from "../api/client";
+import { AuthUser, CooperativeSpace, getCooperativeSpace } from "../api/client";
 import RoleHeader from "../components/RoleHeader";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
-import { Button, Card, EmptyState, Pill, PillTone, Segmented, Txt } from "../design/ui";
+import { EmptyState, Segmented, Txt } from "../design/ui";
 import { fr } from "../i18n/fr";
+import CoopDocuments from "./cooperative/CoopDocuments";
+import CoopMemberDetail from "./cooperative/CoopMemberDetail";
+import CoopMembers from "./cooperative/CoopMembers";
+import CoopOverview from "./cooperative/CoopOverview";
+import CoopResidues from "./cooperative/CoopResidues";
 
 interface Props {
   user: AuthUser;
@@ -20,174 +18,81 @@ interface Props {
   showHeader?: boolean;
 }
 
-const DEFAULT_COORDS = { latitude: 0.4162, longitude: 9.4541 };
-const RADIUS_KM = 150;
-const RADII = ["50", "150", "1000"] as const;
-type Radius = (typeof RADII)[number];
+const TABS = ["overview", "members", "compliance", "residues"] as const;
+type Tab = (typeof TABS)[number];
 
-const STATUS_TONE: Record<string, PillTone> = {
-  available: "ok",
-  allocated: "gold",
-  collected: "neutral",
-};
-
+/** Cooperative space: summary of the members, members, own pieces, wood residues. */
 export default function CooperativeScreen({ showHeader = true }: Props) {
-  const t = useTheme();
+  const theme = useTheme();
   const s = useStyles();
-  const [coords, setCoords] = useState(DEFAULT_COORDS);
-  const [residues, setResidues] = useState<NearbyResidue[]>([]);
-  const [onlyMatching, setOnlyMatching] = useState(false);
-  const [radius, setRadius] = useState<Radius>("150");
+  const [tab, setTab] = useState<Tab>("overview");
+  const [space, setSpace] = useState<CooperativeSpace | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [memberId, setMemberId] = useState<number | null>(null);
 
-  const load = useCallback(async (lat: number, lon: number, matching: boolean, km: number = RADIUS_KM) => {
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const resp = await cooperativeResidues(lat, lon, {
-        radiusKm: km,
-        onlyMatching: matching,
-      });
-      setResidues(resp.residues);
+      setSpace(await getCooperativeSpace());
     } catch (err) {
-      console.error("cooperative load failed", err);
-      setError(fr.cooperative.error);
+      setError(String(err).includes("409") ? fr.coop.noOrg : fr.cooperative.error);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const locate = useCallback(async () => {
-    let next = coords;
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === "granted") {
-        const pos = await Location.getCurrentPositionAsync({});
-        next = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
-        setCoords(next);
-      }
-    } catch (err) {
-      console.error("location failed", err);
-    }
-    await load(next.latitude, next.longitude, onlyMatching, Number(radius));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [coords, onlyMatching, load, radius]);
-
   useEffect(() => {
-    load(DEFAULT_COORDS.latitude, DEFAULT_COORDS.longitude, false);
+    void load();
   }, [load]);
 
-  const toggleMatching = async (value: boolean) => {
-    setOnlyMatching(value);
-    await load(coords.latitude, coords.longitude, value, Number(radius));
-  };
+  useEffect(() => {
+    if (memberId == null) return;
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      setMemberId(null);
+      return true;
+    });
+    return () => sub.remove();
+  }, [memberId]);
 
-  const changeRadius = async (value: Radius) => {
-    setRadius(value);
-    await load(coords.latitude, coords.longitude, onlyMatching, Number(value));
-  };
+  if (memberId != null) {
+    return <CoopMemberDetail membershipId={memberId} onBack={() => setMemberId(null)} />;
+  }
 
-  const collect = async (id: number) => {
-    try {
-      await collectResidue(id);
-      await load(coords.latitude, coords.longitude, onlyMatching, Number(radius));
-    } catch (err) {
-      console.error("collect failed", err);
-      setError(fr.cooperative.error);
+  const body = () => {
+    if (tab === "residues") return <CoopResidues />;
+    if (!space) {
+      return loading ? (
+        <ActivityIndicator style={s.loader} color={theme.c.olive} />
+      ) : (
+        <EmptyState message={error ?? fr.cooperative.error} tone="risk" action={{ label: fr.common.retry, onPress: () => void load() }} />
+      );
     }
+    return (
+      <ScrollView
+        contentContainerStyle={s.content}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={() => void load()} />}
+      >
+        {tab === "overview" ? <CoopOverview space={space} /> : null}
+        {tab === "members" ? <CoopMembers space={space} onOpen={(m) => setMemberId(m.id)} onChanged={load} /> : null}
+        {tab === "compliance" ? <CoopDocuments space={space} onChanged={load} /> : null}
+      </ScrollView>
+    );
   };
-
-  const reload = () => void load(coords.latitude, coords.longitude, onlyMatching, Number(radius));
 
   return (
-    <View style={s.container}>
+    <View style={s.container} testID="cooperative-screen">
       {showHeader && <RoleHeader title={fr.cooperative.title} subtitle={fr.cooperative.subtitle} />}
-
       <View style={s.top}>
-        <Card style={s.intro}>
-          <View style={s.introRow}>
-            <View style={s.introIcon}>
-              <Recycle size={20} color={t.c.onOlive} strokeWidth={2.2} />
-            </View>
-            <Txt variant="heading" style={s.flex}>
-              {fr.cooperative.introTitle}
-            </Txt>
-          </View>
-          <Txt variant="small" tone="muted">
-            {fr.cooperative.intro(Number(radius))}
+        {space ? (
+          <Txt variant="title" numberOfLines={1}>
+            {space.organization.name}
           </Txt>
-        </Card>
-        <Segmented
-          testID="coop-radius"
-          options={RADII.map((key) => ({ key, label: fr.cooperative.radius(Number(key)) }))}
-          value={radius}
-          onChange={(key) => void changeRadius(key)}
-        />
-        <View style={s.controls}>
-          <Button label={fr.cooperative.locate} variant="secondary" compact onPress={() => void locate()} />
-          <View style={s.switchRow}>
-            <Txt variant="small" tone="muted">
-              {fr.cooperative.onlyMatching}
-            </Txt>
-            <Switch
-              value={onlyMatching}
-              onValueChange={toggleMatching}
-              trackColor={{ true: t.c.olive, false: t.c.line }}
-              thumbColor={t.c.surface}
-            />
-          </View>
-        </View>
+        ) : null}
+        <Segmented testID="coop-tabs" options={TABS.map((key) => ({ key, label: fr.coop.tabs[key] }))} value={tab} onChange={setTab} />
       </View>
-
-      {loading ? (
-        <ActivityIndicator style={s.center} color={t.c.olive} />
-      ) : error ? (
-        <EmptyState message={error} tone="risk" action={{ label: fr.common.retry, onPress: reload }} />
-      ) : residues.length === 0 ? (
-        <View style={s.center}>
-          <Txt variant="heading" style={s.centerText}>
-            {fr.cooperative.empty}
-          </Txt>
-          <Txt tone="muted" style={s.centerText}>
-            {fr.cooperative.emptyHint}
-          </Txt>
-          <Button label={fr.cooperative.refresh} variant="secondary" compact onPress={reload} />
-        </View>
-      ) : (
-        <FlatList
-          data={residues}
-          keyExtractor={(item) => String(item.id)}
-          contentContainerStyle={s.list}
-          ListHeaderComponent={
-            <Txt variant="label" tone="gold">
-              {fr.cooperative.count(residues.length)}
-            </Txt>
-          }
-          renderItem={({ item }) => (
-            <Card style={s.card}>
-              <View style={s.cardTop}>
-                <Txt bold style={[s.flex, s.species]} numberOfLines={1}>
-                  {item.species_scientific_name ?? "—"}
-                </Txt>
-                <Txt variant="small" tone="muted" numeric>
-                  {fr.cooperative.distance(item.distance_km)}
-                </Txt>
-              </View>
-              <Txt variant="small" tone="muted">
-                {fr.cooperative.relevant(item.relevant_mass_kg)} · {fr.cooperative.match(item.match_score)}
-              </Txt>
-              <View style={s.pills}>
-                <Pill label={fr.company.status[item.status] ?? item.status} tone={STATUS_TONE[item.status] ?? "neutral"} />
-                {item.assigned_to_me ? <Pill label={fr.cooperative.mine} tone="info" /> : null}
-              </View>
-              {item.assigned_to_me && item.status === "allocated" ? (
-                <Button label={fr.cooperative.collect} onPress={() => void collect(item.id)} />
-              ) : null}
-            </Card>
-          )}
-        />
-      )}
+      {body()}
     </View>
   );
 }
@@ -195,29 +100,6 @@ export default function CooperativeScreen({ showHeader = true }: Props) {
 const useStyles = makeStyles((t) => ({
   container: { flex: 1, backgroundColor: t.c.bg },
   top: { paddingHorizontal: t.space.lg, paddingTop: t.space.md, gap: t.space.sm },
-  intro: { gap: t.space.xs },
-  introRow: { flexDirection: "row", alignItems: "center", gap: t.space.sm },
-  introIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: t.c.olive,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  flex: { flex: 1 },
-  controls: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: t.space.sm,
-  },
-  switchRow: { flexDirection: "row", alignItems: "center", gap: t.space.sm, flexShrink: 1 },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: t.space.md, padding: t.space.xl },
-  centerText: { textAlign: "center" },
-  list: { padding: t.space.lg, gap: t.space.sm },
-  card: { gap: t.space.xs },
-  cardTop: { flexDirection: "row", alignItems: "center", gap: t.space.sm },
-  species: { fontStyle: "italic" },
-  pills: { flexDirection: "row", flexWrap: "wrap", gap: t.space.xs },
+  loader: { flex: 1 },
+  content: { padding: t.space.lg, gap: t.space.md, paddingBottom: t.space.xxl },
 }));

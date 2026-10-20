@@ -357,7 +357,16 @@ describe("Audit des écrans avec données réelles", () => {
     // ---- Coopérative -----------------------------------------------------
     await signIn("cooperative");
     const coop = await client.getMe();
-    await audit("Coopérative · Espace", wrap(<Cooperative user={coop} onLogout={noop} showHeader={false} />, true));
+    for (const tab of ["Synthèse", "Membres", "Conformité", "Résidus"]) {
+      await audit(`Coopérative · ${tab}`, wrap(<Cooperative user={coop} onLogout={noop} showHeader={false} />, true), async (view) => {
+        fireEvent.press(view.getByText(tab));
+      });
+    }
+    const coopSpace = await client.getCooperativeSpace();
+    const CoopMemberDetail = require("../src/screens/cooperative/CoopMemberDetail").default;
+    for (const m of coopSpace.members.slice(0, 2)) {
+      await audit(`Coopérative · Membre ${m.member_name}`, wrap(<CoopMemberDetail membershipId={m.id} onBack={noop} />));
+    }
 
     // ---- Agent de terrain ------------------------------------------------
     await signIn("agent");
