@@ -44,6 +44,23 @@ describe("interactive charts", () => {
     expect(view.getByTestId("c-item-0")).toHaveTextContent(/54 %/);
   });
 
+  it("folds a long list (30 species) into « Autres » and shows everything on request", () => {
+    const thirty = Array.from({ length: 30 }, (_, i) => ({ label: `Essence ${i + 1}`, value: 30 - i, text: `${30 - i} m³` }));
+    const view = render(<ColumnChart testID="c" data={thirty} formatValue={(v) => `${v} m³`} />);
+    fireEvent(view.getByTestId("c"), "layout", layout(1200));
+    expect(view.getAllByTestId(/^c-item-\d+$/)).toHaveLength(8);
+    expect(view.getByText("Autres (23)")).toBeTruthy();
+    expect(view.getByText("276 m³")).toBeTruthy();
+    expect(view.queryByText("Essence 30")).toBeNull();
+    fireEvent.press(view.getByText("Tout afficher (30)"));
+    expect(view.getAllByTestId(/^c-item-\d+$/)).toHaveLength(30);
+    expect(view.getByText("Essence 30")).toBeTruthy();
+    fireEvent.press(view.getByTestId("c-item-0"));
+    expect(view.getByTestId("c-item-0")).toHaveTextContent(/6 %/);
+    fireEvent.press(view.getByText("Réduire"));
+    expect(view.getByText("Autres (23)")).toBeTruthy();
+  });
+
   it("lists bars with full labels and a share on tap", () => {
     const view = render(<BarList testID="b" data={[{ label: "FSC", value: 2, text: "2 · 50 k ha" }, { label: "OLB", value: 2 }]} />);
     expect(view.getByText("2 · 50 k ha")).toBeTruthy();
@@ -65,7 +82,7 @@ describe("haptics", () => {
     expect(vibrate).not.toHaveBeenCalled();
     Object.defineProperty(Platform, "OS", { configurable: true, get: () => "android" });
     haptic("select");
-    expect(vibrate).toHaveBeenCalledWith(16);
+    expect(vibrate).toHaveBeenCalledWith(35);
     setHapticsEnabled(false);
     haptic("confirm");
     expect(vibrate).toHaveBeenCalledTimes(1);

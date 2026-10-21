@@ -5,7 +5,7 @@
  * of the phone's header and bottom bar. On the phone and on narrow windows
  * nothing changes.
  */
-import { Building2, Inbox, LogOut, Map, Menu, TreeDeciduous, Trees, House, ScanLine } from "lucide-react-native";
+import { Building2, Inbox, LogOut, Map, Menu, PanelLeftClose, TreeDeciduous, Trees, House, ScanLine } from "lucide-react-native";
 import React from "react";
 import { Image, Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from "react-native";
 
@@ -13,10 +13,48 @@ import { AuthUser } from "../api/client";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { fr } from "../i18n/fr";
 import { TabKey, tabsForRole } from "../navigation/tabs";
+import { haptic } from "../utils/haptics";
 
 const SEAL = require("../../assets/leaf_logo.jpg");
 export const DESKTOP_MIN_WIDTH = 1024;
 const CONTENT_MAX_WIDTH = 1280;
+const COLLAPSED_KEY = "fn.sidebar.collapsed";
+
+/** A thin gold scrollbar for the side menu (the browser default is wide and grey). */
+const SIDE_SCROLL_CSS = [
+  "[data-sidescroll]{scrollbar-width:thin;scrollbar-color:rgba(217,180,74,0.5) transparent}",
+  "[data-sidescroll]::-webkit-scrollbar{width:6px}",
+  "[data-sidescroll]::-webkit-scrollbar-track{background:transparent}",
+  "[data-sidescroll]::-webkit-scrollbar-thumb{background:rgba(217,180,74,0.45);border-radius:3px}",
+  "[data-sidescroll]::-webkit-scrollbar-thumb:hover{background:rgba(217,180,74,0.75)}",
+].join("");
+
+function useSideScrollStyle(enabled: boolean): void {
+  React.useEffect(() => {
+    if (!enabled || Platform.OS !== "web" || typeof document === "undefined") return;
+    if (document.getElementById("fn-side-scroll")) return;
+    const style = document.createElement("style");
+    style.id = "fn-side-scroll";
+    style.textContent = SIDE_SCROLL_CSS;
+    document.head.appendChild(style);
+  }, [enabled]);
+}
+
+function readCollapsed(): boolean {
+  try {
+    return typeof localStorage !== "undefined" && localStorage.getItem(COLLAPSED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function storeCollapsed(collapsed: boolean): void {
+  try {
+    if (typeof localStorage !== "undefined") localStorage.setItem(COLLAPSED_KEY, collapsed ? "1" : "0");
+  } catch {
+    // Private window or blocked storage: the menu simply reopens next time.
+  }
+}
 
 type IconComponent = React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>;
 const ICONS: Record<TabKey, IconComponent> = {
@@ -121,7 +159,16 @@ export default function DesktopFrame({
   const t = useTheme();
   const s = useStyles();
   const [topTabs, setTopTabs] = React.useState<TopTab[] | null>(null);
+  const [collapsed, setCollapsed] = React.useState(readCollapsed);
+  useSideScrollStyle(enabled);
   if (!enabled) return <>{children}</>;
+  const toggleSide = () => {
+    haptic("tap");
+    setCollapsed((v) => {
+      storeCollapsed(!v);
+      return !v;
+    });
+  };
   const name = [user.first_name, user.last_name].filter(Boolean).join(" ") || user.display_name;
   const tabs = tabsForRole(user.role).filter((tab) => !(sections?.length && tab.key === "home") && !hiddenTabs?.includes(tab.key));
   const pageTitle =
@@ -153,18 +200,19 @@ export default function DesktopFrame({
   return (
     <TopTabsContext.Provider value={setTopTabs}>
       <View style={s.row} testID="desktop-frame">
-        <View style={s.side}>
-          <ScrollView contentContainerStyle={s.sideContent}>
+        {collapsed ? null : (
+        <View style={s.side} testID="desktop-side">
+          <ScrollView contentContainerStyle={s.sideContent} {...({ dataSet: { sidescroll: "1" } } as object)}>
             <View style={s.brand}>
-              <View style={s.brandTop}>
-                <Image source={SEAL} style={s.seal} resizeMode="contain" accessibilityLabel={fr.header.ministry} />
+              <Image source={SEAL} style={s.seal} resizeMode="contain" accessibilityLabel={fr.header.ministry} />
+              <View style={s.brandText}>
                 <Text style={s.eyebrow} numberOfLines={1}>
                   {fr.appTitle.toUpperCase()}
                 </Text>
+                <Text style={s.ministry} numberOfLines={1} testID="side-ministry">
+                  {fr.header.ministry}
+                </Text>
               </View>
-              <Text style={s.ministry} numberOfLines={1} testID="side-ministry">
-                {fr.header.ministry}
-              </Text>
             </View>
             <View style={s.rule} />
             {sections?.length ? (
@@ -205,10 +253,21 @@ export default function DesktopFrame({
             </Pressable>
           </View>
         </View>
+        )}
         <View style={s.main}>
           <View style={s.topbar} testID="desktop-topbar">
             <View style={s.topInner}>
               <View style={s.topLeft}>
+                <Pressable
+                  testID="sidebar-toggle"
+                  accessibilityRole="button"
+                  accessibilityLabel={collapsed ? fr.web.showMenu : fr.web.hideMenu}
+                  accessibilityState={{ expanded: !collapsed }}
+                  onPress={toggleSide}
+                  style={(state) => [s.toggle, (state as { hovered?: boolean }).hovered && s.tabHover]}
+                >
+                  {collapsed ? <Menu size={20} color={t.c.forest} /> : <PanelLeftClose size={20} color={t.c.muted} />}
+                </Pressable>
                 <View style={s.titleBlock}>
                   <Text style={s.topEyebrow} numberOfLines={1}>
                     {(sectionsTitle ?? roleLabel).toUpperCase()}
@@ -278,13 +337,23 @@ export default function DesktopFrame({
 
 const useStyles = makeStyles((th) => ({
   row: { flex: 1, flexDirection: "row", backgroundColor: th.c.bg },
-  side: { width: 272, backgroundColor: th.c.forest, borderRightWidth: 3, borderRightColor: th.c.gold },
+  side: { width: 256, backgroundColor: th.c.forest, borderRightWidth: 3, borderRightColor: th.c.gold },
   sideContent: { paddingVertical: th.space.lg, gap: th.space.lg },
-  brand: { gap: th.space.sm, paddingHorizontal: th.space.lg },
-  brandTop: { flexDirection: "row", alignItems: "center", gap: th.space.sm },
+  brand: { flexDirection: "row", alignItems: "center", gap: th.space.sm, paddingHorizontal: th.space.lg },
+  brandText: { flex: 1, minWidth: 0, gap: 1 },
   seal: { width: 40, height: 40 },
-  eyebrow: { flex: 1, color: th.c.gold, fontFamily: th.fonts.displaySemi, fontSize: 11.5, letterSpacing: 1.4 },
-  ministry: { color: th.c.onForest, fontFamily: th.fonts.display, fontSize: 16, lineHeight: 20 },
+  eyebrow: { color: th.c.gold, fontFamily: th.fonts.displaySemi, fontSize: 11.5, letterSpacing: 1.4 },
+  ministry: { color: th.c.onForest, fontFamily: th.fonts.displaySemi, fontSize: 13, lineHeight: 16, opacity: 0.95 },
+  toggle: {
+    width: 40,
+    height: 40,
+    borderRadius: th.radius.md,
+    borderWidth: 1,
+    borderColor: th.c.line,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
   rule: { height: 2, backgroundColor: th.c.gold, marginHorizontal: th.space.lg, opacity: 0.85 },
   nav: { gap: 2, paddingHorizontal: th.space.sm },
   sectionTitle: {
@@ -351,7 +420,7 @@ const useStyles = makeStyles((th) => ({
     maxWidth: CONTENT_MAX_WIDTH + 2 * th.space.xl,
     alignSelf: "center",
   },
-  topLeft: { flex: 1, flexDirection: "row", alignItems: "center", gap: th.space.xl, minWidth: 0 },
+  topLeft: { flex: 1, flexDirection: "row", alignItems: "center", gap: th.space.lg, minWidth: 0 },
   titleBlock: { gap: 1, flexShrink: 0, maxWidth: 260 },
   topEyebrow: { color: th.c.goldInk, fontFamily: th.fonts.displaySemi, fontSize: 11, letterSpacing: 1.2 },
   topTitle: { color: th.c.ink, fontFamily: th.fonts.display, fontSize: 22, lineHeight: 26 },

@@ -397,6 +397,7 @@ export default function DeclareScreen({ onDone, onBack }: Props) {
       <Modal visible={scanning != null} animationType="slide" onRequestClose={() => setScanning(null)}>
         {scanning != null ? (
           <QrScanner
+            safeArea
             hint={t.scanHint}
             cancelLabel={t.scanCancel}
             onCode={(raw) => {

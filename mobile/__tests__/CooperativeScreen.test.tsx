@@ -51,6 +51,7 @@ describe("CooperativeScreen", () => {
   it("lists residues and widens the search to the whole country", async () => {
     const { getByText } = render(<CooperativeScreen user={user} onLogout={jest.fn()} showHeader={false} />);
     await waitFor(() => expect(getByText("Coop Demo")).toBeTruthy());
+    expect(getByText("Coop Demo").props.numberOfLines).toBe(2);
     fireEvent.press(getByText("Résidus"));
     await waitFor(() => expect(getByText("Aucoumea klaineana")).toBeTruthy());
     expect(client.cooperativeResidues).toHaveBeenLastCalledWith(0.4162, 9.4541, { radiusKm: 150, onlyMatching: false });

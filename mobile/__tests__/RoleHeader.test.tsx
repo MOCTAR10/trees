@@ -87,3 +87,19 @@ describe("RoleHeader", () => {
     expect(queryByText("Recherche de votre position…")).toBeNull();
   });
 });
+
+describe("RoleHeader labels", () => {
+  it("labels the role, the organisation by kind of account, and the position", () => {
+    const { getByText, rerender, queryByText } = render(
+      <RoleHeader title="T" roleLabel="Agent de terrain" role="operator" orgName="Bois du Haut-Ogooué" coords={{ latitude: 0.4162, longitude: 9.4541 }} />,
+    );
+    expect(getByText("RÔLE")).toBeTruthy();
+    expect(getByText("ENTREPRISE")).toBeTruthy();
+    expect(getByText("POSITION")).toBeTruthy();
+    rerender(<RoleHeader title="T" roleLabel="Coopérative" role="cooperative" orgName="Coopérative des Artisans de Ntoum" />);
+    expect(getByText("COOPÉRATIVE")).toBeTruthy();
+    expect(queryByText("POSITION")).toBeNull();
+    rerender(<RoleHeader title="T" roleLabel="Ministère" role="admin" orgName="Paul Nguema" />);
+    expect(getByText("NOM")).toBeTruthy();
+  });
+});

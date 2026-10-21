@@ -132,10 +132,10 @@ export type PanelKey = "exploitation" | "registry" | "compliance" | "fiscal" | "
 export default function DashboardPanels({ overview: o, panels }: { overview: DashboardOverview; panels?: PanelKey[] }) {
   const s = useStyles();
   const theme = useTheme();
-  const species = (o.harvest?.by_species ?? []).slice(0, 6);
+  const species = o.harvest?.by_species ?? [];
   const treeStatus = Object.entries(o.harvest?.by_status ?? {}).filter(([, n]) => num(n) > 0);
   const schemes = o.certifications?.by_scheme ?? [];
-  const carbonByAac = (o.carbon?.by_aac ?? []).slice(0, 5);
+  const carbonByAac = o.carbon?.by_aac ?? [];
   const overdueAmount = num(o.taxes?.overdue_amount_fcfa);
   const transformation = Math.round(num(o.harvest?.transformation_rate) * 100);
   const show = (k: PanelKey) => !panels || panels.includes(k);
@@ -152,6 +152,7 @@ export default function DashboardPanels({ overview: o, panels }: { overview: Das
               </Txt>
               <ColumnChart
                 data={species.map((r) => ({ label: r.species, value: num(r.volume_m3), text: `${short(num(r.volume_m3))} m³` }))}
+                formatValue={(v) => `${short(v)} m³`}
                 testID="bars-species"
               />
             </>
@@ -240,6 +241,7 @@ export default function DashboardPanels({ overview: o, panels }: { overview: Das
         <Section title={d.carbonByAac} testID="panel-carbon">
           <ColumnChart
             data={carbonByAac.map((r) => ({ label: r.aac_label, value: num(r.co2e_kg), text: `${short(num(r.co2e_kg) / 1000)} t` }))}
+            formatValue={(v) => `${short(v / 1000)} t`}
             color={theme.c.ok}
             testID="chart-carbon"
           />

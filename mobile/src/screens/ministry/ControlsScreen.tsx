@@ -161,7 +161,7 @@ export default function ControlsScreen() {
 }
 
 function NewControl({ visible, onClose, onDone }: { visible: boolean; onClose: () => void; onDone: () => void }) {
-  const dialog = useDialog();
+  const dialog = useDialog(640, "lg");
   const theme = useTheme();
   const s = useStyles();
   const [type, setType] = useState<ControlType>("route");
@@ -360,6 +360,7 @@ function NewControl({ visible, onClose, onDone }: { visible: boolean; onClose: (
       </View>
       {scanning ? (
         <QrScanner
+          safeArea
           testID="control-qr"
           hint={t.scanHint}
           cancelLabel={t.scanCancel}

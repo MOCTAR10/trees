@@ -86,7 +86,7 @@ export default function CooperativeScreen({ showHeader = true }: Props) {
       {showHeader && <RoleHeader title={fr.cooperative.title} subtitle={fr.cooperative.subtitle} />}
       <View style={s.top}>
         {space ? (
-          <Txt variant="title" numberOfLines={1}>
+          <Txt variant="title" numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.75} testID="coop-name">
             {space.organization.name}
           </Txt>
         ) : null}

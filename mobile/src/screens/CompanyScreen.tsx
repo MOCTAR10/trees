@@ -35,6 +35,7 @@ import CompanyHomeScreen from "./CompanyHomeScreen";
 import CustodyScreen from "./CustodyScreen";
 import DeclareScreen from "./DeclareScreen";
 import InventoryImportScreen from "./InventoryImportScreen";
+import { useSystemInsets } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { Button, Card, Pill, PillTone, Txt } from "../design/ui";
 
@@ -53,6 +54,7 @@ interface Props {
 
 export default function CompanyScreen({ user, onLogout, showHeader = true, tab: controlledTab, onTabChange, desktop }: Props) {
   const styles = useStyles();
+  const insets = useSystemInsets();
   const theme = useTheme();
   const [residues, setResidues] = useState<CompanyResidue[]>([]);
   const [cooperatives, setCooperatives] = useState<Cooperation[]>([]);
@@ -337,7 +339,7 @@ export default function CompanyScreen({ user, onLogout, showHeader = true, tab: 
         onRequestClose={() => setPicking(null)}
       >
         <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
+          <View style={[styles.modalCard, insets.bottom > 0 && { paddingBottom: theme.space.xl + insets.bottom }]}>
             <Text style={styles.modalTitle}>{fr.company.chooseCoop}</Text>
             <FlatList
               data={cooperatives}

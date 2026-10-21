@@ -296,7 +296,7 @@ export default function OrganisationsScreen({ initialProvince, onOpen }: Props) 
 function CreateOrganisation({ visible, onClose, onCreated }: { visible: boolean; onClose: () => void; onCreated: () => void }) {
   const theme = useTheme();
   const s = useStyles();
-  const dialog = useDialog();
+  const dialog = useDialog(640, "lg");
   const [profiles, setProfiles] = useState<OrgProfileDefinition[]>([]);
   const [name, setName] = useState("");
   const [profile, setProfile] = useState<string | null>(null);

@@ -2,7 +2,8 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import React, { useEffect, useRef } from "react";
 import { View } from "react-native";
 
-import { makeStyles } from "../design/ThemeProvider";
+import { useSystemInsets } from "../design/layout";
+import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { Button, Txt } from "../design/ui";
 
 interface Props {
@@ -10,12 +11,16 @@ interface Props {
   cancelLabel: string;
   onCode: (value: string) => void;
   onClose: () => void;
+  /** Shown in a Modal (its own window): keep the controls clear of the phone's bars. */
+  safeArea?: boolean;
   testID?: string;
 }
 
 /** Full-screen camera that returns the first QR / barcode it reads. */
-export default function QrScanner({ hint, cancelLabel, onCode, onClose, testID }: Props) {
+export default function QrScanner({ hint, cancelLabel, onCode, onClose, safeArea, testID }: Props) {
   const s = useStyles();
+  const insets = useSystemInsets();
+  const t = useTheme();
   const [permission, requestPermission] = useCameraPermissions();
   const done = useRef(false);
   useEffect(() => {
@@ -36,7 +41,7 @@ export default function QrScanner({ hint, cancelLabel, onCode, onClose, testID }
           }}
         />
       ) : null}
-      <View style={s.bar}>
+      <View style={[s.bar, safeArea && insets.bottom > 0 && { paddingBottom: t.space.lg + insets.bottom }]}>
         <Txt variant="small" style={s.text}>
           {hint}
         </Txt>

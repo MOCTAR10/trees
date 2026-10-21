@@ -8,6 +8,7 @@
 import { ArrowDown, ArrowUp, ChevronRight } from "lucide-react-native";
 import React from "react";
 import { LayoutChangeEvent, Pressable, StyleProp, View, ViewStyle } from "react-native";
+import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 
 import { useDesktop } from "../web/DesktopFrame";
 import { makeStyles, useTheme } from "./ThemeProvider";
@@ -239,9 +240,26 @@ export function DataTable<T>({
 }
 
 /** Bottom sheet on the phone, centred dialog on the desktop: append to the modal's own styles. */
-export function useDialog(maxWidth = 640) {
+/**
+ * Height of the phone's system bars. Android draws the app edge-to-edge, and
+ * a Modal opens its own window under the status and navigation bars, so
+ * anything anchored to its top or bottom must keep clear of them. 0 when no
+ * safe-area provider is mounted (tests, web).
+ */
+export function useSystemInsets(): { top: number; bottom: number } {
+  const insets = React.useContext(SafeAreaInsetsContext);
+  return { top: insets?.top ?? 0, bottom: insets?.bottom ?? 0 };
+}
+
+/**
+ * Dialog styles: a centred card on the desktop, a bottom sheet on the phone
+ * whose last row stays above the navigation bar (`pad` is the sheet's own
+ * padding, kept below its content).
+ */
+export function useDialog(maxWidth = 640, pad: "lg" | "xl" = "xl") {
   const desktop = useDesktop();
   const t = useTheme();
+  const { bottom } = useSystemInsets();
   return React.useMemo(
     () =>
       desktop
@@ -258,8 +276,13 @@ export function useDialog(maxWidth = 640) {
               borderTopRightRadius: t.radius.xl,
             } as ViewStyle,
           }
-        : { desktop, animation: "slide" as const, backdrop: null, sheet: null },
-    [desktop, maxWidth, t],
+        : {
+            desktop,
+            animation: "slide" as const,
+            backdrop: null,
+            sheet: (bottom > 0 ? { paddingBottom: t.space[pad] + bottom } : null) as ViewStyle | null,
+          },
+    [desktop, maxWidth, t, pad, bottom],
   );
 }
 

@@ -10,6 +10,8 @@ import { haptic } from "../utils/haptics";
 import { ServerStatus } from "../utils/useServerStatus";
 
 const SEAL = require("../../assets/leaf_logo.jpg");
+/** Width of the seal column, which also holds the row labels (RÔLE, ENTREPRISE, POSITION). */
+const LABEL_W = 66;
 
 export interface HeaderCoords {
   latitude: number;
@@ -57,11 +59,21 @@ export default function RoleHeader({
   const s = useStyles();
   const rank = rankForRole(role);
   const compact = useWindowDimensions().width < 430;
+  const labelled = !!roleLabel;
+  const orgLabel =
+    role === "admin" ? fr.header.labelName : role === "cooperative" ? fr.header.labelCooperative : fr.header.labelCompany;
+  const label = (text: string) => (
+    <Text style={s.kvLabel} numberOfLines={1}>
+      {text.toUpperCase()}
+    </Text>
+  );
   return (
     <View style={s.header}>
       <View style={s.row}>
-        <View style={s.sealPlate}>
-          <Image source={SEAL} style={s.seal} resizeMode="contain" accessibilityLabel={fr.header.ministry} />
+        <View style={s.labelCol}>
+          <View style={s.sealPlate}>
+            <Image source={SEAL} style={s.seal} resizeMode="contain" accessibilityLabel={fr.header.ministry} />
+          </View>
         </View>
         <View style={s.texts}>
           <Text style={s.overline} numberOfLines={1}>
@@ -76,52 +88,59 @@ export default function RoleHeader({
           >
             {fr.header.ministry}
           </Text>
-          <View style={s.lower}>
-            <View style={s.who}>
-              {roleLabel ? (
-                <>
-                  <View style={s.metaRow}>
-                    {rank > 0 ? (
-                      <View style={s.stripesChip}>
-                        <RankStripes count={rank} color={t.c.gold} testID="rank-stripes" />
-                      </View>
-                    ) : null}
-                    <Text style={s.role} numberOfLines={1}>
-                      {roleLabel}
-                    </Text>
-                  </View>
-                  {orgName ? (
-                    <Text style={s.org} numberOfLines={2} testID="header-org">
-                      {orgName}
-                    </Text>
+        </View>
+      </View>
+      <View style={s.lower}>
+        <View style={s.who}>
+          {labelled ? (
+            <>
+              <View style={s.kv} testID="header-role">
+                {label(fr.header.labelRole)}
+                <View style={s.metaRow}>
+                  {rank > 0 ? (
+                    <View style={s.stripesChip}>
+                      <RankStripes count={rank} color={t.c.gold} testID="rank-stripes" />
+                    </View>
                   ) : null}
-                </>
-              ) : subtitle ? (
-                <Text style={s.org} numberOfLines={2}>
-                  {subtitle}
-                </Text>
+                  <Text style={s.role} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+                    {roleLabel}
+                  </Text>
+                </View>
+              </View>
+              {orgName ? (
+                <View style={s.kv}>
+                  {label(orgLabel)}
+                  <Text style={s.org} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.85} testID="header-org">
+                    {orgName}
+                  </Text>
+                </View>
               ) : null}
-            </View>
-            <View style={s.actions}>
-              {onOpenProjects ? (
-                <HeaderAction label={fr.header.projects} compact={compact} onPress={onOpenProjects} icon={<Target size={compact ? 16 : 18} color={t.c.gold} strokeWidth={2} />} />
-              ) : null}
-              {onOpenProfile ? (
-                <HeaderAction label={fr.header.profile} compact={compact} onPress={onOpenProfile} icon={<UserRound size={compact ? 16 : 18} color={t.c.gold} strokeWidth={2} />} />
-              ) : null}
-            </View>
-          </View>
+            </>
+          ) : subtitle ? (
+            <Text style={[s.org, s.indent]} numberOfLines={2}>
+              {subtitle}
+            </Text>
+          ) : null}
+        </View>
+        <View style={s.actions}>
+          {onOpenProjects ? (
+            <HeaderAction label={fr.header.projects} compact={compact} onPress={onOpenProjects} icon={<Target size={compact ? 16 : 18} color={t.c.gold} strokeWidth={2} />} />
+          ) : null}
+          {onOpenProfile ? (
+            <HeaderAction label={fr.header.profile} compact={compact} onPress={onOpenProfile} icon={<UserRound size={compact ? 16 : 18} color={t.c.gold} strokeWidth={2} />} />
+          ) : null}
         </View>
       </View>
       {coords !== undefined || connection ? (
-        <View style={s.locRow}>
+        <View style={[s.locRow, !(labelled && coords !== undefined) && s.indent]}>
+          {labelled && coords !== undefined ? label(fr.header.labelPosition) : null}
           {coords ? (
-            <>
+            <View style={s.coords}>
               <MapPin size={13} color={t.c.gold} strokeWidth={2.5} />
               <Text style={s.locText} numberOfLines={1}>
                 {`${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`}
               </Text>
-            </>
+            </View>
           ) : coords === null ? (
             <View style={s.locating} testID="header-locating" accessibilityRole="progressbar" accessibilityLabel={fr.header.locating}>
               <ActivityIndicator size="small" color={t.c.forest} />
@@ -192,8 +211,13 @@ function HeaderAction({
       hitSlop={4}
     >
       {icon}
-      <Text style={[s.actionLabel, compact && s.actionLabelCompact]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
-        {label}
+      <Text
+        style={[s.actionLabel, compact && s.actionLabelCompact]}
+        numberOfLines={compact ? 2 : 1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.8}
+      >
+        {compact ? label.replace(" / ", " /\n") : label}
       </Text>
     </Pressable>
   );
@@ -207,7 +231,18 @@ const useStyles = makeStyles((t) => ({
     paddingBottom: t.space.md,
     gap: t.space.xs,
   },
-  row: { flexDirection: "row", alignItems: "flex-start", gap: t.space.md },
+  row: { flexDirection: "row", alignItems: "center", gap: t.space.md },
+  labelCol: { width: LABEL_W },
+  kv: { flexDirection: "row", alignItems: "center", gap: t.space.md, minHeight: 20 },
+  kvLabel: {
+    width: LABEL_W,
+    color: t.c.gold,
+    fontFamily: t.fonts.displaySemi,
+    fontSize: 9.5,
+    letterSpacing: 0.6,
+  },
+  indent: { paddingLeft: LABEL_W + t.space.md },
+  coords: { flexDirection: "row", alignItems: "center", gap: 4, flexShrink: 1 },
   sealPlate: {
     width: 56,
     height: 38,
@@ -224,13 +259,13 @@ const useStyles = makeStyles((t) => ({
   },
   ministry: { color: t.c.onForest, fontFamily: t.fonts.display, fontSize: 19, lineHeight: 23 },
   ministryCompact: { fontSize: 17, lineHeight: 21 },
-  lower: { flexDirection: "row", alignItems: "center", gap: t.space.sm, marginTop: 2 },
+  lower: { flexDirection: "row", alignItems: "center", gap: t.space.sm },
   who: { flex: 1, minWidth: 0 },
-  metaRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 2 },
+  metaRow: { flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: 6 },
   stripesChip: { paddingVertical: 1 },
 
-  role: { color: t.c.onForest, fontFamily: t.fonts.bodyBold, fontSize: 12.5 },
-  org: { color: t.c.onForest, opacity: 0.8, fontFamily: t.fonts.body, fontSize: 12.5, flexShrink: 1, marginTop: 1 },
+  role: { flexShrink: 1, color: t.c.onForest, fontFamily: t.fonts.bodyBold, fontSize: 12.5 },
+  org: { flex: 1, color: t.c.onForest, opacity: 0.85, fontFamily: t.fonts.body, fontSize: 12.5 },
   actions: { flexDirection: "row", alignItems: "center", gap: t.space.xs },
   actionBtn: {
     minWidth: 48,
@@ -246,8 +281,8 @@ const useStyles = makeStyles((t) => ({
   },
   actionPressed: { backgroundColor: "rgba(255,255,255,0.08)" },
   actionLabel: { color: t.c.onForest, fontFamily: t.fonts.displaySemi, fontSize: 10.5 },
-  actionLabelCompact: { fontSize: 9.5, lineHeight: 11 },
-  locRow: { flexDirection: "row", alignItems: "center", gap: 4, paddingLeft: 68, minHeight: 24 },
+  actionLabelCompact: { fontSize: 9.5, lineHeight: 11, textAlign: "center" },
+  locRow: { flexDirection: "row", alignItems: "center", gap: t.space.md, minHeight: 24 },
   badge: {
     marginLeft: "auto",
     flexShrink: 0,

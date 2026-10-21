@@ -6,6 +6,11 @@ export const fr = {
     ministry: "Ministère des Eaux et Forêts",
     projects: "Chantier / Projet",
     profile: "Profil",
+    labelRole: "Rôle",
+    labelName: "Nom",
+    labelCompany: "Entreprise",
+    labelCooperative: "Coopérative",
+    labelPosition: "Position",
     locating: "Recherche de votre position…",
     online: "En ligne",
     offline: "Hors-ligne",
@@ -1899,6 +1904,8 @@ export const fr = {
   },
 
   web: {
+    hideMenu: "Masquer le menu",
+    showMenu: "Afficher le menu",
     fieldTitle: "Espace terrain : application mobile",
     fieldBody:
       "Les mesures et les scans se font sur le téléphone, au pied de l'arbre (photo, GPS et heure pris au même instant). Installez l'application Android pour continuer.",
@@ -2065,6 +2072,12 @@ export const fr = {
     dueOn: (date: string) => `échéance ${date}`,
     error: "Opération impossible.",
     hint: "Suites à valider par le métier (art. 15 et titre des infractions de la loi 016/01).",
+  },
+
+  charts: {
+    others: (n: number) => `Autres (${n})`,
+    showAll: (n: number) => `Tout afficher (${n})`,
+    showLess: "Réduire",
   },
 
   common: {

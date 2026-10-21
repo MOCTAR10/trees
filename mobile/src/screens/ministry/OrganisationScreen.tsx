@@ -521,7 +521,7 @@ function FormSheet({
   testID: string;
   children: React.ReactNode;
 }) {
-  const dialog = useDialog();
+  const dialog = useDialog(640, "lg");
   const s = useStyles();
   return (
     <Modal visible={visible} transparent animationType={dialog.animation} onRequestClose={onClose}>
@@ -740,7 +740,7 @@ function ProvincePicker({
   onClose: () => void;
   onDone: () => void;
 }) {
-  const dialog = useDialog();
+  const dialog = useDialog(640, "lg");
   const s = useStyles();
   const [busy, setBusy] = useState(false);
   const choose = async (code: string | null) => {

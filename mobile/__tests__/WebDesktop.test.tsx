@@ -56,6 +56,21 @@ describe("Web desktop layout", () => {
     expect(view.getByText("contenu")).toBeTruthy();
   });
 
+  it("hides and shows the side menu from the top bar", () => {
+    const view = render(
+      <DesktopFrame enabled user={admin} active="home" roleLabel="Ministère" onChange={jest.fn()} onLogout={jest.fn()}>
+        <Text>contenu</Text>
+      </DesktopFrame>,
+    );
+    expect(view.getByTestId("desktop-side")).toBeTruthy();
+    expect(view.getByTestId("side-ministry")).toHaveTextContent("Ministère des Eaux et Forêts");
+    fireEvent.press(view.getByLabelText("Masquer le menu"));
+    expect(view.queryByTestId("desktop-side")).toBeNull();
+    expect(view.getByText("contenu")).toBeTruthy();
+    fireEvent.press(view.getByLabelText("Afficher le menu"));
+    expect(view.getByTestId("side-home")).toBeTruthy();
+  });
+
   it("lists every Ministry domain in the side menu instead of the Menu tab", () => {
     const onPress = jest.fn();
     const view = render(

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 import { fr } from "../i18n/fr";
+import { useSystemInsets } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { haptic } from "../utils/haptics";
 import { clinometerHeight } from "../utils/tilt";
@@ -28,6 +29,7 @@ export default function Clinometer({ visible, initialDistanceM, onDone, onClose 
   const th = useTheme();
   const styles = useStyles();
   const tilt = useDeviceTilt(visible);
+  const insets = useSystemInsets();
   const [step, setStep] = useState<Step>("distance");
   const [distanceText, setDistanceText] = useState("");
   const [topDeg, setTopDeg] = useState<number | null>(null);
@@ -59,7 +61,7 @@ export default function Clinometer({ visible, initialDistanceM, onDone, onClose 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.backdrop}>
-        <View style={styles.sheet} testID="clinometer">
+        <View style={[styles.sheet, { paddingBottom: th.space.xl + insets.bottom }]} testID="clinometer">
           <Text style={styles.title}>{t.title}</Text>
 
           {!tilt.available && step !== "distance" ? (

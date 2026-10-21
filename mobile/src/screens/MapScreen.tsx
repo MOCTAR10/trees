@@ -43,6 +43,7 @@ import {
 } from "../api/client";
 import ForestChecksCard, { VERDICT_COLORS } from "../components/ForestChecksCard";
 import { fr } from "../i18n/fr";
+import { useSystemInsets } from "../design/layout";
 import { makeStyles, useTheme } from "../design/ThemeProvider";
 import { compactFr, toPolygons } from "../utils/geojson";
 import { bboxFor, clusterPoints, regionForBox, zoomFor } from "../utils/mapMath";
@@ -116,6 +117,7 @@ export default function MapScreen({
   const showModes = role !== "admin";
   const th = useTheme();
   const styles = useStyles();
+  const insets = useSystemInsets();
   const [projects, setProjects] = React.useState<Project[]>([]);
   const [project, setProject] = React.useState<Project | null>(null);
   React.useEffect(() => {
@@ -732,7 +734,11 @@ export default function MapScreen({
 
       <Modal visible={legendOpen} transparent animationType="slide" onRequestClose={() => setLegendOpen(false)}>
         <View style={styles.backdrop}>
-          <ScrollView style={styles.legend} contentContainerStyle={styles.legendContent} testID="legend-sheet">
+          <ScrollView
+            style={styles.legend}
+            contentContainerStyle={[styles.legendContent, { paddingBottom: th.space.xl + insets.bottom }]}
+            testID="legend-sheet"
+          >
             <Text style={styles.legendTitle}>{t.layers}</Text>
 
             <Text style={styles.section}>{t.baseMap}</Text>
@@ -821,7 +827,11 @@ export default function MapScreen({
       </Modal>
 
       <Modal visible={contextOpen} animationType="slide" onRequestClose={() => setContextOpen(false)}>
-        <ScrollView style={styles.modal} contentContainerStyle={styles.modalContent} testID="context-modal">
+        <ScrollView
+          style={styles.modal}
+          contentContainerStyle={[styles.modalContent, { paddingTop: th.space.xl + insets.top, paddingBottom: th.space.xl + insets.bottom }]}
+          testID="context-modal"
+        >
           <Text style={styles.legendTitle}>{t.contextTitle}</Text>
           {!context ? (
             <ActivityIndicator color={th.c.olive} />

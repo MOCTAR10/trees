@@ -35,7 +35,7 @@ function Sheet({
   testID: string;
   children: React.ReactNode;
 }) {
-  const dialog = useDialog();
+  const dialog = useDialog(640, "lg");
   const s = useStyles();
   return (
     <Modal visible={visible} transparent animationType={dialog.animation} onRequestClose={onClose}>

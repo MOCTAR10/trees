@@ -10,6 +10,7 @@ import React from "react";
 import { Pressable, View } from "react-native";
 import Svg, { Circle, G, Line, Path, Rect } from "react-native-svg";
 
+import { fr } from "../i18n/fr";
 import { haptic } from "../utils/haptics";
 import { dec } from "./format";
 import { makeStyles, useTheme } from "./ThemeProvider";
@@ -60,6 +61,51 @@ function useSelection() {
     setSelected((cur) => (cur === i ? null : i));
   }, []);
   return [selected, toggle] as const;
+}
+
+/** Items shown before the rest is folded into one « Autres » row. */
+export const DEFAULT_CHART_LIMIT = 8;
+
+/**
+ * Long lists stay readable: beyond `limit` items, the largest `limit − 1`
+ * are kept and the rest is summed into one « Autres (n) » row, until the
+ * viewer asks to see everything. Shares are always taken on the full total.
+ */
+function useCapped(data: ChartDatum[], limit: number, formatValue?: (value: number) => string) {
+  const [expanded, setExpanded] = React.useState(false);
+  const total = data.reduce((sum, d) => sum + Math.max(0, d.value), 0);
+  const capped = data.length > limit && !expanded;
+  let shown = data;
+  if (capped) {
+    const sorted = [...data].sort((a, b) => b.value - a.value);
+    const kept = sorted.slice(0, limit - 1);
+    const rest = sorted.slice(limit - 1);
+    const sum = rest.reduce((acc, d) => acc + Math.max(0, d.value), 0);
+    shown = [...kept, { label: fr.charts.others(rest.length), value: sum, text: formatValue ? formatValue(sum) : undefined }];
+  }
+  const toggle =
+    data.length > limit
+      ? {
+          label: expanded ? fr.charts.showLess : fr.charts.showAll(data.length),
+          onPress: () => {
+            haptic("tap");
+            setExpanded((v) => !v);
+          },
+        }
+      : null;
+  return { shown, total, expanded, toggle };
+}
+
+function MoreToggle({ toggle, testID }: { toggle: { label: string; onPress: () => void } | null; testID?: string }) {
+  const s = useStyles();
+  if (!toggle) return null;
+  return (
+    <Pressable onPress={toggle.onPress} accessibilityRole="button" hitSlop={6} style={s.more} testID={testID}>
+      <Txt variant="caption" tone="olive" bold>
+        {toggle.label}
+      </Txt>
+    </Pressable>
+  );
 }
 
 /** The selected item, spelled out in full under a chart. */
@@ -175,19 +221,25 @@ export function Donut({
  * value on top, the bar across the full width below.
  */
 export function BarList({
-  data,
+  data: all,
   color,
+  limit = DEFAULT_CHART_LIMIT,
+  formatValue,
   testID,
 }: {
   data: ChartDatum[];
   color?: string;
+  /** Items shown before the rest is folded into « Autres ». */
+  limit?: number;
+  /** Formats the folded « Autres » value like the others (e.g. « 12 m³ »). */
+  formatValue?: (value: number) => string;
   testID?: string;
 }) {
   const t = useTheme();
   const s = useStyles();
   const [selected, toggle] = useSelection();
+  const { shown: data, total, toggle: more } = useCapped(all, limit, formatValue);
   const max = Math.max(1, ...data.map((d) => d.value));
-  const total = data.reduce((sum, d) => sum + Math.max(0, d.value), 0);
   const pick = selected != null && selected < data.length ? selected : null;
   return (
     <View style={s.barList} testID={testID}>
@@ -222,6 +274,7 @@ export function BarList({
           </Pressable>
         );
       })}
+      <MoreToggle toggle={more} testID={testID ? `${testID}-more` : undefined} />
     </View>
   );
 }
@@ -235,11 +288,17 @@ export function ColumnChart({
   data,
   height = 168,
   color,
+  limit = DEFAULT_CHART_LIMIT,
+  formatValue,
   testID,
 }: {
   data: ChartDatum[];
   height?: number;
   color?: string;
+  /** Items shown before the rest is folded into « Autres » (the full list is drawn as bars). */
+  limit?: number;
+  /** Formats the folded « Autres » value like the others (e.g. « 12 m³ »). */
+  formatValue?: (value: number) => string;
   testID?: string;
 }) {
   const t = useTheme();
@@ -259,10 +318,10 @@ export function ColumnChart({
   const longestWord = Math.max(0, ...data.flatMap((d) => d.label.split(/\s+/).map((w) => w.length)));
   const needed = Math.max(MIN_COLUMN_SLOT, longestWord * CAPTION_CHAR_PX + 8);
 
-  if (width > 0 && slot < needed) {
+  if ((width > 0 && slot < needed) || data.length > limit) {
     return (
       <View onLayout={onLayout}>
-        <BarList data={data} color={color} testID={testID} />
+        <BarList data={data} color={color} limit={limit} formatValue={formatValue} testID={testID} />
       </View>
     );
   }
@@ -380,6 +439,7 @@ const useStyles = makeStyles((th) => ({
     paddingVertical: th.space.sm,
   },
   barList: { gap: 2 },
+  more: { alignSelf: "flex-start", minHeight: 36, justifyContent: "center", paddingHorizontal: th.space.xs },
   barRow: { gap: 4, paddingVertical: 6, paddingHorizontal: th.space.xs, borderRadius: th.radius.sm },
   barRowOn: { backgroundColor: th.c.surface2 },
   barHead: { flexDirection: "row", alignItems: "flex-start", gap: th.space.sm },
