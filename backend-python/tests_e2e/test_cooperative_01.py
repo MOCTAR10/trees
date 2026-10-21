@@ -1,5 +1,6 @@
 """Régression Coopérative · espace coopérative, résidus attribués et collectés, projets, limites du rôle."""
 
+from tests_e2e.helpers import project_scan
 from tools.pilot_client import sql
 
 
@@ -68,23 +69,13 @@ def test_accueil_carte_et_especes_pour_la_cooperative(world):
 
 
 def test_la_cooperative_participe_aux_projets(world):
-    """La coopérative rejoint un projet ouvert, y rattache son scan, répond à une invitation et quitte."""
+    """La coopérative rejoint un projet ouvert, y scanne pour le projet, quitte et répond à une invitation."""
     pid = world.project["moabi"]
     assert any(p["id"] == pid for p in world.p.get("can.pres", "/api/projects"))
     assert world.p.get("can.pres", f"/api/projects/{pid}")
     world.p.call("can.pres", "GET", f"/api/projects/{pid}/chantier", expect=(200, 400, 404))
     world.p.post("can.pres", f"/api/projects/{pid}/join", expect=200)
-    scan = sql(
-        [
-            (
-                "INSERT INTO tree_scans (species_scientific_name, species_confidence, geom, measured_dbh_cm,"
-                " dbh_method, age_model_used, user_id) VALUES ('Baillonella toxisperma', 0.8,"
-                " ST_SetSRID(ST_MakePoint(12.71, 0.44), 4326), 120, 'tape_circumference', 'pilote', $1) RETURNING id",
-                (world.user["can.pres"],),
-            )
-        ]
-    )[0][0]
-    world.p.post("can.pres", f"/api/projects/{pid}/attribute", {"scan_id": scan["id"]}, expect=200)
+    assert project_scan(world, "can.pres", pid, aac="mas1", i=5)["project_id"] == pid
     world.p.post("can.pres", f"/api/projects/{pid}/leave", expect=200)
     chantier = world.p.post(
         "hob.dg",

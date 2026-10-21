@@ -1,5 +1,9 @@
 """Small factories for the regression tests: each test makes its own fresh data."""
 
+import io
+
+from PIL import Image
+
 from tools import seed_pilot
 
 
@@ -14,6 +18,30 @@ def line(world, species: str, dbh: float, aac: str = "hob1", i: int = 0, **over)
         "longitude": lon,
         **over,
     }
+
+
+def project_scan(world, actor: str, project_id: int | None, aac: str = "hob1", i: int = 0) -> dict:
+    lon, lat = seed_pilot._point(world, aac, i)
+    buf = io.BytesIO()
+    Image.new("RGB", (640, 480), (70, 90, 60)).save(buf, "JPEG")
+    data = {
+        "latitude": str(lat),
+        "longitude": str(lon),
+        "organs": "dbh",
+        "circumference_cm": "240",
+    }
+    if project_id is not None:
+        data["project_id"] = str(project_id)
+    r = world.p.http.request(
+        "POST",
+        "/api/v1/process-scan",
+        data=data,
+        files={"images": ("dbh.jpg", buf.getvalue(), "image/jpeg")},
+        headers={"Authorization": f"Bearer {world.p.tokens[actor]}"},
+        timeout=180,
+    )
+    assert r.status_code == 200, r.text[:300]
+    return r.json()
 
 
 def declare(

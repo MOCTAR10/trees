@@ -1,5 +1,6 @@
 """Régression Entreprise · chantiers d'AAC, projets, et économie circulaire (résidus → coopératives)."""
 
+from tests_e2e.helpers import project_scan
 from tools.pilot_client import sql
 
 
@@ -76,37 +77,17 @@ def test_chantier_cloture_refuse_les_rattachements(world):
     pid = _new_chantier(world, f"Chantier clos {world.code()}", participation="open")
     world.p.post("hob.dg", f"/api/projects/{pid}/status", {"status": "closed"}, expect=200)
     world.p.call("hob.agent1", "POST", f"/api/projects/{pid}/join", expect=400)
-    scan = sql(
-        [("SELECT id FROM tree_scans WHERE user_id = $1 LIMIT 1", (world.user["hob.agent1"],))]
-    )[0][0]
-    world.p.call(
-        "hob.agent1",
-        "POST",
-        f"/api/projects/{pid}/attribute",
-        json={"scan_id": scan["id"]},
-        expect=400,
-    )
+    out = project_scan(world, "hob.agent1", pid)
+    assert out["project_id"] is None and out["project_note"] == "project_closed"
 
 
-def test_rattacher_son_scan_a_un_projet(world):
-    """Un agent rattache son propre scan à un projet ouvert, pas celui d'un autre."""
+def test_scanner_pour_un_projet_ouvert(world):
+    """Un agent qui participe à un projet ouvert scanne pour ce projet : son scan compte pour le projet."""
     pid = world.project["moabi"]
-    mine = sql(
-        [("SELECT id FROM tree_scans WHERE user_id = $1 LIMIT 1", (world.user["mas.agent1"],))]
-    )[0][0]
-    other = sql(
-        [("SELECT id FROM tree_scans WHERE user_id = $1 LIMIT 1", (world.user["hob.agent1"],))]
-    )[0][0]
-    world.p.post(
-        "mas.agent1", f"/api/projects/{pid}/attribute", {"scan_id": mine["id"]}, expect=200
-    )
-    world.p.call(
-        "mas.agent1",
-        "POST",
-        f"/api/projects/{pid}/attribute",
-        json={"scan_id": other["id"]},
-        expect=403,
-    )
+    out = project_scan(world, "mas.agent1", pid, aac="mas1", i=3)
+    assert out["project_id"] == pid and out["project_note"] is None
+    detail = world.p.get("mas.agent1", f"/api/projects/{pid}")
+    assert detail["my_scan_count"] >= 1
 
 
 def _residue(world) -> tuple[int, int]:
@@ -153,21 +134,10 @@ def test_residus_attribues_a_une_cooperative_puis_liberes(world):
 
 
 def test_une_entreprise_participe_aux_projets_des_autres(world):
-    """Une entreprise rejoint un projet ouvert, répond à une invitation, quitte, y rattache son scan."""
+    """Une entreprise rejoint un projet ouvert, y scanne pour le projet, quitte, répond à une invitation."""
     pid = world.project["moabi"]
     world.p.post("sdl.dg", f"/api/projects/{pid}/join", expect=200)
-    scan = sql(
-        [
-            (
-                "INSERT INTO tree_scans (species_scientific_name, species_confidence, geom, measured_dbh_cm,"
-                " dbh_method, age_model_used, user_id) VALUES ('Baillonella toxisperma', 0.8,"
-                " ST_SetSRID(ST_MakePoint(12.71, 0.43), 4326), 150, 'tape_circumference', 'pilote', $1)"
-                " RETURNING id",
-                (world.user["sdl.dg"],),
-            )
-        ]
-    )[0][0]
-    world.p.post("sdl.dg", f"/api/projects/{pid}/attribute", {"scan_id": scan["id"]}, expect=200)
+    assert project_scan(world, "sdl.dg", pid, aac="mas1", i=4)["project_id"] == pid
     world.p.post("sdl.dg", f"/api/projects/{pid}/leave", expect=200)
     chantier = _new_chantier(world, f"Chantier partenaire {world.code()}")
     world.p.post(

@@ -25,6 +25,7 @@ def _scan(world, actor: str, code: str, aac: str = "hob1", i: int = 7, expect: i
         },
         files={"images": ("dbh.jpg", buf.getvalue(), "image/jpeg")},
         headers={"Authorization": f"Bearer {world.p.tokens[actor]}"},
+        timeout=180,
     )
     assert r.status_code == expect, r.text[:300]
     return r.json()

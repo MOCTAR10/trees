@@ -61,10 +61,6 @@ class ProjectStatus(BaseModel):
     status: str
 
 
-class AttributeRequest(BaseModel):
-    scan_id: int
-
-
 class InviteRequest(BaseModel):
     user_ids: list[int] = Field(default_factory=list)
     emails: list[str] = Field(default_factory=list)
@@ -437,24 +433,6 @@ async def invite(project_id: int, payload: InviteRequest, user: dict = Depends(g
         )
         invited.append(uid)
     return {"id": project_id, "invited": invited}
-
-
-@router.post("/{project_id}/attribute")
-async def attribute_scan(
-    project_id: int, payload: AttributeRequest, user: dict = Depends(get_current_user)
-):
-    project = await db.fetch_one("SELECT id, status FROM projects WHERE id=$1", project_id)
-    if project is None:
-        raise HTTPException(status_code=404, detail="Projet introuvable")
-    if project["status"] == "closed":
-        raise HTTPException(status_code=400, detail="Projet clôturé")
-    scan = await db.fetch_one("SELECT id, user_id FROM tree_scans WHERE id=$1", payload.scan_id)
-    if scan is None:
-        raise HTTPException(status_code=404, detail="Scan introuvable")
-    if scan["user_id"] != user["id"]:
-        raise HTTPException(status_code=403, detail="Ce scan ne vous appartient pas")
-    await db.execute("UPDATE tree_scans SET project_id=$2 WHERE id=$1", payload.scan_id, project_id)
-    return {"scan_id": payload.scan_id, "project_id": project_id}
 
 
 @router.post("/{project_id}/status")

@@ -71,10 +71,6 @@ def _install(monkeypatch):
                 "created_by": args[8],
                 "created_at": "2026-01-01T00:00:00Z",
             }
-        if "select id, status from projects" in s:
-            return {"id": 1, "status": "open"}
-        if "select id, user_id from tree_scans" in s:
-            return {"id": 10, "user_id": 2}
         return None
 
     async def fetch_all(sql, *args):
@@ -118,7 +114,7 @@ def test_admin_can_create_project(client, monkeypatch):
     assert resp.json()["title"] == "Cartographier l'Okoumé"
 
 
-def test_attribute_scan_requires_ownership(client, monkeypatch):
+def test_old_scans_cannot_be_attached_to_a_project(client, monkeypatch):
     _install(monkeypatch)
     resp = client.post("/api/projects/1/attribute", json={"scan_id": 10}, headers=_auth(USERS[4]))
-    assert resp.status_code == 403
+    assert resp.status_code == 404
