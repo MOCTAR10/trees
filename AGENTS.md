@@ -266,6 +266,9 @@ So a push to `main` reaches production about 5 minutes after CI passes — keep 
 overview, zoom, PDF; see `deploy/presentation/README.md`), served by nginx through `deploy/nginx/trees-presentation.snippet`,
 which `deploy.sh` installs and reloads. It is a public copy of the deck (pilot demo accounts and team phone numbers included, by decision):
 re-render it when the deck changes.
+**Ministry user guide**: `https://greenleaves.ga/foresterie-app/guide/` — static page in `deploy/guide/site/` (13 scenarios with
+production captures, numbered markers, SNTBG positioning, A4 PDF; see `deploy/guide/README.md`), same nginx snippet. Re-capture it
+when a Ministry screen changes (view only on production, no personal data in the captures).
 **App incidents**: the apps report uncaught JS errors, slow starts (> 8 s) and slow catalogue builds
 (> 2 s) to `POST /api/v1/client-log` (written to the API log, nothing stored). Read them with
 `ssh greenleaves /var/www/trees/deploy/client-logs.sh [24h]`.

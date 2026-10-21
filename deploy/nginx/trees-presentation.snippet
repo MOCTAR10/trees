@@ -19,3 +19,24 @@ location /foresterie-app/presentation/ {
 location /presentation/ {
     return 301 /foresterie-app/presentation/;
 }
+
+# Ministry user guide (static pages): https://<domaine>/foresterie-app/guide/ — deploy/guide/site, no API, no key.
+location = /foresterie-app/guide {
+    return 301 /foresterie-app/guide/;
+}
+location ~ ^/foresterie-app/guide/((captures|assets)/.+)$ {
+    alias /var/www/trees/deploy/guide/site/$1;
+    expires 1d;
+    add_header Cache-Control "public, max-age=86400";
+    add_header X-Robots-Tag "noindex";
+}
+location /foresterie-app/guide/ {
+    alias /var/www/trees/deploy/guide/site/;
+    index index.html;
+    try_files $uri $uri/ =404;
+    add_header Cache-Control "no-cache";
+    add_header X-Robots-Tag "noindex";
+}
+location /guide/ {
+    return 301 /foresterie-app/guide/;
+}

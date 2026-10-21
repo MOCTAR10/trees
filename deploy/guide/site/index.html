@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guide utilisateur — Ministère</title>
+<meta name="description" content="Guide utilisateur de Foresterie Numérique pour le Ministère des Eaux et Forêts : se repérer, instruire et décider les dossiers, contrôler sur le terrain, suivre les organisations — pas à pas, avec captures, et la place de l'outil à côté du SNTBG.">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="Foresterie Numérique — Guide utilisateur du Ministère">
+<meta property="og:description" content="Pas à pas, avec captures : instruire, décider, contrôler et suivre, en complément du SNTBG.">
+<meta property="og:image" content="captures/02-accueil.jpg">
+<link rel="icon" href="assets/seal.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F3EC; --surface:#FBFBF7; --white:#fff; --ink:#1C2A1F; --muted:#5A6656; --line:#D9DCCF;
+  --forest:#1E4429; --forest-deep:#14301E; --olive:#4F5F2A; --gold:#C99A1E; --gold-ink:#7A5C0E; --gold-soft:#F3E7C2;
+  --ok:#2E7D4F; --ok-soft:#E1F0E6; --warn:#9A6A08; --warn-soft:#F6EBD2; --risk:#B3332B; --risk-soft:#F6E0DD; --info:#2C64A6; --info-soft:#E2EBF6;
+  --on-forest:#F4F3EC; --radius:14px;
+  --head:'Barlow Semi Condensed', Arial, sans-serif; --body:'Atkinson Hyperlegible', Verdana, sans-serif;
+  --side:300px; --bar:64px;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--bar) + 16px)}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-text-size-adjust:100%}
+a{color:var(--olive);text-underline-offset:2px}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+img{max-width:100%}
+
+.topbar{position:fixed;inset:0 0 auto 0;height:var(--bar);background:var(--forest);color:var(--on-forest);display:flex;align-items:center;gap:12px;padding:0 16px;z-index:40;border-bottom:3px solid var(--gold)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;text-decoration:none;color:inherit}
+.brand img{width:40px;height:40px;border-radius:9px;flex:none}
+.brand div{min-width:0}
+.brand span{display:block;font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:#D9B04A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand b{display:block;font-family:var(--head);font-size:21px;font-weight:700;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spacer{flex:1}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1.5px solid rgba(255,255,255,.35);background:transparent;color:var(--on-forest);border-radius:999px;padding:8px 15px;font-size:14.5px;font-weight:700;text-decoration:none;white-space:nowrap}
+.btn:hover{background:rgba(255,255,255,.12)}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:var(--forest-deep)}
+.btn.primary:hover{background:#d8a82b}
+.btn svg{width:17px;height:17px;flex:none}
+.burger{display:none;padding:8px 10px}
+
+.side{position:fixed;top:var(--bar);bottom:0;left:0;width:var(--side);background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;z-index:30}
+.search{padding:14px 14px 8px}
+.search input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;font-size:15.5px;background:var(--white);color:var(--ink)}
+.search input:focus{border-color:var(--olive);outline:none;box-shadow:0 0 0 3px rgba(79,95,42,.2)}
+.toc{overflow-y:auto;padding:4px 8px 28px;flex:1}
+.toc .grp{font-family:var(--head);font-weight:700;font-size:14px;letter-spacing:1.3px;text-transform:uppercase;color:var(--gold-ink);padding:14px 10px 4px}
+.toc a{display:flex;gap:8px;padding:7px 10px;border-radius:9px;color:var(--ink);text-decoration:none;font-size:15px;line-height:1.3}
+.toc a:hover{background:rgba(30,68,41,.07)}
+.toc a.on{background:var(--forest);color:var(--on-forest)}
+.toc a .no{flex:none;min-width:22px;font-family:var(--head);font-weight:700;color:var(--muted)}
+.toc a.on .no{color:#D9B04A}
+.toc .none{padding:12px 10px;color:var(--muted);font-size:15px}
+.scrim{display:none}
+
+.main{margin-left:var(--side);padding:calc(var(--bar) + 28px) 32px 64px}
+.doc{max-width:900px;margin:0 auto}
+.hero{background:var(--forest);color:var(--on-forest);border-radius:20px;padding:34px 34px 30px;position:relative;overflow:hidden;border-bottom:4px solid var(--gold)}
+.hero .eyebrow{font-family:var(--head);font-size:14px;letter-spacing:2.4px;text-transform:uppercase;color:#D9B04A;font-weight:600}
+.hero h1{font-family:var(--head);font-size:clamp(30px,4.4vw,46px);line-height:1.05;margin:6px 0 12px;font-weight:700}
+.hero p{max-width:640px;font-size:17.5px;opacity:.95}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.hero .chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:5px 13px;font-size:14px}
+.hero .stripes{position:absolute;right:28px;top:28px;display:flex;gap:6px}
+.hero .stripes i{display:block;width:8px;height:44px;border-radius:3px}
+
+section{margin-top:44px}
+.kicker{font-family:var(--head);font-size:14px;letter-spacing:2.2px;text-transform:uppercase;color:var(--gold-ink);font-weight:600}
+h2{font-family:var(--head);font-size:clamp(26px,3vw,34px);line-height:1.1;color:var(--forest);font-weight:700;margin:4px 0 12px}
+h3{font-family:var(--head);font-size:22px;line-height:1.2;color:var(--forest);font-weight:700;margin:26px 0 8px}
+p+p{margin-top:10px}
+ul.plain{padding-left:22px;margin:8px 0}
+ul.plain li+li{margin-top:4px}
+strong{color:var(--forest-deep)}
+.ui{display:inline-block;font-family:var(--head);font-weight:700;font-size:.95em;background:var(--white);border:1px solid var(--line);border-radius:7px;padding:0 7px;color:var(--forest);white-space:nowrap}
+.ui.go{background:var(--olive);border-color:var(--olive);color:#fff}
+
+.card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+.card h4{font-family:var(--head);font-size:19px;color:var(--forest);margin-bottom:4px}
+.card p{font-size:15.5px;color:var(--muted)}
+.card .big{font-family:var(--head);font-size:30px;font-weight:700;color:var(--gold-ink);line-height:1}
+
+.note{display:flex;gap:12px;border-radius:12px;padding:14px 16px;margin:16px 0;font-size:16px;border:1px solid}
+.note .i{flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff}
+.note.tip{background:var(--ok-soft);border-color:#BFDCC9}.note.tip .i{background:var(--ok)}
+.note.warn{background:var(--warn-soft);border-color:#E7D2A3}.note.warn .i{background:var(--warn)}
+.note.info{background:var(--info-soft);border-color:#BFD0E8}.note.info .i{background:var(--info)}
+.note.risk{background:var(--risk-soft);border-color:#E9BDB7}.note.risk .i{background:var(--risk)}
+
+.scenario{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--gold);border-radius:var(--radius);padding:18px 20px;margin:14px 0}
+.scenario .who{font-family:var(--head);font-weight:700;color:var(--gold-ink);letter-spacing:1.2px;text-transform:uppercase;font-size:13.5px}
+.scenario p{margin-top:4px}
+
+ol.steps{list-style:none;padding:0;margin:16px 0;counter-reset:s}
+ol.steps>li{counter-increment:s;position:relative;padding:2px 0 14px 50px}
+ol.steps>li::before{content:counter(s);position:absolute;left:0;top:0;width:34px;height:34px;border-radius:50%;background:var(--olive);color:#fff;font-family:var(--head);font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center}
+ol.steps>li::after{content:"";position:absolute;left:16px;top:38px;bottom:2px;width:2px;background:var(--line)}
+ol.steps>li:last-child::after{display:none}
+ol.steps>li b.t{display:block;font-family:var(--head);font-size:19px;color:var(--forest)}
+
+figure.shot{margin:18px 0 22px}
+.frame{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);box-shadow:0 12px 32px rgba(20,40,25,.14);background:#fff;cursor:zoom-in}
+.frame img{display:block;width:100%;height:auto}
+figure.phone .frame{max-width:300px;margin:0 auto;border-radius:22px;border:6px solid #1b1f1c}
+.pin{position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;background:var(--gold);color:var(--forest-deep);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);font-family:var(--head);font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;pointer-events:none}
+figcaption{font-size:15px;color:var(--muted);margin-top:10px}
+figcaption ol{margin:8px 0 0;padding-left:0;list-style:none;counter-reset:p}
+figcaption ol li{counter-increment:p;position:relative;padding-left:32px;margin-top:5px;color:var(--ink)}
+figcaption ol li::before{content:counter(p);position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:50%;background:var(--gold);color:var(--forest-deep);font-family:var(--head);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.pair figure.phone .frame{max-width:none}
+
+table.t{width:100%;border-collapse:separate;border-spacing:0;margin:14px 0;background:var(--white);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:15.5px}
+table.t th{background:var(--forest);color:var(--on-forest);text-align:left;font-family:var(--head);font-weight:700;font-size:15px;letter-spacing:.5px;padding:10px 12px}
+table.t td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:top}
+table.t tr:nth-child(even) td{background:#F8F8F2}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:1px 10px;font-size:14px;font-weight:700;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}.pill.warn{background:var(--warn-soft);color:var(--warn)}.pill.risk{background:var(--risk-soft);color:var(--risk)}.pill.info{background:var(--info-soft);color:var(--info)}.pill.neutral{background:#EDEEE6;color:var(--muted)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:16px}
+.two>div{padding:18px 20px;background:var(--white)}
+.two>div+div{border-left:1px solid var(--line);background:var(--surface)}
+.two h4{font-family:var(--head);font-size:21px;color:var(--forest)}
+.two .tag{font-family:var(--head);font-weight:700;font-size:13px;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold-ink)}
+.two ul{padding-left:20px;margin-top:8px;font-size:15.5px}
+.flow{display:flex;align-items:stretch;gap:10px;margin:18px 0;flex-wrap:wrap}
+.flow .box{flex:1 1 180px;background:var(--white);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:15px}
+.flow .box b{display:block;font-family:var(--head);font-size:18px;color:var(--forest)}
+.flow .arrow{align-self:center;font-family:var(--head);font-size:26px;color:var(--gold)}
+.flow .box.us{border:2px solid var(--gold);background:var(--gold-soft)}
+
+dl.gloss{display:grid;grid-template-columns:150px 1fr;gap:8px 18px;margin-top:12px;background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;font-size:15.5px}
+dl.gloss dt{font-family:var(--head);font-weight:700;color:var(--forest);font-size:17px}
+details.faq{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-top:10px}
+details.faq summary{cursor:pointer;font-weight:700;color:var(--forest)}
+details.faq p{margin-top:8px;font-size:16px}
+.foot{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+mark{background:#FBE7A6;color:inherit;border-radius:3px}
+
+.lightbox{position:fixed;inset:0;background:rgba(10,20,14,.92);display:none;align-items:center;justify-content:center;z-index:60;padding:24px;cursor:zoom-out}
+.lightbox.on{display:flex}
+.lightbox img{max-width:100%;max-height:100%;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lightbox button{position:absolute;top:14px;right:16px;background:rgba(255,255,255,.15);border:0;color:#fff;border-radius:999px;width:42px;height:42px;font-size:22px}
+
+@media (max-width:1020px){
+  .side{transform:translateX(-102%);transition:transform .22s;box-shadow:0 0 40px rgba(0,0,0,.25);width:min(88vw,330px)}
+  body.menu .side{transform:none}
+  body.menu .scrim{display:block;position:fixed;inset:var(--bar) 0 0 0;background:rgba(0,0,0,.35);z-index:25}
+  .main{margin-left:0;padding:calc(var(--bar) + 18px) 16px 48px}
+  .burger{display:inline-flex}
+}
+@media (max-width:700px){
+  body{font-size:16.5px}
+  .btn .lbl{display:none}
+  .brand b{font-size:18px}
+  .hero{padding:24px 20px 22px}
+  .hero .stripes{display:none}
+  .grid2,.grid3,.pair,.two{grid-template-columns:1fr}
+  .two>div+div{border-left:0;border-top:1px solid var(--line)}
+  dl.gloss{grid-template-columns:1fr;gap:2px 0}
+  dl.gloss dd{margin-bottom:8px}
+  .pin{width:24px;height:24px;font-size:13px;border-width:2px}
+  table.t{font-size:14.5px}
+  table.t .pill{white-space:normal}
+  table.t td,table.t th{overflow-wrap:anywhere}
+  table.t th,table.t td{padding:8px 9px}
+  .flow .arrow{display:none}
+}
+@media print{
+  .topbar,.side,.scrim,.lightbox,.noprint{display:none!important}
+  .main{margin:0;padding:0}
+  body{background:#fff;font-size:12.5pt}
+  section{break-inside:auto}
+  figure.shot,.scenario,.note,table.t,.card,.two,.flow,dl.gloss,details.faq{break-inside:avoid}
+  .grid2,.pair,.two{grid-template-columns:1fr 1fr}
+  .two>div+div{border-left:1px solid var(--line);border-top:0}
+  .pin{width:26px;height:26px;font-size:14px}
+  .kicker{break-after:avoid}
+  section{break-before:auto}
+  h2,h3{break-after:avoid}
+  .s-break{break-before:page}
+  .frame{box-shadow:none}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <button class="btn burger" id="burger" aria-label="Ouvrir le sommaire" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <a class="brand" href="#debut">
+    <img src="assets/seal.jpg" alt="">
+    <div><span>Ministère des Eaux et Forêts</span><b>Guide utilisateur</b></div>
+  </a>
+  <div class="spacer"></div>
+  <a class="btn noprint" href="https://foresterie-app.greenleaves.ga" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg><span class="lbl">Ouvrir l'application</span>
+  </a>
+  <a class="btn primary noprint" href="Guide-Utilisateur-Ministere.pdf" download>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span class="lbl">PDF</span>
+  </a>
+</header>
+
+<nav class="side" aria-label="Sommaire">
+  <div class="search"><input id="q" type="search" placeholder="Rechercher dans le guide…" aria-label="Rechercher dans le guide"></div>
+  <div class="toc" id="toc"></div>
+</nav>
+<div class="scrim" id="scrim"></div>
+
+<main class="main">
+<div class="doc">
+
+<div class="hero" id="debut">
+  <div class="stripes" aria-hidden="true"><i style="background:#3A9A4B"></i><i style="background:#F2C318"></i><i style="background:#2B5FA6"></i></div>
+  <div class="eyebrow">Foresterie Numérique · Espace Ministère</div>
+  <h1>Guide utilisateur du Ministère</h1>
+  <p>Un guide pas à pas, pensé pour une première prise en main : se repérer dans l'application, instruire et décider les dossiers des entreprises, contrôler sur le terrain, suivre les organisations et préparer des rapports. Chaque étape est illustrée par une capture de l'application réelle.</p>
+  <div class="meta">
+    <span class="chip">13 scénarios pratiques</span>
+    <span class="chip">Captures de l'application · octobre 2026</span>
+    <span class="chip">Version pilote</span>
+  </div>
+</div>
+
+<section data-toc="Avant de commencer" data-grp="Comprendre" id="avant">
+  <div class="kicker">Comprendre</div>
+  <h2>Avant de commencer : 6 idées simples</h2>
+  <div class="grid2">
+    <div class="card"><div class="big">1</div><h4>Les entreprises déposent, le Ministère décide</h4><p>Une entreprise envoie une demande ou une pièce (déclaration d'abattage, quittance, PAO…). Elle arrive chez vous dans <span class="ui">À traiter</span>. Vous l'ouvrez, vous lisez, vous décidez.</p></div>
+    <div class="card"><div class="big">2</div><h4>L'application vérifie avant vous</h4><p>Chaque dossier affiche des <strong>contrôles automatiques</strong> déjà faits : AAC, diamètre minimum, essences protégées, pièces expirées, taxes… Vous gagnez du temps et rien n'est oublié.</p></div>
+    <div class="card"><div class="big">3</div><h4>Un refus s'explique toujours</h4><p>Pour rejeter, un <strong>motif</strong> est obligatoire. L'entreprise le voit immédiatement dans son espace et peut corriger.</p></div>
+    <div class="card"><div class="big">4</div><h4>Tout laisse une trace</h4><p>Chaque décision, chaque contrôle et chaque PV est daté, signé du nom de l'agent et consultable plus tard. Les documents officiels se téléchargent en PDF.</p></div>
+    <div class="card"><div class="big">5</div><h4>Le SNTBG reste le système national</h4><p>Foresterie Numérique ne remplace pas le SNTBG : il apporte au Ministère les outils de <strong>gouvernance</strong> (instruire, décider, contrôler, suivre). Voir la section suivante.</p></div>
+    <div class="card"><div class="big">6</div><h4>Pendant la phase pilote</h4><p>Le Ministère des Eaux et Forêts réalise toutes les actions. Chaque dossier indique l'<strong>autorité compétente</strong> (DGF, DP, DGE…), qui aura son interface dédiée plus tard.</p></div>
+  </div>
+</section>
+
+<section data-toc="Foresterie Numérique et le SNTBG" data-grp="Comprendre" id="sntbg">
+  <div class="kicker">Comprendre</div>
+  <h2>Foresterie Numérique et le SNTBG : qui fait quoi ?</h2>
+  <p>Le <strong>SNTBG</strong> (Système National de Traçabilité du Bois du Gabon) est le système officiel rendu obligatoire par l'<strong>Arrêté n° 001/MEFPECCHF/CAB-M du 3 octobre 2023</strong>. Les opérateurs y saisissent leurs opérations de terrain dans ses modules : inventaire, abattage, carnet de chantier, unité de transformation, transport, gestion des stocks, colisage, empotage et contrôle.</p>
+  <p><strong>Foresterie Numérique</strong> se place à côté, du côté de l'administration. C'est l'outil de <strong>e-gouvernance</strong> du Ministère : il aide les agents à instruire les dossiers, décider, contrôler et suivre les organisations, avec les règles du Code forestier (Loi 016/01) et du règlement européen contre la déforestation (RDUE).</p>
+
+  <div class="two">
+    <div>
+      <span class="tag">Le SNTBG</span>
+      <h4>Le système national de traçabilité</h4>
+      <ul>
+        <li>Obligatoire pour les opérateurs (arrêté du 3 octobre 2023)</li>
+        <li>Saisie terrain : inventaire, abattage, carnet, transport, stocks, colisage, empotage</li>
+        <li>Suit le bois de la forêt au port</li>
+      </ul>
+    </div>
+    <div>
+      <span class="tag">Foresterie Numérique</span>
+      <h4>Les outils de gouvernance du Ministère</h4>
+      <ul>
+        <li>Titres, UFA, AAC et autorisations d'exploiter (art. 14)</li>
+        <li>Pièces légales, taxes, conventions, études environnementales</li>
+        <li>Décisions motivées, contrôles terrain et PV, anomalies</li>
+        <li>Diligence RDUE, tableaux de bord, rapports PDF</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Comment les deux travaillent ensemble</h3>
+  <div class="flow">
+    <div class="box"><b>Terrain</b>Les opérateurs saisissent leurs opérations dans le SNTBG.</div>
+    <div class="arrow">→</div>
+    <div class="box"><b>Données</b>Titres, déclarations, transports, états annuels.</div>
+    <div class="arrow">→</div>
+    <div class="box us"><b>Foresterie Numérique</b>Le Ministère instruit, décide, contrôle, suit et publie ses rapports.</div>
+  </div>
+  <div class="note info"><span class="i">i</span><div>L'arrêté prévoit des <strong>passerelles</strong> : l'Unité-SCLT peut rattacher des modules d'« E-Gouvernance » (art. 9 c) et des systèmes tiers peuvent être interconnectés, avec transfert automatique des données, sur demande au Comité Technique (art. 9 et 10). C'est la voie retenue pour relier Foresterie Numérique au SNTBG. <strong>Cette passerelle n'est pas encore branchée</strong> : pendant le pilote, les données de démonstration sont saisies dans Foresterie Numérique.</div></div>
+  <div class="note tip"><span class="i">✓</span><div><strong>À retenir :</strong> pas de double saisie à terme pour les opérateurs. Le SNTBG reste la référence pour la traçabilité ; Foresterie Numérique donne au Ministère les moyens de décider et de contrôler sur ces données.</div></div>
+</section>
+
+<section data-toc="Se connecter" data-grp="Premiers pas" id="connexion" class="s-break">
+  <div class="kicker">Premiers pas</div>
+  <h2>Se connecter</h2>
+  <p>L'application s'ouvre dans un navigateur (Chrome, Edge, Firefox) à l'adresse <a href="https://foresterie-app.greenleaves.ga" target="_blank" rel="noopener">foresterie-app.greenleaves.ga</a>. Rien à installer sur un ordinateur.</p>
+  <ol class="steps">
+    <li><b class="t">Saisissez votre adresse e-mail</b>Celle que l'administrateur a créée pour vous, puis appuyez sur le bouton doré à droite.</li>
+    <li><b class="t">Saisissez votre mot de passe</b>L'application affiche votre organisation pour confirmer que c'est bien votre compte.</li>
+    <li><b class="t">Vous arrivez sur l'Accueil</b>Votre tableau de bord du jour (voir la section suivante).</li>
+  </ol>
+  <figure class="shot">
+    <div class="frame"><img src="captures/01b-connexion-email.jpg" alt="Écran de connexion avec l'adresse e-mail saisie" loading="lazy">
+      <span class="pin" style="--x:71.5%;--y:52.5%">1</span><span class="pin" style="--x:80.5%;--y:52.5%">2</span></div>
+    <figcaption>L'écran de connexion.<ol><li>Le champ adresse e-mail.</li><li>Le bouton pour continuer.</li></ol></figcaption>
+  </figure>
+  <div class="note warn"><span class="i">!</span><div>Chaque connexion est enregistrée. Ne partagez pas votre compte : une décision porte le nom de la personne connectée.</div></div>
+</section>
+
+<section data-toc="L'écran d'accueil" data-grp="Premiers pas" id="accueil">
+  <div class="kicker">Premiers pas</div>
+  <h2>L'écran d'accueil : votre journée en un coup d'œil</h2>
+  <p>L'Accueil résume ce qui demande votre attention. Lisez-le de haut en bas.</p>
+  <figure class="shot">
+    <div class="frame"><img src="captures/02-accueil.jpg" alt="Accueil du Ministère : chiffres clés, alertes, tuiles et dossiers à traiter" loading="lazy">
+      <span class="pin" style="--x:15%;--y:13%">1</span><span class="pin" style="--x:21.3%;--y:19%">2</span><span class="pin" style="--x:56%;--y:27.2%">3</span><span class="pin" style="--x:37%;--y:47%">4</span><span class="pin" style="--x:40%;--y:71%">5</span><span class="pin" style="--x:98.6%;--y:4%">6</span></div>
+    <figcaption><ol>
+      <li><strong>Le menu</strong> : tous les espaces de travail, toujours visibles à gauche.</li>
+      <li><strong>Les chiffres clés</strong> : volume abattu, recettes perçues, taxes en retard, carbone mesuré.</li>
+      <li><strong>Les alertes</strong> : en rouge ce qui est grave (illicite), en orange ce qui est en retard. Un clic ouvre la liste concernée.</li>
+      <li><strong>Les tuiles</strong> : grumes, titres, AAC, transports, pièces expirées, certifications…</li>
+      <li><strong>À traiter</strong> : les dossiers qui attendent une décision, par type, avec l'autorité compétente.</li>
+      <li><strong>Votre compte</strong> : votre nom ; le voyant <span class="pill ok">En ligne</span> indique que le serveur répond.</li>
+    </ol></figcaption>
+  </figure>
+  <p>En descendant, l'Accueil montre aussi des graphiques : taux de transformation, volumes par essence et registre des titres par statut.</p>
+  <figure class="shot">
+    <div class="frame"><img src="captures/02b-accueil-suite.jpg" alt="Suite de l'accueil : dossiers à traiter et graphiques" loading="lazy"></div>
+    <figcaption>Suite de l'Accueil : la liste complète « À traiter » et les graphiques d'exploitation.</figcaption>
+  </figure>
+</section>
+
+<section data-toc="Se repérer : le menu" data-grp="Premiers pas" id="menu">
+  <div class="kicker">Premiers pas</div>
+  <h2>Se repérer : le menu</h2>
+  <p>Le menu de gauche est rangé par grands métiers.</p>
+  <table class="t">
+    <tr><th>Groupe</th><th>Espaces</th><th>À quoi ça sert</th></tr>
+    <tr><td><strong>Principal</strong></td><td>Accueil · À traiter · Carte · Organisations</td><td>Votre journée, les dossiers à décider, la carte du pays, l'annuaire des entreprises.</td></tr>
+    <tr><td><strong>Pilotage</strong></td><td>Statistiques &amp; rapports</td><td>Indicateurs nationaux et rapport PDF.</td></tr>
+    <tr><td><strong>Titres</strong></td><td>Titres &amp; AAC · Comptes</td><td>Titres forestiers, UFA, AAC, autorisations ; comptes des utilisateurs.</td></tr>
+    <tr><td><strong>Instruction</strong></td><td>Déclarations d'abattage · Pièces légales · Études &amp; conventions · Certifications</td><td>Chaque famille de dossiers, en liste complète.</td></tr>
+    <tr><td><strong>Contrôle</strong></td><td>Contrôles terrain · Anomalies · Traçabilité</td><td>Contrôles et PV, irrégularités détectées, carnet DF10 et états.</td></tr>
+    <tr><td><strong>Finances &amp; social</strong></td><td>Fiscalité &amp; social</td><td>Échéances et quittances, CCC / FDL, RDUE.</td></tr>
+    <tr><td><strong>Référence &amp; compte</strong></td><td>Parties prenantes · Espèces · Mon profil</td><td>Les autorités et leurs rôles, le catalogue des essences, votre compte.</td></tr>
+  </table>
+  <h3>Plus de place à l'écran : replier le menu</h3>
+  <p>En bas du menu, à côté de <span class="ui">Déconnexion</span>, un petit bouton replie le menu en une <strong>colonne d'icônes</strong>. Passez la souris sur une icône pour voir son nom. Le même bouton rouvre le menu. L'application se souvient de votre choix.</p>
+  <figure class="shot">
+    <div class="frame"><img src="captures/03-menu-replie.jpg" alt="Menu replié en colonne d'icônes" loading="lazy">
+      <span class="pin" style="--x:3.6%;--y:30%">1</span><span class="pin" style="--x:3.6%;--y:92.6%">2</span></div>
+    <figcaption><ol><li>Le menu replié : une icône par espace.</li><li>Le bouton pour rouvrir le menu, au-dessus de la déconnexion.</li></ol></figcaption>
+  </figure>
+  <h3>Sur un téléphone</h3>
+  <p>L'espace Ministère fonctionne aussi sur téléphone. Le menu devient une barre en bas de l'écran : <span class="ui">Accueil</span> · <span class="ui">À traiter</span> · <span class="ui">Carte</span> · <span class="ui">Organisations</span> · <span class="ui">Menu</span> (tous les autres espaces).</p>
+  <div class="pair">
+    <figure class="shot phone"><div class="frame"><img src="captures/30-telephone-accueil.jpg" alt="Accueil sur téléphone" loading="lazy"></div><figcaption>L'Accueil sur téléphone.</figcaption></figure>
+    <figure class="shot phone"><div class="frame"><img src="captures/31-telephone-a-traiter.jpg" alt="À traiter sur téléphone" loading="lazy"></div><figcaption>« À traiter » sur téléphone : filtres par type et par province.</figcaption></figure>
+  </div>
+</section>
+
+<section data-toc="Le principe d'un dossier" data-grp="Premiers pas" id="principe">
+  <div class="kicker">Premiers pas</div>
+  <h2>Le principe d'un dossier : les 3 couleurs</h2>
+  <p>Avant de décider, l'application passe chaque dossier au crible des règles du Code forestier. Le résultat s'affiche dans le cadre <strong>Contrôles automatiques</strong>.</p>
+  <table class="t">
+    <tr><th>Ce que vous voyez</th><th>Ce que ça veut dire</th><th>Ce que vous faites</th></tr>
+    <tr><td><span class="pill ok">Vert</span></td><td>Aucune non-conformité détectée.</td><td>Vous pouvez autoriser après lecture.</td></tr>
+    <tr><td><span class="pill warn">Orange · avertissement</span></td><td>Un point à vérifier : pièce expirée, taxe impayée, carnet DF10 non tenu, permis CITES absent, arbre dans une aire protégée…</td><td>Vous jugez : vous pouvez autoriser, demander une correction ou rejeter avec un motif.</td></tr>
+    <tr><td><span class="pill risk">Rouge · bloquant</span></td><td>Une règle impérative n'est pas respectée : pas d'autorisation d'exploiter (art. 14), arbre sous le diamètre minimum (DME), essence mise en réserve, arbre hors de l'AAC, code en double, arbre à préserver.</td><td>L'entreprise ne peut même pas envoyer une déclaration dans ce cas : elle est refusée au dépôt et doit corriger. Si un contrôle ✗ apparaît malgré tout sur un dossier, une note rouge vous le signale : vérifiez avant d'approuver ; en cas de doute, rejetez avec un motif.</td></tr>
+  </table>
+  <div class="note tip"><span class="i">✓</span><div>Une couleur n'est jamais une décision. C'est une aide : la décision reste celle de l'agent, et elle est tracée.</div></div>
+</section>
+
+<section data-toc="Scénario 1 · Décider une déclaration d'abattage" data-grp="Scénarios pratiques" id="s1" class="s-break">
+  <div class="kicker">Scénario 1</div>
+  <h2>Décider une déclaration d'abattage</h2>
+  <div class="scenario"><div class="who">La situation</div><p>L'entreprise <strong>Bois du Haut-Ogooué</strong> déclare 2 arbres à abattre dans son AAC <strong>PILOTE-AAC 2026-1</strong>. La Direction Provinciale doit autoriser ou rejeter la déclaration.</p></div>
+  <ol class="steps">
+    <li><b class="t">Ouvrez « À traiter »</b>Dans le menu, cliquez sur <span class="ui">À traiter</span>. Tous les dossiers en attente s'affichent, du plus ancien au plus récent.</li>
+    <li><b class="t">Filtrez si besoin</b>Cliquez sur le type <span class="ui">Déclarations</span>, ou sur votre province, pour ne garder que vos dossiers.</li>
+    <li><b class="t">Ouvrez le dossier</b>Cliquez sur la ligne « Déclaration n° 9 ». La page de décision s'ouvre.</li>
+    <li><b class="t">Lisez le dossier</b>Organisation, province, autorité compétente, permis, AAC, nombre de pieds.</li>
+    <li><b class="t">Regardez les contrôles automatiques</b>Ici : « Aucune non-conformité détectée ». Descendez pour voir chaque arbre : code, essence, diamètre et diamètre minimum (DME).</li>
+    <li><b class="t">Décidez</b>Cliquez sur <span class="ui go">Autoriser</span>, ou écrivez un motif puis <span class="ui">Rejeter</span>.</li>
+  </ol>
+  <figure class="shot">
+    <div class="frame"><img src="captures/04-a-traiter.jpg" alt="Liste À traiter avec filtres et colonnes" loading="lazy">
+      <span class="pin" style="--x:18.9%;--y:22.5%">1</span><span class="pin" style="--x:18.9%;--y:27.5%">2</span><span class="pin" style="--x:97%;--y:27.5%">3</span><span class="pin" style="--x:18.9%;--y:38.5%">4</span></div>
+    <figcaption>« À traiter ».<ol><li>Filtrer par type de dossier (le chiffre indique combien il y en a).</li><li>Filtrer par province.</li><li>L'autorité compétente et l'ancienneté de chaque dossier.</li><li>Une ligne = un dossier ; cliquez pour l'ouvrir.</li></ol></figcaption>
+  </figure>
+  <figure class="shot">
+    <div class="frame"><img src="captures/05-decision-declaration.jpg" alt="Page de décision d'une déclaration d'abattage" loading="lazy">
+      <span class="pin" style="--x:19.6%;--y:11.6%">1</span><span class="pin" style="--x:68.5%;--y:19.5%">2</span><span class="pin" style="--x:68.5%;--y:30.3%">3</span><span class="pin" style="--x:68.5%;--y:79.2%">4</span><span class="pin" style="--x:97%;--y:20%">5</span><span class="pin" style="--x:84.5%;--y:34.6%">6</span></div>
+    <figcaption>La page de décision.<ol><li><span class="ui">Retour</span> vers la liste.</li><li>Rappel : pendant le pilote, le Ministère agit pour le compte de l'autorité compétente (ici la DP).</li><li>Le dossier.</li><li>Les contrôles automatiques.</li><li>Le motif, obligatoire pour rejeter.</li><li>Les boutons de décision.</li></ol></figcaption>
+  </figure>
+  <figure class="shot">
+    <div class="frame"><img src="captures/05b-decision-declaration-controles.jpg" alt="Les arbres déclarés avec leur diamètre et le DME" loading="lazy"></div>
+    <figcaption>Plus bas : les arbres déclarés (code de la plaque, essence, diamètre mesuré et DME de l'essence).</figcaption>
+  </figure>
+  <div class="note info"><span class="i">i</span><div><strong>Après votre décision</strong>, le dossier quitte « À traiter ». L'entreprise voit la décision (et le motif en cas de refus) dans son espace. Les arbres autorisés pourront ensuite être abattus : l'application revérifie l'autorisation d'exploiter au moment de l'abattage.</div></div>
+</section>
+
+<section data-toc="Scénario 2 · Valider une pièce légale" data-grp="Scénarios pratiques" id="s2">
+  <div class="kicker">Scénario 2</div>
+  <h2>Valider une pièce légale</h2>
+  <div class="scenario"><div class="who">La situation</div><p>La <strong>Compagnie Forestière de la Nyanga</strong> a déposé sa <strong>quittance de la taxe de superficie</strong>. L'autorité compétente est la DGI.</p></div>
+  <ol class="steps">
+    <li><b class="t">Ouvrez le dossier</b>Depuis <span class="ui">À traiter</span>, cliquez sur « Quittance de la taxe de superficie ».</li>
+    <li><b class="t">Vérifiez les informations</b>Pièce, référence, dates de délivrance et d'expiration, base légale (ici Loi 016/01 art. 244).</li>
+    <li><b class="t">Lisez les contrôles</b>Ici, « Aucun fichier joint » (orange) : la pièce est déclarée mais le scan n'a pas été envoyé. « Validité en cours » (vert).</li>
+    <li><b class="t">Décidez</b><span class="ui go">Valider</span>, ou <span class="ui">Rejeter</span> avec un motif (par exemple « joindre le scan de la quittance »).</li>
+  </ol>
+  <figure class="shot"><div class="frame"><img src="captures/06-decision-piece.jpg" alt="Décision sur une pièce légale" loading="lazy"></div>
+    <figcaption>Une pièce légale à valider : les dates et la base légale sont affichées.</figcaption></figure>
+  <p>Vous pouvez aussi traiter toutes les pièces d'un coup depuis <span class="ui">Pièces légales</span> (groupe Instruction) : l'onglet <span class="ui">En attente</span> liste les pièces soumises, avec <span class="ui go">Valider</span> et <span class="ui">Rejeter</span> sur chaque carte.</p>
+  <figure class="shot"><div class="frame"><img src="captures/16-pieces-legales.jpg" alt="Liste des pièces légales en attente" loading="lazy"></div>
+    <figcaption>« Pièces légales » : toutes les pièces en attente, avec une note obligatoire en cas de rejet.</figcaption></figure>
+  <div class="note tip"><span class="i">✓</span><div>Une pièce dont la date d'expiration est passée devient automatiquement <span class="pill risk">expirée</span>. Vous n'avez rien à faire : l'alerte apparaît sur l'Accueil et sur la fiche de l'organisation.</div></div>
+</section>
+
+<section data-toc="Scénario 3 · Délivrer une autorisation (art. 14)" data-grp="Scénarios pratiques" id="s3">
+  <div class="kicker">Scénario 3</div>
+  <h2>Délivrer une autorisation d'exploiter (art. 14)</h2>
+  <div class="scenario"><div class="who">La situation</div><p>La Compagnie Forestière de la Nyanga demande un <strong>certificat de vente de coupe</strong> pour son AAC <strong>PILOTE-AAC CPAET 2026</strong>. Sans autorisation délivrée, aucune déclaration d'abattage ne peut être autorisée sur cette AAC : c'est un contrôle bloquant.</p></div>
+  <ol class="steps">
+    <li><b class="t">Ouvrez la demande</b>Depuis <span class="ui">À traiter</span>, type <span class="ui">Autorisations</span>.</li>
+    <li><b class="t">Vérifiez</b>Le type d'autorisation, l'AAC et son état (ouverte), le titre, la référence.</li>
+    <li><b class="t">Lisez les avertissements</b>Ici : « Titre provisoire » et « Plan non joint ». Vous pouvez délivrer malgré tout ou demander le plan.</li>
+    <li><b class="t">Décidez</b><span class="ui go">Délivrer</span>, ou <span class="ui">Rejeter</span> avec un motif.</li>
+  </ol>
+  <figure class="shot"><div class="frame"><img src="captures/07-decision-autorisation.jpg" alt="Décision sur une autorisation d'exploiter" loading="lazy">
+    <span class="pin" style="--x:68.5%;--y:86%">1</span><span class="pin" style="--x:97%;--y:35%">2</span></div>
+    <figcaption><ol><li>Deux avertissements orange : à lire, ils ne bloquent pas.</li><li>Le bouton <strong>Délivrer</strong>.</li></ol></figcaption></figure>
+  <div class="note info"><span class="i">i</span><div>Les 4 autorisations de l'art. 14 sont suivies : certificat annuel d'assiette, permis annuel d'opérations, certificat de vente de coupe et CAE. Après délivrance, l'entreprise notifie le démarrage des activités ; l'échéance de chaque autorisation est suivie.</div></div>
+</section>
+
+<section data-toc="Scénario 4 · Statuer sur une diligence RDUE" data-grp="Scénarios pratiques" id="s4">
+  <div class="kicker">Scénario 4</div>
+  <h2>Statuer sur une diligence RDUE (zéro déforestation)</h2>
+  <div class="scenario"><div class="who">La situation</div><p>Pour exporter vers l'Union européenne, le bois doit prouver qu'il ne vient pas d'une zone déforestée (règlement RDUE). La <strong>Communauté de Massaha</strong> soumet sa diligence pour la parcelle <strong>PILOTE-Parcelle FC 2026</strong>.</p></div>
+  <ol class="steps">
+    <li><b class="t">Ouvrez la diligence</b>Depuis <span class="ui">À traiter</span>, type <span class="ui">RDUE</span>.</li>
+    <li><b class="t">Lisez les chiffres</b>Grumes abattues, grumes géolocalisées, grumes hors parcelle.</li>
+    <li><b class="t">Vérifiez les 3 contrôles</b>Parcelle cartographiée, toutes les grumes géolocalisées, aucune grume hors parcelle : les trois sont verts ici.</li>
+    <li><b class="t">Décidez</b><span class="ui go">Valider</span> ou <span class="ui">Rejeter</span> avec un motif.</li>
+  </ol>
+  <figure class="shot"><div class="frame"><img src="captures/08-decision-rdue.jpg" alt="Décision sur une diligence RDUE" loading="lazy"></div>
+    <figcaption>Une diligence RDUE : chaque grume a sa position GPS exacte et l'application vérifie qu'elle est dans la parcelle.</figcaption></figure>
+</section>
+
+<section data-toc="Scénario 5 · Suivre une entreprise" data-grp="Scénarios pratiques" id="s5" class="s-break">
+  <div class="kicker">Scénario 5</div>
+  <h2>Suivre une entreprise : la fiche organisation</h2>
+  <div class="scenario"><div class="who">La situation</div><p>Vous préparez une mission chez <strong>Bois du Haut-Ogooué</strong> et voulez tout savoir : titres, comptes, conformité, certifications, inventaires.</p></div>
+  <ol class="steps">
+    <li><b class="t">Ouvrez « Organisations »</b>L'annuaire de toutes les organisations : entreprises, communautés, coopératives.</li>
+    <li><b class="t">Trouvez l'organisation</b>Tapez une partie du nom dans la recherche, ou filtrez par type et par province. La colonne <strong>État</strong> dit tout de suite si elle est <span class="pill ok">À jour</span> ou s'il manque des pièces.</li>
+    <li><b class="t">Ouvrez la fiche</b>Cliquez sur la ligne.</li>
+  </ol>
+  <figure class="shot"><div class="frame"><img src="captures/09-organisations.jpg" alt="Annuaire des organisations filtré sur les entreprises" loading="lazy">
+    <span class="pin" style="--x:97%;--y:17.7%">1</span><span class="pin" style="--x:51%;--y:23.5%">2</span><span class="pin" style="--x:91%;--y:39.5%">3</span><span class="pin" style="--x:97%;--y:8%">4</span></div>
+    <figcaption><ol><li>La recherche.</li><li>Les filtres par type puis par province.</li><li>L'état de conformité de chaque organisation.</li><li>Créer une nouvelle organisation.</li></ol></figcaption></figure>
+  <figure class="shot"><div class="frame"><img src="captures/10-fiche-organisation.jpg" alt="Fiche d'une organisation" loading="lazy">
+    <span class="pin" style="--x:97%;--y:19%">1</span><span class="pin" style="--x:19.6%;--y:27.5%">2</span><span class="pin" style="--x:48%;--y:34%">3</span><span class="pin" style="--x:48%;--y:46%">4</span><span class="pin" style="--x:97%;--y:34%">5</span><span class="pin" style="--x:48%;--y:79%">6</span></div>
+    <figcaption>La fiche organisation.<ol><li>Les chiffres : titres, surface, comptes.</li><li><span class="ui">Enregistrer un titre</span> et <span class="ui go">Créer un compte</span> pour cette organisation.</li><li>Ses titres et leur état.</li><li>Ses comptes : dirigeant et agents de terrain.</li><li>Sa conformité (pièces et taxes) et ses certifications.</li><li>Ses inventaires importés, avec l'impression des plaques QR du lot.</li></ol></figcaption></figure>
+</section>
+
+<section data-toc="Scénario 6 · Une coopérative et ses membres" data-grp="Scénarios pratiques" id="s6">
+  <div class="kicker">Scénario 6</div>
+  <h2>Une coopérative et ses membres</h2>
+  <div class="scenario"><div class="who">La situation</div><p>La <strong>Coopérative des Artisans de Ntoum</strong> regroupe des entreprises et des communautés. Vous voulez voir ses membres et leurs volumes.</p></div>
+  <p>Sur la fiche d'une coopérative, la carte <strong>Membres de la coopérative</strong> liste chaque membre avec son adhésion, ses titres, son volume abattu, ses grumes et ses alertes. La ligne <strong>Total</strong> additionne les membres actifs.</p>
+  <figure class="shot"><div class="frame"><img src="captures/11-fiche-cooperative-membres.jpg" alt="Membres d'une coopérative sur sa fiche" loading="lazy">
+    <span class="pin" style="--x:82.5%;--y:30.7%">1</span><span class="pin" style="--x:56%;--y:37.8%">2</span><span class="pin" style="--x:98.5%;--y:46%">3</span></div>
+    <figcaption><ol><li><span class="ui go">Ajouter un membre</span> depuis l'annuaire.</li><li>Le total des membres actifs.</li><li><span class="ui">Suspendre</span> ou <span class="ui">Enregistrer la sortie</span> d'un membre (avec un motif).</li></ol></figcaption></figure>
+  <div class="note info"><span class="i">i</span><div>Un membre <strong>garde ses propres titres, autorisations et obligations</strong> : la coopérative ne le remplace pas. La liste des pièces d'une coopérative est à valider par le métier.</div></div>
+</section>
+
+<section data-toc="Scénario 7 · Contrôle terrain et PV" data-grp="Scénarios pratiques" id="s7" class="s-break">
+  <div class="kicker">Scénario 7</div>
+  <h2>Enregistrer un contrôle terrain et son PV</h2>
+  <div class="scenario"><div class="who">La situation</div><p>Une brigade arrête un camion de grumes sur la route (contrôle en route, art. 135). Elle vérifie la plaque de la grume et le bordereau de transport.</p></div>
+  <ol class="steps">
+    <li><b class="t">Ouvrez « Contrôles terrain »</b>Groupe Contrôle. Les contrôles passés s'affichent, avec leur résultat et leur PV.</li>
+    <li><b class="t">Cliquez sur « Nouveau contrôle »</b>Choisissez le type : <span class="ui">Marquage</span>, <span class="ui">Visa DF10</span>, <span class="ui">Contrôle en route</span> ou <span class="ui">Transformation</span>.</li>
+    <li><b class="t">Identifiez la grume ou le bordereau</b>Tapez le code, ou scannez le QR code avec la caméra (bouton vert), puis la loupe pour rechercher. L'application affiche ce qu'elle sait : statut, propriétaire, bordereau.</li>
+    <li><b class="t">Indiquez le résultat</b><span class="pill ok">Conforme</span>, <span class="pill warn">Avec réserve</span> ou <span class="pill risk">Non conforme</span>. Le constat est obligatoire s'il y a une réserve ou une non-conformité.</li>
+    <li><b class="t">Ajoutez le n° de PV et enregistrez</b>La position GPS est ajoutée si le navigateur l'autorise.</li>
+  </ol>
+  <figure class="shot"><div class="frame"><img src="captures/12b-nouveau-controle.jpg" alt="Formulaire de nouveau contrôle" loading="lazy">
+    <span class="pin" style="--x:75.5%;--y:29.8%">1</span><span class="pin" style="--x:25%;--y:41%">2</span><span class="pin" style="--x:75.5%;--y:41%">3</span><span class="pin" style="--x:75.5%;--y:49.4%">4</span><span class="pin" style="--x:75.5%;--y:54.3%">5</span><span class="pin" style="--x:75.5%;--y:73.8%">6</span></div>
+    <figcaption>Le formulaire « Nouveau contrôle ».<ol><li>Le type de contrôle.</li><li>Le code de l'arbre, de la grume ou du bordereau.</li><li>Scanner le QR code (vert) ou rechercher (loupe).</li><li>Le résultat.</li><li>Le constat.</li><li>Enregistrer.</li></ol></figcaption></figure>
+  <figure class="shot"><div class="frame"><img src="captures/12-controles.jpg" alt="Liste des contrôles terrain" loading="lazy">
+    <span class="pin" style="--x:97%;--y:44.8%">1</span><span class="pin" style="--x:97%;--y:56.8%">2</span></div>
+    <figcaption>La liste des contrôles.<ol><li><span class="ui">PV (PDF)</span> : le procès-verbal officiel à télécharger.</li><li><span class="ui">Donner une suite</span> : mise en demeure, amende… L'entreprise la voit et peut la contester.</li></ol></figcaption></figure>
+  <div class="note risk"><span class="i">!</span><div>Un contrôle <strong>non conforme</strong> crée automatiquement une <strong>anomalie grave</strong> (scénario 8) et apparaît dans l'espace de l'entreprise.</div></div>
+</section>
+
+<section data-toc="Scénario 8 · Traiter une anomalie" data-grp="Scénarios pratiques" id="s8">
+  <div class="kicker">Scénario 8</div>
+  <h2>Traiter une anomalie</h2>
+  <div class="scenario"><div class="who">La situation</div><p>L'Accueil affiche « 1 anomalie grave ouverte (illicite) ». Vous voulez comprendre et y donner suite.</p></div>
+  <p>L'application détecte d'elle-même les irrégularités : document expiré, taxe impayée, CITES sans permis, contrôle non conforme, AAC ouverte depuis plus de 3 ans (art. 121), état annuel non transmis au 31 mars (art. 244)…</p>
+  <ol class="steps">
+    <li><b class="t">Ouvrez « Anomalies »</b>Groupe Contrôle, ou cliquez directement sur l'alerte de l'Accueil.</li>
+    <li><b class="t">Commencez par les bloquantes</b>Le filtre <span class="ui">Bloquantes</span> garde les cas graves.</li>
+    <li><b class="t">Lisez la carte</b>Ce qui est en cause, l'organisation, la date de détection.</li>
+    <li><b class="t">Donnez une suite</b><span class="ui go">Traiter</span> (une action est engagée) ou <span class="ui">Écarter</span> (l'écart est justifié). Une note explique votre choix.</li>
+  </ol>
+  <figure class="shot"><div class="frame"><img src="captures/13-anomalies.jpg" alt="Liste des anomalies" loading="lazy">
+    <span class="pin" style="--x:97%;--y:19.5%">1</span><span class="pin" style="--x:19.6%;--y:26%">2</span><span class="pin" style="--x:53%;--y:26%">3</span><span class="pin" style="--x:19.6%;--y:66%">4</span></div>
+    <figcaption><ol><li>Les compteurs : total, bloquantes, avertissements, non examinées.</li><li>Les filtres.</li><li><span class="ui">Exporter (PDF)</span>.</li><li>Les boutons <strong>Traiter</strong> et <strong>Écarter</strong>.</li></ol></figcaption></figure>
+</section>
+
+<section data-toc="Scénario 9 · Préparer un rapport" data-grp="Scénarios pratiques" id="s9" class="s-break">
+  <div class="kicker">Scénario 9</div>
+  <h2>Préparer un rapport pour la hiérarchie</h2>
+  <div class="scenario"><div class="who">La situation</div><p>Le Directeur Général demande un point sur l'exploitation, la fiscalité et le carbone pour une réunion.</p></div>
+  <ol class="steps">
+    <li><b class="t">Ouvrez « Statistiques &amp; rapports »</b>Groupe Pilotage.</li>
+    <li><b class="t">Parcourez les indicateurs</b>Arbres abattus, volume, taux de transformation, volumes par essence, gouvernance (titres, surfaces, pièces), fiscalité, CCC/FDL, transport, certifications, carbone mesuré.</li>
+    <li><b class="t">Exportez</b>Le bouton <span class="ui">Exporter (PDF)</span> produit le rapport à imprimer ou à envoyer.</li>
+  </ol>
+  <figure class="shot"><div class="frame"><img src="captures/14-statistiques.jpg" alt="Statistiques et rapports" loading="lazy">
+    <span class="pin" style="--x:88.5%;--y:39.7%">1</span></div>
+    <figcaption><ol><li><span class="ui">Exporter (PDF)</span>.</li></ol></figcaption></figure>
+  <figure class="shot"><div class="frame"><img src="captures/14b-statistiques-suite.jpg" alt="Suite des statistiques : fiscalité, CCC, transport, certifications, carbone" loading="lazy"></div>
+    <figcaption>La suite : fiscalité, CCC / FDL, transport, certifications et carbone vivant mesuré.</figcaption></figure>
+  <div class="note warn"><span class="i">!</span><div>Les volumes sont <strong>estimés</strong> à partir des diamètres mesurés : ils ne sont pas opposables au cubage légal.</div></div>
+</section>
+
+<section data-toc="Scénario 10 · Titres et AAC" data-grp="Scénarios pratiques" id="s10">
+  <div class="kicker">Scénario 10</div>
+  <h2>Gérer les titres forestiers et les AAC</h2>
+  <div class="scenario"><div class="who">La situation</div><p>Une demande de titre <strong>PGG</strong> est arrivée, et un titre <strong>CFAD provisoire (CPAET)</strong> attend son activation.</p></div>
+  <p>Dans <span class="ui">Titres &amp; AAC</span>, chaque carte est un titre avec son titulaire, sa surface et son statut. Les boutons changent selon le statut :</p>
+  <ul class="plain">
+    <li><span class="pill neutral">Demande</span> → <span class="ui go">Exploration</span> (autorisation d'exploration) ou <span class="ui">Rejeter</span> ;</li>
+    <li><span class="pill warn">Provisoire (CPAET)</span> → <span class="ui go">Activer</span> quand le plan d'aménagement est approuvé, <span class="ui">Rejeter</span> ou <span class="ui">Retirer</span> ;</li>
+    <li><span class="pill ok">Actif</span> → <span class="ui">Retirer</span> si nécessaire.</li>
+  </ul>
+  <p><span class="ui">Voir les UFA, AAC et autorisations</span> déplie le détail du titre : ses unités d'aménagement, ses assiettes annuelles de coupe (AAC), leur diamètre minimum (DME) et les autorisations de l'art. 14.</p>
+  <figure class="shot"><div class="frame"><img src="captures/15-titres-aac.jpg" alt="Titres et AAC" loading="lazy"></div>
+    <figcaption>« Titres &amp; AAC » : un titre en demande, un titre provisoire, des titres actifs et un titre rejeté.</figcaption></figure>
+  <div class="note tip"><span class="i">✓</span><div>Le Ministère peut aussi <strong>enregistrer lui-même</strong> un titre existant depuis la fiche de l'organisation (<span class="ui">Enregistrer un titre</span>, scénario 5).</div></div>
+</section>
+
+<section data-toc="Scénario 11 · Carnet DF10 et fiscalité" data-grp="Scénarios pratiques" id="s11">
+  <div class="kicker">Scénario 11</div>
+  <h2>Consulter le carnet DF10 et la fiscalité</h2>
+  <h3>Traçabilité : le carnet de chantier (DF10)</h3>
+  <p>Dans <span class="ui">Traçabilité</span>, l'onglet <span class="ui">Carnet (DF10)</span> liste chaque grume avec son numéro DF10, son essence, son diamètre, son AAC et son statut : <span class="pill neutral">Inventorié</span> → <span class="pill neutral">Abattu</span> → <span class="pill info">Transporté</span> → <span class="pill info">Réceptionné</span> → <span class="pill ok">Transformé</span>. <span class="ui">Exporter le carnet (PDF)</span> produit le carnet officiel. L'onglet <span class="ui">États</span> donne les états périodiques.</p>
+  <figure class="shot"><div class="frame"><img src="captures/18-tracabilite.jpg" alt="Carnet DF10" loading="lazy"></div>
+    <figcaption>Le carnet DF10 : le statut de chaque grume, de l'inventaire à l'usine.</figcaption></figure>
+  <h3>Fiscalité &amp; social</h3>
+  <p>L'onglet <span class="ui">Échéances</span> suit les taxes de chaque entreprise : <span class="pill warn">Dû</span>, <span class="pill risk">En retard</span> ou <span class="pill ok">Payé</span>, calculé à partir des dates et des quittances. Les onglets <span class="ui">CCC / FDL</span> et <span class="ui">EUDR</span> suivent les cahiers de charges contractuelles, le fonds de développement local et la diligence RDUE.</p>
+  <figure class="shot"><div class="frame"><img src="captures/19-fiscalite.jpg" alt="Échéances fiscales" loading="lazy"></div>
+    <figcaption>Les échéances : une taxe en retard, une taxe due, une taxe payée.</figcaption></figure>
+</section>
+
+<section data-toc="Scénario 12 · La carte" data-grp="Scénarios pratiques" id="s12">
+  <div class="kicker">Scénario 12</div>
+  <h2>Utiliser la carte</h2>
+  <p>La <span class="ui">Carte</span> montre les titres, les AAC, les aires protégées et les couches Global Forest Watch (pertes de couvert forestier, concessions). Elle s'adapte au zoom : plus vous zoomez, plus elle montre de détails.</p>
+  <ul class="plain">
+    <li><strong>Rechercher</strong> : tapez un parc, une concession, une AAC ou un code d'arbre en haut.</li>
+    <li><strong>Couches</strong> : le premier bouton rond à droite choisit ce qui s'affiche et montre la légende.</li>
+    <li><strong>Contrôle d'un point</strong> : un appui long sur la carte vérifie le point (aire protégée, concession, perte de couvert).</li>
+  </ul>
+  <figure class="shot"><div class="frame"><img src="captures/22-carte.jpg" alt="Carte du Gabon avec titres et AAC" loading="lazy">
+    <span class="pin" style="--x:97%;--y:9.5%">1</span><span class="pin" style="--x:92%;--y:15%">2</span><span class="pin" style="--x:18.8%;--y:95.5%">3</span></div>
+    <figcaption><ol><li>La recherche.</li><li>Les boutons : couches et légende, ma position, plein écran, « Forêts du Gabon — chiffres clés ».</li><li>Le rappel : appui long pour le contrôle forestier du point.</li></ol></figcaption></figure>
+</section>
+
+<section data-toc="Scénario 13 · Qui est compétent ?" data-grp="Scénarios pratiques" id="s13">
+  <div class="kicker">Scénario 13</div>
+  <h2>Savoir qui est compétent : les parties prenantes</h2>
+  <p>La page <span class="ui">Parties prenantes</span> (groupe Référence) est la <strong>boussole du pilote</strong>. Pour chaque autorité (DGF, DP, DGFAP, DGE, ANPN, DGICBVPF, Douanes…), elle dit ce qu'elle décide, ce que le Ministère fait aujourd'hui pour elle et combien de dossiers l'attendent.</p>
+  <figure class="shot"><div class="frame"><img src="captures/20-parties-prenantes.jpg" alt="Parties prenantes" loading="lazy"></div>
+    <figcaption>Chaque autorité, ses actions et ses dossiers en attente.</figcaption></figure>
+  <div class="note info"><span class="i">i</span><div>Pendant le pilote, un seul espace « Ministère » réalise toutes les actions. Chaque autorité aura son interface dédiée lors de la phase suivante, après concertation.</div></div>
+</section>
+
+<section data-toc="Questions fréquentes" data-grp="Aide" id="faq" class="s-break">
+  <div class="kicker">Aide</div>
+  <h2>Questions fréquentes</h2>
+  <details class="faq"><summary>J'ai autorisé un dossier par erreur. Que faire ?</summary><p>La décision est tracée et l'entreprise est informée. Signalez-le à l'administrateur du pilote : selon le dossier, une nouvelle décision (retrait d'un titre, contrôle, suite) corrige la situation, en gardant l'historique.</p></details>
+  <details class="faq"><summary>Un contrôle est marqué ✗ en rouge sur un dossier. Que faire ?</summary><p>C'est un point <span class="pill risk">bloquant</span> (par exemple : pas d'autorisation d'exploiter, arbre hors de l'AAC ou sous le DME). Une note rouge vous demande de vérifier avant d'approuver. Dans le doute, rejetez avec un motif : l'entreprise corrige et redépose.</p></details>
+  <details class="faq"><summary>Le voyant indique « Hors-ligne ».</summary><p>Le serveur ne répond pas : vérifiez votre connexion internet. Les décisions ne s'enregistrent qu'en ligne.</p></details>
+  <details class="faq"><summary>Je ne vois que les dossiers d'une province.</summary><p>Un filtre de province est actif dans « À traiter » ou « Organisations ». Cliquez sur <span class="ui">Toutes provinces</span>.</p></details>
+  <details class="faq"><summary>Où trouver un PV ou un rapport officiel ?</summary><p>Chaque contrôle a son <span class="ui">PV (PDF)</span> ; le carnet DF10, les anomalies et les statistiques ont un bouton <span class="ui">Exporter (PDF)</span>.</p></details>
+  <details class="faq"><summary>Faut-il saisir les données deux fois (SNTBG et Foresterie Numérique) ?</summary><p>Non, à terme : la passerelle prévue par l'arrêté du 3 octobre 2023 (art. 9 et 10) transmettra les données du SNTBG. Pendant le pilote, les données de démonstration sont saisies directement.</p></details>
+</section>
+
+<section data-toc="Glossaire" data-grp="Aide" id="glossaire">
+  <div class="kicker">Aide</div>
+  <h2>Glossaire</h2>
+  <dl class="gloss">
+    <dt>AAC</dt><dd>Assiette Annuelle de Coupe : la zone d'un titre exploitée pendant une campagne.</dd>
+    <dt>UFA</dt><dd>Unité Forestière d'Aménagement : une partie du titre gérée par un plan d'aménagement.</dd>
+    <dt>CFAD</dt><dd>Concession Forestière sous Aménagement Durable.</dd>
+    <dt>CPAET</dt><dd>Convention Provisoire d'Aménagement-Exploitation-Transformation (titre provisoire).</dd>
+    <dt>PAO</dt><dd>Plan Annuel d'Opérations d'une AAC.</dd>
+    <dt>DME</dt><dd>Diamètre Minimum d'Exploitation : en dessous, l'arbre ne peut pas être abattu.</dd>
+    <dt>DF10</dt><dd>Carnet de chantier : le registre officiel des arbres abattus.</dd>
+    <dt>Art. 14</dt><dd>Les autorisations d'exploiter : certificat annuel d'assiette, permis annuel d'opérations, certificat de vente de coupe, CAE.</dd>
+    <dt>CCC / FDL</dt><dd>Cahier de Charges Contractuelles avec les communautés / Fonds de Développement Local.</dd>
+    <dt>RDUE (EUDR)</dt><dd>Règlement de l'Union européenne contre la déforestation importée.</dd>
+    <dt>PV</dt><dd>Procès-verbal d'un contrôle.</dd>
+    <dt>GFW</dt><dd>Global Forest Watch : cartes mondiales du couvert forestier.</dd>
+    <dt>SNTBG</dt><dd>Système National de Traçabilité du Bois du Gabon (arrêté du 3 octobre 2023).</dd>
+    <dt>DGF · DP</dt><dd>Direction Générale des Forêts · Directions Provinciales des Eaux et Forêts.</dd>
+  </dl>
+  <p style="margin-top:12px">Un glossaire complet est aussi disponible dans l'application : <span class="ui">Mon profil</span> → « Glossaire &amp; sigles ».</p>
+</section>
+
+<section data-toc="Essayer avec un compte pilote" data-grp="Aide" id="essayer">
+  <div class="kicker">Aide</div>
+  <h2>Essayer avec un compte pilote</h2>
+  <p>Des comptes de démonstration permettent de parcourir l'application sans risque, sur des données fictives (« PILOTE »).</p>
+  <table class="t">
+    <tr><th>Rôle</th><th>Identifiant</th><th>Mot de passe</th></tr>
+    <tr><td>Ministère · Direction Provinciale</td><td>mef.dp2@pilote.ga</td><td>Pilote2026!</td></tr>
+    <tr><td>Ministère · Brigade de contrôle</td><td>mef.brigade@pilote.ga</td><td>Pilote2026!</td></tr>
+  </table>
+  <div class="note warn"><span class="i">!</span><div>Les comptes pilote sont partagés : ne saisissez jamais de données réelles avec eux.</div></div>
+</section>
+
+<div class="foot">Foresterie Numérique · Guide utilisateur du Ministère des Eaux et Forêts · version pilote, octobre 2026 · captures de l'application réelle sur les données de démonstration « PILOTE ». Réalisé par Green Leaves Gabon.</div>
+
+</div>
+</main>
+
+<div class="lightbox" id="lb" role="dialog" aria-modal="true" aria-label="Capture agrandie"><button aria-label="Fermer">×</button><img alt=""></div>
+
+<script>
+(function () {
+  var sections = [].slice.call(document.querySelectorAll("section[data-toc]"));
+  var toc = document.getElementById("toc");
+  var q = document.getElementById("q");
+  var links = [];
+  function norm(s) { return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  function build(filter) {
+    toc.innerHTML = "";
+    links = [];
+    var grp = null, shown = 0, n = 0;
+    sections.forEach(function (sec) {
+      n++;
+      var match = !filter || norm(sec.textContent).indexOf(filter) >= 0;
+      if (!match) return;
+      if (sec.dataset.grp !== grp) {
+        grp = sec.dataset.grp;
+        var g = document.createElement("div");
+        g.className = "grp";
+        g.textContent = grp;
+        toc.appendChild(g);
+      }
+      var a = document.createElement("a");
+      a.href = "#" + sec.id;
+      a.innerHTML = '<span class="no">' + n + "</span><span></span>";
+      a.lastChild.textContent = sec.dataset.toc;
+      a.addEventListener("click", function () { document.body.classList.remove("menu"); });
+      toc.appendChild(a);
+      links.push([sec, a]);
+      shown++;
+    });
+    if (!shown) {
+      var e = document.createElement("div");
+      e.className = "none";
+      e.textContent = "Aucun résultat pour cette recherche.";
+      toc.appendChild(e);
+    }
+    spy();
+  }
+  function spy() {
+    var y = window.scrollY + 120, cur = null;
+    links.forEach(function (l) { if (l[0].offsetTop <= y) cur = l[1]; });
+    links.forEach(function (l) { l[1].classList.toggle("on", l[1] === cur); });
+  }
+  q.addEventListener("input", function () { build(norm(q.value.trim())); });
+  window.addEventListener("scroll", spy, { passive: true });
+  build("");
+
+  var burger = document.getElementById("burger");
+  function setMenu(on) { document.body.classList.toggle("menu", on); burger.setAttribute("aria-expanded", on ? "true" : "false"); }
+  burger.addEventListener("click", function () { setMenu(!document.body.classList.contains("menu")); });
+  document.getElementById("scrim").addEventListener("click", function () { setMenu(false); });
+
+  var lb = document.getElementById("lb"), lbImg = lb.querySelector("img");
+  document.querySelectorAll(".frame").forEach(function (f) {
+    f.addEventListener("click", function () {
+      var img = f.querySelector("img");
+      lbImg.src = img.src;
+      lbImg.alt = img.alt;
+      lb.classList.add("on");
+    });
+  });
+  function close() { lb.classList.remove("on"); lbImg.removeAttribute("src"); }
+  lb.addEventListener("click", close);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { close(); setMenu(false); } });
+  window.addEventListener("beforeprint", function () { document.querySelectorAll("details.faq").forEach(function (d) { d.open = true; }); });
+})();
+</script>
+</body>
+</html>
