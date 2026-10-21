@@ -5,7 +5,7 @@
  * of the phone's header and bottom bar. On the phone and on narrow windows
  * nothing changes.
  */
-import { Building2, Inbox, LogOut, Map, Menu, PanelLeftClose, TreeDeciduous, Trees, House, ScanLine } from "lucide-react-native";
+import { Building2, Inbox, LogOut, Map, Menu, PanelLeftClose, PanelLeftOpen, TreeDeciduous, Trees, House, ScanLine } from "lucide-react-native";
 import React from "react";
 import { Image, Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from "react-native";
 
@@ -160,10 +160,17 @@ export default function DesktopFrame({
   const s = useStyles();
   const [topTabs, setTopTabs] = React.useState<TopTab[] | null>(null);
   const [collapsed, setCollapsed] = React.useState(readCollapsed);
+  const [hint, setHint] = React.useState<{ label: string; top: number } | null>(null);
   useSideScrollStyle(enabled);
   if (!enabled) return <>{children}</>;
+  const showHint = (label: string, e: unknown) => {
+    const el = (e as { currentTarget?: { getBoundingClientRect?: () => { top: number; height: number } } }).currentTarget;
+    const box = el?.getBoundingClientRect?.();
+    if (box) setHint({ label, top: box.top + box.height / 2 });
+  };
   const toggleSide = () => {
     haptic("tap");
+    setHint(null);
     setCollapsed((v) => {
       storeCollapsed(!v);
       return !v;
@@ -178,51 +185,88 @@ export default function DesktopFrame({
     roleLabel;
   const shownTabs = showTopTabs && topTabs && topTabs.length > 1 ? topTabs : null;
 
-  const item = (key: string, testID: string, label: string, Icon: IconComponent, on: boolean, onPress: () => void) => (
+  const item = (key: string, testID: string, label: string, Icon: IconComponent, on: boolean, onPress: () => void) =>
+    collapsed ? (
+      <Pressable
+        key={key}
+        testID={testID}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ selected: on }}
+        onPress={onPress}
+        onHoverIn={(e) => showHint(label, e)}
+        onHoverOut={() => setHint(null)}
+        style={(state) => [s.railItem, (state as { hovered?: boolean }).hovered && !on && s.itemHover]}
+      >
+        <View style={[s.railChip, on && s.iconChipOn]}>
+          <Icon size={20} color={on ? t.c.forest : t.c.onForest} strokeWidth={on ? 2.4 : 2} />
+        </View>
+      </Pressable>
+    ) : (
+      <Pressable
+        key={key}
+        testID={testID}
+        accessibilityRole="button"
+        accessibilityState={{ selected: on }}
+        onPress={onPress}
+        style={(state) => [s.item, on && s.itemOn, (state as { hovered?: boolean }).hovered && !on && s.itemHover]}
+      >
+        <View style={[s.mark, on && s.markOn]} />
+        <View style={[s.iconChip, on && s.iconChipOn]}>
+          <Icon size={18} color={on ? t.c.forest : t.c.onForest} strokeWidth={on ? 2.4 : 2} />
+        </View>
+        <Text style={[s.itemLabel, on && s.itemLabelOn]} numberOfLines={1}>
+          {label}
+        </Text>
+      </Pressable>
+    );
+  const groupTitle = (title: string) => (collapsed ? <View style={s.railRule} /> : <Text style={s.sectionTitle}>{title}</Text>);
+  const toggle = (
     <Pressable
-      key={key}
-      testID={testID}
+      testID="sidebar-toggle"
       accessibilityRole="button"
-      accessibilityState={{ selected: on }}
-      onPress={onPress}
-      style={(state) => [s.item, on && s.itemOn, (state as { hovered?: boolean }).hovered && !on && s.itemHover]}
+      accessibilityLabel={collapsed ? fr.web.showMenu : fr.web.hideMenu}
+      accessibilityState={{ expanded: !collapsed }}
+      onPress={toggleSide}
+      onHoverIn={(e) => (collapsed ? showHint(fr.web.showMenu, e) : undefined)}
+      onHoverOut={() => setHint(null)}
+      style={(state) => [s.toggle, (state as { hovered?: boolean }).hovered && s.itemHover]}
     >
-      <View style={[s.mark, on && s.markOn]} />
-      <View style={[s.iconChip, on && s.iconChipOn]}>
-        <Icon size={18} color={on ? t.c.forest : t.c.onForest} strokeWidth={on ? 2.4 : 2} />
-      </View>
-      <Text style={[s.itemLabel, on && s.itemLabelOn]} numberOfLines={1}>
-        {label}
-      </Text>
+      {collapsed ? <PanelLeftOpen size={20} color={t.c.gold} /> : <PanelLeftClose size={20} color={t.c.onForest} />}
     </Pressable>
   );
 
   return (
     <TopTabsContext.Provider value={setTopTabs}>
       <View style={s.row} testID="desktop-frame">
-        {collapsed ? null : (
-        <View style={s.side} testID="desktop-side">
-          <ScrollView contentContainerStyle={s.sideContent} {...({ dataSet: { sidescroll: "1" } } as object)}>
-            <View style={s.brand}>
-              <Image source={SEAL} style={s.seal} resizeMode="contain" accessibilityLabel={fr.header.ministry} />
-              <View style={s.brandText}>
-                <Text style={s.eyebrow} numberOfLines={1}>
-                  {fr.appTitle.toUpperCase()}
-                </Text>
-                <Text style={s.ministry} numberOfLines={1} testID="side-ministry">
-                  {fr.header.ministry}
-                </Text>
+        <View style={[s.side, collapsed && s.rail]} testID="desktop-side" accessibilityState={{ expanded: !collapsed }}>
+          <ScrollView contentContainerStyle={[s.sideContent, collapsed && s.railContent]} {...({ dataSet: { sidescroll: "1" } } as object)}>
+            {collapsed ? (
+              <View style={s.railBrand}>
+                <Image source={SEAL} style={s.seal} resizeMode="contain" accessibilityLabel={fr.header.ministry} />
               </View>
-            </View>
+            ) : (
+              <View style={s.brand}>
+                <Image source={SEAL} style={s.seal} resizeMode="contain" accessibilityLabel={fr.header.ministry} />
+                <View style={s.brandText}>
+                  <Text style={s.eyebrow} numberOfLines={1}>
+                    {fr.appTitle.toUpperCase()}
+                  </Text>
+                  <Text style={s.ministry} numberOfLines={1} testID="side-ministry">
+                    {fr.header.ministry}
+                  </Text>
+                </View>
+              </View>
+            )}
             <View style={s.rule} />
             {sections?.length ? (
               <View style={s.nav}>
-                {sectionsTitle ? <Text style={s.sectionTitle}>{sectionsTitle}</Text> : null}
+                {sectionsTitle ? groupTitle(sectionsTitle) : null}
                 {sections.map((sec) => item(sec.key, `side-section-${sec.key}`, sec.label, sec.icon, sec.active, sec.onPress))}
               </View>
             ) : null}
             <View style={s.nav}>
-              {sections?.length ? <Text style={s.sectionTitle}>{fr.web.tools}</Text> : null}
+              {sections?.length ? groupTitle(fr.web.tools) : null}
               {tabs.map((tab) =>
                 item(
                   tab.key,
@@ -236,38 +280,39 @@ export default function DesktopFrame({
             </View>
             {groups?.map((g) => (
               <View key={g.key} style={s.nav}>
-                <Text style={s.sectionTitle}>{g.title}</Text>
+                {groupTitle(g.title)}
                 {g.items.map((sec) => item(sec.key, `side-domain-${sec.key}`, sec.label, sec.icon, sec.active, sec.onPress))}
               </View>
             ))}
           </ScrollView>
-          <View style={s.footer}>
+          <View style={[s.footer, collapsed && s.railFooter]}>
+            {collapsed ? toggle : null}
             <Pressable
               testID="side-logout"
               accessibilityRole="button"
+              accessibilityLabel={fr.common.logout}
               onPress={onLogout}
-              style={(state) => [s.logout, (state as { hovered?: boolean }).hovered && s.itemHover]}
+              onHoverIn={(e) => (collapsed ? showHint(fr.common.logout, e) : undefined)}
+              onHoverOut={() => setHint(null)}
+              style={(state) => [s.logout, collapsed && s.railLogout, (state as { hovered?: boolean }).hovered && s.itemHover]}
             >
-              <LogOut size={16} color={t.c.onForest} />
-              <Text style={s.logoutText}>{fr.common.logout}</Text>
+              <LogOut size={collapsed ? 18 : 16} color={t.c.onForest} />
+              {collapsed ? null : <Text style={s.logoutText}>{fr.common.logout}</Text>}
             </Pressable>
+            {collapsed ? null : toggle}
           </View>
         </View>
-        )}
+        {collapsed && hint ? (
+          <View pointerEvents="none" style={[s.hint, { top: hint.top - 16 }]} testID="side-hint">
+            <Text style={s.hintText} numberOfLines={1}>
+              {hint.label}
+            </Text>
+          </View>
+        ) : null}
         <View style={s.main}>
           <View style={s.topbar} testID="desktop-topbar">
             <View style={s.topInner}>
               <View style={s.topLeft}>
-                <Pressable
-                  testID="sidebar-toggle"
-                  accessibilityRole="button"
-                  accessibilityLabel={collapsed ? fr.web.showMenu : fr.web.hideMenu}
-                  accessibilityState={{ expanded: !collapsed }}
-                  onPress={toggleSide}
-                  style={(state) => [s.toggle, (state as { hovered?: boolean }).hovered && s.tabHover]}
-                >
-                  {collapsed ? <Menu size={20} color={t.c.forest} /> : <PanelLeftClose size={20} color={t.c.muted} />}
-                </Pressable>
                 <View style={s.titleBlock}>
                   <Text style={s.topEyebrow} numberOfLines={1}>
                     {(sectionsTitle ?? roleLabel).toUpperCase()}
@@ -336,7 +381,7 @@ export default function DesktopFrame({
 }
 
 const useStyles = makeStyles((th) => ({
-  row: { flex: 1, flexDirection: "row", backgroundColor: th.c.bg },
+  row: { flex: 1, flexDirection: "row", backgroundColor: th.c.bg, position: "relative" },
   side: { width: 256, backgroundColor: th.c.forest, borderRightWidth: 3, borderRightColor: th.c.gold },
   sideContent: { paddingVertical: th.space.lg, gap: th.space.lg },
   brand: { flexDirection: "row", alignItems: "center", gap: th.space.sm, paddingHorizontal: th.space.lg },
@@ -345,15 +390,34 @@ const useStyles = makeStyles((th) => ({
   eyebrow: { color: th.c.gold, fontFamily: th.fonts.displaySemi, fontSize: 11.5, letterSpacing: 1.4 },
   ministry: { color: th.c.onForest, fontFamily: th.fonts.displaySemi, fontSize: 13, lineHeight: 16, opacity: 0.95 },
   toggle: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     borderRadius: th.radius.md,
-    borderWidth: 1,
-    borderColor: th.c.line,
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
   },
+  rail: { width: 72 },
+  hint: {
+    position: "absolute",
+    left: 80,
+    height: 32,
+    justifyContent: "center",
+    paddingHorizontal: th.space.md,
+    borderRadius: th.radius.md,
+    backgroundColor: th.c.forest,
+    borderWidth: 1,
+    borderColor: th.c.gold,
+    zIndex: 20,
+  },
+  hintText: { color: th.c.onForest, fontFamily: th.fonts.bodyBold, fontSize: 13 },
+  railContent: { paddingVertical: th.space.md, gap: th.space.md },
+  railBrand: { alignItems: "center", gap: th.space.sm },
+  railItem: { alignItems: "center", paddingVertical: 6, marginHorizontal: 6, borderRadius: th.radius.md },
+  railChip: { width: 44, height: 32, borderRadius: 16, alignItems: "center", justifyContent: "center" },
+  railRule: { height: 1, backgroundColor: "rgba(217,180,74,0.45)", marginHorizontal: th.space.md, marginVertical: 4 },
+  railFooter: { flexDirection: "column", padding: th.space.sm, gap: th.space.xs },
+  railLogout: { flex: 0, justifyContent: "center", paddingHorizontal: 10 },
   rule: { height: 2, backgroundColor: th.c.gold, marginHorizontal: th.space.lg, opacity: 0.85 },
   nav: { gap: 2, paddingHorizontal: th.space.sm },
   sectionTitle: {
@@ -389,8 +453,16 @@ const useStyles = makeStyles((th) => ({
   iconChipOn: { backgroundColor: th.c.gold },
   itemLabel: { flex: 1, color: th.c.onForest, fontFamily: th.fonts.body, fontSize: 15, opacity: 0.9 },
   itemLabelOn: { fontFamily: th.fonts.bodyBold, opacity: 1 },
-  footer: { padding: th.space.md, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.15)" },
+  footer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: th.space.sm,
+    padding: th.space.md,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.15)",
+  },
   logout: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,

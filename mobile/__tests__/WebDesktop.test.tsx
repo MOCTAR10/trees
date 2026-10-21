@@ -56,19 +56,25 @@ describe("Web desktop layout", () => {
     expect(view.getByText("contenu")).toBeTruthy();
   });
 
-  it("hides and shows the side menu from the top bar", () => {
+  it("folds the side menu into a rail of icons and opens it again", () => {
+    const onChange = jest.fn();
     const view = render(
-      <DesktopFrame enabled user={admin} active="home" roleLabel="Ministère" onChange={jest.fn()} onLogout={jest.fn()}>
+      <DesktopFrame enabled user={admin} active="home" roleLabel="Ministère" onChange={onChange} onLogout={jest.fn()}>
         <Text>contenu</Text>
       </DesktopFrame>,
     );
-    expect(view.getByTestId("desktop-side")).toBeTruthy();
     expect(view.getByTestId("side-ministry")).toHaveTextContent("Ministère des Eaux et Forêts");
+    expect(view.queryByTestId("desktop-topbar")?.findAll((n) => n.props.testID === "sidebar-toggle")).toEqual([]);
     fireEvent.press(view.getByLabelText("Masquer le menu"));
-    expect(view.queryByTestId("desktop-side")).toBeNull();
+    expect(view.getByTestId("desktop-side").props.accessibilityState).toEqual({ expanded: false });
+    expect(view.queryByTestId("side-ministry")).toBeNull();
+    expect(view.getByLabelText("Organisations")).toBeTruthy();
+    fireEvent.press(view.getByTestId("side-orgs"));
+    expect(onChange).toHaveBeenCalledWith("orgs");
+    expect(view.getByLabelText("Déconnexion")).toBeTruthy();
     expect(view.getByText("contenu")).toBeTruthy();
     fireEvent.press(view.getByLabelText("Afficher le menu"));
-    expect(view.getByTestId("side-home")).toBeTruthy();
+    expect(view.getByTestId("side-ministry")).toBeTruthy();
   });
 
   it("lists every Ministry domain in the side menu instead of the Menu tab", () => {

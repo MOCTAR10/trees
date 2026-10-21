@@ -141,7 +141,7 @@ export default function App() {
   const [summary, setSummary] = useState<HomeSummary | null>(null);
   const [busyProjectId, setBusyProjectId] = useState<number | null>(null);
   const [scanProject, setScanProject] = useState<Pick<HomeProject, "id" | "title" | "kind"> | null>(null);
-  const [chantierReturn, setChantierReturn] = useState<Phase>("home");
+  const [projectReturn, setProjectReturn] = useState<Phase>("home");
   const [inboxType, setInboxType] = useState<InboxQueueKey | null>(null);
   const [decisionItem, setDecisionItem] = useState<{ type: InboxQueueKey; id: number } | null>(null);
   const [inboxKey, setInboxKey] = useState(0);
@@ -342,6 +342,14 @@ export default function App() {
       }
     },
     [refreshSummary],
+  );
+
+  const startProjectScan = useCallback(
+    (project: Pick<HomeProject, "id" | "title" | "kind">) => {
+      setScanProject(project);
+      requestPhase("capture");
+    },
+    [requestPhase],
   );
 
   const handleUserUpdate = useCallback(async (next: AuthUser) => {
@@ -723,7 +731,7 @@ export default function App() {
             onOpenProfile={() => requestPhase("profile")}
             onOpenProject={(p) => {
               setSelectedProject(p.id);
-              if (p.kind === "chantier") setChantierReturn("home");
+              setProjectReturn("home");
               requestPhase(p.kind === "chantier" ? "chantier" : "projectDetail");
             }}
           />
@@ -880,7 +888,7 @@ export default function App() {
             role={user.role}
             onOpenProject={(p) => {
               setSelectedProject(p.id);
-              if (p.kind === "chantier") setChantierReturn("map");
+              setProjectReturn("map");
               requestPhase(p.kind === "chantier" ? "chantier" : "projectDetail");
             }}
           />
@@ -891,16 +899,25 @@ export default function App() {
           user={user}
           onOpenProject={(p) => {
             setSelectedProject(p.id);
-            if (p.kind === "chantier") setChantierReturn("projects");
+            setProjectReturn("projects");
             requestPhase(p.kind === "chantier" ? "chantier" : "projectDetail");
           }}
           onCreateProject={() => requestPhase("projectCreate")}
           onBack={goHome}
+          onScan={Platform.OS === "web" ? undefined : startProjectScan}
         />
       )}
       {phase === "projectDetail" && selectedProject && user && (
         <Suspense fallback={<RouteLoader message={fr.common.openingProject} />}>
-          <ProjectDetailScreen id={selectedProject} user={user} onBack={() => requestPhase("projects")} />
+          <ProjectDetailScreen
+            id={selectedProject}
+            user={user}
+            onBack={() => {
+              if (projectReturn === "home") void refreshSummary();
+              requestPhase(projectReturn);
+            }}
+            onScan={Platform.OS === "web" ? undefined : startProjectScan}
+          />
         </Suspense>
       )}
       {phase === "chantier" && selectedProject && (
@@ -908,13 +925,10 @@ export default function App() {
           <ChantierScreen
             id={selectedProject}
             onBack={() => {
-              if (chantierReturn === "home") void refreshSummary();
-              requestPhase(chantierReturn);
+              if (projectReturn === "home") void refreshSummary();
+              requestPhase(projectReturn);
             }}
-            onScan={(project) => {
-              setScanProject(project);
-              requestPhase("capture");
-            }}
+            onScan={startProjectScan}
           />
         </Suspense>
       )}

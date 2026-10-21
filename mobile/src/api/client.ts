@@ -1353,6 +1353,19 @@ export interface CreateProjectPayload {
   aac_id?: number | null;
 }
 
+/** A project action the server refused, with its French reason (« Projet clôturé »…). */
+export class ProjectRefusal extends Error {}
+
+async function projectError(resp: Response, label: string): Promise<Error> {
+  try {
+    const data = await resp.json();
+    if (typeof data?.detail === "string" && data.detail) return new ProjectRefusal(data.detail);
+  } catch {
+    // No JSON body: the label and status are enough for the logs.
+  }
+  return new Error(`${label} ${resp.status}`);
+}
+
 export async function listProjects(): Promise<Project[]> {
   const resp = await timedFetch(`${API_BASE}/api/projects`, { headers: headers() });
   if (!resp.ok) throw new Error(`Projects ${resp.status}`);
@@ -1361,7 +1374,7 @@ export async function listProjects(): Promise<Project[]> {
 
 export async function getProject(id: number): Promise<ProjectDetail> {
   const resp = await timedFetch(`${API_BASE}/api/projects/${id}`, { headers: headers() });
-  if (!resp.ok) throw new Error(`Project ${resp.status}`);
+  if (!resp.ok) throw await projectError(resp, "Project");
   return resp.json();
 }
 
@@ -1380,7 +1393,7 @@ export async function joinProject(id: number): Promise<{ id: number; joined: boo
     method: "POST",
     headers: headers(),
   });
-  if (!resp.ok) throw new Error(`Join project ${resp.status}`);
+  if (!resp.ok) throw await projectError(resp, "Join project");
   return resp.json();
 }
 
@@ -1389,7 +1402,7 @@ export async function leaveProject(id: number): Promise<{ id: number; joined: bo
     method: "POST",
     headers: headers(),
   });
-  if (!resp.ok) throw new Error(`Leave project ${resp.status}`);
+  if (!resp.ok) throw await projectError(resp, "Leave project");
   return resp.json();
 }
 
@@ -1411,7 +1424,7 @@ async function projectAction(id: number, action: "accept" | "decline"): Promise<
     method: "POST",
     headers: headers(),
   });
-  if (!resp.ok) throw new Error(`Project ${action} ${resp.status}`);
+  if (!resp.ok) throw await projectError(resp, `Project ${action}`);
   return resp.json();
 }
 
@@ -1424,7 +1437,7 @@ export async function inviteToProject(id: number, emails: string[]): Promise<{ i
     headers: headers(true),
     body: JSON.stringify({ emails }),
   });
-  if (!resp.ok) throw new Error(`Invite ${resp.status}`);
+  if (!resp.ok) throw await projectError(resp, "Invite");
   return resp.json();
 }
 
@@ -1581,19 +1594,6 @@ export interface ChantierView {
 export async function getChantier(id: number): Promise<ChantierView> {
   const resp = await timedFetch(`${API_BASE}/api/projects/${id}/chantier`, { headers: headers() });
   if (!resp.ok) throw new Error(`Chantier ${resp.status}`);
-  return resp.json();
-}
-
-export async function attributeScan(
-  projectId: number,
-  scanId: number,
-): Promise<{ scan_id: number; project_id: number }> {
-  const resp = await timedFetch(`${API_BASE}/api/projects/${projectId}/attribute`, {
-    method: "POST",
-    headers: headers(true),
-    body: JSON.stringify({ scan_id: scanId }),
-  });
-  if (!resp.ok) throw new Error(`Attribute scan ${resp.status}`);
   return resp.json();
 }
 
