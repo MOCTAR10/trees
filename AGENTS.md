@@ -90,10 +90,11 @@ doc update — as separate logical commits. The full history lives in
 | 32 | Application web en mise en page de bureau : grilles de cartes, tableaux triables, volet latéral, dialogues centrés, graphiques SVG ; téléphone inchangé | — | — | `design/layout.tsx` (`CardGrid`, `SplitPane`, `DataTable`, `useDialog`), `design/charts.tsx` (`Donut`, `ColumnChart`), `InboxScreen`, `OrganisationsScreen`, `DecisionScreen`, `OrganisationScreen`, `CompanyHomeScreen`, `AdminUsers`, domaines | pt 32 |
 | 33 | Espace coopérative : organisations membres (adhésion gérée par la coopérative et par le Ministère, suspension / sortie motivées), volumes agrégés des membres actifs à la lecture, fiche membre en lecture seule, profil `cooperative_forestiere` (4 pièces à valider par le métier) ; « Membre de … » côté entreprise et fiche Ministère | `034_slice33.sql` | `services/cooperative.py`, `/api/cooperative/space`, `/api/cooperative/members` (`candidates`, ajout, `PATCH`, `/{id}`), `/api/organizations/{id}/members`, fiche (`cooperative`, `memberships`), `/api/company/space` (`cooperatives`) | `CooperativeScreen` (conteneur), `cooperative/` (`CoopOverview`, `CoopMembers`, `CoopMemberDetail`, `CoopDocuments`, `CoopResidues`, `MemberDialogs`), `ministry/OrganisationScreen`, `CompanyHomeScreen` | pt 33 |
 
-Latest verified suite counts (Slice 33, 20 Oct 2026): **`pytest tests` 584** (583 passed locally + `test_capabilities_reflect_settings`,
-which needs ≥ 3 GB for the API container and fails on a smaller Docker host) · **`tests_e2e` 248** · role coverage 100 % (admin 106,
-company 109, operator 37, cooperative 37) · pilot story 227 calls / 32 expected refusals · **`jest` 258 / 69 suites** · `ruff` and `tsc`
+Latest verified suite counts (projects rework, 21 Oct 2026): **`pytest tests` 584** (583 passed locally + `test_capabilities_reflect_settings`,
+which needs ≥ 3 GB for the API container and fails on a smaller Docker host) · **`tests_e2e` 253** · role coverage 100 % (admin 106,
+company 108, operator 36, cooperative 36) · pilot story 227 calls / 32 expected refusals · **`jest` 285 / 73 suites** · `ruff` and `tsc`
 clean · `tests_e2e`, role coverage and the pilot story are gated by CI (workflow and Régression jobs).
+Rule since 21 Oct 2026: only scans made « Scanner pour ce projet » count for a project (no attaching an old scan; `/attribute` removed).
 
 ### What is left (next candidates)
 
